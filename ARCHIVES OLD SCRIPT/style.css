@@ -1,0 +1,225 @@
+/* === RACINE & VARIABLES === */
+:root {
+  --red: #ff2b2b;
+  --dark: #0a0a0a;
+  --panel: #121212;
+  --accent: #2980b9;
+  --text: #e0e0e0;
+  --border: #282828;
+  --danger: #c0392b;
+  --success: #27ae60;
+}
+
+/* === RESET & LAYOUT GLOBAL === */
+* { 
+    box-sizing: border-box; 
+}
+
+body { 
+    background: var(--dark); 
+    margin: 0; 
+    overflow: hidden; 
+    display: block; /* Libère le positionnement du container */
+    height: 100vh; 
+    font-family: 'Inter', 'Segoe UI', sans-serif; 
+    color: var(--text);
+}
+/* === Organisation des colonnes === */
+.main-layout {
+    display: flex;
+    gap: 20px;
+    padding-right: 80px; /* Espace pour le menu flottant */
+    align-items: flex-start;
+}
+/* === CONTENEUR CALENDRIER  === */
+#calendar-container {
+    background-color: var(--panel) !important;
+    padding: 15px;
+    border-radius: 20px;
+    height: 85vh !important;
+    width: 50% !important;             /* Largeur réduite pour laisser de la place à droite */
+    margin-left: 20px !important;       /* Décalage du bord gauche */
+    margin-top: 20px !important;        /* Décalage du bord supérieur */
+    box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+    border: 1px solid rgba(255,255,255,0.05);
+}
+/* === Colonne d'infos clients a droite du calendar === */
+#info-column {
+    width: 35% !important;              /* Largeur pour la colonne d'infos */
+    margin-top: 20px !important;        /* Décalage du bord supérieur */
+    margin-right: 20px !important;      /* Décalage du bord droit */
+    background-color: var(--panel) !important;
+    padding: 15px;
+    border-radius: 20px;
+    height: 85vh !important;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+    border: 1px solid rgba(255,255,255,0.05);
+    overflow-y: auto;                   /* Permet le défilement si le contenu dépasse */
+}
+.info-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 20px;
+    height: 85vh;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.info-card h3 {
+    color: var(--accent);
+    margin-top: 0;
+    text-transform: uppercase;
+    font-size: 16px;
+}
+
+.detail-row {
+    margin: 15px 0;
+    font-size: 14px;
+}
+
+.detail-row strong {
+    color: #888;
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+}
+
+.placeholder-text {
+    color: #555;
+    font-style: italic;
+    text-align: center;
+    margin-top: 50px;
+}
+#calendar {
+    height: 100%;
+}
+
+/* === FULLCALENDAR UI CUSTOM === */
+.fc-theme-standard td, .fc-theme-standard th {
+    border: 1px solid var(--border) !important;
+}
+
+/* Heures (Colonne de gauche) */
+.fc .fc-timegrid-slot-label-cushion, 
+.fc .fc-timegrid-axis-cushion {
+    color: #ffffff !important;
+    font-size: 12px !important;
+    text-transform: uppercase;
+}
+
+.fc-timegrid-slot {
+    height: 3.5em !important; 
+}
+
+/* En-têtes et Jours */
+.fc-toolbar-title {
+    color: #ffffff !important;
+    text-transform: uppercase;
+    font-size: 1.2em !important;
+}
+
+.fc-col-header-cell-cushion {
+    color: #b0b0b0 !important;
+    text-decoration: none !important;
+    padding: 10px !important;
+}
+
+/* Boutons de navigation */
+.fc-button-primary {
+    background-color: #1a1a1a !important;
+    border: 1px solid #333 !important;
+    color: white !important;
+    text-transform: capitalize !important;
+}
+
+.fc-button-active {
+    background-color: var(--accent) !important;
+    border-color: var(--accent) !important;
+}
+
+/* Modale ajustée : Large et Scrollable */
+.modal-content {
+    background: #1a1a1a;
+    color: white;
+    padding: 25px;
+    border-radius: 20px;
+    width: 90%;            /* Plus large */
+    max-width: 800px;      /* Largeur max raisonnable */
+    max-height: 85vh;      /* Ne dépasse jamais 85% de la hauteur écran */
+    margin: 5vh auto;
+    border: 1px solid #333;
+    overflow-y: auto;      /* Scroll interne si trop de champs */
+    position: relative;
+}
+
+/* Organisation en colonnes pour les formulaires denses */
+#form-rdv {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Deux colonnes */
+    gap: 15px;
+}
+
+/* Forcer certains éléments sur toute la largeur */
+#form-rdv h3, 
+#form-rdv .full-width, 
+#form-rdv #section-vehicule,
+#form-rdv .modal-buttons {
+    grid-column: span 2;
+}
+
+/* Ajustement section véhicule pour garder la grille */
+#section-vehicule {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+/* === MENU FLOTTANT === */
+.floating-menu { 
+    position: fixed; 
+    right: 25px; 
+    top: 50%; 
+    transform: translateY(-50%); 
+    display: flex; 
+    flex-direction: column; 
+    gap: 15px; 
+    z-index: 100; 
+}
+
+.bubble-btn {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    border: none;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.3s;
+    font-size: 20px;
+}
+
+.bubble-btn:hover { transform: scale(1.1); }
+
+/* Style des événements (Bulles) */
+.fc-event {
+    border-radius: 20px !important; /* Arrondi prononcé */
+    padding: 2px 8px !important;
+    border: none !important;
+    margin: 1px 2px !important;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.fc-event:hover {
+    transform: scale(1.02); /* Petit effet de zoom au survol */
+}
+
+/* On cache l'heure par défaut si c'est trop chargé */
+.fc-event-time {
+    font-weight: bold;
+    font-size: 0.85em;
+}

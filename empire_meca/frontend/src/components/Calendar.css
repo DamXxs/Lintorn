@@ -1,0 +1,229 @@
+/* =============================================================================
+   CALENDAR.CSS - Styles pour le calendrier FullCalendar
+   ============================================================================= */
+
+/* === CONTENEUR PRINCIPAL === */
+#calendar-container {
+    position: relative;
+}
+
+/* === TOOLBAR (En-tête du calendrier) === */
+.fc-toolbar {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
+    padding: 15px 20px !important;
+    border-radius: 12px;
+    margin-bottom: 15px !important;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.fc-toolbar-title {
+    font-size: 1.4rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #fff !important;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+/* === BOUTONS === */
+.fc-button {
+    background: #2c2c2c !important;
+    border: 1px solid #404040 !important;
+    color: #e0e0e0 !important;
+    padding: 8px 16px !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase;
+    font-size: 12px !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.fc-button:hover {
+    background: #3a3a3a !important;
+    border-color: var(--accent) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(41, 128, 185, 0.3);
+}
+
+.fc-button-active {
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(41, 128, 185, 0.5);
+}
+
+.fc-button:disabled {
+    opacity: 0.3 !important;
+    cursor: not-allowed !important;
+}
+
+/* Bouton "Aujourd'hui" en surbrillance */
+.fc-today-button {
+    background: linear-gradient(135deg, #2980b9 0%, #3498db 100%) !important;
+    border: none !important;
+    font-weight: 700 !important;
+}
+
+.fc-today-button:hover {
+    background: linear-gradient(135deg, #3498db 0%, #5dade2 100%) !important;
+}
+
+/* === VUE SEMAINE === */
+.fc-timegrid {
+    background: transparent !important;
+}
+
+/* Grille des heures */
+.fc-timegrid-slot {
+    height: 3em !important;
+    border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Labels des heures (08:00, 09:00, etc.) */
+.fc-timegrid-slot-label {
+    color: #888 !important;
+    font-weight: 600;
+    font-size: 11px;
+}
+
+/* Colonnes des jours */
+.fc-timegrid-col {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* En-têtes des jours (Lun, Mar, etc.) */
+.fc-col-header-cell {
+    background: #1a1a1a !important;
+    border-color: rgba(255, 255, 255, 0.05) !important;
+    padding: 12px 8px !important;
+}
+
+.fc-col-header-cell-cushion {
+    color: #e0e0e0 !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+/* Jour actuel (aujourd'hui) */
+.fc-day-today {
+    background: rgba(41, 128, 185, 0.1) !important;
+}
+
+.fc-day-today .fc-col-header-cell-cushion {
+    color: var(--accent) !important;
+}
+
+/* === EVENTS (Rendez-vous) === */
+.fc-event {
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 4px 8px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.fc-event:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+    z-index: 100;
+}
+
+/* Titre de l'event */
+.fc-event-title {
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Heure de l'event */
+.fc-event-time {
+    font-size: 10px;
+    opacity: 0.9;
+}
+
+/* === COULEURS PAR DÉPARTEMENT === */
+
+/* Event par défaut - Bleu */
+.fc-event {
+    background: linear-gradient(135deg, #2980b9 0%, #3498db 100%) !important;
+}
+
+/* ATELIER - Orange/Jaune */
+.fc-event.dept-atelier {
+    background: linear-gradient(135deg, #e67e22 0%, #f39c12 100%) !important;
+}
+
+/* ACADÉMIE - Bleu */
+.fc-event.dept-academie {
+    background: linear-gradient(135deg, #2980b9 0%, #3498db 100%) !important;
+}
+
+/* Event annulé - Rouge avec ligne barrée (optionnel, si tu veux garder ça) */
+.fc-event.status-annule {
+    background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%) !important;
+    opacity: 0.7;
+    text-decoration: line-through;
+}
+
+/* === VUE MOIS === */
+.fc-daygrid-day {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.fc-daygrid-day:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.fc-daygrid-day-number {
+    color: #e0e0e0 !important;
+    font-weight: 600;
+    padding: 8px !important;
+}
+
+/* === SCROLLBAR DU CALENDRIER === */
+.fc-scroller::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.fc-scroller::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+
+.fc-scroller::-webkit-scrollbar-thumb {
+    background: #404040;
+    border-radius: 4px;
+}
+
+.fc-scroller::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 1200px) {
+    .fc-toolbar-title {
+        font-size: 1.1rem !important;
+    }
+    
+    .fc-button {
+        padding: 6px 12px !important;
+        font-size: 11px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    #calendar-container {
+        max-width: 100%;
+    }
+    
+    .fc-toolbar {
+        flex-direction: column !important;
+        gap: 10px;
+    }
+}

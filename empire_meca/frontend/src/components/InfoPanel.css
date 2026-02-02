@@ -1,0 +1,219 @@
+/* =============================================================================
+   INFOPANEL.CSS - Styles pour le panneau d'informations (colonne de droite)
+   ============================================================================= */
+
+/* === CONTENEUR PRINCIPAL === */
+#info-column {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* === CARTE D'INFO === */
+.info-card {
+    background: linear-gradient(135deg, #1a1a1a 0%, #252525 100%);
+    border-radius: 15px;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* === TITRE === */
+.info-card h3 {
+    margin: 0 0 15px 0;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* === SÉPARATEUR === */
+.info-card hr {
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 15px 0;
+}
+
+/* === PLACEHOLDER (quand rien n'est sélectionné) === */
+.placeholder-text {
+    text-align: center;
+    color: #666;
+    margin-top: 40px;
+    font-size: 14px;
+    font-style: italic;
+    line-height: 1.6;
+}
+
+/* === SECTIONS D'INFO === */
+.detail-section {
+    margin-bottom: 20px;
+}
+
+.detail-section h4 {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* === LIGNES DE DÉTAILS === */
+.detail-row {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.detail-row strong {
+    color: #888;
+    font-size: 12px;
+    font-weight: 600;
+    min-width: 100px;
+}
+
+.detail-row span {
+    color: #e0e0e0;
+    font-size: 14px;
+}
+
+/* === BADGE DE STATUT === */
+.status-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.status-badge.planifie {
+    background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
+    color: white;
+}
+
+.status-badge.en-cours {
+    background: linear-gradient(135deg, #d35400 0%, #f39c12 100%);
+    color: white;
+}
+
+.status-badge.termine {
+    background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+    color: white;
+}
+
+.status-badge.annule {
+    background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+    color: white;
+    opacity: 0.8;
+}
+
+/* === ZONE DE DESCRIPTION === */
+.description-box {
+    margin-top: 10px;
+    color: #e0e0e0;
+    font-size: 13px;
+    line-height: 1.6;
+    background: var(--input-bg);
+    padding: 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    min-height: 60px;
+}
+
+.description-box:empty::before {
+    content: "Pas de description";
+    color: #666;
+    font-style: italic;
+}
+
+/* === BOUTONS D'ACTION === */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+.action-buttons button {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.action-buttons button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+}
+
+.action-buttons button:active {
+    transform: translateY(0);
+}
+
+.btn-modify {
+    background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
+    color: white;
+}
+
+.btn-modify:hover {
+    background: linear-gradient(135deg, #3498db 0%, #5dade2 100%);
+}
+
+.btn-delete {
+    background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+    color: white;
+}
+
+.btn-delete:hover {
+    background: linear-gradient(135deg, #e74c3c 0%, #ec7063 100%);
+}
+
+/* === ANIMATIONS === */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.info-card {
+    animation: fadeIn 0.3s ease;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+    #info-column {
+        width: 100%;
+        max-width: none;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .action-buttons button {
+        width: 100%;
+    }
+}

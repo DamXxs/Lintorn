@@ -1,0 +1,59 @@
+/* =============================================================================
+   MODALFORM.CSS - Styles spécifiques au formulaire de création de RDV
+   ============================================================================= */
+
+/* === GRILLES === */
+/* Grille 2 colonnes pour les champs côte à côte (Nom/Prénom, Plaque/Marque, etc.) */
+.form-grid-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;  /* 2 colonnes égales */
+    gap: 10px;  /* Espace entre les colonnes */
+    margin-top: 10px;
+}
+
+/* === SECTIONS DU FORMULAIRE === */
+/* Espacement entre les sections (Client, Véhicule, etc.) */
+.form-section {
+    margin-top: 15px;
+}
+
+/* Titre de section (optionnel, pour plus tard si tu veux des titres visibles) */
+.form-section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+    font-weight: bold;
+}
+
+/* === INPUTS & TEXTAREA === */
+/* Placeholder plus visible */
+.modal-content input::placeholder,
+.modal-content textarea::placeholder {
+    color: #666;
+    font-style: italic;
+}
+
+/* Focus plus marqué pour savoir où on est */
+.modal-content input:focus,
+.modal-content textarea:focus,
+.modal-content select:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 3px rgba(41, 128, 185, 0.1);  /* Halo bleu subtil */
+}
+
+/* === CHAMPS OBLIGATOIRES === */
+/* Indicateur visuel pour les champs requis */
+.form-group label.required::after {
+    content: " *";
+    color: #e74c3c;  /* Rouge */
+    font-weight: bold;
+}
+
+/* === RESPONSIVE (pour mobile, si besoin plus tard) === */
+@media (max-width: 600px) {
+    .form-grid-2col {
+        grid-template-columns: 1fr;  /* 1 seule colonne sur mobile */
+    }
+}

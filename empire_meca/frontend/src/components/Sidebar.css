@@ -1,0 +1,235 @@
+/* =============================================================================
+   SIDEBAR.CSS - Menu latéral de navigation
+   ============================================================================= */
+
+/* === CONTENEUR PRINCIPAL === */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 260px;  /* Largeur par défaut (ouverte) */
+    height: 100vh;
+    background: linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 100%);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.5);
+    padding: 20px 0;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    transition: width 0.3s ease;  /* Animation fluide */
+}
+
+/* Sidebar fermée (réduite) */
+.sidebar.collapsed {
+    width: 70px;
+}
+
+/* Cache le texte quand la sidebar est fermée */
+.sidebar.collapsed .sidebar-logo,
+.sidebar.collapsed .nav-section-title,
+.sidebar.collapsed .nav-item-text {
+    display: none;
+}
+
+.sidebar.collapsed .nav-item {
+    justify-content: center;
+    padding: 12px;
+}
+
+.sidebar.collapsed .btn-new-rdv span:last-child {
+    display: none;
+}
+
+/* === BOUTON HAMBURGER === */
+.sidebar-toggle {
+    position: absolute;
+    top: 20px;
+    right: -15px;  /* Positionné sur le bord droit de la sidebar */
+    width: 30px;
+    height: 30px;
+    background: var(--accent);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: white;
+    box-shadow: 0 4px 12px rgba(41, 128, 185, 0.5);
+    transition: all 0.3s ease;
+    z-index: 1001;
+}
+
+.sidebar-toggle:hover {
+    background: #3498db;
+    transform: scale(1.1);
+}
+
+.sidebar-toggle:active {
+    transform: scale(0.95);
+}
+
+/* === LOGO / EN-TÊTE === */
+.sidebar-header {
+    padding: 0 20px 20px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 20px;
+}
+
+.sidebar-logo {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* === NAVIGATION === */
+.sidebar-nav {
+    flex: 1;
+    padding: 0 10px;
+}
+
+.nav-section {
+    margin-bottom: 25px;
+}
+
+.nav-section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #666;
+    letter-spacing: 1.5px;
+    padding: 0 15px;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+/* === ITEMS DE MENU === */
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    margin: 2px 0;
+    border-radius: 10px;
+    color: #aaa;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    border: 1px solid transparent;
+}
+
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateX(4px);
+}
+
+.nav-item.active {
+    background: linear-gradient(135deg, rgba(41, 128, 185, 0.2) 0%, rgba(52, 152, 219, 0.1) 100%);
+    color: var(--accent);
+    border-color: var(--accent);
+    font-weight: 700;
+}
+
+.nav-item-icon {
+    font-size: 18px;
+    width: 24px;
+    text-align: center;
+}
+
+.nav-item-text {
+    flex: 1;
+}
+
+/* Sous-items (pour Planning -> Tous/Atelier/Académie) */
+.nav-subitem {
+    padding-left: 50px;
+    font-size: 13px;
+}
+
+/* === BOUTON NOUVEAU RDV === */
+.sidebar-action {
+    padding: 15px 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: auto;
+}
+
+.btn-new-rdv {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(39, 174, 96, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-new-rdv:hover {
+    background: linear-gradient(135deg, #2ecc71 0%, #58d68d 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(39, 174, 96, 0.5);
+}
+
+.btn-new-rdv:active {
+    transform: translateY(0);
+}
+
+/* === SCROLLBAR === */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 70px;
+        padding: 15px 0;
+    }
+    
+    .sidebar-logo,
+    .nav-section-title,
+    .nav-item-text {
+        display: none;
+    }
+    
+    .nav-item {
+        justify-content: center;
+        padding: 12px;
+    }
+    
+    .btn-new-rdv span {
+        display: none;
+    }
+}

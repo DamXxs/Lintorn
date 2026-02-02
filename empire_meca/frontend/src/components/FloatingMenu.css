@@ -1,0 +1,29 @@
+
+/* Menu floatant avec boutton */
+.floating-menu { 
+    position: fixed; 
+    right: 40px; 
+    bottom: 160px;
+    display: flex; 
+    flex-direction: column; 
+    gap: 20px; 
+    z-index: 1000;
+}
+
+.bubble-btn {
+    width: 55px ; /* Reste en px pour que les bouttons soient rond */
+    height: 55px;
+    border-radius: 50%; /* Cercle parfait */
+    border: none;
+    color: #e0e0e0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5); /* Effet d'ombre */
+}
+
+.bubble-btn:hover {
+    transform: translateY(-5px) scale(1.05);
+}

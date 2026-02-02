@@ -1,0 +1,57 @@
+// SUPPRIMER UN ENVIRONNEMENT //
+    ** rm -r venv **
+
+// CREER UN ENVIRONNEMENT SOUS WINDOWS //
+    ** python -m venv venv **
+
+------------------------------------------------------------------
+
+// Ouvrir l'environnement (venv) //
+    __Sous windows__
+        ** venv\scripts\activate.ps1 **
+    
+    __Sous Codespace__
+        ** source venv/bin/activate **
+
+------------------------------------------------------------------
+
+// Lancer le serveur React //
+    ** npm start **
+
+-------------------------------------------------------------------
+
+// Lancer le serveur Django //
+    __Lancer le serveur depuis Codespace__
+        ** python manage.py runserver 0.0.0.0:8000 **
+        /!\ NE PAS OUBLIER DE METTRE LE PORT 8000 EN PUBLIC /!\
+    
+    __Lancer le serveur depuis l'ordi__
+        ** python manage.py runserver **
+
+-------------------------------------------------------------------
+
+// Migrations Django //
+    __creéer les migrations__
+        python manage.py makemigrations
+    
+    __Activer les migrations__
+        python manage.py migrate
+    
+------------------------------------------------------------------
+
+// CONNAITRE TOUS LES SUPERUSER, USER DE DJANGO //
+
+    ** python manage.py shell -c "from django.contrib.auth.models import User; [print(u.username) for u in User.objects.filter(is_superuser=True)]" **
+
+### CREER SUPERUSER ###
+    ** python manage.py createsuperuser **
+------------------------------------------------------------------
+
+// INSTALLER LES DEPENDANCES //
+    ** pip install -r requirements.txt **
+
+## METTRE A JOUR LES DEPENDANCES ##
+    ** pip freeze > requirements.txt **
+    
+------------------------------------------------------------------
+
