@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
+import StockVueEnsemble from './components/StockVueEnsemble'; // ← NOUVEAU : Import du composant stock
 import Calendar from './components/Calendar';
 import InfoPanel from './components/InfoPanel';
 import ModalForm from './components/ModalForm';
+import { fetchInterventions, saveIntervention, updateIntervention, deleteIntervention } from './services/api';
 import FloatingMenu from './components/FloatingMenu';  // On garde pour l'instant
-import { fetchInterventions, saveIntervention, deleteIntervention } from './services/api';
 import './index.css';
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [editingEvent, setEditingEvent] = useState(null);
   const [currentView, setCurrentView] = useState('planning-tous');  // ← NOUVEAU : Vue actuelle
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -37,21 +39,31 @@ function App() {
     loadData(); 
   }, []);
 
-  // =========================================================================
-  // CRÉATION D'UNE INTERVENTION
-  // =========================================================================
-  const handleFormSubmit = async (data) => {
+// =========================================================================
+// CRÉATION OU MODIFICATION D'UNE INTERVENTION
+// =========================================================================
+const handleFormSubmit = async (data) => {
     try {
-      console.log("🔍 Données envoyées à Django depuis App.js :", data);
-      await saveIntervention(data);
-      setIsModalOpen(false);
-      await loadData();
-      alert('✅ Rendez-vous créé avec succès !');
+        if (editingEvent?.id) {
+            // MODIFICATION d'un RDV existant
+            console.log("🔄 Modification du RDV", editingEvent.id, "avec :", data);
+            await updateIntervention(editingEvent.id, data);
+            alert('✅ Rendez-vous modifié avec succès !');
+        } else {
+            // CRÉATION d'un nouveau RDV
+            console.log("🔍 Création d'un nouveau RDV avec :", data);
+            await saveIntervention(data);
+            alert('✅ Rendez-vous créé avec succès !');
+        }
+        
+        setIsModalOpen(false);
+        setEditingEvent(null);
+        await loadData();
     } catch (err) {
-      alert('❌ Erreur lors de la création : ' + err.message);
-      console.error("Erreur création:", err);
+        alert('❌ Erreur : ' + err.message);
+        console.error("Erreur:", err);
     }
-  };
+};
 
   // =========================================================================
   // SUPPRESSION D'UNE INTERVENTION
@@ -80,7 +92,10 @@ function App() {
   // =========================================================================
   const handleEventClick = (eventData) => {
     console.log("Event cliqué:", eventData);
-    setSelectedEvent(eventData);
+    
+    // Ouvre la modale pré-remplie avec les données du RDV
+    setEditingEvent(eventData);  // On stocke le RDV à modifier
+    setIsModalOpen(true);  // On ouvre la modale
   };
 
   // =========================================================================
@@ -118,12 +133,15 @@ function App() {
             onEventClick={handleEventClick}  
             onDateClick={handleDateClick}
           />
-          <InfoPanel 
-            event={selectedEvent} 
-            onDelete={handleDelete} 
-          />
+           
+          
         </>
       );
+    }
+    
+    // ← CETTE PARTIE DOIT ÊTRE LÀ !
+    if (currentView === 'stock-vue-ensemble') {
+        return <StockVueEnsemble />;
     }
     
     // Autres vues (à venir)
@@ -198,12 +216,16 @@ function App() {
       </div>
 
       {/* MODALE DE CRÉATION */}
-      {isModalOpen && (
-        <ModalForm 
-          onClose={() => setIsModalOpen(false)} 
-          onSubmit={handleFormSubmit} 
-        />
-      )}
+        {isModalOpen && (
+          <ModalForm 
+              initialData={editingEvent}  // ← Passe le RDV à modifier
+              onClose={() => {
+                setIsModalOpen(false);
+                setEditingEvent(null);  // Réinitialise
+            }}
+            onSubmit={handleFormSubmit} 
+          />
+        )}
       
       {/* FLOATING MENU (on garde pour l'instant, on virera après) */}
       <FloatingMenu onAddClick={() => setIsModalOpen(true)} />

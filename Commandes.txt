@@ -1,7 +1,7 @@
-// SUPPRIMER UN ENVIRONNEMENT //
+// SUPPRIMER UN ENVIRONNEMENT // # EN CAS DE FOIRAGE
     ** rm -r venv **
 
-// CREER UN ENVIRONNEMENT SOUS WINDOWS //
+// CREER UN ENVIRONNEMENT  // # LE FAIRE A CHAQUE NOUVELLE MACHINE #
     ** python -m venv venv **
 
 ------------------------------------------------------------------
@@ -11,9 +11,12 @@
         ** venv\scripts\activate.ps1 **
     
     __Sous Codespace__
-        ** source venv/bin/activate **
+        ** source venv/bin/activate ** # A FAIRE A CHAQUE NOUVELLE MACHINE #
 
 ------------------------------------------------------------------
+
+// INSTALLER LES NPM // # A FAIRE A CHAQUE NOUVELLE MACHINE #
+    ** npm install **
 
 // Lancer le serveur React //
     ** npm start **
@@ -48,7 +51,7 @@
 ------------------------------------------------------------------
 
 // INSTALLER LES DEPENDANCES //
-    ** pip install -r requirements.txt **
+    ** pip install -r requirements.txt **  # A FAIRE A CHAQUE NOUVELLE MACHINE #
 
 ## METTRE A JOUR LES DEPENDANCES ##
     ** pip freeze > requirements.txt **
