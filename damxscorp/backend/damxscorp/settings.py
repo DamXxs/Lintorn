@@ -37,8 +37,18 @@ else:
 
 # 3. Applications
 INSTALLED_APPS = [
-    'core',
+    
+    # Tes applis Django ici
+    'clients',
+    'fournisseurs',
+    'planning',
+    'stock',
+    'vehicules',
+
+    # Apps tierces
     'corsheaders',
+
+    # Apps Django par défaut
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -59,7 +69,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'empire_meca.urls'
+ROOT_URLCONF = 'damxscorp.urls'
 
 # 5. Templates
 TEMPLATES = [

@@ -6,7 +6,7 @@
 
 ------------------------------------------------------------------
 
-// Ouvrir l'environnement (venv) //
+// OUVRIR UN ENVIRONNEMENT (venv) //
     __Sous windows__
         ** venv\scripts\activate.ps1 **
     
