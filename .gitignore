@@ -6,30 +6,30 @@ Thumbs.db
 
 # --- PYTHON & BACKEND ----
 # Environnements virtuels (Windows/Linux)
-empire_meca/backend/venv/
-empire_meca/backend/.venv/
-empire_meca/backend/env/
+damxscorp/backend/venv/
+damxscorp/backend/.venv/
+damxscorp/backend/env/
 # Cache Python
 **/__pycache__/
 **/*.py[cod]
 # Base de données et fichiers locaux
-empire_meca/backend/db.sqlite3
-empire_meca/backend/staticfiles/
-empire_meca/backend/media/
+damxscorp/backend/db.sqlite3
+damxscorp/backend/staticfiles/
+damxscorp/backend/media/
 
 # --- NODE & FRONTEND ---
 # Dépendances (Le plus lourd)
-empire_meca/frontend/node_modules/
+damxscorp/frontend/node_modules/
 # Fichiers de build (Production)
-empire_meca/frontend/build/
-empire_meca/frontend/dist/
+damxscorp/frontend/build/
+damxscorp/frontend/dist/
 # Logs d'erreur
-empire_meca/frontend/npm-debug.log*
-empire_meca/frontend/yarn-debug.log*
-empire_meca/frontend/yarn-error.log*
+damxscorp/frontend/npm-debug.log*
+damxscorp/frontend/yarn-debug.log*
+damxscorp/frontend/yarn-error.log*
 # Fichiers PnP
-empire_meca/frontend/.pnp/
-empire_meca/frontend/.pnp.js
+damxscorp/frontend/.pnp/
+damxscorp/frontend/.pnp.js
 
 # --- ENVIRONNEMENT & SECRETS (TRÈS IMPORTANT) ---
 # On ignore tous les .env partout dans le projet
