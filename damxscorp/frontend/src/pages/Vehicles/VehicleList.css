@@ -1,0 +1,9 @@
+/* /src/pages/Vehicles/VehicleList.css */
+.vehicle-list {
+  padding: 30px;
+}
+
+.vehicle-list h1 {
+  color: white;
+  margin-bottom: 20px;
+}

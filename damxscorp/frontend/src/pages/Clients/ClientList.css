@@ -1,0 +1,9 @@
+/* /src/pages/Clients/ClientList.css */
+.client-list {
+  padding: 30px;
+}
+
+.client-list h1 {
+  color: white;
+  margin-bottom: 20px;
+}
