@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Calendar from './components/Calendar';
 import InfoPanel from '../../components/shared/InfoPanel';
 import ModalForm from '../../components/shared/ModalForm';
-import FloatingMenu from '../../components/layout/FloatingMenu';
+// import FloatingMenu from '../../components/layout/FloatingMenu'; ← ON VIRE
 import { 
   fetchInterventions, 
   saveIntervention, 
@@ -13,17 +13,16 @@ import {
 import './Planning.css';
 
 const Planning = () => {
-  // États pour les événements du planning
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // États pour la modal de création/édition
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [editingEvent, setEditingEvent] = useState(null);
+  const [prefilledDate, setPrefilledDate] = useState(null); // ← NOUVEAU
 
-  // Chargement des interventions depuis l'API
+  // Chargement des interventions
   const loadData = async () => {
     try {
       setLoading(true);
@@ -38,29 +37,24 @@ const Planning = () => {
     }
   };
 
-  // Chargement initial
   useEffect(() => {
     loadData();
   }, []);
 
-  // Gestion de la soumission du formulaire (création ou modification)
+  // Soumission du formulaire
   const handleFormSubmit = async (data) => {
     try {
       if (editingEvent) {
-        // Modification d'un événement existant
-        console.log("Modification du RDV :", data);
         await updateIntervention(editingEvent.id, data);
         alert('✅ Rendez-vous modifié avec succès !');
       } else {
-        // Création d'un nouveau rendez-vous
-        console.log("Création d'un nouveau RDV avec :", data);
         await saveIntervention(data);
         alert('✅ Rendez-vous créé avec succès !');
       }
       
-      // Fermer la modal et recharger les données
       setIsModalOpen(false);
       setEditingEvent(null);
+      setPrefilledDate(null);
       await loadData();
     } catch (err) {
       alert('❌ Erreur lors de l\'enregistrement');
@@ -68,7 +62,7 @@ const Planning = () => {
     }
   };
 
-  // Gestion de la suppression d'un événement
+  // Suppression
   const handleDelete = async (id) => {
     if (window.confirm("❓ Supprimer ce rendez-vous ?")) {
       try {
@@ -83,18 +77,30 @@ const Planning = () => {
     }
   };
 
-  // Gestion du clic sur un événement du calendrier
+  // Clic sur un événement existant
   const handleEventClick = (event) => {
     setSelectedEvent(event);
   };
 
-  // Gestion de l'ouverture de la modal en mode édition
-  const handleEdit = (event) => {
-    setEditingEvent(event);
+  // Clic sur une case vide (heure libre)
+  const handleDateClick = (date) => {
+    setPrefilledDate(date); // On garde la date cliquée
+    setIsModalOpen(true);   // On ouvre la modal
+  };
+
+  // Bouton "Nouveau RDV" dans le header
+  const handleNewRdvClick = () => {
+    setPrefilledDate(null); // Pas de date pré-remplie
     setIsModalOpen(true);
   };
 
-  // Affichage du chargement
+  // Édition d'un événement
+  const handleEdit = (event) => {
+    setEditingEvent(event);
+    setPrefilledDate(null);
+    setIsModalOpen(true);
+  };
+
   if (loading && events.length === 0) {
     return (
       <div className="planning-loading">
@@ -110,9 +116,11 @@ const Planning = () => {
       <Calendar 
         events={events}
         onEventClick={handleEventClick}
+        onDateClick={handleDateClick}        // ← NOUVEAU
+        onNewRdvClick={handleNewRdvClick}    // ← NOUVEAU
       />
 
-      {/* PANNEAU D'INFORMATION (détails d'un événement) */}
+      {/* PANNEAU D'INFO */}
       {selectedEvent && (
         <InfoPanel
           event={selectedEvent}
@@ -129,14 +137,15 @@ const Planning = () => {
           onClose={() => {
             setIsModalOpen(false);
             setEditingEvent(null);
+            setPrefilledDate(null);
           }}
           initialData={editingEvent}
+          prefilledDate={prefilledDate}  // ← NOUVEAU : on passe la date cliquée
           onSubmit={handleFormSubmit}
         />
       )}
 
-      {/* BOUTON FLOTTANT POUR AJOUTER UN RDV */}
-      <FloatingMenu onAddClick={() => setIsModalOpen(true)} />
+      {/* FLOATING MENU SUPPRIMÉ */}
     </div>
   );
 };

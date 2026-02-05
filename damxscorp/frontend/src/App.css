@@ -10,12 +10,35 @@
 
 .app__content {
   flex: 1;
+  margin-left: 70px; /* Sidebar réduite */
+  /* SUPPRIMÉ : margin-top: 60px */
   overflow-y: auto;
   background: var(--bg);
-  /* Décalage automatique selon l'état de la sidebar */
-  margin-left: 80px; /* Correspond à la sidebar réduite */
   transition: margin-left 0.3s ease;
 }
 
-/* Pas besoin de classe supplémentaire, le margin-left est fixe */
-/* La sidebar étant en position fixed, elle ne pousse pas le contenu */
+/* Quand la sidebar est étendue */
+.app__content--sidebar-expanded {
+  margin-left: 260px;
+}
+
+/* Page 404 */
+.page-404 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  font-size: 24px;
+  color: #888;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .app__content {
+    margin-left: 0;
+  }
+
+  .app__content--sidebar-expanded {
+    margin-left: 0;
+  }
+}

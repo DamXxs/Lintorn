@@ -1,38 +1,32 @@
 // /src/components/layout/Sidebar.jsx
-import React, { useState } from 'react';
+import React from 'react';
 import { NavLink } from 'react-router-dom';
 import './Sidebar.css';
 
-const Sidebar = () => {
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  const toggleSidebar = () => {
-    setIsExpanded(!isExpanded);
-  };
-
+const Sidebar = ({ isExpanded, onToggle }) => {
   return (
     <aside className={`sidebar ${isExpanded ? 'sidebar--expanded' : 'sidebar--collapsed'}`}>
       
       {/* BOUTON TOGGLE */}
       <button 
         className="sidebar__toggle"
-        onClick={toggleSidebar}
+        onClick={onToggle}
         aria-label={isExpanded ? "Réduire le menu" : "Agrandir le menu"}
       >
         {isExpanded ? '✕' : '☰'}
       </button>
 
-      {/* HEADER (visible uniquement en mode étendu) */}
-      <div className="sidebar__header">
-        <h2 className="sidebar__title">🔧 DamXsCorp</h2>
-        {isExpanded && <p className="sidebar__subtitle">Gestion Garage</p>}
-      </div>
+      {/* HEADER - Visible UNIQUEMENT en mode étendu */}
+      {isExpanded && (
+        <div className="sidebar__header">
+          <h2 className="sidebar__title">DAMXSCORP</h2>
+        </div>
+      )}
 
       {/* NAVIGATION */}
       <nav className="sidebar__nav">
         <ul className="sidebar__menu">
           
-          {/* PLANNING */}
           <li className="sidebar__menu-item">
             <NavLink 
               to="/planning" 
@@ -46,7 +40,6 @@ const Sidebar = () => {
             </NavLink>
           </li>
 
-          {/* CLIENTS */}
           <li className="sidebar__menu-item">
             <NavLink 
               to="/clients" 
@@ -60,7 +53,6 @@ const Sidebar = () => {
             </NavLink>
           </li>
 
-          {/* VÉHICULES */}
           <li className="sidebar__menu-item">
             <NavLink 
               to="/vehicles" 
@@ -74,7 +66,6 @@ const Sidebar = () => {
             </NavLink>
           </li>
 
-          {/* STOCK */}
           <li className="sidebar__menu-item">
             <NavLink 
               to="/stock" 
@@ -88,7 +79,6 @@ const Sidebar = () => {
             </NavLink>
           </li>
 
-          {/* FOURNISSEURS */}
           <li className="sidebar__menu-item">
             <NavLink 
               to="/fournisseurs" 
@@ -102,7 +92,6 @@ const Sidebar = () => {
             </NavLink>
           </li>
 
-          {/* FACTURES */}
           <li className="sidebar__menu-item">
             <NavLink 
               to="/factures" 

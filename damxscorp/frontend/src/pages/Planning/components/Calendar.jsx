@@ -1,132 +1,79 @@
-import React from 'react';
+// /src/pages/Planning/components/Calendar.jsx
+import React, { useRef } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import frLocale from '@fullcalendar/core/locales/fr';
-import './Calendar.css';  // ← Import du CSS dédié
+import './Calendar.css';
 
-const Calendar = ({ events, onDateClick, onEventClick }) => {
-    
-    // =========================================================================
-    // GESTION DU CLIC SUR UN EVENT
-    // =========================================================================
-    const handleEventClick = (info) => {
-        const eventData = {
-            id: info.event.id,
-            title: info.event.title,
-            start: info.event.start,
-            end: info.event.end,
-            ...info.event.extendedProps
-        };
-        
-        console.log("📅 Event cliqué:", eventData);
-        onEventClick(eventData);
+const Calendar = ({ events, onEventClick, onDateClick, onNewRdvClick }) => {
+  const calendarRef = useRef(null);
+
+  const handleEventClick = (info) => {
+    const event = {
+      id: info.event.id,
+      title: info.event.title,
+      start: info.event.start,
+      end: info.event.end,
+      ...info.event.extendedProps,
     };
+    onEventClick(event);
+  };
 
-    // =========================================================================
-    // CUSTOMISATION DES EVENTS (couleur selon le statut)
-    // =========================================================================
-    const eventClassNames = (arg) => {
-        const departement = arg.event.extendedProps.departement;
-        
-        // Retourne une classe CSS selon le département
-        if (departement === 'ATELIER') {
-            return ['dept-atelier'];  // Orange/Jaune
-        } else if (departement === 'ACADEMIE') {
-            return ['dept-academie'];  // Bleu
-        }
-        
-        return [];  // Par défaut
-    };
+  const handleDateClick = (info) => {
+    if (info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay') {
+      onDateClick(info.date);
+    }
+  };
 
-    // =========================================================================
-    // RENDU DU CALENDRIER
-    // =========================================================================
-    return (
-        <main id="calendar-container">
-            <FullCalendar
-                // Plugins
-                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                
-                // Vue initiale
-                initialView="timeGridWeek"
+  return (
+    <div className="calendar-container">
+      {/* HEADER */}
+      <div className="calendar-header">
+        <h2 className="calendar-title">📅 Planning</h2>
+        <button 
+          className="btn-new-rdv"
+          onClick={onNewRdvClick}
+        >
+          ➕ Nouveau RDV
+        </button>
+      </div>
 
-                //Supprimer la case toute la journée//
-                 allDaySlot={false}
-                
-                // Langue française
-                locale={frLocale}
-                
-                // Données
-                events={events}
-                
-                // Hauteur
-                height="100%"
-                
-                // Horaires de travail (8h-19h)
-                slotMinTime="08:00:00"
-                slotMaxTime="19:00:00"
-                
-                // Durée d'un slot (30 minutes)
-                slotDuration="00:30:00"
-                
-                // Format de l'heure (24h)
-                slotLabelFormat={{
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: false
-                }}
-                
-                // Boutons de la toolbar
-                headerToolbar={{
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'timeGridDay,timeGridWeek,dayGridMonth'
-                }}
-                
-                // Texte des boutons en français
-                buttonText={{
-                    today: "Aujourd'hui",
-                    month: 'Mois',
-                    week: 'Semaine',
-                    day: 'Jour'
-                }}
-                
-                // Premier jour de la semaine = Lundi
-                firstDay={1}
-                
-                // Events cliquables
-                eventClick={handleEventClick}
-                
-                // Clic sur une date vide (créer un RDV)
-                dateClick={onDateClick}
-                
-                // Classe CSS selon le statut
-                eventClassNames={eventClassNames}
-                
-                // Afficher le numéro de semaine
-                weekNumbers={true}
-                weekNumberFormat={{ week: 'numeric' }}
-                
-                // Permettre de sélectionner plusieurs jours
-                selectable={true}
-                
-                // Scroll automatique à l'heure actuelle
-                scrollTime="08:00:00"
-                
-                // Permettre de redimensionner les events (pour plus tard)
-                editable={false}
-                
-                // Format de la date dans les events
-                eventTimeFormat={{
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: false
-                }}
-            />
-        </main>
-    );
+      {/* WRAPPER POUR LE CALENDAR */}
+      <div className="calendar-wrapper">
+        <FullCalendar
+          ref={calendarRef}
+          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+          initialView="timeGridWeek"
+          locale={frLocale}
+          headerToolbar={{
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay',
+          }}
+          slotMinTime="07:00:00"
+          slotMaxTime="20:00:00"
+          allDaySlot={false}
+          events={events}
+          eventClick={handleEventClick}
+          dateClick={handleDateClick}
+          editable={false}
+          selectable={true}
+          selectMirror={true}
+          dayMaxEvents={true}
+          weekends={true}
+          height="100%" // Important !
+          buttonText={{
+            today: "Aujourd'hui",
+            month: 'Mois',
+            week: 'Semaine',
+            day: 'Jour',
+          }}
+        />
+      </div>
+    </div>
+  );
 };
 
 export default Calendar;

@@ -1,0 +1,80 @@
+/* /src/components/layout/Header.css */
+
+/* === STATUT DJANGO (bulle flottante) === */
+.django-status {
+  position: fixed; /* ← Position fixe, pas de header bar */
+  top: 20px;
+  right: 20px;
+  z-index: 9999; /* Au-dessus de tout */
+  
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  border-radius: 25px;
+  font-size: 13px;
+  font-weight: 600;
+  
+  /* Ombre pour bien se détacher */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  
+  transition: all 0.3s ease;
+}
+
+.django-status__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.django-status__text {
+  white-space: nowrap;
+}
+
+/* Vérification en cours */
+.django-status--checking {
+  background: rgba(149, 165, 166, 0.9);
+  color: white;
+}
+
+.django-status--checking .django-status__dot {
+  background: white;
+}
+
+/* Erreur */
+.django-status--error {
+  background: rgba(231, 76, 60, 0.95);
+  color: white;
+}
+
+.django-status--error .django-status__dot {
+  background: white;
+}
+
+/* Animation du point */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .django-status {
+    top: 10px;
+    right: 10px;
+    font-size: 11px;
+    padding: 8px 14px;
+  }
+  
+  .django-status__dot {
+    width: 8px;
+    height: 8px;
+  }
+}

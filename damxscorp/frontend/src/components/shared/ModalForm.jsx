@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+// /src/components/shared/ModalForm.jsx
+import React, { useState, useEffect } from 'react';
 import './ModalForm.css';
 
-const ModalForm = ({ onClose, onSubmit, initialData }) => {
+const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
+    
     // =========================================================================
     // ÉTAT DU FORMULAIRE
     // =========================================================================
-    const [formData, setFormData] = useState(initialData || {
-        departement: 'ATELIER',  // Valeur par défaut
+    const [formData, setFormData] = useState({
+        departement: 'ATELIER',
         clientName: '',
         clientFirstName: '',
         clientPhone: '',
@@ -20,16 +22,60 @@ const ModalForm = ({ onClose, onSubmit, initialData }) => {
     });
 
     // =========================================================================
+    // INITIALISATION DU FORMULAIRE (nouveau useEffect)
+    // =========================================================================
+    useEffect(() => {
+        if (initialData) {
+            // Mode édition : charger les données existantes
+            setFormData(initialData);
+        } else if (prefilledDate) {
+            // Mode création avec date/heure pré-remplie (clic sur calendrier)
+            const dateObj = new Date(prefilledDate);
+            const dateStr = dateObj.toISOString().split('T')[0]; // Format YYYY-MM-DD
+            const timeStr = dateObj.toTimeString().slice(0, 5);  // Format HH:MM
+            
+            setFormData({
+                departement: 'ATELIER',
+                clientName: '',
+                clientFirstName: '',
+                clientPhone: '',
+                clientEmail: '',
+                plate: '',
+                vehicleBrand: '',
+                vehicleModel: '',
+                date: dateStr,      // ← Pré-rempli
+                time: timeStr,      // ← Pré-rempli
+                description: ''
+            });
+        } else {
+            // Mode création vide (bouton "Nouveau RDV")
+            setFormData({
+                departement: 'ATELIER',
+                clientName: '',
+                clientFirstName: '',
+                clientPhone: '',
+                clientEmail: '',
+                plate: '',
+                vehicleBrand: '',
+                vehicleModel: '',
+                date: '',
+                time: '08:00',
+                description: ''
+            });
+        }
+    }, [initialData, prefilledDate]);
+
+    // =========================================================================
     // GESTION DES CHANGEMENTS
     // =========================================================================
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
-        console.log(`🔄 Changement détecté : ${name} = ${value}`);  // DEBUG
+        console.log(`📄 Changement détecté : ${name} = ${value}`);
     };
 
     // =========================================================================
-    // RENDU DU FORMULAIRE
+    // RENDU DU FORMULAIRE (ton code existant, ne change rien !)
     // =========================================================================
     return (
         <div id="modal-rdv">
@@ -38,13 +84,11 @@ const ModalForm = ({ onClose, onSubmit, initialData }) => {
                 
                 <form onSubmit={(e) => { 
                     e.preventDefault();
-                    console.log("🔍 Données envoyées depuis ModalForm :", formData);  // DEBUG
+                    console.log("📤 Données envoyées depuis ModalForm :", formData);
                     onSubmit(formData); 
                 }}>
                     
-                    {/* ========================================================
-                        1. DÉPARTEMENT
-                    ======================================================== */}
+                    {/* Ton formulaire existant - NE CHANGE RIEN */}
                     <div className="form-group">
                         <label>DÉPARTEMENT</label>
                         <select 
@@ -57,11 +101,7 @@ const ModalForm = ({ onClose, onSubmit, initialData }) => {
                         </select>
                     </div>
 
-                    {/* ========================================================
-                        2. INFORMATIONS CLIENT
-                    ======================================================== */}
                     <div className="form-section">
-                        {/* Nom + Prénom (côte à côte) */}
                         <div className="form-grid-2col">
                             <div className="form-group">
                                 <label className="required">NOM</label>
@@ -86,7 +126,6 @@ const ModalForm = ({ onClose, onSubmit, initialData }) => {
                             </div>
                         </div>
 
-                        {/* Téléphone + Email (côte à côte) */}
                         <div className="form-grid-2col">
                             <div className="form-group">
                                 <label>TÉLÉPHONE</label>
@@ -111,12 +150,8 @@ const ModalForm = ({ onClose, onSubmit, initialData }) => {
                         </div>
                     </div>
 
-                    {/* ========================================================
-                        3. INFORMATIONS VÉHICULE (si ATELIER uniquement)
-                    ======================================================== */}
                     {formData.departement === 'ATELIER' && (
                         <div className="form-section">
-                            {/* Immatriculation + Marque (côte à côte) */}
                             <div className="form-grid-2col">
                                 <div className="form-group">
                                     <label className="required">IMMATRICULATION</label>
@@ -141,7 +176,6 @@ const ModalForm = ({ onClose, onSubmit, initialData }) => {
                                 </div>
                             </div>
 
-                            {/* Modèle (pleine largeur) */}
                             <div className="form-group">
                                 <label>MODÈLE</label>
                                 <input 
@@ -155,9 +189,6 @@ const ModalForm = ({ onClose, onSubmit, initialData }) => {
                         </div>
                     )}
 
-                    {/* ========================================================
-                        4. DATE ET HEURE
-                    ======================================================== */}
                     <div className="form-section">
                         <div className="form-grid-2col">
                             <div className="form-group">
@@ -183,9 +214,6 @@ const ModalForm = ({ onClose, onSubmit, initialData }) => {
                         </div>
                     </div>
 
-                    {/* ========================================================
-                        5. DESCRIPTION / TRAVAUX
-                    ======================================================== */}
                     <div className="form-section">
                         <div className="form-group">
                             <label>TRAVAUX À EFFECTUER</label>
@@ -199,9 +227,6 @@ const ModalForm = ({ onClose, onSubmit, initialData }) => {
                         </div>
                     </div>
 
-                    {/* ========================================================
-                        6. BOUTONS D'ACTION
-                    ======================================================== */}
                     <div className="modal-buttons">
                         <button 
                             type="button" 

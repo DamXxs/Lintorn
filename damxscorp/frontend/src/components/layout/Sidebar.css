@@ -16,28 +16,28 @@
   overflow-y: auto;
 }
 
-/* Mode réduit (icônes seulement) */
+/* Mode réduit */
 .sidebar--collapsed {
-  width: 80px;
+  width: 70px; /* Réduit de 80px à 70px */
 }
 
-/* Mode étendu (avec texte) */
+/* Mode étendu */
 .sidebar--expanded {
-  width: 280px;
+  width: 260px; /* Réduit de 280px à 260px */
 }
 
 /* === BOUTON TOGGLE === */
 .sidebar__toggle {
   position: absolute;
-  top: 15px;
-  right: 10px;
-  width: 35px;
-  height: 35px;
+  top: 12px;
+  right: 8px;
+  width: 32px; /* Réduit de 35px à 32px */
+  height: 32px;
   background: #555;
   border: none;
   border-radius: 6px;
   color: white;
-  font-size: 18px;
+  font-size: 16px; /* Réduit de 18px à 16px */
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
@@ -53,10 +53,10 @@
 
 /* === HEADER SIDEBAR === */
 .sidebar__header {
-  padding: 20px 15px;
+  padding: 15px 10px; /* Réduit le padding */
   border-bottom: 2px solid var(--border);
   text-align: center;
-  min-height: 80px;
+  min-height: 60px; /* Réduit de 80px à 60px */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -64,31 +64,18 @@
 
 .sidebar__title {
   margin: 0;
-  font-size: 20px;
+  font-size: 18px; /* Réduit de 20px à 18px */
   color: var(--accent);
   font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
 }
 
-/* Titre réduit en mode collapsed */
-.sidebar--collapsed .sidebar__title {
-  font-size: 24px;
-}
-
-.sidebar__subtitle {
-  margin: 5px 0 0 0;
-  font-size: 11px;
-  color: #888;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  white-space: nowrap;
-}
-
 /* === NAVIGATION === */
 .sidebar__nav {
   flex: 1;
-  padding: 20px 0;
+  padding: 15px 0; /* Réduit de 20px à 15px */
+  padding-top: 55px; /* Ajouté pour compenser la réduction du header */
 }
 
 .sidebar__menu {
@@ -98,19 +85,19 @@
 }
 
 .sidebar__menu-item {
-  margin-bottom: 5px;
+  margin-bottom: 3px; /* Réduit de 5px à 3px */
 }
 
 /* === LIENS === */
 .sidebar__link {
   display: flex;
   align-items: center;
-  padding: 15px 20px;
+  padding: 12px 15px; /* Réduit de 15px 20px à 12px 15px */
   color: #e0e0e0;
   text-decoration: none;
   transition: all 0.3s ease;
-  border-left: 4px solid transparent;
-  font-size: 16px;
+  border-left: 3px solid transparent; /* Réduit de 4px à 3px */
+  font-size: 14px; /* Réduit de 16px à 14px */
   font-weight: 500;
   white-space: nowrap;
   position: relative;
@@ -119,7 +106,7 @@
 /* Mode réduit - centrer les icônes */
 .sidebar--collapsed .sidebar__link {
   justify-content: center;
-  padding: 15px 10px;
+  padding: 12px 8px; /* Réduit le padding */
 }
 
 .sidebar__link:hover {
@@ -136,15 +123,15 @@
 }
 
 .sidebar__icon {
-  font-size: 24px;
-  min-width: 30px;
+  font-size: 20px; /* Réduit de 24px à 20px */
+  min-width: 24px; /* Réduit de 30px à 24px */
   text-align: center;
   transition: margin 0.3s ease;
 }
 
 /* Espacement icône/texte en mode étendu */
 .sidebar--expanded .sidebar__icon {
-  margin-right: 15px;
+  margin-right: 12px; /* Réduit de 15px à 12px */
 }
 
 .sidebar__text {
@@ -162,14 +149,14 @@
 
 /* === FOOTER === */
 .sidebar__footer {
-  padding: 20px;
+  padding: 15px; /* Réduit de 20px à 15px */
   border-top: 2px solid var(--border);
   text-align: center;
 }
 
 .sidebar__footer-text {
   margin: 0;
-  font-size: 11px;
+  font-size: 10px; /* Réduit de 11px à 10px */
   color: #666;
   text-transform: uppercase;
   letter-spacing: 1px;

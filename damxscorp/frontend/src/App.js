@@ -1,7 +1,8 @@
 // /src/App.js
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Sidebar from './components/layout/Sidebar';
+import Header from './components/layout/Header';
 import Planning from './pages/Planning/Planning';
 import StockVueEnsemble from './pages/Stock/StockVueEnsemble';
 import ClientList from './pages/Clients/ClientList';
@@ -9,26 +10,29 @@ import VehicleList from './pages/Vehicles/VehicleList';
 import './App.css';
 
 function App() {
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+
   return (
     <BrowserRouter>
       <div className="app">
-        {/* SIDEBAR - Toujours visible */}
-        <Sidebar />
+        {/* SIDEBAR */}
+        <Sidebar 
+          isExpanded={isSidebarExpanded}
+          onToggle={() => setIsSidebarExpanded(!isSidebarExpanded)}
+        />
 
-        {/* CONTENU PRINCIPAL - Change selon la route */}
-        <main className="app__content">
+        {/* HEADER */}
+        <Header isSidebarExpanded={isSidebarExpanded} />
+
+        {/* CONTENU PRINCIPAL */}
+        <main className={`app__content ${isSidebarExpanded ? 'app__content--sidebar-expanded' : ''}`}>
           <Routes>
-            {/* Route par défaut → redirige vers planning */}
             <Route path="/" element={<Navigate to="/planning" replace />} />
-            
-            {/* Routes principales */}
             <Route path="/planning" element={<Planning />} />
             <Route path="/stock" element={<StockVueEnsemble />} />
             <Route path="/clients" element={<ClientList />} />
             <Route path="/vehicles" element={<VehicleList />} />
-            
-            {/* Route 404 - page non trouvée */}
-            <Route path="*" element={<div>Page non trouvée</div>} />
+            <Route path="*" element={<div className="page-404">Page non trouvée</div>} />
           </Routes>
         </main>
       </div>
