@@ -1,38 +1,22 @@
+// /src/components/shared/InfoPanel.jsx
 import React from 'react';
-import './InfoPanel.css';  // ← Import du CSS dédié
+import './InfoPanel.css';
 
-const InfoPanel = ({ event, onDelete, onEdit }) => { //Ajout de onEdit //
-    // Si aucun événement sélectionné, afficher le placeholder
+const InfoPanel = ({ event, onDelete, onEdit, onClose }) => {
     if (!event) {
-        return (
-            <aside id="info-column">
-                <div className="info-card">
-                    <h3>📋 Détails du Rendez-vous</h3>
-                    <hr />
-                    <p className="placeholder-text">
-                        👈 Cliquez sur un rendez-vous<br />
-                        dans le calendrier pour voir<br />
-                        les détails complets
-                    </p>
-                </div>
-            </aside>
-        );
+        return null; // Ne rien afficher si pas d'événement
     }
 
-    // Extraction des données
     const { 
         id,
-        clientName = "Inconnu", 
-        clientFirstName = "", 
-        clientPhone = "Non renseigné",
-        vehicleModel = "Non spécifié", 
-        plate = "Aucune", 
+        type_rdv = "ATELIER",
+        client_nom = "Inconnu",
+        client_prenom = "",
+        vehicule_modele = "Non spécifié",
         description = "",
-        statut = "PLANIFIE",
-        departement = "ATELIER"
+        statut = "PLANIFIE"
     } = event;
 
-    // Fonction pour obtenir la classe CSS du statut
     const getStatutClass = (statut) => {
         const statusMap = {
             'PLANIFIE': 'planifie',
@@ -43,7 +27,6 @@ const InfoPanel = ({ event, onDelete, onEdit }) => { //Ajout de onEdit //
         return statusMap[statut] || 'planifie';
     };
 
-    // Fonction pour obtenir le label du statut
     const getStatutLabel = (statut) => {
         const labels = {
             'PLANIFIE': '📅 Planifié',
@@ -55,7 +38,14 @@ const InfoPanel = ({ event, onDelete, onEdit }) => { //Ajout de onEdit //
     };
 
     return (
-        <aside id="info-column">
+        <aside id="info-column" className="visible"> {/* ← AJOUT DE LA CLASSE visible */}
+            <button 
+                className="info-panel__close" 
+                onClick={onClose}
+            >
+                ✕
+            </button>
+            
             <div className="info-card">
                 <h3>📋 Détails du Rendez-vous</h3>
                 <hr />
@@ -72,7 +62,7 @@ const InfoPanel = ({ event, onDelete, onEdit }) => { //Ajout de onEdit //
                     <h4>📌 Type</h4>
                     <div className="detail-row">
                         <span style={{fontSize: '14px'}}>
-                            {departement === 'ATELIER' ? '🔧 Atelier (Mécanique)' : '🎓 Académie (Cours)'}
+                            {type_rdv === 'ATELIER' ? '🔧 Atelier (Mécanique)' : '🎓 Académie (Cours)'}
                         </span>
                     </div>
                 </div>
@@ -82,32 +72,24 @@ const InfoPanel = ({ event, onDelete, onEdit }) => { //Ajout de onEdit //
                     <h4>👤 Client</h4>
                     <div className="detail-row">
                         <strong>Nom :</strong>
-                        <span>{clientName} {clientFirstName}</span>
-                    </div>
-                    <div className="detail-row">
-                        <strong>Téléphone :</strong>
-                        <span>{clientPhone}</span>
+                        <span>{client_nom} {client_prenom}</span>
                     </div>
                 </div>
 
                 {/* INFORMATIONS VÉHICULE (si ATELIER) */}
-                {departement === 'ATELIER' && (
+                {type_rdv === 'ATELIER' && vehicule_modele && (
                     <div className="detail-section">
                         <h4>🚗 Véhicule</h4>
                         <div className="detail-row">
                             <strong>Modèle :</strong>
-                            <span>{vehicleModel}</span>
-                        </div>
-                        <div className="detail-row">
-                            <strong>Plaque :</strong>
-                            <span style={{fontWeight: 'bold', color: 'var(--accent)'}}>{plate}</span>
+                            <span>{vehicule_modele}</span>
                         </div>
                     </div>
                 )}
 
                 {/* DESCRIPTION / TRAVAUX */}
                 <div className="detail-section">
-                    <h4>📝 {departement === 'ATELIER' ? 'Travaux à effectuer' : 'Description du cours'}</h4>
+                    <h4>📝 {type_rdv === 'ATELIER' ? 'Travaux à effectuer' : 'Description du cours'}</h4>
                     <div className="description-box">
                         {description || <em style={{color: '#666'}}>Pas de description</em>}
                     </div>
@@ -117,7 +99,7 @@ const InfoPanel = ({ event, onDelete, onEdit }) => { //Ajout de onEdit //
                 <div className="action-buttons">
                     <button 
                         className="btn-modify"
-                        onClick={onEdit} // Appelle la fonction onEdit passée en props //
+                        onClick={onEdit}
                     >
                         ✏️ Modifier
                     </button>

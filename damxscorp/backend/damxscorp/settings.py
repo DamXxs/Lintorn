@@ -47,6 +47,7 @@ INSTALLED_APPS = [
 
     # Apps tierces
     'corsheaders',
+    'rest_framework',
 
     # Apps Django par défaut
     'django.contrib.admin',

@@ -90,7 +90,7 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
                     
                     {/* Ton formulaire existant - NE CHANGE RIEN */}
                     <div className="form-group">
-                        <label>DÉPARTEMENT</label>
+                        <label>TYPE DE RENDEZ-VOUS</label>
                         <select 
                             name="departement" 
                             value={formData.departement} 

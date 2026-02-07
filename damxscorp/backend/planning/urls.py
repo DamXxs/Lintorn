@@ -1,8 +1,11 @@
+# /backend/planning/urls.py
 from django.urls import path
-
-# URLs pour l'app clients
-# À remplir plus tard
+from . import views
 
 urlpatterns = [
-    # Vide pour l'instant
+    # Liste et création
+    path('interventions/', views.intervention_list, name='intervention_list'),
+    
+    # Détail, modification, suppression
+    path('interventions/<int:pk>/', views.intervention_detail, name='intervention_detail'),
 ]

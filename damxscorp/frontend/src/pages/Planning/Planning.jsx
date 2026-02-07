@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import Calendar from './components/Calendar';
 import InfoPanel from '../../components/shared/InfoPanel';
 import ModalForm from '../../components/shared/ModalForm';
-// import FloatingMenu from '../../components/layout/FloatingMenu'; ← ON VIRE
 import { 
   fetchInterventions, 
   saveIntervention, 
@@ -20,7 +19,7 @@ const Planning = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [editingEvent, setEditingEvent] = useState(null);
-  const [prefilledDate, setPrefilledDate] = useState(null); // ← NOUVEAU
+  const [prefilledDate, setPrefilledDate] = useState(null);
 
   // Chargement des interventions
   const loadData = async () => {
@@ -41,14 +40,48 @@ const Planning = () => {
     loadData();
   }, []);
 
+  // ========================================================================
+  // CONVERSION DES DONNÉES DU FORMULAIRE VERS LE FORMAT DJANGO
+  // ========================================================================
+  const convertFormDataToDjango = (formData) => {
+    const dateTimeString = `${formData.date}T${formData.time}:00`;
+    
+    const data = {
+      type_rdv: formData.departement,
+      date_debut: dateTimeString,
+      description: formData.description || '',
+      statut: 'PLANIFIE',
+      // Données client
+      client_nom: formData.clientName,
+      client_prenom: formData.clientFirstName || '',
+      client_phone: formData.clientPhone || '',
+      client_email: formData.clientEmail || '',
+    };
+    
+    // Ajouter les données véhicule si ATELIER
+    if (formData.departement === 'ATELIER') {
+      data.vehicule_plate = formData.plate;
+      data.vehicule_brand = formData.vehicleBrand || '';
+      data.vehicule_model = formData.vehicleModel || '';
+    }
+    
+    return data;
+  };
+
   // Soumission du formulaire
-  const handleFormSubmit = async (data) => {
+  const handleFormSubmit = async (formData) => {
     try {
+      console.log("📥 Données brutes du formulaire:", formData);
+      
+      // Convertir les données au format Django
+      const djangoData = convertFormDataToDjango(formData);
+      console.log("📤 Données converties pour Django:", djangoData);
+      
       if (editingEvent) {
-        await updateIntervention(editingEvent.id, data);
+        await updateIntervention(editingEvent.id, djangoData);
         alert('✅ Rendez-vous modifié avec succès !');
       } else {
-        await saveIntervention(data);
+        await saveIntervention(djangoData);
         alert('✅ Rendez-vous créé avec succès !');
       }
       
@@ -57,8 +90,8 @@ const Planning = () => {
       setPrefilledDate(null);
       await loadData();
     } catch (err) {
+      console.error("❌ Erreur complète:", err);
       alert('❌ Erreur lors de l\'enregistrement');
-      console.error(err);
     }
   };
 
@@ -84,13 +117,13 @@ const Planning = () => {
 
   // Clic sur une case vide (heure libre)
   const handleDateClick = (date) => {
-    setPrefilledDate(date); // On garde la date cliquée
-    setIsModalOpen(true);   // On ouvre la modal
+    setPrefilledDate(date);
+    setIsModalOpen(true);
   };
 
   // Bouton "Nouveau RDV" dans le header
   const handleNewRdvClick = () => {
-    setPrefilledDate(null); // Pas de date pré-remplie
+    setPrefilledDate(null);
     setIsModalOpen(true);
   };
 
@@ -111,16 +144,14 @@ const Planning = () => {
   }
 
   return (
-    <div className="planning-page">
-      {/* CALENDRIER */}
+    <div className={`planning-page ${selectedEvent ? 'planning-page-infopanel-open' : ''}`}>
       <Calendar 
         events={events}
         onEventClick={handleEventClick}
-        onDateClick={handleDateClick}        // ← NOUVEAU
-        onNewRdvClick={handleNewRdvClick}    // ← NOUVEAU
+        onDateClick={handleDateClick}
+        onNewRdvClick={handleNewRdvClick}
       />
 
-      {/* PANNEAU D'INFO */}
       {selectedEvent && (
         <InfoPanel
           event={selectedEvent}
@@ -130,7 +161,6 @@ const Planning = () => {
         />
       )}
 
-      {/* MODAL DE CRÉATION/MODIFICATION */}
       {isModalOpen && (
         <ModalForm
           isOpen={isModalOpen}
@@ -140,12 +170,10 @@ const Planning = () => {
             setPrefilledDate(null);
           }}
           initialData={editingEvent}
-          prefilledDate={prefilledDate}  // ← NOUVEAU : on passe la date cliquée
+          prefilledDate={prefilledDate}
           onSubmit={handleFormSubmit}
         />
       )}
-
-      {/* FLOATING MENU SUPPRIMÉ */}
     </div>
   );
 };
