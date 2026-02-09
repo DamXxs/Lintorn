@@ -1,5 +1,5 @@
 /* =============================================================================
-   MODALFORM.CSS - Styles complets de la modal de RDV
+   MODALFORM.CSS - Styles complets de la modal de RDV (VERSION COMPACTE)
    ============================================================================= */
 
 /* === OVERLAY DE LA MODALE (fond flou) === */
@@ -9,106 +9,142 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.75);      /* Fond sombre transparent */
-    backdrop-filter: blur(8px);           /* Effet flou derrière */
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
     display: flex;
-    align-items: center;                  /* Centrage vertical */
-    justify-content: center;              /* Centrage horizontal */
-    z-index: 9999;                        /* Toujours au-dessus */
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
 }
 
 /* === CONTENEUR DE LA MODALE === */
 .modal-content {
     background: #151515;
     color: white;
-    padding: 30px;
+    padding: 0;                           /* On enlève le padding global */
     border-radius: 15px;
-    width: 70%;                           /* 70% de largeur */
-    height: 70%;                          /* 70% de hauteur */
-    max-width: 1200px;                    /* Limite max pour très grands écrans */
-    overflow-y: auto;                     /* Scroll si contenu déborde */
+    width: 70%;
+    height: 85%;                          /* Augmenté de 70% à 85% */
+    max-width: 1200px;
+    overflow: hidden;                     /* Pour gérer le header fixe */
     border: 1px solid var(--border);
     box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+    display: flex;
+    flex-direction: column;
+}
+
+/* === HEADER DE LA MODALE (Select Département) === */
+.modal-header {
+    background: linear-gradient(135deg, #1a1a1a 0%, #252525 100%);
+    border-bottom: 2px solid var(--accent);
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;                       /* Le header ne rétrécit pas */
+}
+
+.modal-header select {
+    background: transparent !important;
+    border: none !important;
+    color: var(--accent) !important;
+    font-size: 1.2rem !important;
+    font-weight: bold !important;
+    text-transform: uppercase !important;
+    letter-spacing: 2px !important;
+    cursor: pointer !important;
+    padding: 5px 30px 5px 10px !important;
+    text-align: center;
+    outline: none !important;
+    /* Flèche personnalisée */
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%232980b9' d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 5px center !important;
+}
+
+.modal-header select:hover {
+    color: #3498db !important;
+}
+
+/* === BODY DE LA MODALE (scrollable) === */
+.modal-body {
+    flex: 1;                              /* Prend tout l'espace restant */
+    overflow-y: auto;                     /* Scroll si nécessaire */
+    padding: 20px;
 }
 
 /* === SCROLLBAR PERSONNALISÉE === */
-.modal-content::-webkit-scrollbar {
-    width: 8px;
+.modal-body::-webkit-scrollbar {
+    width: 6px;
 }
 
-.modal-content::-webkit-scrollbar-track {
+.modal-body::-webkit-scrollbar-track {
     background: #1a1a1a;
     border-radius: 10px;
 }
 
-.modal-content::-webkit-scrollbar-thumb {
+.modal-body::-webkit-scrollbar-thumb {
     background: var(--accent);
     border-radius: 10px;
 }
 
-.modal-content::-webkit-scrollbar-thumb:hover {
+.modal-body::-webkit-scrollbar-thumb:hover {
     background: #3498db;
 }
 
-/* === TITRE DE LA MODALE === */
-.modal-content h3 {
-    margin-top: 0;
-    margin-bottom: 25px;
-    font-size: 1.5rem;
-    text-align: center;
-    color: var(--accent);
-}
-
 /* === GRILLES === */
-/* Grille 2 colonnes pour les champs côte à côte */
 .form-grid-2col {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-top: 10px;
+    gap: 10px;
+    margin-top: 5px;
 }
 
-/* Grille 3 colonnes (pour Type véhicule, Marque, Modèle) */
 .form-grid-3col {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 15px;
-    margin-top: 10px;
+    gap: 10px;
+    margin-top: 5px;
 }
 
 /* === SECTIONS DU FORMULAIRE === */
 .form-section {
-    margin-top: 20px;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.02);  /* Légère surbrillance */
-    border-radius: 10px;
+    margin-top: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
     border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.form-section:first-child {
+    margin-top: 0;                        /* Pas de marge pour la 1ère section */
 }
 
 /* Titre de section */
 .form-section-title {
-    font-size: 12px;
+    font-size: 10px;
     text-transform: uppercase;
     color: var(--accent);
-    margin-bottom: 15px;
-    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
     font-weight: bold;
     border-bottom: 1px solid var(--border);
-    padding-bottom: 8px;
+    padding-bottom: 5px;
 }
 
 /* === FORM GROUP === */
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 8px;
 }
 
 .form-group label {
     display: block;
     color: var(--accent);
-    font-size: 11px;
+    font-size: 9px;
     text-transform: uppercase;
-    margin-bottom: 5px;
-    letter-spacing: 1px;
+    margin-bottom: 3px;
+    letter-spacing: 0.5px;
     font-weight: 500;
 }
 
@@ -120,11 +156,23 @@
     background: var(--input-bg) !important;
     border: 1px solid var(--border) !important;
     color: white !important;
-    padding: 12px;
-    border-radius: 8px;
-    font-size: 14px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 13px;
     outline: none;
     transition: border-color 0.3s;
+}
+
+/* Exception pour le select du header (déjà stylé plus haut) */
+.modal-header select {
+    width: auto !important;
+}
+
+/* Textarea spécifique */
+.modal-content textarea {
+    padding: 10px;
+    resize: vertical;
+    min-height: 60px;
 }
 
 /* Placeholder */
@@ -132,6 +180,7 @@
 .modal-content textarea::placeholder {
     color: #666;
     font-style: italic;
+    font-size: 12px;
 }
 
 /* Focus */
@@ -139,7 +188,7 @@
 .modal-content textarea:focus,
 .modal-content select:focus {
     border-color: var(--accent) !important;
-    box-shadow: 0 0 0 3px rgba(41, 128, 185, 0.1);
+    box-shadow: 0 0 0 2px rgba(41, 128, 185, 0.1);
 }
 
 /* === CHAMPS OBLIGATOIRES === */
@@ -152,7 +201,7 @@
 /* === BOUTON API SIV === */
 .input-with-button {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     align-items: stretch;
 }
 
@@ -164,10 +213,10 @@
     background: var(--accent);
     color: white;
     border: none;
-    padding: 0 20px;
-    border-radius: 8px;
+    padding: 0 15px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 10px;
     font-weight: bold;
     text-transform: uppercase;
     white-space: nowrap;
@@ -187,21 +236,21 @@
 /* === BOUTONS DE LA MODALE === */
 .modal-buttons {
     display: flex;
-    gap: 15px;
-    margin-top: 30px;
-    padding-top: 20px;
+    gap: 12px;
+    margin-top: 15px;
+    padding-top: 12px;
     border-top: 1px solid var(--border);
 }
 
 .modal-buttons button {
     flex: 1;
-    padding: 14px;
-    border-radius: 8px;
+    padding: 10px;
+    border-radius: 6px;
     border: none;
     cursor: pointer;
     font-weight: bold;
     text-transform: uppercase;
-    font-size: 13px;
+    font-size: 11px;
     transition: opacity 0.3s;
 }
 
@@ -224,7 +273,7 @@
 @media (max-width: 1024px) {
     .modal-content {
         width: 85%;
-        height: 85%;
+        height: 90%;
     }
     
     .form-grid-3col {
@@ -236,7 +285,6 @@
     .modal-content {
         width: 95%;
         height: 95%;
-        padding: 20px;
     }
     
     .form-grid-2col,

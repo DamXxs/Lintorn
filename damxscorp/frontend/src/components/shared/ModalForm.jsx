@@ -42,15 +42,12 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
     // =========================================================================
     useEffect(() => {
         if (initialData) {
-            // Mode édition : charger les données existantes
             setFormData(initialData);
         } else if (prefilledDate) {
-            // Mode création avec date/heure pré-remplie (clic sur calendrier)
             const dateObj = new Date(prefilledDate);
             const dateStr = dateObj.toISOString().split('T')[0];
             const timeStr = dateObj.toTimeString().slice(0, 5);
             
-            // Calcul automatique de l'heure de fin (+1h par défaut)
             const endDateObj = new Date(dateObj.getTime() + 60 * 60 * 1000);
             const endTimeStr = endDateObj.toTimeString().slice(0, 5);
             
@@ -70,12 +67,11 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
                 vin: '',
                 dateStart: dateStr,
                 timeStart: timeStr,
-                dateEnd: dateStr,       // Même jour par défaut
-                timeEnd: endTimeStr,    // +1h
+                dateEnd: dateStr,
+                timeEnd: endTimeStr,
                 description: ''
             });
         } else {
-            // Mode création vide
             setFormData({
                 departement: 'ATELIER',
                 typeIntervention: 'ENTRETIEN_VP2',
@@ -114,7 +110,6 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
     const handleSivSearch = () => {
         console.log('🔍 Recherche SIV pour : ', formData.plate);
         alert('API SIV pas encore implémentée - En développement !');
-        // TODO: Implémenter l'appel API SIV
     };
 
     // =========================================================================
@@ -123,191 +118,203 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
     return (
         <div id="modal-rdv">
             <div className="modal-content">
-                <h3>📅 {initialData?.id ? 'Modifier le Rendez-vous' : 'Nouveau Rendez-vous'}</h3>
                 
-                <form onSubmit={(e) => { 
-                    e.preventDefault();
-                    console.log("📤 Données envoyées depuis ModalForm :", formData);
-                    onSubmit(formData); 
-                }}>
-                    
-                    {/* ===== 1. TYPE DE RENDEZ-VOUS ===== */}
-                    <div className="form-section">
-                        <div className="form-section-title">🔧 Type de Rendez-vous</div>
-                        <div className="form-grid-2col">
-                            <div className="form-group">
-                                <label className="required">Département</label>
-                                <select 
-                                    name="departement" 
-                                    value={formData.departement} 
-                                    onChange={handleChange}
-                                >
-                                    <option value="ATELIER">🔧 ATELIER</option>
-                                    <option value="ACADEMIE">🎓 ACADÉMIE</option>
-                                </select>
-                            </div>
+                {/* ===== HEADER : SELECT DÉPARTEMENT ===== */}
+                <div className="modal-header">
+                    <select 
+                        name="departement" 
+                        value={formData.departement} 
+                        onChange={handleChange}
+                    >
+                        <option value="ATELIER">🔧 ATELIER</option>
+                        <option value="ACADEMIE">🎓 ACADÉMIE</option>
+                    </select>
+                </div>
 
-                            {/* Type d'intervention (uniquement si ATELIER) */}
-                            {formData.departement === 'ATELIER' && (
-                                <div className="form-group">
-                                    <label className="required">Type d'intervention</label>
-                                    <select 
-                                        name="typeIntervention" 
-                                        value={formData.typeIntervention} 
-                                        onChange={handleChange}
-                                    >
-                                        <option value="ENTRETIEN_VP2">Entretien VP2 (Petite vidange)</option>
-                                        <option value="ENTRETIEN_VP4">Entretien VP4 (Grosse vidange)</option>
-                                        <option value="DIAGNOSTIQUE">Diagnostique</option>
-                                        <option value="PNEUMATIQUES">Pneumatiques</option>
-                                        <option value="REVISION_COMPLETE">Révision complète</option>
-                                        <option value="AUTRE">Autre</option>
-                                    </select>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* ===== 2. INFORMATIONS CLIENT ===== */}
-                    <div className="form-section">
-                        <div className="form-section-title">👤 Informations Client</div>
+                {/* ===== BODY : FORMULAIRE SCROLLABLE ===== */}
+                <div className="modal-body">
+                    <form onSubmit={(e) => { 
+                        e.preventDefault();
+    
+                        // ========= COMBINAISON DATE + HEURE POUR DJANGO =========
+                        const formattedData = {
+                            ...formData,
+                            // Combine dateStart + timeStart → date_debut (format ISO)
+                            date_debut: `${formData.dateStart}T${formData.timeStart}:00`,
+                            // Combine dateEnd + timeEnd → date_fin (format ISO)
+                            date_fin: `${formData.dateEnd}T${formData.timeEnd}:00`,
+                        };
+    
+    // On enlève les champs séparés pour éviter la confusion
+    delete formattedData.dateStart;
+    delete formattedData.timeStart;
+    delete formattedData.dateEnd;
+    delete formattedData.timeEnd;
+    
+    console.log("📤 Données AVANT formatage :", formData);
+    console.log("📤 Données APRÈS formatage (envoyées à Django) :", formattedData);
+    
+    onSubmit(formattedData); 
+}}>
                         
-                        <div className="form-grid-2col">
-                            <div className="form-group">
-                                <label className="required">Nom</label>
-                                <input 
-                                    type="text" 
-                                    name="clientName" 
-                                    value={formData.clientName} 
-                                    onChange={handleChange} 
-                                    placeholder="Dupont"
-                                    required 
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Prénom</label>
-                                <input 
-                                    type="text" 
-                                    name="clientFirstName" 
-                                    value={formData.clientFirstName} 
-                                    onChange={handleChange} 
-                                    placeholder="Jean"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="form-grid-2col">
-                            <div className="form-group">
-                                <label>Téléphone</label>
-                                <input 
-                                    type="tel" 
-                                    name="clientPhone" 
-                                    value={formData.clientPhone} 
-                                    onChange={handleChange} 
-                                    placeholder="06 12 34 56 78"
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Email</label>
-                                <input 
-                                    type="email" 
-                                    name="clientEmail" 
-                                    value={formData.clientEmail} 
-                                    onChange={handleChange} 
-                                    placeholder="dupont@email.com"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="form-group">
-                            <label>Adresse</label>
-                            <input 
-                                type="text" 
-                                name="clientAddress" 
-                                value={formData.clientAddress} 
-                                onChange={handleChange} 
-                                placeholder="123 Rue de la République, 75001 Paris"
-                            />
-                        </div>
-                    </div>
-
-                    {/* ===== 3. INFORMATIONS VÉHICULE (si ATELIER) ===== */}
-                    {formData.departement === 'ATELIER' && (
+                        {/* ===== 1. INFORMATIONS CLIENT ===== */}
                         <div className="form-section">
-                            <div className="form-section-title">🚗 Informations Véhicule</div>
+                            <div className="form-section-title">👤 Informations Client</div>
                             
-                            {/* Immatriculation + Bouton SIV */}
-                            <div className="form-group">
-                                <label className="required">Immatriculation</label>
-                                <div className="input-with-button">
-                                    <input 
-                                        type="text" 
-                                        name="plate" 
-                                        value={formData.plate} 
-                                        onChange={handleChange}
-                                        placeholder="AB-123-CD"
-                                        required
-                                    />
-                                    <button 
-                                        type="button" 
-                                        className="btn-api-siv"
-                                        onClick={handleSivSearch}
-                                        disabled={!formData.plate}
-                                    >
-                                        🔍 API SIV
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Type véhicule, Marque, Modèle */}
-                            <div className="form-grid-3col">
-                                <div className="form-group">
-                                    <label className="required">Type</label>
-                                    <select 
-                                        name="vehicleType" 
-                                        value={formData.vehicleType} 
-                                        onChange={handleChange}
-                                    >
-                                        <option value="VOITURE">🚗 Voiture</option>
-                                        <option value="MOTO">🏍️ Moto</option>
-                                        <option value="MOTOCULTURE">🚜 Motoculture</option>
-                                        <option value="BATEAU">🚤 Bateau</option>
-                                    </select>
-                                </div>
-                                <div className="form-group">
-                                    <label>Marque</label>
-                                    <input 
-                                        type="text" 
-                                        name="vehicleBrand" 
-                                        value={formData.vehicleBrand} 
-                                        onChange={handleChange}
-                                        placeholder="Peugeot"
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label>Modèle</label>
-                                    <input 
-                                        type="text" 
-                                        name="vehicleModel" 
-                                        value={formData.vehicleModel} 
-                                        onChange={handleChange}
-                                        placeholder="308"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Année + VIN */}
                             <div className="form-grid-2col">
                                 <div className="form-group">
-                                    <label>Année</label>
+                                    <label className="required">Nom</label>
                                     <input 
                                         type="text" 
-                                        name="vehicleYear" 
-                                        value={formData.vehicleYear} 
-                                        onChange={handleChange}
-                                        placeholder="2020"
+                                        name="clientName" 
+                                        value={formData.clientName} 
+                                        onChange={handleChange} 
+                                        placeholder="Dupont"
+                                        required 
                                     />
                                 </div>
+                                <div className="form-group">
+                                    <label>Prénom</label>
+                                    <input 
+                                        type="text" 
+                                        name="clientFirstName" 
+                                        value={formData.clientFirstName} 
+                                        onChange={handleChange} 
+                                        placeholder="Jean"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="form-grid-2col">
+                                <div className="form-group">
+                                    <label>Téléphone</label>
+                                    <input 
+                                        type="tel" 
+                                        name="clientPhone" 
+                                        value={formData.clientPhone} 
+                                        onChange={handleChange} 
+                                        placeholder="06 12 34 56 78"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Email</label>
+                                    <input 
+                                        type="email" 
+                                        name="clientEmail" 
+                                        value={formData.clientEmail} 
+                                        onChange={handleChange} 
+                                        placeholder="dupont@email.com"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="form-group">
+                                <label>Adresse</label>
+                                <input 
+                                    type="text" 
+                                    name="clientAddress" 
+                                    value={formData.clientAddress} 
+                                    onChange={handleChange} 
+                                    placeholder="123 Rue de la République, 75001 Paris"
+                                />
+                            </div>
+                        </div>
+
+                        {/* ===== 2. INFORMATIONS VÉHICULE (si ATELIER) ===== */}
+                        {formData.departement === 'ATELIER' && (
+                            <div className="form-section">
+                                <div className="form-section-title">🚗 Informations Véhicule</div>
+                                
+                                {/* Immatriculation + Bouton SIV */}
+                                <div className="form-group">
+                                    <label className="required">Immatriculation</label>
+                                    <div className="input-with-button">
+                                        <input 
+                                            type="text" 
+                                            name="plate" 
+                                            value={formData.plate} 
+                                            onChange={handleChange}
+                                            placeholder="AB-123-CD"
+                                            required
+                                        />
+                                        <button 
+                                            type="button" 
+                                            className="btn-api-siv"
+                                            onClick={handleSivSearch}
+                                            disabled={!formData.plate}
+                                        >
+                                            🔍 API SIV
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Type véhicule + Type intervention */}
+                                <div className="form-grid-2col">
+                                    <div className="form-group">
+                                        <label className="required">Type de véhicule</label>
+                                        <select 
+                                            name="vehicleType" 
+                                            value={formData.vehicleType} 
+                                            onChange={handleChange}
+                                        >
+                                            <option value="VOITURE">🚗 Voiture</option>
+                                            <option value="MOTO">🏍️ Moto</option>
+                                            <option value="MOTOCULTURE">🚜 Motoculture</option>
+                                            <option value="BATEAU">🚤 Bateau</option>
+                                        </select>
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="required">Type d'intervention</label>
+                                        <select 
+                                            name="typeIntervention" 
+                                            value={formData.typeIntervention} 
+                                            onChange={handleChange}
+                                        >
+                                            <option value="ENTRETIEN_VP2">Entretien VP2 (Petite vidange)</option>
+                                            <option value="ENTRETIEN_VP4">Entretien VP4 (Grosse vidange)</option>
+                                            <option value="DIAGNOSTIQUE">Diagnostique</option>
+                                            <option value="PNEUMATIQUES">Pneumatiques</option>
+                                            <option value="REVISION_COMPLETE">Révision complète</option>
+                                            <option value="AUTRE">Autre</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {/* Marque, Modèle, Année */}
+                                <div className="form-grid-3col">
+                                    <div className="form-group">
+                                        <label>Marque</label>
+                                        <input 
+                                            type="text" 
+                                            name="vehicleBrand" 
+                                            value={formData.vehicleBrand} 
+                                            onChange={handleChange}
+                                            placeholder="Peugeot"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Modèle</label>
+                                        <input 
+                                            type="text" 
+                                            name="vehicleModel" 
+                                            value={formData.vehicleModel} 
+                                            onChange={handleChange}
+                                            placeholder="308"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Année</label>
+                                        <input 
+                                            type="text" 
+                                            name="vehicleYear" 
+                                            value={formData.vehicleYear} 
+                                            onChange={handleChange}
+                                            placeholder="2020"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* VIN */}
                                 <div className="form-group">
                                     <label>VIN (optionnel)</label>
                                     <input 
@@ -319,92 +326,92 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
                                     />
                                 </div>
                             </div>
-                        </div>
-                    )}
+                        )}
 
-                    {/* ===== 4. PLANIFICATION ===== */}
-                    <div className="form-section">
-                        <div className="form-section-title">📆 Planification</div>
-                        
-                        <div className="form-grid-2col">
-                            <div className="form-group">
-                                <label className="required">Date début</label>
-                                <input 
-                                    type="date" 
-                                    name="dateStart" 
-                                    value={formData.dateStart} 
-                                    onChange={handleChange} 
-                                    required 
-                                />
+                        {/* ===== 3. PLANIFICATION ===== */}
+                        <div className="form-section">
+                            <div className="form-section-title">📆 Planification</div>
+                            
+                            <div className="form-grid-2col">
+                                <div className="form-group">
+                                    <label className="required">Date début</label>
+                                    <input 
+                                        type="date" 
+                                        name="dateStart" 
+                                        value={formData.dateStart} 
+                                        onChange={handleChange} 
+                                        required 
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label className="required">Heure début</label>
+                                    <input 
+                                        type="time" 
+                                        name="timeStart" 
+                                        value={formData.timeStart} 
+                                        onChange={handleChange} 
+                                        required 
+                                    />
+                                </div>
                             </div>
-                            <div className="form-group">
-                                <label className="required">Heure début</label>
-                                <input 
-                                    type="time" 
-                                    name="timeStart" 
-                                    value={formData.timeStart} 
-                                    onChange={handleChange} 
-                                    required 
-                                />
+
+                            <div className="form-grid-2col">
+                                <div className="form-group">
+                                    <label className="required">Date fin</label>
+                                    <input 
+                                        type="date" 
+                                        name="dateEnd" 
+                                        value={formData.dateEnd} 
+                                        onChange={handleChange} 
+                                        required 
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label className="required">Heure fin</label>
+                                    <input 
+                                        type="time" 
+                                        name="timeEnd" 
+                                        value={formData.timeEnd} 
+                                        onChange={handleChange} 
+                                        required 
+                                    />
+                                </div>
                             </div>
                         </div>
 
-                        <div className="form-grid-2col">
+                        {/* ===== 4. TRAVAUX À EFFECTUER ===== */}
+                        <div className="form-section">
+                            <div className="form-section-title">📝 Travaux à effectuer</div>
                             <div className="form-group">
-                                <label className="required">Date fin</label>
-                                <input 
-                                    type="date" 
-                                    name="dateEnd" 
-                                    value={formData.dateEnd} 
+                                <label>Description</label>
+                                <textarea 
+                                    name="description" 
+                                    value={formData.description} 
                                     onChange={handleChange} 
-                                    required 
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label className="required">Heure fin</label>
-                                <input 
-                                    type="time" 
-                                    name="timeEnd" 
-                                    value={formData.timeEnd} 
-                                    onChange={handleChange} 
-                                    required 
-                                />
+                                    rows="4"
+                                    placeholder="Ex: Vidange + filtre à huile + contrôle freins"
+                                ></textarea>
                             </div>
                         </div>
-                    </div>
 
-                    {/* ===== 5. TRAVAUX À EFFECTUER ===== */}
-                    <div className="form-section">
-                        <div className="form-section-title">📝 Travaux à effectuer</div>
-                        <div className="form-group">
-                            <label>Description</label>
-                            <textarea 
-                                name="description" 
-                                value={formData.description} 
-                                onChange={handleChange} 
-                                rows="4"
-                                placeholder="Ex: Vidange + filtre à huile + contrôle freins"
-                            ></textarea>
+                        {/* ===== BOUTONS ===== */}
+                        <div className="modal-buttons">
+                            <button 
+                                type="button" 
+                                onClick={onClose} 
+                                className="btn-cancel"
+                            >
+                                ❌ Annuler
+                            </button>
+                            <button 
+                                type="submit" 
+                                className="btn-save"
+                            >
+                                {initialData?.id ? '💾 Modifier' : '💾 Enregistrer'}
+                            </button>
                         </div>
-                    </div>
-
-                    {/* ===== BOUTONS ===== */}
-                    <div className="modal-buttons">
-                        <button 
-                            type="button" 
-                            onClick={onClose} 
-                            className="btn-cancel"
-                        >
-                            ❌ Annuler
-                        </button>
-                        <button 
-                            type="submit" 
-                            className="btn-save"
-                        >
-                            {initialData?.id ? '💾 Modifier' : '💾 Enregistrer'}
-                        </button>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     );

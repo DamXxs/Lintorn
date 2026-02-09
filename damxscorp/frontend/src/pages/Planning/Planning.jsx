@@ -41,32 +41,39 @@ const Planning = ({ IsSidebarExpend }) => {
   }, []);
 
   // ========================================================================
-  // CONVERSION DES DONNÉES DU FORMULAIRE VERS LE FORMAT DJANGO
-  // ========================================================================
-  const convertFormDataToDjango = (formData) => {
-    const dateTimeString = `${formData.date}T${formData.time}:00`;
+// CONVERSION DES DONNÉES DU FORMULAIRE VERS LE FORMAT DJANGO
+// ========================================================================
+const convertFormDataToDjango = (formData) => {
+  // ModalForm envoie dateStart/timeStart et dateEnd/timeEnd
+  const dateDebutString = `${formData.dateStart}T${formData.timeStart}:00`;
+  const dateFinString = `${formData.dateEnd}T${formData.timeEnd}:00`;
+  
+  const data = {
+    type_rdv: formData.departement,
+    type_intervention: formData.typeIntervention,
+    date_debut: dateDebutString,
+    date_fin: dateFinString,
+    description: formData.description || '',
+    statut: 'PLANIFIE',
     
-    const data = {
-      type_rdv: formData.departement,
-      date_debut: dateTimeString,
-      description: formData.description || '',
-      statut: 'PLANIFIE',
-      // Données client
-      client_nom: formData.clientName,
-      client_prenom: formData.clientFirstName || '',
-      client_phone: formData.clientPhone || '',
-      client_email: formData.clientEmail || '',
-    };
+    // Données client
+    client_nom: formData.clientName,
+    client_prenom: formData.clientFirstName || '',
+    client_phone: formData.clientPhone || '',
+    client_email: formData.clientEmail || '',
+    client_adresse: formData.clientAddress || '',
     
-    // Ajouter les données véhicule si ATELIER
-    if (formData.departement === 'ATELIER') {
-      data.vehicule_plate = formData.plate;
-      data.vehicule_brand = formData.vehicleBrand || '';
-      data.vehicule_model = formData.vehicleModel || '';
-    }
-    
-    return data;
+    // Données véhicule
+    vehicule_type: formData.vehicleType,
+    vehicule_immatriculation: formData.plate || '',
+    vehicule_marque: formData.vehicleBrand || '',
+    vehicule_modele: formData.vehicleModel || '',
+    vehicule_annee: formData.vehicleYear || '',
+    vehicule_vin: formData.vin || '',
   };
+  
+  return data;
+};
 
   // Soumission du formulaire
   const handleFormSubmit = async (formData) => {
