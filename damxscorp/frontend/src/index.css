@@ -21,9 +21,6 @@ body {
     overflow: hidden; /* Empêche le scroll de la page entière */
 }
 
-
- 
-
 /* === Organisation des colonnes === */
 .main-layout {
     display: flex;
@@ -76,103 +73,7 @@ body {
     background: #3498db;
 }
 
-/* === MODALE PRO (Centrage & Flou) === */
-#modal-rdv {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.75); /* Fond sombre transparent */
-    backdrop-filter: blur(8px);     /* EFFET FLOU DERRIÈRE */
-    display: flex;
-    align-items: center;            /* Centrage vertical */
-    justify-content: center;        /* Centrage horizontal */
-    z-index: 9999;                  /* Toujours au-dessus */
-}
 
-.modal-content {
-    background: #151515;
-    color: white;
-    padding: 25px;
-    border-radius: 15px;
-    width: 500px;  /* Un peu plus large */
-    max-width: 95%;
-    max-height: 90vh;  /* ← NOUVEAU : Limite la hauteur à 90% de l'écran */
-    overflow-y: auto;  /* ← NOUVEAU : Scroll vertical si déborde */
-    border: 1px solid var(--border);
-    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-}
-
-/* Style du scrollbar (optionnel mais joli) */
-.modal-content::-webkit-scrollbar {
-    width: 8px;
-}
-
-.modal-content::-webkit-scrollbar-track {
-    background: #1a1a1a;
-    border-radius: 10px;
-}
-
-.modal-content::-webkit-scrollbar-thumb {
-    background: var(--accent);
-    border-radius: 10px;
-}
-
-.modal-content::-webkit-scrollbar-thumb:hover {
-    background: #3498db;
-}
-
-/* === FORMULAIRE DANS LA MODALE === */
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    display: block;
-    color: var(--accent);
-    font-size: 11px;
-    text-transform: uppercase;
-    margin-bottom: 5px;
-    letter-spacing: 1px;
-}
-
-/* Correction Blanc sur Blanc */
-input, select, textarea {
-    width: 100%;
-    background: var(--input-bg) !important;
-    border: 1px solid var(--border) !important;
-    color: white !important;
-    padding: 12px;
-    border-radius: 8px;
-    font-size: 14px;
-    outline: none;
-}
-
-input:focus {
-    border-color: var(--accent) !important;
-}
-
-.modal-buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-.modal-buttons button {
-    flex: 1;
-    padding: 12px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    text-transform: uppercase;
-    transition: 0.3s;
-}
-
-.btn-save { background: var(--success); color: white; }
-.btn-cancel { background: #333; color: white; }
-.btn-save:hover { opacity: 0.8; }
 
 /* === FULLCALENDAR FIXES === */
 .fc { height: 100%; color: white; }

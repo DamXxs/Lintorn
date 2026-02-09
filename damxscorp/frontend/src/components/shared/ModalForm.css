@@ -1,59 +1,246 @@
 /* =============================================================================
-   MODALFORM.CSS - Styles spécifiques au formulaire de création de RDV
+   MODALFORM.CSS - Styles complets de la modal de RDV
    ============================================================================= */
 
+/* === OVERLAY DE LA MODALE (fond flou) === */
+#modal-rdv {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);      /* Fond sombre transparent */
+    backdrop-filter: blur(8px);           /* Effet flou derrière */
+    display: flex;
+    align-items: center;                  /* Centrage vertical */
+    justify-content: center;              /* Centrage horizontal */
+    z-index: 9999;                        /* Toujours au-dessus */
+}
+
+/* === CONTENEUR DE LA MODALE === */
+.modal-content {
+    background: #151515;
+    color: white;
+    padding: 30px;
+    border-radius: 15px;
+    width: 70%;                           /* 70% de largeur */
+    height: 70%;                          /* 70% de hauteur */
+    max-width: 1200px;                    /* Limite max pour très grands écrans */
+    overflow-y: auto;                     /* Scroll si contenu déborde */
+    border: 1px solid var(--border);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+}
+
+/* === SCROLLBAR PERSONNALISÉE === */
+.modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: #1a1a1a;
+    border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background: #3498db;
+}
+
+/* === TITRE DE LA MODALE === */
+.modal-content h3 {
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 1.5rem;
+    text-align: center;
+    color: var(--accent);
+}
+
 /* === GRILLES === */
-/* Grille 2 colonnes pour les champs côte à côte (Nom/Prénom, Plaque/Marque, etc.) */
+/* Grille 2 colonnes pour les champs côte à côte */
 .form-grid-2col {
     display: grid;
-    grid-template-columns: 1fr 1fr;  /* 2 colonnes égales */
-    gap: 10px;  /* Espace entre les colonnes */
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+/* Grille 3 colonnes (pour Type véhicule, Marque, Modèle) */
+.form-grid-3col {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 15px;
     margin-top: 10px;
 }
 
 /* === SECTIONS DU FORMULAIRE === */
-/* Espacement entre les sections (Client, Véhicule, etc.) */
 .form-section {
-    margin-top: 15px;
+    margin-top: 20px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.02);  /* Légère surbrillance */
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Titre de section (optionnel, pour plus tard si tu veux des titres visibles) */
+/* Titre de section */
 .form-section-title {
-    font-size: 11px;
+    font-size: 12px;
     text-transform: uppercase;
     color: var(--accent);
-    margin-bottom: 10px;
-    letter-spacing: 1px;
+    margin-bottom: 15px;
+    letter-spacing: 1.5px;
     font-weight: bold;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
 }
 
-/* === INPUTS & TEXTAREA === */
-/* Placeholder plus visible */
+/* === FORM GROUP === */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    color: var(--accent);
+    font-size: 11px;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    letter-spacing: 1px;
+    font-weight: 500;
+}
+
+/* === INPUTS, SELECT, TEXTAREA === */
+.modal-content input,
+.modal-content select,
+.modal-content textarea {
+    width: 100%;
+    background: var(--input-bg) !important;
+    border: 1px solid var(--border) !important;
+    color: white !important;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+/* Placeholder */
 .modal-content input::placeholder,
 .modal-content textarea::placeholder {
     color: #666;
     font-style: italic;
 }
 
-/* Focus plus marqué pour savoir où on est */
+/* Focus */
 .modal-content input:focus,
 .modal-content textarea:focus,
 .modal-content select:focus {
     border-color: var(--accent) !important;
-    box-shadow: 0 0 0 3px rgba(41, 128, 185, 0.1);  /* Halo bleu subtil */
+    box-shadow: 0 0 0 3px rgba(41, 128, 185, 0.1);
 }
 
 /* === CHAMPS OBLIGATOIRES === */
-/* Indicateur visuel pour les champs requis */
 .form-group label.required::after {
     content: " *";
-    color: #e74c3c;  /* Rouge */
+    color: #e74c3c;
     font-weight: bold;
 }
 
-/* === RESPONSIVE (pour mobile, si besoin plus tard) === */
-@media (max-width: 600px) {
-    .form-grid-2col {
-        grid-template-columns: 1fr;  /* 1 seule colonne sur mobile */
+/* === BOUTON API SIV === */
+.input-with-button {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+}
+
+.input-with-button input {
+    flex: 1;
+}
+
+.btn-api-siv {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 0 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition: opacity 0.3s;
+}
+
+.btn-api-siv:hover {
+    opacity: 0.8;
+}
+
+.btn-api-siv:disabled {
+    background: #555;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* === BOUTONS DE LA MODALE === */
+.modal-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+}
+
+.modal-buttons button {
+    flex: 1;
+    padding: 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 13px;
+    transition: opacity 0.3s;
+}
+
+.btn-save {
+    background: var(--success);
+    color: white;
+}
+
+.btn-cancel {
+    background: #333;
+    color: white;
+}
+
+.btn-save:hover,
+.btn-cancel:hover {
+    opacity: 0.8;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 1024px) {
+    .modal-content {
+        width: 85%;
+        height: 85%;
+    }
+    
+    .form-grid-3col {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        height: 95%;
+        padding: 20px;
+    }
+    
+    .form-grid-2col,
+    .form-grid-3col {
+        grid-template-columns: 1fr;
     }
 }
