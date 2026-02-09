@@ -16,7 +16,7 @@
 ------------------------------------------------------------------
 
 // INSTALLER LES NPM // # A FAIRE A CHAQUE NOUVELLE MACHINE #
-    ** npm install **
+    ** npm install ** # Les modules sont installer par rapport a package-lock.json #
 
 // Lancer le serveur React //
     ** npm start **

@@ -4,27 +4,17 @@
 
 /* === CONTENEUR PRINCIPAL === */
 #info-column {
-    position: fixed;
-    top: 0;
-    right: 0%;
-    width: 30%;
-    min-width: 350px;
-    max-width: 500px;
+    position: relative;
+    flex: 0 0 30%; /* Prend que 30% */
     height: 100%; /* Hauteur totale - padding haut/bas */
-    
     background: transparent; /* Transparent pour éviter double fond */
     
     /* Animation slide */
     transform: translateX(100%); /*Caché par défaut*/
-    transition: transform 0.3s ease;
-    
-    z-index: 900;
-    
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
     padding: 30px;
-                     /* Espace à droite de l'écran */
-    
     overflow-y: auto;
-    
     display: flex;
     flex-direction: column;
     gap: 15px;
@@ -33,6 +23,7 @@
 /* État visible */
 #info-column.visible {
     transform: translateX(0); /* Slide vers la gauche */
+    opacity: 1;
 }
 
 /* === BOUTON DE FERMETURE === */

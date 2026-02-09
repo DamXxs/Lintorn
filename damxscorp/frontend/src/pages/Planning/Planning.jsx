@@ -115,6 +115,13 @@ const Planning = ({ IsSidebarExpend }) => {
     setSelectedEvent(event);
   };
 
+  // ✅ NOUVEAU : Double-clic sur un événement
+  const handleEventDoubleClick = (event) => {
+    setEditingEvent(event);
+    setPrefilledDate(null);
+    setIsModalOpen(true);
+  };
+
   // Clic sur une case vide (heure libre)
   const handleDateClick = (date) => {
     setPrefilledDate(date);
@@ -148,20 +155,21 @@ const Planning = ({ IsSidebarExpend }) => {
       <Calendar 
         events={events}
         onEventClick={handleEventClick}
+        onEventDoubleClick={handleEventDoubleClick}
         onDateClick={handleDateClick}
         onNewRdvClick={handleNewRdvClick}
         IsSidebarExpend={IsSidebarExpend}
       />
 
-      {selectedEvent && (
-        <InfoPanel
-          event={selectedEvent}
-          onClose={() => setSelectedEvent(null)}
-          onEdit={() => handleEdit(selectedEvent)}
-          onDelete={() => handleDelete(selectedEvent.id)}
-        />
-      )}
+       {/* ✅ INFOPANEL (30%) - Reste dans le DOM mais caché */}
+      <InfoPanel
+        event={selectedEvent}
+        onClose={() => setSelectedEvent(null)}
+        onEdit={() => handleEdit(selectedEvent)}
+        onDelete={() => handleDelete(selectedEvent.id)}
+      />
 
+      {/* MODAL */}
       {isModalOpen && (
         <ModalForm
           isOpen={isModalOpen}

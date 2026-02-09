@@ -1,4 +1,4 @@
-// /src/pages/Planning/components/Calendar.jsx
+// /frontend/src/pages/Planning/components/Calendar.jsx
 import React, { useRef, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -7,21 +7,27 @@ import interactionPlugin from '@fullcalendar/interaction';
 import frLocale from '@fullcalendar/core/locales/fr';
 import './Calendar.css';
 
-const Calendar = ({ events, onEventClick, onDateClick, onNewRdvClick, IsSidebarExpended }) => {
+const Calendar = ({ 
+  events, 
+  onEventClick, 
+  onEventDoubleClick, // ✅ NOUVEAU
+  onDateClick, 
+  onNewRdvClick, 
+  isSidebarExpanded 
+}) => {
   const calendarRef = useRef(null);
 
-  // FORCE LE REDIMENSIONNEMENT QUAND LA SIDEBAR EST OUVERTE //
-  useEffect(( => {
+  // Forcer le redimensionnement quand la sidebar change
+  useEffect(() => {
     if (calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
-      // PETIT DELAIS POUR ATTENDRE CSS 0.03S //
       setTimeout(() => {
-        calendarApi.updateSize(); // MAGIE DE FULLCALENDAR ! //
-      }, 350); // 50 ms APRES LA FIN DE LA TRANSITION //
+        calendarApi.updateSize();
+      }, 350);
     }
-  }, [IsSidebarExpend]); // Se déclanche quand IsSidebarExpend change
-  )
+  }, [isSidebarExpanded]);
 
+  // ✅ NOUVEAU : Gestion du clic simple
   const handleEventClick = (info) => {
     const event = {
       id: info.event.id,
@@ -30,7 +36,35 @@ const Calendar = ({ events, onEventClick, onDateClick, onNewRdvClick, IsSidebarE
       end: info.event.end,
       ...info.event.extendedProps,
     };
+    
+    // Si c'est un double-clic, FullCalendar le détecte automatiquement
+    // On appelle juste le clic simple ici
     onEventClick(event);
+  };
+
+  // ✅ NOUVEAU : Détection du double-clic
+  let clickTimeout = null;
+  const handleEventClickWithDelay = (info) => {
+    const event = {
+      id: info.event.id,
+      title: info.event.title,
+      start: info.event.start,
+      end: info.event.end,
+      ...info.event.extendedProps,
+    };
+
+    // Si déjà un clic en attente = double-clic
+    if (clickTimeout) {
+      clearTimeout(clickTimeout);
+      clickTimeout = null;
+      onEventDoubleClick(event); // ✅ Double-clic détecté
+    } else {
+      // Premier clic : on attend 300ms
+      clickTimeout = setTimeout(() => {
+        clickTimeout = null;
+        onEventClick(event); // ✅ Clic simple confirmé
+      }, 300);
+    }
   };
 
   const handleDateClick = (info) => {
@@ -52,7 +86,7 @@ const Calendar = ({ events, onEventClick, onDateClick, onNewRdvClick, IsSidebarE
         </button>
       </div>
 
-      {/* WRAPPER POUR LE CALENDAR */}
+      {/* WRAPPER */}
       <div className="calendar-wrapper">
         <FullCalendar
           ref={calendarRef}
@@ -64,23 +98,23 @@ const Calendar = ({ events, onEventClick, onDateClick, onNewRdvClick, IsSidebarE
             center: 'title',
             right: 'dayGridMonth,timeGridWeek,timeGridDay',
           }}
-          slotMinTime="07:00:00" // Peut changer l'heure si les RDV sont plus long, a voir!
+          slotMinTime="07:00:00"
           slotMaxTime="20:00:00"
           allDaySlot={false}
           events={events}
-          eventClick={handleEventClick}
+          eventClick={handleEventClickWithDelay} // ✅ Gestion clic/double-clic
           dateClick={handleDateClick}
           editable={false}
           selectable={true}
           selectMirror={true}
           dayMaxEvents={true}
           weekends={true}
-          height="100%" // Important !
+          height="100%"
           buttonText={{
             today: "Aujourd'hui",
             month: 'Mois',
             week: 'Semaine',
-            day: 'Jour',
+            jour: 'Jour',
           }}
         />
       </div>

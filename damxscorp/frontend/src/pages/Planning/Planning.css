@@ -4,14 +4,23 @@
   width: 100%;
   height: 100vh;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   overflow: hidden;
   transition: width 0.3s ease; /* Animation fluide */
 }
 
+
+/* === ZONE DU CALENDAR (70%) === */
+.planning-calendar-zone {
+  flex: 0 0 70%; /* ✅ Toujours 70% */
+  height: 100%;
+  overflow: hidden;
+  transition: flex 0.3s ease; /* Animation fluide */
+}
+
 /* Quand InfoPanel est ouvert, réduire la largeur */
 .planning-page--infopanel-open {
-  width: 70%; /* Réduit à 70% pour laisser 30% à InfoPanel */
+  flex: 0 0 30%; /* Toujours a 70% */
 }
 
 /* État de chargement */
