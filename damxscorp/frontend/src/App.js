@@ -28,7 +28,7 @@ function App() {
         <main className={`app__content ${isSidebarExpanded ? 'app__content--sidebar-expanded' : ''}`}>
           <Routes>
             <Route path="/" element={<Navigate to="/planning" replace />} />
-            <Route path="/planning" element={<Planning />} />
+            <Route path="/planning" element={<Planning isSidebarExpanded={isSidebarExpanded} />} />
             <Route path="/stock" element={<StockVueEnsemble />} />
             <Route path="/clients" element={<ClientList />} />
             <Route path="/vehicles" element={<VehicleList />} />

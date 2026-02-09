@@ -11,7 +11,7 @@ import {
 } from '../../services/api';
 import './Planning.css';
 
-const Planning = () => {
+const Planning = ({ IsSidebarExpend }) => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -150,6 +150,7 @@ const Planning = () => {
         onEventClick={handleEventClick}
         onDateClick={handleDateClick}
         onNewRdvClick={handleNewRdvClick}
+        IsSidebarExpend={IsSidebarExpend}
       />
 
       {selectedEvent && (
