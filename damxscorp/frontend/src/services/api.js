@@ -32,9 +32,18 @@ export const saveIntervention = async (data) => {
   } catch (error) {
     // ← NOUVEAU : Afficher l'erreur complète de Django
     console.error('❌ Erreur Django complète:', error.response?.data);
-    console.error('❌ Status:', error.response?.status);
-    console.error('❌ Headers:', error.response?.headers);
-    throw new Error('Erreur lors de la sauvegarde');
+    
+    // Message user-friendly selon le type d'erreur
+    if (!error.response) {
+      throw new Error('Impossible de contacter le serveur. Verifiez votre connexion. ');
+    } else if (error.response.status === 400) {
+      const errors = Object.values(error.response.data).flat().joint('\n');
+      throw new Error('Données invalides :\n${errors}');
+    } else if (error.response.status === 500) {
+      throw new Error('Erreur serveur. Contactez l\'administrateur.');
+    } else {
+      throw new Error('Erreur lors de la sauvegarde');
+    }
   }
 };
 
