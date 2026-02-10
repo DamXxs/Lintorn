@@ -40,19 +40,16 @@ const Planning = ({ IsSidebarExpend }) => {
     loadData();
   }, []);
 
-  // ========================================================================
+// ========================================================================
 // CONVERSION DES DONNÉES DU FORMULAIRE VERS LE FORMAT DJANGO
 // ========================================================================
 const convertFormDataToDjango = (formData) => {
-  // ModalForm envoie dateStart/timeStart et dateEnd/timeEnd
-  const dateDebutString = `${formData.dateStart}T${formData.timeStart}:00`;
-  const dateFinString = `${formData.dateEnd}T${formData.timeEnd}:00`;
-  
+  // ModalForm a déjà formaté date_debut et date_fin, on les utilise directement
   const data = {
     type_rdv: formData.departement,
     type_intervention: formData.typeIntervention,
-    date_debut: dateDebutString,
-    date_fin: dateFinString,
+    date_debut: formData.date_debut,  // ← Déjà formaté par ModalForm !
+    date_fin: formData.date_fin,      // ← Déjà formaté par ModalForm !
     description: formData.description || '',
     statut: 'PLANIFIE',
     
