@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { DEPARTEMENTS, VEHICLE_TYPES, INTERVENTION_TYPES } from '../../utils/constants';
 import './ModalForm.css';
-
+import logger from '../../utils/loggers';
 const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
     
     // =========================================================================
@@ -102,7 +102,7 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
-        console.log(`📄 Changement détecté : ${name} = ${value}`);
+        logger.form.change(name, value);
     };
 
     // =========================================================================
@@ -139,7 +139,7 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
                 <div className="modal-body">
                     <form onSubmit={(e) => { 
                         e.preventDefault();
-                        console.log("📥 Données envoyer depuis ModalForm:", formData);
+                        logger.form.submit('ModalForm', formData);
                         onSubmit(formData); 
                     }}>
                         

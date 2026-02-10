@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Calendar from './components/Calendar';
 import InfoPanel from '../../components/shared/InfoPanel';
 import ModalForm from '../../components/shared/ModalForm';
+import logger from '../../utils/logger';
 import { formatInterventionForDjango, formatInterventionForReact } from '../../utils/dataFormatters';
 import { 
   fetchInterventions, 
@@ -52,13 +53,14 @@ const Planning = ({ IsSidebarExpend }) => {
       
       // Foormatage centraliser dans dataFormatters.js
       const djangoData = formatInterventionForDjango(formData);
-      console.log("📤 Données formatées pour Django:", djangoData);
       
       if (editingEvent) {
         await updateIntervention(editingEvent.id, djangoData);
+        logger.success('Rendez-vous modifié avec succès !')
         alert('✅ Rendez-vous modifié avec succès !');
       } else {
         await saveIntervention(djangoData);
+        logger.success('Rendez-vous créé avec succès !')
         alert('✅ Rendez-vous créé avec succès !');
       }
 
@@ -67,8 +69,8 @@ const Planning = ({ IsSidebarExpend }) => {
       setPrefilledDate(null);
       await loadData();
     } catch (err) {
-      console.error('❌ Erreur complète:', err);
-      alert('❌ Erreur lors de l\'enregistrement du rendez-vous');
+      logger.error('Erreur lors de l\'enregistrement', err);
+      alert('❌ ${err.message}');
     }
   };
 

@@ -1,5 +1,6 @@
 // /src/services/api.js
 import axios from 'axios';
+import logger from '../utils/logger';
 
 const API_BASE_URL = 'http://localhost:8000/api';
 
@@ -15,30 +16,33 @@ const api = axios.create({
 
 export const fetchInterventions = async () => {
   try {
+    logger.api.send('GET /interventions/');
     const response = await api.get('/interventions/');
+    logger.api.receive('GET /interventions/', response.data);
     return response.data;
   } catch (error) {
-    console.error('Error:', error);
+    logger.api.error('GET /interventions/', error);
     throw new Error(`Erreur réseau: ${error.response?.status}`);
   }
 };
 
 export const saveIntervention = async (data) => {
   try {
-    console.log("📤 Envoi à Django:", data);
+    logger.api.send('POST /interventions/', data);
     const response = await api.post('/interventions/', data);
-    console.log("✅ Réponse Django:", response.data);
+    logger.api.receive('POST /interventions/', response.data);
     return response.data;
   } catch (error) {
-    // ← NOUVEAU : Afficher l'erreur complète de Django
-    console.error('❌ Erreur Django complète:', error.response?.data);
+    logger.api.error('POST /interventions/', error);
     
-    // Message user-friendly selon le type d'erreur
+    // Messages user-friendly
     if (!error.response) {
-      throw new Error('Impossible de contacter le serveur. Verifiez votre connexion. ');
+      throw new Error('Impossible de contacter le serveur. Vérifiez votre connexion.');
     } else if (error.response.status === 400) {
-      const errors = Object.values(error.response.data).flat().joint('\n');
-      throw new Error('Données invalides :\n${errors}');
+      const errors = Object.entries(error.response.data)
+        .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
+        .join('\n');
+      throw new Error(`Données invalides :\n${errors}`);
     } else if (error.response.status === 500) {
       throw new Error('Erreur serveur. Contactez l\'administrateur.');
     } else {
@@ -49,19 +53,23 @@ export const saveIntervention = async (data) => {
 
 export const updateIntervention = async (id, data) => {
   try {
+    logger.api.send(`PUT /interventions/${id}/`, data);
     const response = await api.put(`/interventions/${id}/`, data);
+    logger.api.receive(`PUT /interventions/${id}/`, response.data);
     return response.data;
   } catch (error) {
-    console.error('Error:', error);
+    logger.api.error(`PUT /interventions/${id}/`, error);
     throw new Error('Erreur lors de la modification');
   }
 };
 
 export const deleteIntervention = async (id) => {
   try {
+    logger.api.send(`DELETE /interventions/${id}/`);
     await api.delete(`/interventions/${id}/`);
+    logger.success(`Intervention ${id} supprimée`);
   } catch (error) {
-    console.error('Error:', error);
+    logger.api.error(`DELETE /interventions/${id}/`, error);
     throw new Error('Erreur lors de la suppression');
   }
 };
@@ -69,19 +77,23 @@ export const deleteIntervention = async (id) => {
 // ========== PIÈCES (STOCK) ==========
 export const fetchPieces = async () => {
   try {
+    logger.api.send('GET /stock/pieces/');
     const response = await api.get('/stock/pieces/');
+    logger.api.receive('GET /stock/pieces/', response.data);
     return response.data;
   } catch (error) {
-    console.error('Error:', error);
+    logger.api.error('GET /stock/pieces/', error);
     throw new Error(`Erreur réseau: ${error.response?.status}`);
   }
 };
 
 export const deletePiece = async (id) => {
   try {
+    logger.api.send(`DELETE /stock/pieces/${id}/`);
     await api.delete(`/stock/pieces/${id}/`);
+    logger.success(`Pièce ${id} supprimée`);
   } catch (error) {
-    console.error('Error:', error);
+    logger.api.error(`DELETE /stock/pieces/${id}/`, error);
     throw new Error('Erreur lors de la suppression');
   }
 };

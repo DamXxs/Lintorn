@@ -1,5 +1,7 @@
 // /frontend/src/utils/dataFormatters.js
 
+import logger from './logger';
+
 /**
  * 🔧 FORMATAGE DES DONNÉES POUR DJANGO
  * 
@@ -17,34 +19,32 @@
  * @returns {Object} - Données formatées pour Django
  */
 export const formatInterventionForDjango = (formData) => {
+  logger.format.before('Intervention', formData);
   // Combiner date + heure pour créer le format ISO attendu par Django
   const date_debut = `${formData.dateStart}T${formData.timeStart}:00`;
   const date_fin = `${formData.dateEnd}T${formData.timeEnd}:00`;
-  
-  return {
-    // Type et planning
+
+  const formatted = {
     type_rdv: formData.departement,
     type_intervention: formData.typeIntervention,
     date_debut: date_debut,
     date_fin: date_fin,
     description: formData.description || '',
     statut: formData.statut || 'PLANIFIE',
-    
-    // Infos client (noms Django attendus)
     client_nom: formData.clientName,
     client_prenom: formData.clientFirstName || '',
     client_phone: formData.clientPhone || '',
     client_email: formData.clientEmail || '',
     client_adresse: formData.clientAddress || '',
-    
-    // Infos véhicule (noms Django attendus)
     vehicule_type: formData.vehicleType,
-    vehicule_immatriculation: formData.plate || '',
     vehicule_marque: formData.vehicleBrand || '',
     vehicule_modele: formData.vehicleModel || '',
     vehicule_annee: formData.vehicleYear || '',
     vehicule_vin: formData.vin || '',
   };
+
+  logger.format.after('Intervention', formatted);
+  return formatted;
 };
 
 /**
@@ -53,39 +53,34 @@ export const formatInterventionForDjango = (formData) => {
  * @returns {Object} - Données formatées pour React
  */
 export const formatInterventionForReact = (djangoData) => {
-  // Séparer date_debut en date et heure
+  logger.format.before('Intervention (Django → React)', djangoData);
+
   const dateDebut = new Date(djangoData.date_debut);
   const dateFin = new Date(djangoData.date_fin);
-  
-  return {
-    // Type et intervention
+
+  const formatted = {
     departement: djangoData.type_rdv,
     typeIntervention: djangoData.type_intervention,
-    
-    // Client
     clientName: djangoData.client_nom,
     clientFirstName: djangoData.client_prenom || '',
     clientPhone: djangoData.client_phone || '',
     clientEmail: djangoData.client_email || '',
     clientAddress: djangoData.client_adresse || '',
-    
-    // Véhicule
-    vehicleType: djangoData.vehicule_type,
+    vehicleType: djangoData.vehicle_type,
     plate: djangoData.vehicule_immatriculation || '',
     vehicleBrand: djangoData.vehicule_marque || '',
     vehicleModel: djangoData.vehicule_modele || '',
     vehicleYear: djangoData.vehicule_annee || '',
     vin: djangoData.vehicule_vin || '',
-    
-    // Planning (séparé en date + heure)
     dateStart: dateDebut.toISOString().split('T')[0],
     timeStart: dateDebut.toTimeString().slice(0, 5),
     dateEnd: dateFin.toISOString().split('T')[0],
     timeEnd: dateFin.toTimeString().slice(0, 5),
-    
-    // Description
     description: djangoData.description || '',
   };
+
+logger.format.after('Intervention (Django → React)', formatted);
+return formatted;
 };
 
 // ========================================================================
