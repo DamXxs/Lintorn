@@ -135,27 +135,9 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
                 <div className="modal-body">
                     <form onSubmit={(e) => { 
                         e.preventDefault();
-    
-                        // ========= COMBINAISON DATE + HEURE POUR DJANGO =========
-                        const formattedData = {
-                            ...formData,
-                            // Combine dateStart + timeStart → date_debut (format ISO)
-                            date_debut: `${formData.dateStart}T${formData.timeStart}:00`,
-                            // Combine dateEnd + timeEnd → date_fin (format ISO)
-                            date_fin: `${formData.dateEnd}T${formData.timeEnd}:00`,
-                        };
-    
-    // On enlève les champs séparés pour éviter la confusion
-    delete formattedData.dateStart;
-    delete formattedData.timeStart;
-    delete formattedData.dateEnd;
-    delete formattedData.timeEnd;
-    
-    console.log("📤 Données AVANT formatage :", formData);
-    console.log("📤 Données APRÈS formatage (envoyées à Django) :", formattedData);
-    
-    onSubmit(formattedData); 
-}}>
+                        console.log("📥 Données envoyer depuis ModalForm:", formData);
+                        onSubmit(formData); 
+                    }}>
                         
                         {/* ===== 1. INFORMATIONS CLIENT ===== */}
                         <div className="form-section">

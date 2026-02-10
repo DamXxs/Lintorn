@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Calendar from './components/Calendar';
 import InfoPanel from '../../components/shared/InfoPanel';
 import ModalForm from '../../components/shared/ModalForm';
+import { formatInterventionForDjango, formatInterventionForReact } from '../../utils/dataFormatters';
 import { 
   fetchInterventions, 
   saveIntervention, 
@@ -41,45 +42,17 @@ const Planning = ({ IsSidebarExpend }) => {
   }, []);
 
 // ========================================================================
-// CONVERSION DES DONNÉES DU FORMULAIRE VERS LE FORMAT DJANGO
+// CONVERSION DES DONNÉES DANS dataFormatters.js
 // ========================================================================
-const convertFormDataToDjango = (formData) => {
-  // ModalForm a déjà formaté date_debut et date_fin, on les utilise directement
-  const data = {
-    type_rdv: formData.departement,
-    type_intervention: formData.typeIntervention,
-    date_debut: formData.date_debut,  // ← Déjà formaté par ModalForm !
-    date_fin: formData.date_fin,      // ← Déjà formaté par ModalForm !
-    description: formData.description || '',
-    statut: 'PLANIFIE',
-    
-    // Données client
-    client_nom: formData.clientName,
-    client_prenom: formData.clientFirstName || '',
-    client_phone: formData.clientPhone || '',
-    client_email: formData.clientEmail || '',
-    client_adresse: formData.clientAddress || '',
-    
-    // Données véhicule
-    vehicule_type: formData.vehicleType,
-    vehicule_immatriculation: formData.plate || '',
-    vehicule_marque: formData.vehicleBrand || '',
-    vehicule_modele: formData.vehicleModel || '',
-    vehicule_annee: formData.vehicleYear || '',
-    vehicule_vin: formData.vin || '',
-  };
-  
-  return data;
-};
 
   // Soumission du formulaire
   const handleFormSubmit = async (formData) => {
     try {
       console.log("📥 Données brutes du formulaire:", formData);
       
-      // Convertir les données au format Django
-      const djangoData = convertFormDataToDjango(formData);
-      console.log("📤 Données converties pour Django:", djangoData);
+      // Foormatage centraliser dans dataFormatters.js
+      const djangoData = formatInterventionForDjango(formData);
+      console.log("📤 Données formatées pour Django:", djangoData);
       
       if (editingEvent) {
         await updateIntervention(editingEvent.id, djangoData);
@@ -88,14 +61,14 @@ const convertFormDataToDjango = (formData) => {
         await saveIntervention(djangoData);
         alert('✅ Rendez-vous créé avec succès !');
       }
-      
+
       setIsModalOpen(false);
       setEditingEvent(null);
       setPrefilledDate(null);
       await loadData();
     } catch (err) {
-      console.error("❌ Erreur complète:", err);
-      alert('❌ Erreur lors de l\'enregistrement');
+      console.error('❌ Erreur complète:', err);
+      alert('❌ Erreur lors de l\'enregistrement du rendez-vous');
     }
   };
 
