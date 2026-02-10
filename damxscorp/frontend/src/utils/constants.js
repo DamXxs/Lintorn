@@ -78,3 +78,13 @@ export const getStatutLabel = (value) => {
 export const getStatutClass = (value) => {
   return STATUTS_RDV[value]?.class || 'planifie';
 };
+
+// ===================================================================//
+// SEUILS DE STOCK
+// ===================================================================//
+export const STOCK_ALERTS = {
+  CRITIQUE: 5,
+  FAIBLE: 10,
+  OK: 20,
+
+};
