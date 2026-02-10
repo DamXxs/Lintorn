@@ -1,5 +1,6 @@
 // /src/components/shared/ModalForm.jsx
 import React, { useState, useEffect } from 'react';
+import { DEPARTEMENTS, VEHICLE_TYPES, INTERVENTION_TYPES } from '../../utils/constants';
 import './ModalForm.css';
 
 const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
@@ -126,8 +127,11 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
                         value={formData.departement} 
                         onChange={handleChange}
                     >
-                        <option value="ATELIER">🔧 ATELIER</option>
-                        <option value="ACADEMIE">🎓 ACADÉMIE</option>
+                        {Object.value(DEPARTEMENTS).map(dept => (
+                            <option key={dep.value} value={dept.value}>
+                                {dept.label}
+                            </option>
+                        ))}
                     </select>
                 </div>
 
@@ -231,7 +235,6 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
                                 </div>
 
                                 {/* Type véhicule + Type intervention */}
-                                <div className="form-grid-2col">
                                     <div className="form-group">
                                         <label className="required">Type de véhicule</label>
                                         <select 
@@ -239,28 +242,30 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
                                             value={formData.vehicleType} 
                                             onChange={handleChange}
                                         >
-                                            <option value="VOITURE">🚗 Voiture</option>
-                                            <option value="MOTO">🏍️ Moto</option>
-                                            <option value="MOTOCULTURE">🚜 Motoculture</option>
-                                            <option value="BATEAU">🚤 Bateau</option>
+                                            {Object.values(VEHICLE_TYPES).map(type => (
+                                                <option key={type.value} value={type.value}>
+                                                    {type.label}
+                                                </option>
+                                            ))}
                                         </select>
                                     </div>
+                                    
+                                    {/* Type d'intervention */}
                                     <div className="form-group">
                                         <label className="required">Type d'intervention</label>
-                                        <select 
-                                            name="typeIntervention" 
-                                            value={formData.typeIntervention} 
-                                            onChange={handleChange}
+                                        <select
+                                            name="typeintervention"
+                                            value={formdata.typeIntervention}
+                                            onChange={handelChange}
                                         >
-                                            <option value="ENTRETIEN_VP2">Entretien VP2 (Petite vidange)</option>
-                                            <option value="ENTRETIEN_VP4">Entretien VP4 (Grosse vidange)</option>
-                                            <option value="DIAGNOSTIQUE">Diagnostique</option>
-                                            <option value="PNEUMATIQUES">Pneumatiques</option>
-                                            <option value="REVISION_COMPLETE">Révision complète</option>
-                                            <option value="AUTRE">Autre</option>
+                                            {Object.values(INTERVENTION_TYPE).map(type => (
+                                                <option key={type.value} value={type.value}>
+                                                    {type.label}     
+                                                </option>
+                                            ))}
                                         </select>
                                     </div>
-                                </div>
+                                
 
                                 {/* Marque, Modèle, Année */}
                                 <div className="form-grid-3col">

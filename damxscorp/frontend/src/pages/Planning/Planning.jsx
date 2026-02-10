@@ -94,7 +94,9 @@ const Planning = ({ IsSidebarExpend }) => {
 
   // ✅ NOUVEAU : Double-clic sur un événement
   const handleEventDoubleClick = (event) => {
-    setEditingEvent(event);
+    // Formater les données Django pour React avant de les passer au formulaire
+    const formattedEvent = formatInterventionForReact(event);
+    setEditingEvent(formattedEvent);
     setPrefilledDate(null);
     setIsModalOpen(true);
   };
@@ -111,8 +113,10 @@ const Planning = ({ IsSidebarExpend }) => {
     setIsModalOpen(true);
   };
 
-  // Édition d'un événement
+  // Édition d'un événement (depuis InfoPanel)
   const handleEdit = (event) => {
+    // Formater les données Django pour React avant de les passer au formulaire
+    const formattedEvent = formatInterventionForReact(event);
     setEditingEvent(event);
     setPrefilledDate(null);
     setIsModalOpen(true);
