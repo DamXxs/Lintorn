@@ -1,3 +1,9 @@
+/*--------------------------------------------------------------- */
+/* OUBLIER POUR L'INSTANT A VOIR AVEC LA SUITE SI ON GARDE OU PAS */
+/*--------------------------------------------------------------- */
+
+
+
 import React from 'react';
 import './FloatingMenu.css';
 
