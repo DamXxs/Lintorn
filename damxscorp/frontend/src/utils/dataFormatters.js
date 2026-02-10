@@ -66,7 +66,7 @@ export const formatInterventionForReact = (djangoData) => {
     clientPhone: djangoData.client_phone || '',
     clientEmail: djangoData.client_email || '',
     clientAddress: djangoData.client_adresse || '',
-    vehicleType: djangoData.vehicle_type,
+    vehicleType: djangoData.vehicule_type,
     plate: djangoData.vehicule_immatriculation || '',
     vehicleBrand: djangoData.vehicule_marque || '',
     vehicleModel: djangoData.vehicule_modele || '',

@@ -70,7 +70,7 @@ const Planning = ({ IsSidebarExpend }) => {
       await loadData();
     } catch (err) {
       logger.error('Erreur lors de l\'enregistrement', err);
-      alert('❌ ${err.message}');
+      alert(`❌ ${err.message}`);
     }
   };
 

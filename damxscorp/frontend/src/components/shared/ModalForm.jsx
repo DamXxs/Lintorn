@@ -2,39 +2,31 @@
 import React, { useState, useEffect } from 'react';
 import { DEPARTEMENTS, VEHICLE_TYPES, INTERVENTION_TYPES } from '../../utils/constants';
 import './ModalForm.css';
-import logger from '../../utils/loggers';
+import logger from '../../utils/logger';  // ✅ Corrigé
+
 const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
     
     // =========================================================================
     // ÉTAT DU FORMULAIRE
     // =========================================================================
     const [formData, setFormData] = useState({
-        // Type de RDV
         departement: 'ATELIER',
         typeIntervention: 'ENTRETIEN_VP2',
-        
-        // Infos Client
         clientName: '',
         clientFirstName: '',
         clientPhone: '',
         clientEmail: '',
         clientAddress: '',
-        
-        // Infos Véhicule
         vehicleType: 'VOITURE',
         plate: '',
         vehicleBrand: '',
         vehicleModel: '',
         vehicleYear: '',
         vin: '',
-        
-        // Planification
         dateStart: '',
         timeStart: '08:00',
         dateEnd: '',
         timeEnd: '09:00',
-        
-        // Description
         description: ''
     });
 
@@ -106,7 +98,7 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
     };
 
     // =========================================================================
-    // FONCTION API SIV (placeholder pour plus tard)
+    // FONCTION API SIV
     // =========================================================================
     const handleSivSearch = () => {
         console.log('🔍 Recherche SIV pour : ', formData.plate);
@@ -127,8 +119,8 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
                         value={formData.departement} 
                         onChange={handleChange}
                     >
-                        {Object.value(DEPARTEMENTS).map(dept => (
-                            <option key={dep.value} value={dept.value}>
+                        {Object.values(DEPARTEMENTS).map(dept => (  // ✅ Corrigé
+                            <option key={dept.value} value={dept.value}>  {/* ✅ Corrigé */}
                                 {dept.label}
                             </option>
                         ))}
@@ -235,6 +227,7 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
                                 </div>
 
                                 {/* Type véhicule + Type intervention */}
+                                <div className="form-grid-2col">
                                     <div className="form-group">
                                         <label className="required">Type de véhicule</label>
                                         <select 
@@ -254,18 +247,18 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
                                     <div className="form-group">
                                         <label className="required">Type d'intervention</label>
                                         <select
-                                            name="typeintervention"
-                                            value={formdata.typeIntervention}
-                                            onChange={handelChange}
+                                            name="typeIntervention"  // ✅ Corrigé
+                                            value={formData.typeIntervention}  // ✅ Corrigé
+                                            onChange={handleChange}  // ✅ Corrigé
                                         >
-                                            {Object.values(INTERVENTION_TYPE).map(type => (
+                                            {Object.values(INTERVENTION_TYPES).map(type => (  // ✅ Corrigé
                                                 <option key={type.value} value={type.value}>
                                                     {type.label}     
                                                 </option>
                                             ))}
                                         </select>
                                     </div>
-                                
+                                </div>
 
                                 {/* Marque, Modèle, Année */}
                                 <div className="form-grid-3col">
