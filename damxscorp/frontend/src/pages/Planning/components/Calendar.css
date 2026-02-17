@@ -21,10 +21,6 @@
   border: 2px solid var(--border);
   padding: 20px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-
-  /* Acceleration GPU pour des transitions plus fluides */
-  will-change: transform;
-  transform: translateZ(0);
 }
 
 /* === FULLCALENDAR BASE === */
