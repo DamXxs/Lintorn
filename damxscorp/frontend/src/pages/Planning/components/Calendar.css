@@ -3,71 +3,285 @@
 /* === CONTENEUR PRINCIPAL === */
 .calendar-container {
   padding: 30px;
-  height: 100%; /* Prend toute la hauteur de son parent */
+  height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-/* === HEADER DU CALENDAR === */
-.calendar-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  padding: 15px 20px;
-  background: var(--panel);
-  border-radius: 10px;
-  border: 2px solid var(--border);
-  flex-shrink: 0;
-}
 
-.calendar-title {
-  margin: 0;
-  font-size: 24px;
-  color: white;
-  font-weight: 700;
-}
-
-.btn-new-rdv {
-  padding: 12px 24px;
-  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.btn-new-rdv:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(39, 174, 96, 0.5);
-}
 
 /* === FULLCALENDAR WRAPPER === */
 .calendar-wrapper {
-  flex: 1; /* Prend tout l'espace restant */
-  min-height: 0; /* Important pour le flex */
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
   background: var(--panel);
   border-radius: 12px;
   border: 2px solid var(--border);
   padding: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
-/* === FULLCALENDAR === */
+/* === FULLCALENDAR BASE === */
 .fc {
   height: 100% !important;
+  color: white;
 }
 
 .fc-view-harness {
   height: 100% !important;
 }
 
-/* Reste du CSS identique... */
-/* (garde tout le reste que je t'ai donné avant) */
+/* === TOOLBAR (Boutons navigation + titre) === */
+.fc-toolbar {
+  padding: 15px 10px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #252525 100%);
+  border-radius: 10px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border);
+}
+
+.fc-toolbar-title {
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--accent);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* === BOUTONS === */
+.fc-button {
+  background: #2a2a2a !important;
+  border: 1px solid #3a3a3a !important;
+  color: #e0e0e0 !important;
+  padding: 6px 12px !important;
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  transition: all 0.2s ease !important;
+  text-transform: capitalize !important;
+}
+
+.fc-button:hover {
+  background: #333 !important;
+  border-color: var(--accent) !important;
+  color: white !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.fc-button-active {
+  background: linear-gradient(135deg, #2980b9 0%, #3498db 100%) !important;
+  border-color: var(--accent) !important;
+  color: white !important;
+  box-shadow: 0 0 0 2px rgba(41, 128, 185, 0.3);
+}
+
+.fc-button-active:hover {
+  background: linear-gradient(135deg, #3498db 0%, #5dade2 100%) !important;
+}
+
+/* === GRILLE DU CALENDRIER === */
+.fc-theme-standard td,
+.fc-theme-standard th {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* En-têtes des jours */
+.fc-col-header-cell {
+  background: linear-gradient(180deg, #1a1a1a 0%, #252525 100%);
+  border-bottom: 2px solid var(--accent) !important;
+  padding: 12px 0 !important;
+}
+
+.fc-col-header-cell-cushion {
+  color: var(--accent) !important;
+  font-weight: 700 !important;
+  font-size: 10px !important;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* === CELLULES DE JOURS === */
+.fc-daygrid-day,
+.fc-timegrid-col {
+  background: rgba(255, 255, 255, 0.02);
+  transition: background 0.2s ease;
+}
+
+.fc-daygrid-day:hover,
+.fc-timegrid-col:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Jour actuel (AUJOURD'HUI) */
+.fc-day-today {
+  background: rgba(41, 128, 185, 0.1) !important;
+  border: 2px solid var(--accent) !important;
+}
+
+.fc-day-today .fc-daygrid-day-number {
+  background: var(--accent);
+  color: white;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  margin: 4px;
+}
+
+/* Numéro de jour */
+.fc-daygrid-day-number {
+  color: #e0e0e0;
+  font-weight: 600;
+  padding: 8px;
+  font-size: 14px;
+}
+
+/* === ÉVÉNEMENTS (RDV) - STYLE APPLE === */
+.fc-event {
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 6px 10px !important;
+  margin: 2px 4px !important;
+  
+  /* ✅ CURSEUR POINTER (corrigé !) */
+  cursor: pointer !important;
+  
+  /* Ombre pour profondeur */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  
+  /* Animation fluide */
+  transition: all 0.2s ease;
+  
+  /* Empêcher la sélection de texte */
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+}
+
+.fc-event:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  z-index: 10;
+}
+
+.fc-event-title {
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  color: white !important;
+  /* ✅ Empêcher sélection texte */
+  cursor: pointer !important;
+  user-select: none !important;
+}
+
+.fc-event-time {
+  font-weight: 700 !important;
+  font-size: 10px !important;
+  opacity: 0.9;
+}
+
+/* === COULEURS PAR DÉPARTEMENT === */
+/* Atelier (Bleu) */
+.fc-event[style*="rgb(55, 136, 216)"],
+.fc-event[style*="#3788d8"] {
+  background: linear-gradient(135deg, #2980b9 0%, #3498db 100%) !important;
+  border-left: 4px solid #5dade2 !important;
+}
+
+/* Académie (Orange) */
+.fc-event[style*="rgb(243, 156, 18)"],
+.fc-event[style*="#f39c12"] {
+  background: linear-gradient(135deg, #d35400 0%, #f39c12 100%) !important;
+  border-left: 4px solid #f5b041 !important;
+}
+
+/* === VUE SEMAINE / JOUR (TimeGrid) === */
+.fc-timegrid-slot {
+  height: 3em !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.fc-timegrid-slot-label {
+  color: #888 !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+}
+
+/* Ligne de l'heure actuelle */
+.fc-timegrid-now-indicator-line {
+  border-color: #e74c3c !important;
+  border-width: 2px !important;
+}
+
+.fc-timegrid-now-indicator-arrow {
+  border-color: #e74c3c !important;
+}
+
+/* === SCROLLBAR PERSONNALISÉE === */
+.fc-scroller::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.fc-scroller::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.fc-scroller::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 10px;
+}
+
+.fc-scroller::-webkit-scrollbar-thumb:hover {
+  background: #3498db;
+}
+
+/* === VUE MOIS === */
+.fc-daygrid-event {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Lien "voir plus" */
+.fc-daygrid-more-link {
+  color: var(--accent) !important;
+  font-weight: 700 !important;
+  font-size: 11px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.fc-daygrid-more-link:hover {
+  color: #3498db !important;
+  text-decoration: underline;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .calendar-header {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .btn-new-rdv {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .fc-toolbar {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .fc-toolbar-title {
+    font-size: 1.1rem !important;
+  }
+}

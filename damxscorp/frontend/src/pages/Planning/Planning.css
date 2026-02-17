@@ -6,21 +6,16 @@
   display: flex;
   flex-direction: row;
   overflow: hidden;
-  transition: width 0.3s ease; /* Animation fluide */
+  /* ✅ Suppression des marges qui créent le vide */
 }
 
-
-/* === ZONE DU CALENDAR (70%) === */
+/* === ZONE DU CALENDAR (75%) === */
 .planning-calendar-zone {
-  flex: 0 0 70%; /* ✅ Toujours 70% */
+  flex: 0 0 75%; /* ← Calendar prend 75% */
   height: 100%;
-  overflow: hidden;
-  transition: flex 0.3s ease; /* Animation fluide */
-}
-
-/* Quand InfoPanel est ouvert, réduire la largeur */
-.planning-page--infopanel-open {
-  flex: 0 0 30%; /* Toujours a 70% */
+  display: flex;
+  flex-direction: column;
+  /* ✅ Pas de padding ici, on le met dans Calendar.css */
 }
 
 /* État de chargement */

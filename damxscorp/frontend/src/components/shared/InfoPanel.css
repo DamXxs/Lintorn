@@ -5,19 +5,19 @@
 /* === CONTENEUR PRINCIPAL === */
 #info-column {
     position: relative;
-    flex: 0 0 30%; /* Prend que 30% */
-    height: 100%; /* Hauteur totale - padding haut/bas */
+    flex: 0 0 25%; /* Prend que 30% */
+    height: 90%; /* Hauteur totale - padding haut/bas */
     background: transparent; /* Transparent pour éviter double fond */
     
     /* Animation slide */
     transform: translateX(100%); /*Caché par défaut*/
     opacity: 0;
     transition: transform 0.3s ease, opacity 0.3s ease;
-    padding: 30px;
+    padding: 30px 15px; /* Allignement avec Calendar */
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 10px;
 }
 
 /* État visible */
@@ -61,8 +61,8 @@
 .info-card {
     background: var(--panel);
     border-radius: 12px;
-    padding: 20px;
-    padding-top: 50px; /* Espace pour le bouton de fermeture */
+    padding: 15px;
+    padding-top: 45px; /* Espace pour le bouton de fermeture */
     border: 2px solid var(--border);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     position: relative;
@@ -72,15 +72,15 @@
 
 /* === TITRE === */
 .info-card h3 {
-    margin: 0 0 15px 0;
-    font-size: 16px;
+    margin: 0 0 10px 0;
+    font-size: 13px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
+    letter-spacing: 1.2px;
     color: var(--accent);
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 /* === SÉPARATEUR === */
@@ -92,15 +92,15 @@
 
 /* === SECTIONS D'INFO === */
 .detail-section {
-    margin-bottom: 20px;
+    margin-bottom: 12px;
 }
 
 .detail-section h4 {
-    font-size: 11px;
+    font-size: 10px;
     text-transform: uppercase;
     color: var(--accent);
-    margin-bottom: 10px;
-    letter-spacing: 1px;
+    margin-bottom: 6px;
+    letter-spacing: 0.8px;
     font-weight: 700;
     display: flex;
     align-items: center;
@@ -109,17 +109,17 @@
 
 /* === LIGNES DE DÉTAILS === */
 .detail-row {
-    margin-bottom: 10px;
+    margin-bottom: 6px;
     display: flex;
     align-items: baseline;
-    gap: 8px;
+    gap: 6px;
 }
 
 .detail-row strong {
     color: #888;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
-    min-width: 100px;
+    min-width: 80px;
 }
 
 .detail-row span {
@@ -130,13 +130,13 @@
 /* === BADGE DE STATUT === */
 .status-badge {
     display: inline-block;
-    padding: 6px 14px;
+    padding: 4px 10px;
     border-radius: 20px;
-    font-size: 12px;
+    font-size: 10px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-top: 5px;
+    margin-top: 3px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
@@ -163,15 +163,15 @@
 
 /* === ZONE DE DESCRIPTION === */
 .description-box {
-    margin-top: 10px;
+    margin-top: 8px;
     color: #e0e0e0;
-    font-size: 13px;
-    line-height: 1.6;
+    font-size: 11px;
+    line-height: 1.5;
     background: var(--input-bg);
-    padding: 14px;
+    padding: 10px;
     border-radius: 8px;
     border: 1px solid var(--border);
-    min-height: 60px;
+    min-height: 50px;
 }
 
 .description-box:empty::before {
@@ -183,18 +183,18 @@
 /* === BOUTONS D'ACTION === */
 .action-buttons {
     display: flex;
-    gap: 10px;
-    margin-top: 25px;
+    gap: 8px;
+    margin-top: 15px;
 }
 
 .action-buttons button {
     flex: 1;
-    padding: 12px;
-    border-radius: 8px;
+    padding: 8px;
+    border-radius: 6px;
     border: none;
     cursor: pointer;
     font-weight: 700;
-    font-size: 13px;
+    font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     transition: all 0.3s ease;

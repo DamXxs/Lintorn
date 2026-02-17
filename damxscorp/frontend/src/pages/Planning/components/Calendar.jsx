@@ -75,16 +75,8 @@ const Calendar = ({
 
   return (
     <div className="calendar-container">
-      {/* HEADER */}
-      <div className="calendar-header">
-        <h2 className="calendar-title">📅 Planning</h2>
-        <button 
-          className="btn-new-rdv"
-          onClick={onNewRdvClick}
-        >
-          ➕ Nouveau RDV
-        </button>
-      </div>
+      {/* HEADER - Supprimer bouton new rdv dans la toolbar fullcalendar */}
+      
 
       {/* WRAPPER */}
       <div className="calendar-wrapper">
@@ -96,7 +88,13 @@ const Calendar = ({
           headerToolbar={{
             left: 'prev,next today',
             center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay,newRdvButton',
+          }}
+          customButtons={{
+            newRdvButton: {
+              text: 'Nouveau RDV',
+              click: onNewRdvClick,
+            },
           }}
           slotMinTime="07:00:00"
           slotMaxTime="20:00:00"

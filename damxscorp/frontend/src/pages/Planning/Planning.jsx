@@ -13,7 +13,8 @@ import {
 } from '../../services/api';
 import './Planning.css';
 
-const Planning = ({ IsSidebarExpend }) => {
+const Planning = ({ IsSidebarExpanded }) => {
+  console.log('Planning - Sidebar expanded?', IsSidebarExpanded); // Debug
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -134,17 +135,21 @@ const Planning = ({ IsSidebarExpend }) => {
   }
 
   return (
-    <div className={`planning-page ${selectedEvent ? 'planning-page-infopanel-open' : ''}`}>
-      <Calendar 
-        events={events}
-        onEventClick={handleEventClick}
-        onEventDoubleClick={handleEventDoubleClick}
-        onDateClick={handleDateClick}
-        onNewRdvClick={handleNewRdvClick}
-        IsSidebarExpend={IsSidebarExpend}
-      />
+    <div className={`planning-page ${selectedEvent ? 'planning-page--infopanel-open' : ''}`}>
+      
+      {/* ✅ ZONE DU CALENDAR (wrapper ajouté) */}
+      <div className="planning-calendar-zone">
+        <Calendar 
+          events={events}
+          onEventClick={handleEventClick}
+          onEventDoubleClick={handleEventDoubleClick}
+          onDateClick={handleDateClick}
+          onNewRdvClick={handleNewRdvClick}
+          isSidebarExpanded={IsSidebarExpanded}
+        />
+      </div>
 
-       {/* ✅ INFOPANEL (30%) - Reste dans le DOM mais caché */}
+      {/* ✅ INFOPANEL - Reste dans le DOM mais caché */}
       <InfoPanel
         event={selectedEvent}
         onClose={() => setSelectedEvent(null)}
@@ -168,6 +173,6 @@ const Planning = ({ IsSidebarExpend }) => {
       )}
     </div>
   );
-};
+}
 
 export default Planning;
