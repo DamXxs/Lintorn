@@ -13,8 +13,8 @@ import {
 } from '../../services/api';
 import './Planning.css';
 
-const Planning = ({ IsSidebarExpanded }) => {
-  console.log('Planning - Sidebar expanded?', IsSidebarExpanded); // Debug
+const Planning = ({ isSidebarExpanded }) => {
+  console.log('Planning - Sidebar expanded?', isSidebarExpanded); // Debug
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -145,7 +145,7 @@ const Planning = ({ IsSidebarExpanded }) => {
           onEventDoubleClick={handleEventDoubleClick}
           onDateClick={handleDateClick}
           onNewRdvClick={handleNewRdvClick}
-          isSidebarExpanded={IsSidebarExpanded}
+          isSidebarExpanded={isSidebarExpanded}
         />
       </div>
 

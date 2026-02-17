@@ -19,12 +19,30 @@ const Calendar = ({
 
   // Forcer le redimensionnement quand la sidebar change
   useEffect(() => {
-    if (calendarRef.current) {
+    if (!calendarRef.current) return;
+
       const calendarApi = calendarRef.current.getApi();
-      setTimeout(() => {
-        calendarApi.updateSize();
-      }, 350);
-    }
+      let rafId = null;
+
+      const handleResize = () => {
+          if (rafId) {
+              cancelAnimationFrame(rafId);
+          }
+          rafId = requestAnimationFrame(() => {
+            rafId = requestAnimationFrame(() => {
+              calendarApi.updateSize();
+            });
+          });
+      };
+
+      handleResize(); // Appel initial
+
+      // Nettoyage
+      return () => {
+        if (rafId) {
+          cancelAnimationFrame(rafId);
+        } 
+      };
   }, [isSidebarExpanded]);
 
   // ✅ NOUVEAU : Gestion du clic simple
