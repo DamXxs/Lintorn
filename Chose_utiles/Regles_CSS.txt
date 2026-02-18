@@ -1,0 +1,18 @@
+// ================================================================= //
+// ============================= CSS =============================== //
+// ================================================================= //
+
+px = a rien il est fixe, utiliser pour le texte généralement mais utile pour les petits detailes et le bordures
+%  = Le parent, sa largeur est flexible par rapport au parent
+vh = hauteur par rapport a l'écran 
+vw = largeur par rapport a l'écran
+rem = la police racine, utiliser pour les tailles des textes généralement
+
+# =================== RESUMER ================== #
+
+Largeur -> % ou max-width en px
+Hauteur -> vh car le parent n'a souvent pas de hauteur définie
+Texte   -> px ou rem
+Détails -> px
+
+# ============================================== #
