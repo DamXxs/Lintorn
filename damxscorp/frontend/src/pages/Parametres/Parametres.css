@@ -1,0 +1,118 @@
+/* /frontend/src/pages/Parametres/Parametres.css */
+
+.parametres-page {
+  padding: 30px;
+  max-width: 900px;
+}
+
+.parametres-title {
+  font-size: 24px;
+  color: var(--text);
+  margin-bottom: 30px;
+}
+
+/* ── SECTIONS ────────────────────────────────────────────────── */
+.param-section {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.param-section__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.coming-soon {
+  font-size: 10px;
+  background: var(--border);
+  color: #888;
+  padding: 2px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+.param-placeholder {
+  color: #555;
+  font-size: 13px;
+  font-style: italic;
+}
+
+/* ── GRILLE DE THÈMES ────────────────────────────────────────── */
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+}
+
+.theme-card {
+  background: var(--input-bg);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.theme-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.theme-card--active {
+  border-color: var(--accent);
+  background: rgba(41, 128, 185, 0.1);
+}
+
+.theme-card__icon {
+  font-size: 28px;
+}
+
+.theme-card__name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Aperçu 3 couleurs */
+.theme-card__preview {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.theme-card__preview span {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.theme-card__badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* ── RESPONSIVE ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .parametres-page { padding: 20px; }
+  .theme-grid { grid-template-columns: repeat(3, 1fr); }
+}

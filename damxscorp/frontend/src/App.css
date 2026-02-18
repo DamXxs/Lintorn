@@ -10,13 +10,13 @@
 
 .app__content {
   flex: 1;
-  margin-left: 70px; /* Sidebar réduite */
+  margin-left: 70px; /* Décalage sidebar réduite (desktop) */
   overflow-y: auto;
   background: var(--bg);
   transition: margin-left 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
 }
 
-/* Quand la sidebar est étendue */
+/* Quand la sidebar est étendue (desktop) */
 .app__content--sidebar-expanded {
   margin-left: 260px;
 }
@@ -31,13 +31,17 @@
   color: #888;
 }
 
-/* === RESPONSIVE === */
+/* ================================================================
+   RESPONSIVE MOBILE (≤ 768px)
+   ================================================================ */
 @media (max-width: 768px) {
+
+  /* Sur mobile, la sidebar est en overlay (pas de décalage du contenu) */
   .app__content {
     margin-left: 0;
   }
 
   .app__content--sidebar-expanded {
-    margin-left: 0;
+    margin-left: 0; /* Pas de décalage → la sidebar passe par dessus */
   }
 }

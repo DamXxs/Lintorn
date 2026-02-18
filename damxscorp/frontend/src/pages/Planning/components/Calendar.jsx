@@ -7,84 +7,52 @@ import interactionPlugin from '@fullcalendar/interaction';
 import frLocale from '@fullcalendar/core/locales/fr';
 import './Calendar.css';
 
-const Calendar = ({ 
-  events, 
-  onEventClick, 
-  onEventDoubleClick, // ✅ NOUVEAU
-  onDateClick, 
-  onNewRdvClick, 
-  isSidebarExpanded 
+const Calendar = ({
+  events,
+  onEventClick,
+  onDateClick,
+  onNewRdvClick,
+  isSidebarExpanded
 }) => {
   const calendarRef = useRef(null);
 
-  // Forcer le redimensionnement quand la sidebar change
+  // ── FIX RESIZE ────────────────────────────────────────────────
+  // On attend la fin de la transition CSS (300ms) + marge de sécurité (50ms)
+  // avant de demander à FullCalendar de recalculer sa taille
   useEffect(() => {
     if (!calendarRef.current) return;
 
-      const calendarApi = calendarRef.current.getApi();
-      let rafId = null;
+    // Durée de la transition sidebar en ms (doit correspondre au CSS)
+    const TRANSITION_DURATION = 350;
 
-      const handleResize = () => {
-          if (rafId) {
-              cancelAnimationFrame(rafId);
-          }
-          rafId = requestAnimationFrame(() => {
-            rafId = requestAnimationFrame(() => {
-              calendarApi.updateSize();
-            });
-          });
-      };
+    const timer = setTimeout(() => {
+      const calendarApi = calendarRef.current?.getApi();
+      if (calendarApi) {
+        calendarApi.updateSize();
+      }
+    }, TRANSITION_DURATION);
 
-      handleResize(); // Appel initial
+    // Nettoyage : annule le timer si le composant se démonte avant
+    return () => clearTimeout(timer);
 
-      // Nettoyage
-      return () => {
-        if (rafId) {
-          cancelAnimationFrame(rafId);
-        } 
-      };
-  }, [isSidebarExpanded]);
+  }, [isSidebarExpanded]); // Se déclenche à chaque changement de la sidebar
 
-  // ✅ NOUVEAU : Gestion du clic simple
+  // ── CLIC SUR UN ÉVÉNEMENT ────────────────────────────────────
   const handleEventClick = (info) => {
     const event = {
       id: info.event.id,
       title: info.event.title,
       start: info.event.start,
       end: info.event.end,
+      // extendedProps contient toutes les données Django
       ...info.event.extendedProps,
     };
-    
-    // Si c'est un double-clic, FullCalendar le détecte automatiquement
-    // On appelle juste le clic simple ici
+
+    console.log('📅 Événement cliqué (données complètes) :', event);
     onEventClick(event);
   };
 
-  // ✅ NOUVEAU : Détection du double-clic
-  let clickTimeout = null;
-  const handleEventClickWithDelay = (info) => {
-    const event = {
-      id: info.event.id,
-      title: info.event.title,
-      start: info.event.start,
-      end: info.event.end,
-      ...info.event.extendedProps,
-    };
-
-    // Si déjà un clic en attente = double-clic
-    if (clickTimeout) {
-      clearTimeout(clickTimeout);
-      clickTimeout = null;
-      onEventDoubleClick(event); // ✅ Double-clic détecté
-    } else {
-      // Premier clic : on attend 300ms
-      clickTimeout = setTimeout(() => {
-        clickTimeout = null;
-        onEventClick(event); // ✅ Clic simple confirmé
-      }, 300);
-    }
-  };
-
+  // ── CLIC SUR UNE CASE VIDE ───────────────────────────────────
   const handleDateClick = (info) => {
     if (info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay') {
       onDateClick(info.date);
@@ -93,10 +61,6 @@ const Calendar = ({
 
   return (
     <div className="calendar-container">
-      {/* HEADER - Supprimer bouton new rdv dans la toolbar fullcalendar */}
-      
-
-      {/* WRAPPER */}
       <div className="calendar-wrapper">
         <FullCalendar
           ref={calendarRef}
@@ -110,7 +74,7 @@ const Calendar = ({
           }}
           customButtons={{
             newRdvButton: {
-              text: 'Nouveau RDV',
+              text: '+ Nouveau RDV',
               click: onNewRdvClick,
             },
           }}
@@ -118,7 +82,7 @@ const Calendar = ({
           slotMaxTime="20:00:00"
           allDaySlot={false}
           events={events}
-          eventClick={handleEventClickWithDelay} // ✅ Gestion clic/double-clic
+          eventClick={handleEventClick}
           dateClick={handleDateClick}
           editable={false}
           selectable={true}
@@ -126,12 +90,6 @@ const Calendar = ({
           dayMaxEvents={true}
           weekends={true}
           height="100%"
-          buttonText={{
-            today: "Aujourd'hui",
-            month: 'Mois',
-            week: 'Semaine',
-            jour: 'Jour',
-          }}
         />
       </div>
     </div>

@@ -1,123 +1,105 @@
 // /frontend/src/utils/dataFormatters.js
-
 import logger from './logger';
 
 /**
- * 🔧 FORMATAGE DES DONNÉES POUR DJANGO
- * 
- * Centralise toutes les conversions de données entre React et Django.
- * Un seul endroit = moins d'erreurs !
+ * 🔧 FORMATAGE DES DONNÉES ENTRE REACT ET DJANGO
+ *
+ * REACT → DJANGO (POST/PUT) : formatInterventionForDjango
+ * DJANGO → REACT (GET)      : formatInterventionForReact
  */
 
-// ========================================================================
-// INTERVENTIONS (Rendez-vous)
-// ========================================================================
-
-/**
- * Formate les données du formulaire de RDV pour Django
- * @param {Object} formData - Données brutes du formulaire
- * @returns {Object} - Données formatées pour Django
- */
+// =========================================================================
+// REACT → DJANGO
+// Ce que le formulaire envoie au backend
+// Noms de champs = ce que le serializer attend en write_only
+// =========================================================================
 export const formatInterventionForDjango = (formData) => {
-  logger.format.before('Intervention', formData);
-  // Combiner date + heure pour créer le format ISO attendu par Django
-  const date_debut = `${formData.dateStart}T${formData.timeStart}:00`;
-  const date_fin = `${formData.dateEnd}T${formData.timeEnd}:00`;
+    logger.format.before('Intervention (React → Django)', formData);
 
-  const formatted = {
-    type_rdv: formData.departement,
-    type_intervention: formData.typeIntervention,
-    date_debut: date_debut,
-    date_fin: date_fin,
-    description: formData.description || '',
-    statut: formData.statut || 'PLANIFIE',
-    client_nom: formData.clientName,
-    client_prenom: formData.clientFirstName || '',
-    client_phone: formData.clientPhone || '',
-    client_email: formData.clientEmail || '',
-    client_adresse: formData.clientAddress || '',
-    vehicule_type: formData.vehicleType,
-    vehicule_marque: formData.vehicleBrand || '',
-    vehicule_modele: formData.vehicleModel || '',
-    vehicule_annee: formData.vehicleYear || '',
-    vehicule_vin: formData.vin || '',
-  };
+    const formatted = {
+        // Type et statut
+        type_rdv:          formData.departement    || 'ATELIER',
+        type_intervention: formData.typeIntervention || '',
+        statut:            formData.statut          || 'PLANIFIE',
 
-  logger.format.after('Intervention', formatted);
-  return formatted;
+        // Dates combinées
+        date_debut: `${formData.dateStart}T${formData.timeStart}:00`,
+        date_fin:   `${formData.dateEnd}T${formData.timeEnd}:00`,
+
+        // Description
+        description: formData.description || '',
+
+        // Client (write_only dans le serializer)
+        client_nom:     formData.clientName      || '',
+        client_prenom:  formData.clientFirstName || '',
+        client_phone:   formData.clientPhone     || '',
+        client_email:   formData.clientEmail     || '',
+        client_adresse: formData.clientAddress   || '',
+
+        // Véhicule (write_only dans le serializer)
+        vehicule_immatriculation: formData.plate         || '',
+        vehicule_marque:          formData.vehicleBrand  || '',
+        vehicule_modele_input:    formData.vehicleModel  || '',
+        vehicule_annee_input:     formData.vehicleYear   || '',
+    };
+
+    logger.format.after('Intervention (React → Django)', formatted);
+    return formatted;
 };
 
-/**
- * Formate les données Django pour affichage dans le formulaire React
- * @param {Object} djangoData - Données de Django
- * @returns {Object} - Données formatées pour React
- */
+// =========================================================================
+// DJANGO → REACT
+// Ce que le backend renvoie → ce que le formulaire affiche
+// Noms de champs = ce que to_representation() renvoie
+// =========================================================================
 export const formatInterventionForReact = (djangoData) => {
-  logger.format.before('Intervention (Django → React)', djangoData);
+    logger.format.before('Intervention (Django → React)', djangoData);
 
-  const dateDebut = new Date(djangoData.date_debut);
-  const dateFin = new Date(djangoData.date_fin);
+    // Gestion des dates (peut être string ISO ou objet Date si vient de FullCalendar)
+    const parseDate = (val) => {
+        if (!val) return { date: '', time: '' };
+        const d = new Date(val);
+        return {
+            date: d.toISOString().split('T')[0],
+            time: d.toTimeString().slice(0, 5),
+        };
+    };
 
-  const formatted = {
-    departement: djangoData.type_rdv,
-    typeIntervention: djangoData.type_intervention,
-    clientName: djangoData.client_nom,
-    clientFirstName: djangoData.client_prenom || '',
-    clientPhone: djangoData.client_phone || '',
-    clientEmail: djangoData.client_email || '',
-    clientAddress: djangoData.client_adresse || '',
-    vehicleType: djangoData.vehicule_type,
-    plate: djangoData.vehicule_immatriculation || '',
-    vehicleBrand: djangoData.vehicule_marque || '',
-    vehicleModel: djangoData.vehicule_modele || '',
-    vehicleYear: djangoData.vehicule_annee || '',
-    vin: djangoData.vehicule_vin || '',
-    dateStart: dateDebut.toISOString().split('T')[0],
-    timeStart: dateDebut.toTimeString().slice(0, 5),
-    dateEnd: dateFin.toISOString().split('T')[0],
-    timeEnd: dateFin.toTimeString().slice(0, 5),
-    description: djangoData.description || '',
-  };
+    const debut = parseDate(djangoData.date_debut || djangoData.start);
+    const fin   = parseDate(djangoData.date_fin   || djangoData.end);
 
-logger.format.after('Intervention (Django → React)', formatted);
-return formatted;
-};
+    const formatted = {
+        // ID (important pour la modification)
+        id: djangoData.id,
 
-// ========================================================================
-// CLIENTS (à venir)
-// ========================================================================
+        // Type et statut
+        departement:      djangoData.type_rdv          || 'ATELIER',
+        typeIntervention: djangoData.type_intervention || '',
+        statut:           djangoData.statut            || 'PLANIFIE',
 
-/**
- * Formate les données client pour Django
- * TODO: À implémenter quand on fera la gestion clients
- */
-export const formatClientForDjango = (formData) => {
-  // À compléter plus tard
-  return {};
-};
+        // Dates
+        dateStart: debut.date,
+        timeStart: debut.time,
+        dateEnd:   fin.date,
+        timeEnd:   fin.time,
 
-// ========================================================================
-// VÉHICULES (à venir)
-// ========================================================================
+        // Description
+        description: djangoData.description || '',
 
-/**
- * Formate les données véhicule pour Django
- * TODO: À implémenter quand on fera la gestion véhicules
- */
-export const formatVehiculeForDjango = (formData) => {
-  // À compléter plus tard
-  return {};
-};
+        // Client (noms simples après to_representation)
+        clientName:      djangoData.client_nom    || '',
+        clientFirstName: djangoData.client_prenom || '',
+        clientPhone:     djangoData.client_phone  || '',
+        clientEmail:     djangoData.client_email  || '',
+        clientAddress:   djangoData.client_adresse || '',
 
-// ========================================================================
-// PIÈCES / STOCK (à venir)
-// ========================================================================
+        // Véhicule (noms simples après to_representation)
+        plate:        djangoData.vehicule_immatriculation || '',
+        vehicleBrand: djangoData.vehicule_marque          || '',
+        vehicleModel: djangoData.vehicule_modele          || '',
+        vehicleYear:  djangoData.vehicule_annee           || '',
+    };
 
-/**
- * Formate les données de pièces pour Django
- * TODO: À implémenter quand on fera la gestion stock
- */
-export const formatPieceForDjango = (formData) => {
-  // À compléter plus tard
-  return {};
+    logger.format.after('Intervention (Django → React)', formatted);
+    return formatted;
 };

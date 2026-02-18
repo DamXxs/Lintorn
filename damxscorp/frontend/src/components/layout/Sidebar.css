@@ -1,5 +1,10 @@
 /* /src/components/layout/Sidebar.css */
 
+/* === OVERLAY MOBILE (fond sombre derrière la sidebar) === */
+.sidebar__overlay {
+  display: none; /* Caché sur desktop */
+}
+
 /* === SIDEBAR === */
 .sidebar {
   position: fixed;
@@ -8,7 +13,7 @@
   height: 100vh;
   background: var(--panel);
   border-right: 2px solid var(--border);
-  transition: width 0.3s ease;
+  transition: width 0.3s ease, transform 0.3s ease;
   z-index: 1000;
   display: flex;
   flex-direction: column;
@@ -18,12 +23,12 @@
 
 /* Mode réduit */
 .sidebar--collapsed {
-  width: 70px; /* Réduit de 80px à 70px */
+  width: 70px;
 }
 
 /* Mode étendu */
 .sidebar--expanded {
-  width: 260px; /* Réduit de 280px à 260px */
+  width: 260px;
 }
 
 /* === BOUTON TOGGLE === */
@@ -31,19 +36,22 @@
   position: absolute;
   top: 12px;
   right: 8px;
-  width: 32px; /* Réduit de 35px à 32px */
-  height: 32px;
+  width: 36px;
+  height: 36px;
   background: #555;
   border: none;
   border-radius: 6px;
   color: white;
-  font-size: 16px; /* Réduit de 18px à 16px */
+  font-size: 16px;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 10;
+  /* Taille tactile suffisante (min 44px recommandé, on compense avec padding) */
+  min-width: 36px;
+  min-height: 36px;
 }
 
 .sidebar__toggle:hover {
@@ -53,10 +61,10 @@
 
 /* === HEADER SIDEBAR === */
 .sidebar__header {
-  padding: 15px 10px; /* Réduit le padding */
+  padding: 15px 10px;
   border-bottom: 2px solid var(--border);
   text-align: center;
-  min-height: 60px; /* Réduit de 80px à 60px */
+  min-height: 60px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -64,7 +72,7 @@
 
 .sidebar__title {
   margin: 0;
-  font-size: 18px; /* Réduit de 20px à 18px */
+  font-size: 18px;
   color: var(--accent);
   font-weight: 700;
   white-space: nowrap;
@@ -74,39 +82,50 @@
 /* === NAVIGATION === */
 .sidebar__nav {
   flex: 1;
-  padding: 15px 0; /* Réduit de 20px à 15px */
-  padding-top: 55px; /* Ajouté pour compenser la réduction du header */
+  padding: 15px 0;
+  padding-top: 55px;
 }
 
 .sidebar__menu {
   list-style: none;
   padding: 0;
   margin: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar__menu-item {
-  margin-bottom: 3px; /* Réduit de 5px à 3px */
+  margin-bottom: 3px;
+}
+
+/* Paramètres collé en bas */
+.sidebar__menu-item--bottom {
+  margin-top: auto;
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
 }
 
 /* === LIENS === */
 .sidebar__link {
   display: flex;
   align-items: center;
-  padding: 12px 15px; /* Réduit de 15px 20px à 12px 15px */
+  padding: 14px 15px; /* 14px pour zone tactile confortable */
   color: #e0e0e0;
   text-decoration: none;
   transition: all 0.3s ease;
-  border-left: 3px solid transparent; /* Réduit de 4px à 3px */
-  font-size: 14px; /* Réduit de 16px à 14px */
+  border-left: 3px solid transparent;
+  font-size: 14px;
   font-weight: 500;
   white-space: nowrap;
   position: relative;
+  min-height: 44px; /* Taille minimale recommandée pour le tactile */
 }
 
-/* Mode réduit - centrer les icônes */
+/* Mode réduit : centrer les icônes */
 .sidebar--collapsed .sidebar__link {
   justify-content: center;
-  padding: 12px 8px; /* Réduit le padding */
+  padding: 14px 8px;
 }
 
 .sidebar__link:hover {
@@ -114,24 +133,22 @@
   border-left-color: var(--accent);
 }
 
-/* Lien actif */
 .sidebar__link--active {
-  background: rgba(52, 152, 219, 0.15);
+  background: rgba(41, 128, 185, 0.15);
   border-left-color: var(--accent);
   color: var(--accent);
   font-weight: 700;
 }
 
 .sidebar__icon {
-  font-size: 20px; /* Réduit de 24px à 20px */
-  min-width: 24px; /* Réduit de 30px à 24px */
+  font-size: 20px;
+  min-width: 24px;
   text-align: center;
   transition: margin 0.3s ease;
 }
 
-/* Espacement icône/texte en mode étendu */
 .sidebar--expanded .sidebar__icon {
-  margin-right: 12px; /* Réduit de 15px à 12px */
+  margin-right: 12px;
 }
 
 .sidebar__text {
@@ -140,7 +157,6 @@
   transition: opacity 0.3s ease;
 }
 
-/* Masquer le texte en mode réduit */
 .sidebar--collapsed .sidebar__text {
   opacity: 0;
   width: 0;
@@ -149,33 +165,64 @@
 
 /* === FOOTER === */
 .sidebar__footer {
-  padding: 15px; /* Réduit de 20px à 15px */
+  padding: 15px;
   border-top: 2px solid var(--border);
   text-align: center;
 }
 
 .sidebar__footer-text {
   margin: 0;
-  font-size: 10px; /* Réduit de 11px à 10px */
+  font-size: 10px;
   color: #666;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 /* === SCROLLBAR === */
-.sidebar::-webkit-scrollbar {
-  width: 6px;
-}
+.sidebar::-webkit-scrollbar { width: 6px; }
+.sidebar::-webkit-scrollbar-track { background: var(--panel); }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+.sidebar::-webkit-scrollbar-thumb:hover { background: #555; }
 
-.sidebar::-webkit-scrollbar-track {
-  background: var(--panel);
-}
+/* ================================================================
+   RESPONSIVE MOBILE (≤ 768px)
+   ================================================================ */
+@media (max-width: 768px) {
 
-.sidebar::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 3px;
-}
+  /* Overlay : fond sombre visible sur mobile quand sidebar ouverte */
+  .sidebar__overlay {
+    display: block;
+    position: fixed;
+    inset: 0; /* top/right/bottom/left = 0 en une ligne */
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 999; /* Juste en dessous de la sidebar (z-index: 1000) */
+    backdrop-filter: blur(2px);
+  }
 
-.sidebar::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  /* Sidebar cachée par défaut sur mobile (hors écran à gauche) */
+  .sidebar--collapsed {
+    width: 260px; /* Même largeur que expanded */
+    transform: translateX(-100%); /* Glisse hors écran */
+  }
+
+  /* Sidebar visible sur mobile */
+  .sidebar--expanded {
+    width: 260px;
+    transform: translateX(0); /* Revient à sa place */
+  }
+
+  /* Les icônes reprennent leur comportement normal sur mobile */
+  .sidebar--collapsed .sidebar__text {
+    opacity: 1;
+    width: auto;
+  }
+
+  .sidebar--collapsed .sidebar__link {
+    justify-content: flex-start;
+    padding: 14px 15px;
+  }
+
+  .sidebar--collapsed .sidebar__icon {
+    margin-right: 12px;
+  }
 }

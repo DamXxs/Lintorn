@@ -23,7 +23,7 @@
     color: white;
     padding: 0;                           /* On enlève le padding global */
     border-radius: 15px;
-    width: 70%;
+    width: 50%;
     height: 85%;                          /* Augmenté de 70% à 85% */
     max-width: 1200px;
     overflow: hidden;                     /* Pour gérer le header fixe */
