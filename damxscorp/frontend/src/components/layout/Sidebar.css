@@ -38,10 +38,10 @@
   right: 8px;
   width: 36px;
   height: 36px;
-  background: #555;
+  background: var(--border);
   border: none;
   border-radius: 6px;
-  color: white;
+  color: var(--text);
   font-size: 16px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -111,7 +111,7 @@
   display: flex;
   align-items: center;
   padding: 14px 15px; /* 14px pour zone tactile confortable */
-  color: #e0e0e0;
+  color: var(--text);
   text-decoration: none;
   transition: all 0.3s ease;
   border-left: 3px solid transparent;
@@ -173,7 +173,7 @@
 .sidebar__footer-text {
   margin: 0;
   font-size: 10px;
-  color: #666;
+  color: var(--text);
   text-transform: uppercase;
   letter-spacing: 1px;
 }

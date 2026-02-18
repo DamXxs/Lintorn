@@ -236,15 +236,15 @@ const ModalRdvConsultation = ({ event, onClose, onEdit, onDelete, onStatusChange
 
         {/* ── FOOTER : BOUTONS D'ACTION ─────────────────────────── */}
         <div className="modal-consultation__footer">
-          <button className="consult-btn consult-btn--danger" onClick={handleDelete}>
-            🗑️ Supprimer
-          </button>
-          <button className="consult-btn consult-btn--secondary" onClick={onClose}>
-            Fermer
-          </button>
+          
           <button className="consult-btn consult-btn--primary" onClick={() => onEdit(event)}>
             ✏️ Modifier
           </button>
+          
+          <button className="consult-btn consult-btn--danger" onClick={handleDelete}>
+            🗑️ Supprimer
+          </button>
+          
         </div>
 
       </div>
