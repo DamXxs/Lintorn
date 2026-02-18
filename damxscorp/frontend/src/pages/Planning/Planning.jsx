@@ -9,6 +9,7 @@ import {
   fetchInterventions,
   saveIntervention,
   updateIntervention,
+  patchIntervention,
   deleteIntervention
 } from '../../services/api';
 import './Planning.css';
@@ -100,17 +101,15 @@ const Planning = ({ isSidebarExpanded }) => {
   // ── CHANGEMENT DE STATUT ─────────────────────────────────────────
   const handleStatusChange = async (id, newStatut) => {
     try {
-      // Les données sont directement sur l'event (pas dans extendedProps)
-      const currentEvent = events.find(e => String(e.id) === String(id));
-
-      await updateIntervention(id, { ...currentEvent, statut: newStatut });
+      // On envoie UNIQUEMENT le statut — Django met à jour seulement ce champ
+      await patchIntervention(id, { statut: newStatut });
       logger.success(`Statut → ${newStatut}`);
 
-      // Recharge les données
+      // Recharge le calendrier avec les nouvelles couleurs
       const data = await fetchInterventions();
       setEvents(formatEventsForCalendar(data));
 
-      // Met à jour la modal de consultation avec le nouveau statut
+      // Met à jour la modal avec le nouveau statut
       const updated = data.find(e => String(e.id) === String(id));
       if (updated) setConsultEvent({ ...updated });
 

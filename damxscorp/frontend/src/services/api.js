@@ -1,4 +1,4 @@
-// /src/services/api.js
+// /frontend/src/services/api.js
 import axios from 'axios';
 import logger from '../utils/logger';
 
@@ -6,13 +6,11 @@ const API_BASE_URL = 'http://localhost:8000/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  headers: { 'Content-Type': 'application/json' },
   withCredentials: true,
 });
 
-// ========== INTERVENTIONS ==========
+// ── INTERVENTIONS ────────────────────────────────────────────────
 
 export const fetchInterventions = async () => {
   try {
@@ -34,20 +32,15 @@ export const saveIntervention = async (data) => {
     return response.data;
   } catch (error) {
     logger.api.error('POST /interventions/', error);
-    
-    // Messages user-friendly
     if (!error.response) {
-      throw new Error('Impossible de contacter le serveur. Vérifiez votre connexion.');
+      throw new Error('Impossible de contacter le serveur.');
     } else if (error.response.status === 400) {
       const errors = Object.entries(error.response.data)
         .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
         .join('\n');
       throw new Error(`Données invalides :\n${errors}`);
-    } else if (error.response.status === 500) {
-      throw new Error('Erreur serveur. Contactez l\'administrateur.');
-    } else {
-      throw new Error('Erreur lors de la sauvegarde');
     }
+    throw new Error('Erreur lors de la sauvegarde');
   }
 };
 
@@ -63,6 +56,19 @@ export const updateIntervention = async (id, data) => {
   }
 };
 
+// ✅ NOUVEAU : mise à jour partielle (juste le statut par exemple)
+export const patchIntervention = async (id, data) => {
+  try {
+    logger.api.send(`PATCH /interventions/${id}/`, data);
+    const response = await api.patch(`/interventions/${id}/`, data);
+    logger.api.receive(`PATCH /interventions/${id}/`, response.data);
+    return response.data;
+  } catch (error) {
+    logger.api.error(`PATCH /interventions/${id}/`, error);
+    throw new Error('Erreur lors de la mise à jour');
+  }
+};
+
 export const deleteIntervention = async (id) => {
   try {
     logger.api.send(`DELETE /interventions/${id}/`);
@@ -74,7 +80,8 @@ export const deleteIntervention = async (id) => {
   }
 };
 
-// ========== PIÈCES (STOCK) ==========
+// ── PIÈCES (STOCK) ───────────────────────────────────────────────
+
 export const fetchPieces = async () => {
   try {
     logger.api.send('GET /stock/pieces/');
