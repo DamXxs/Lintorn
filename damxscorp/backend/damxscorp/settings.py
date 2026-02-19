@@ -2,43 +2,46 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Charge les variables du fichier .env
-load_dotenv()
-
-# 1. Chemins de base
+# =============================================================================
+# CHARGEMENT DU FICHIER .env
+# =============================================================================
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# 2. Sécurité
-# Lit la clé dans le .env, sinon utilise une clé de secours (dev uniquement)
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-fallback-key-123')
+# Cherche le .env dans le dossier backend/
+dotenv_path = BASE_DIR / '.env'
+load_dotenv(dotenv_path)
 
-# Détection de l'environnement
-IS_CODESPACE = "CODESPACES" in os.environ
-DEBUG = True 
+# =============================================================================
+# SÉCURITÉ — SECRET_KEY OBLIGATOIRE
+# Si la clé est absente du .env, Django plante immédiatement avec un message clair.
+# =============================================================================
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
-if IS_CODESPACE:
-    # --- CONFIGURATION CODESPACES (HTTPS) ---
-    ALLOWED_HOSTS = ['*']
-    CSRF_TRUSTED_ORIGINS = ['https://*.app.github.dev', 'https://*.githubpreview.dev']
-    CSRF_COOKIE_SECURE = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SAMESITE = 'None'
-    SESSION_COOKIE_SAMESITE = 'None'
-    USE_X_FORWARDED_HOST = True
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-else:
-    # --- CONFIGURATION LOCAL (HTTP) ---
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
-    CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
-    CSRF_COOKIE_SECURE = False
-    SESSION_COOKIE_SECURE = False
-    CSRF_COOKIE_SAMESITE = 'Lax'
-    SESSION_COOKIE_SAMESITE = 'Lax'
+if not SECRET_KEY:
+    raise ValueError(
+        "\n\n❌ ERREUR : DJANGO_SECRET_KEY est manquante !\n"
+        "   → Crée le fichier damxscorp/backend/.env\n"
+        "   → Ajoute cette ligne : DJANGO_SECRET_KEY=une-clé-secrète-longue\n"
+        "   → Tu peux générer une clé avec : python -c \"import secrets; print(secrets.token_urlsafe(50))\"\n"
+    )
 
-# 3. Applications
+# =============================================================================
+# MODE DEBUG
+# En dev local, on laisse True. Penser à False en production.
+# =============================================================================
+DEBUG = True
+
+# =============================================================================
+# HÔTES AUTORISÉS (localhost uniquement)
+# =============================================================================
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+
+# =============================================================================
+# APPLICATIONS INSTALLÉES
+# =============================================================================
 INSTALLED_APPS = [
-    
-    # Tes applis Django ici
+
+    # Tes apps métier
     'clients',
     'fournisseurs',
     'planning',
@@ -58,13 +61,16 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 ]
 
-# 4. Middleware (L'ordre est crucial)
+# =============================================================================
+# MIDDLEWARE
+# L'ordre est important — CorsMiddleware doit être EN PREMIER
+# =============================================================================
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',          # ← CORS en 1er obligatoire
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',  
+    'django.middleware.csrf.CsrfViewMiddleware',       # ← CSRF actif
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -72,7 +78,9 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'damxscorp.urls'
 
-# 5. Templates
+# =============================================================================
+# TEMPLATES
+# =============================================================================
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -89,7 +97,9 @@ TEMPLATES = [
     },
 ]
 
-# 6. Base de données
+# =============================================================================
+# BASE DE DONNÉES — SQLite en développement
+# =============================================================================
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -97,43 +107,61 @@ DATABASES = {
     }
 }
 
-# 7. Internationalisation
+# =============================================================================
+# INTERNATIONALISATION
+# =============================================================================
 LANGUAGE_CODE = 'fr-fr'
 TIME_ZONE = 'Europe/Paris'
 USE_I18N = True
 USE_TZ = True
 
-# 8. Statiques
+# =============================================================================
+# FICHIERS STATIQUES
+# =============================================================================
 STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# 9. CORS (Pour ton frontend)
-CORS_ALLOW_ALL_ORIGINS = True  # En dev, on laisse tout passer
+# =============================================================================
+# CORS — Autorise uniquement le frontend React en dev local
+# =============================================================================
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+]
 CORS_ALLOW_CREDENTIALS = True
 
-# On autorise les méthodes standards
 CORS_ALLOW_METHODS = [
-    "DELETE",
-    "GET",
-    "OPTIONS",
-    "PATCH",
-    "POST",
-    "PUT",
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
 ]
 
-# On autorise les headers nécessaires
 CORS_ALLOW_HEADERS = [
-    "accept",
-    "accept-encoding",
-    "authorization",
-    "content-type",
-    "dnt",
-    "origin",
-    "user-agent",
-    "x-csrftoken",
-    "x-requested-with",
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
 ]
 
-# On rajoute React (port 3000) dans les origines de confiance pour le CSRF
-if not IS_CODESPACE:
-    CSRF_TRUSTED_ORIGINS += ['http://localhost:3000', 'http://127.0.0.1:3000']
+# =============================================================================
+# CSRF — Origines de confiance pour les requêtes cross-origin
+# =============================================================================
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
+
+CSRF_COOKIE_SECURE = False       # False en HTTP local (True uniquement en HTTPS)
+SESSION_COOKIE_SECURE = False    # Idem
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax'

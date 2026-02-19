@@ -5,39 +5,42 @@ Thumbs.db
 .idea/
 
 # --- PYTHON & BACKEND ----
-# Environnements virtuels (Windows/Linux)
 damxscorp/backend/venv/
 damxscorp/backend/.venv/
 damxscorp/backend/env/
-# Cache Python
 **/__pycache__/
 **/*.py[cod]
-# Base de données et fichiers locaux
 damxscorp/backend/db.sqlite3
 damxscorp/backend/staticfiles/
 damxscorp/backend/media/
 
+# Fichiers de migration générés automatiquement (optionnel mais propre)
+# damxscorp/backend/**/migrations/0*.py  ← à décommenter si tu veux
+
 # --- NODE & FRONTEND ---
-# Dépendances (Le plus lourd)
 damxscorp/frontend/node_modules/
-# Fichiers de build (Production)
 damxscorp/frontend/build/
 damxscorp/frontend/dist/
-# Logs d'erreur
 damxscorp/frontend/npm-debug.log*
 damxscorp/frontend/yarn-debug.log*
 damxscorp/frontend/yarn-error.log*
-# Fichiers PnP
 damxscorp/frontend/.pnp/
 damxscorp/frontend/.pnp.js
 
 # --- ENVIRONNEMENT & SECRETS (TRÈS IMPORTANT) ---
-# On ignore tous les .env partout dans le projet
 **/.env
 **/.env.local
 **/.env.development.local
 **/.env.test.local
 **/.env.production.local
 
+# ← AJOUT 1 : couvre les .env sans point devant (ex: env.local)
+**/env.local
+**/env.production
+
 # --- DOCKER & CONTAINERS ---
 .devcontainer/
+
+# ← AJOUT 2 : logs système qui peuvent traîner
+*.log
+logs/
