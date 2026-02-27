@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+backend/db.sqlite3
+backend/.env
+backend/venv/
+backend/env/
+
+# Node
+frontend/node_modules/
+frontend/build/
+frontend/.env
+
+# Git
+.git/
+.gitignore
+
+# Docker lui-même
+Dockerfile*
+docker-compose.yml

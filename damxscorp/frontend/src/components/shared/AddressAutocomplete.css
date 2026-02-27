@@ -1,0 +1,115 @@
+/* /frontend/src/components/shared/AddressAutocomplete.css */
+
+/* ── CONTENEUR ───────────────────────────────────────────────── */
+.address-autocomplete {
+  position: relative;
+  width: 100%;
+}
+
+/* ── WRAPPER INPUT (pour positionner l'icône) ────────────────── */
+.address-autocomplete__input-wrapper {
+  position: relative;
+}
+
+.address-autocomplete__input {
+  /* Espace à droite pour l'icône */
+  padding-right: 36px !important;
+}
+
+/* Icône 📍 à droite du champ */
+.address-autocomplete__icon,
+.address-autocomplete__spinner {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* ── DROPDOWN ────────────────────────────────────────────────── */
+.address-autocomplete__dropdown {
+  position: absolute;
+  top: calc(100% + 4px); /* Juste sous le champ */
+  left: 0;
+  right: 0;
+  z-index: 1000;
+
+  background: var(--panel);
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  /* Animation d'apparition */
+  animation: dropdownAppear 0.15s ease;
+}
+
+@keyframes dropdownAppear {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── ITEM ────────────────────────────────────────────────────── */
+.address-autocomplete__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.address-autocomplete__item:hover,
+.address-autocomplete__item--active {
+  background: rgba(41, 128, 185, 0.15);
+}
+
+.address-autocomplete__item-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.address-autocomplete__item-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0; /* Permet le text-overflow */
+}
+
+.address-autocomplete__item-main {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.address-autocomplete__item-sub {
+  font-size: 11px;
+  color: #666;
+}
+
+/* ── FOOTER ──────────────────────────────────────────────────── */
+.address-autocomplete__footer {
+  padding: 6px 14px;
+  font-size: 10px;
+  color: #444;
+  text-align: right;
+  background: rgba(0, 0, 0, 0.2);
+  cursor: default;
+  letter-spacing: 0.3px;
+}

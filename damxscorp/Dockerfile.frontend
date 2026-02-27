@@ -1,0 +1,20 @@
+# Image de base : Node.js 20 version légère
+FROM node:20-slim
+
+# Dossier de travail
+WORKDIR /app
+
+# Copie package.json en premier (même logique de cache que Python)
+COPY frontend/package.json frontend/package-lock.json* ./
+
+# Installation des dépendances Node
+RUN npm install
+
+# Copie tout le code frontend
+COPY frontend/ .
+
+# Expose le port React
+EXPOSE 3000
+
+# Démarrage React en mode dev (hot-reload activé)
+CMD ["npm", "start"]

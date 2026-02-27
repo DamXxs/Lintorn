@@ -1,0 +1,21 @@
+# Image de base : Python 3.11 version légère
+FROM python:3.11-slim
+
+# Définit le dossier de travail dans le container
+WORKDIR /app
+
+# Copie d'abord les requirements pour profiter du cache Docker
+# (si requirements.txt ne change pas, Docker ne réinstalle pas tout)
+COPY backend/requirements.txt .
+
+# Installation des dépendances Python
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copie tout le code backend
+COPY backend/ .
+
+# Expose le port Django
+EXPOSE 8000
+
+# Commande de démarrage : serveur Django accessible depuis l'extérieur du container
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

@@ -30,6 +30,13 @@ class Client(models.Model):
         blank=True,
         help_text="Email du client"
     )
+
+    # Adresse postale
+    adresse = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Adresse postale complète"
+    )
     
     # Métadonnées (pour savoir quand tu as créé le client)
     date_creation = models.DateTimeField(

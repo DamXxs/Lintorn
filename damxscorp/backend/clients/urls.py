@@ -1,8 +1,11 @@
+# /backend/clients/urls.py
 from django.urls import path
-
-# URLs pour l'app clients
-# À remplir plus tard
+from . import views
 
 urlpatterns = [
-    # Vide pour l'instant
+    # /api/clients/       → liste + création
+    path('', views.client_list, name='client_list'),
+
+    # /api/clients/42/    → détail + modif + suppression
+    path('<int:pk>/', views.client_detail, name='client_detail'),
 ]

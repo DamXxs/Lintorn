@@ -1,0 +1,8 @@
+React          →        Django
+  
+  demande des clients    →  urls.py (routing : "qui gère ça ?")
+                         →  views.py (logique : "que faire ?")
+                         →  serializers.py (transformation : "quel format ?")
+                         →  models.py (données : "chercher en BDD")
+                    
+                    ←    Réponse JSON

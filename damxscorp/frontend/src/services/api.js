@@ -104,3 +104,58 @@ export const deletePiece = async (id) => {
     throw new Error('Erreur lors de la suppression');
   }
 };
+
+// ── CLIENTS ─────────────────────────────────────────────────────
+
+export const fetchClients = async () => {
+  try {
+    logger.api.send('GET /clients/');
+    const response = await api.get('/clients/');
+    logger.api.receive('GET /clients/', response.data);
+    return response.data;
+  } catch (error) {
+    logger.api.error('GET /clients/', error);
+    throw new Error(`Erreur réseau: ${error.response?.status}`);
+  }
+};
+
+export const createClient = async (data) => {
+  try {
+    logger.api.send('POST /clients/', data);
+    const response = await api.post('/clients/', data);
+    logger.api.receive('POST /clients/', response.data);
+    return response.data;
+  } catch (error) {
+    logger.api.error('POST /clients/', error);
+    if (error.response?.status === 400) {
+      const errors = Object.entries(error.response.data)
+        .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
+        .join('\n');
+      throw new Error(`Données invalides :\n${errors}`);
+    }
+    throw new Error('Erreur lors de la création du client');
+  }
+};
+
+export const updateClient = async (id, data) => {
+  try {
+    logger.api.send(`PUT /clients/${id}/`, data);
+    const response = await api.put(`/clients/${id}/`, data);
+    logger.api.receive(`PUT /clients/${id}/`, response.data);
+    return response.data;
+  } catch (error) {
+    logger.api.error(`PUT /clients/${id}/`, error);
+    throw new Error('Erreur lors de la modification du client');
+  }
+};
+
+export const deleteClient = async (id) => {
+  try {
+    logger.api.send(`DELETE /clients/${id}/`);
+    await api.delete(`/clients/${id}/`);
+    logger.success(`Client ${id} supprimé`);
+  } catch (error) {
+    logger.api.error(`DELETE /clients/${id}/`, error);
+    throw new Error('Erreur lors de la suppression du client');
+  }
+};

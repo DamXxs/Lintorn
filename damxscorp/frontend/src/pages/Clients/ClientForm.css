@@ -1,0 +1,233 @@
+/* /frontend/src/pages/Clients/ClientForm.css */
+
+/* ── OVERLAY ─────────────────────────────────────────────────── */
+.client-form__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 16px;
+}
+
+/* ── CONTENU — taille réduite pour éviter la scrollbar ──────── */
+.client-form__content {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 460px;       /* Plus compact */
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  /* Pas de max-height fixe → s'adapte au contenu naturellement */
+}
+
+/* ── HEADER ──────────────────────────────────────────────────── */
+.client-form__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 2px solid var(--accent);
+  background: linear-gradient(135deg, #1a1a1a, #252525);
+  flex-shrink: 0;
+}
+
+.client-form__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.client-form__close {
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  border-radius: 6px;
+  color: #888;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.client-form__close:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+}
+
+/* ── BODY — padding réduit ───────────────────────────────────── */
+.client-form__body {
+  padding: 16px 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ── ERREUR GLOBALE ──────────────────────────────────────────── */
+.client-form__error-global {
+  background: rgba(192, 57, 43, 0.15);
+  border: 1px solid var(--danger);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #e74c3c;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+/* ── SECTIONS — espacement réduit ────────────────────────────── */
+.form-section {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.form-section:last-of-type {
+  border-bottom: none;
+}
+
+.form-section__title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+/* ── GRILLE 2 COLONNES ───────────────────────────────────────── */
+.form-row-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* ── CHAMPS — hauteur réduite ────────────────────────────────── */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-label {
+  font-size: 10px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.form-label.required::after {
+  content: ' *';
+  color: #e74c3c;
+}
+
+.form-input {
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--text);
+  font-size: 13px;
+  padding: 8px 10px;      /* Moins de padding = plus compact */
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(41, 128, 185, 0.1);
+}
+
+.form-input::placeholder {
+  color: #444;
+  font-style: italic;
+  font-size: 12px;
+}
+
+.form-input--error {
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 0 2px rgba(192, 57, 43, 0.1) !important;
+}
+
+.form-textarea {
+  resize: none;           /* Pas de resize = hauteur fixe propre */
+  min-height: 60px;
+  font-family: inherit;
+}
+
+.form-error {
+  font-size: 10px;
+  color: #e74c3c;
+}
+
+/* ── FOOTER ──────────────────────────────────────────────────── */
+.client-form__footer {
+  display: flex;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.2);
+  margin-top: 4px;
+}
+
+.form-btn {
+  flex: 1;
+  padding: 11px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 42px;
+}
+
+.form-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.form-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.form-btn--save {
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  color: white;
+}
+
+.form-btn--cancel {
+  background: #2a2a2a;
+  color: #aaa;
+  border: 1px solid var(--border);
+}
+
+/* ── RESPONSIVE MOBILE ───────────────────────────────────────── */
+@media (max-width: 768px) {
+  .client-form__overlay {
+    padding: 0;
+    align-items: flex-end;  /* Remonte depuis le bas */
+  }
+
+  .client-form__content {
+    max-width: 100%;
+    border-radius: 20px 20px 0 0;
+    /* Sur mobile on accepte le scroll si l'écran est petit */
+    max-height: 92vh;
+    overflow-y: auto;
+  }
+
+  .form-row-2col {
+    grid-template-columns: 1fr;  /* 1 colonne sur mobile */
+  }
+}
