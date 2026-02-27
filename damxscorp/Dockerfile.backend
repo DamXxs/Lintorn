@@ -1,5 +1,5 @@
-# Image de base : Python 3.11 version légère
-FROM python:3.11-slim
+# Image de base : Python 3.12 version légère
+FROM python:3.12-slim
 
 # Définit le dossier de travail dans le container
 WORKDIR /app
