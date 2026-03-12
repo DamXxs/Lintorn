@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { DEPARTEMENTS, VEHICLE_TYPES, INTERVENTION_TYPES } from '../../utils/constants';
 import './ModalForm.css';
-import logger from '../../utils/logger';  // ✅ Corrigé
+import logger from '../../utils/logger';
+import AddressAutocomplete from './AddressAutocomplete';
 
 const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
     
@@ -191,12 +192,16 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
 
                             <div className="form-group">
                                 <label>Adresse</label>
-                                <input 
-                                    type="text" 
-                                    name="clientAddress" 
-                                    value={formData.clientAddress} 
-                                    onChange={handleChange} 
-                                    placeholder="123 Rue de la République, 75001 Paris"
+                                <AddressAutocomplete 
+                                    value={formData.clientAddress}
+                                    onChange={(value) => setFormData(prev => ({ ...prev, clientAddress: value }))}
+                                    onSelect={(adresse) => {
+                                        setFormData(prev => ({ 
+                                            ...prev, 
+                                            clientAddress: adresse.adresse, 
+                                        }));
+                                        
+                                    }}                                
                                 />
                             </div>
                         </div>

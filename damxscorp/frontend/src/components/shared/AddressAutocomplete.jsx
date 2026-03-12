@@ -233,7 +233,7 @@ const AddressAutocomplete = ({
 
           {/* Footer discret avec la source */}
           <li className="address-autocomplete__footer">
-            Données : API Adresse — data.gouv.fr
+            Données : — data.gouv.fr
           </li>
         </ul>
       )}

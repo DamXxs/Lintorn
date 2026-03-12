@@ -159,3 +159,57 @@ export const deleteClient = async (id) => {
     throw new Error('Erreur lors de la suppression du client');
   }
 };
+// ── VÉHICULES ────────────────────────────────────────────────────
+
+export const fetchVehicules = async () => {
+  try {
+    logger.api.send('GET /vehicules/');
+    const response = await api.get('/vehicules/');
+    logger.api.receive('GET /vehicules/', response.data);
+    return response.data;
+  } catch (error) {
+    logger.api.error('GET /vehicules/', error);
+    throw new Error(`Erreur réseau: ${error.response?.status}`);
+  }
+};
+
+export const createVehicule = async (data) => {
+  try {
+    logger.api.send('POST /vehicules/', data);
+    const response = await api.post('/vehicules/', data);
+    logger.api.receive('POST /vehicules/', response.data);
+    return response.data;
+  } catch (error) {
+    logger.api.error('POST /vehicules/', error);
+    if (error.response?.status === 400) {
+      const errors = Object.entries(error.response.data)
+        .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
+        .join('\n');
+      throw new Error(`Données invalides :\n${errors}`);
+    }
+    throw new Error('Erreur lors de la création du véhicule');
+  }
+};
+
+export const updateVehicule = async (id, data) => {
+  try {
+    logger.api.send(`PUT /vehicules/${id}/`, data);
+    const response = await api.put(`/vehicules/${id}/`, data);
+    logger.api.receive(`PUT /vehicules/${id}/`, response.data);
+    return response.data;
+  } catch (error) {
+    logger.api.error(`PUT /vehicules/${id}/`, error);
+    throw new Error('Erreur lors de la modification du véhicule');
+  }
+};
+
+export const deleteVehicule = async (id) => {
+  try {
+    logger.api.send(`DELETE /vehicules/${id}/`);
+    await api.delete(`/vehicules/${id}/`);
+    logger.success(`Véhicule ${id} supprimé`);
+  } catch (error) {
+    logger.api.error(`DELETE /vehicules/${id}/`, error);
+    throw new Error('Erreur lors de la suppression du véhicule');
+  }
+};
