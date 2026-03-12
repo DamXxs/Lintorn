@@ -13,6 +13,7 @@ import {
   deleteIntervention
 } from '../../services/api';
 import './Planning.css';
+import { useLocation } from 'react-router-dom';
 
 // =========================================================================
 // COULEURS DES ÉVÉNEMENTS selon statut + type
@@ -55,6 +56,26 @@ const Planning = ({ isSidebarExpanded }) => {
   const [isFormOpen, setIsFormOpen]       = useState(false);
   const [editingEvent, setEditingEvent]   = useState(null);
   const [prefilledDate, setPrefilledDate] = useState(null);
+  const [clientPrefill, setClientPrefill] = useState(null); 
+
+  const location = useLocation(); // ← Récupère le state de navigation
+
+  // ── PRÉ-REMPLISSAGE DEPUIS FICHE CLIENT ─────────────────────────
+  // Si on arrive depuis ClientDetail avec des données client,
+  // on ouvre automatiquement la modal pré-remplie
+  useEffect(() => {
+    if (location.state?.clientPrefill) {
+      setEditingEvent(null);
+      setPrefilledDate(null);
+      // On stocke les données client pour pré-remplir la modal
+      setClientPrefill(location.state.clientPrefill);
+      setIsFormOpen(true);
+
+      // On nettoie le state pour éviter de rouvrir la modal
+      // si l'utilisateur navigue ailleurs puis revient
+      window.history.replaceState({}, '');
+    }
+}, [location.state]);
 
   // ── CHARGEMENT ──────────────────────────────────────────────────
   const loadData = async () => {
@@ -154,6 +175,7 @@ const Planning = ({ isSidebarExpanded }) => {
     setIsFormOpen(false);
     setEditingEvent(null);
     setPrefilledDate(null);
+    setClientPrefill(null);
   };
 
   if (loading && events.length === 0) {
@@ -190,7 +212,7 @@ const Planning = ({ isSidebarExpanded }) => {
         <ModalForm
           isOpen={isFormOpen}
           onClose={handleFormClose}
-          initialData={editingEvent}
+          initialData={editingEvent || clientPrefill}
           prefilledDate={prefilledDate}
           onSubmit={handleFormSubmit}
         />

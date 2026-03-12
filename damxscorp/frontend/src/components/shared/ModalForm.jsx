@@ -35,7 +35,10 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
     // =========================================================================
     useEffect(() => {
         if (initialData) {
-            setFormData(initialData);
+            setFormData(prev => ({
+                ...prev,
+                ...initialData,
+            }));
         } else if (prefilledDate) {
             const dateObj = new Date(prefilledDate);
             const dateStr = dateObj.toISOString().split('T')[0];

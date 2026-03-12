@@ -1,8 +1,10 @@
 // /frontend/src/pages/Clients/ClientDetail.jsx
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './ClientDetail.css';
 
 const ClientDetail = ({ client, onClose, onEdit, onDelete }) => {
+  const navigate = useNavigate();
 
   if (!client) return null;
 
@@ -21,11 +23,24 @@ const ClientDetail = ({ client, onClose, onEdit, onDelete }) => {
     return `${n}${p}` || '?';
   };
 
-  return (
-    // Overlay : cliquer à l'extérieur ferme la modale
-    <div className="client-detail__overlay" onClick={onClose}>
+  // ← handleNewRdv est maintenant bien DEHORS de getInitiales
+  const handleNewRdv = () => {
+    onClose();
+    navigate('/planning', {
+      state: {
+        clientPrefill: {           // ← minuscule corrigé
+          clientName:      client.nom       || '',
+          clientFirstName: client.prenom    || '',
+          clientPhone:     client.telephone || '',
+          clientEmail:     client.email     || '',
+          clientAddress:   client.adresse   || '',
+        }
+      }
+    });
+  };
 
-      {/* Contenu : stoppe la propagation du clic */}
+  return (
+    <div className="client-detail__overlay" onClick={onClose}>
       <div
         className="client-detail__content"
         onClick={(e) => e.stopPropagation()}
@@ -50,7 +65,6 @@ const ClientDetail = ({ client, onClose, onEdit, onDelete }) => {
         {/* ── BODY ───────────────────────────────────────────── */}
         <div className="client-detail__body">
 
-          {/* COORDONNÉES */}
           <div className="detail-section">
             <h3 className="detail-section__title">📋 Coordonnées</h3>
             <div className="detail-grid">
@@ -58,10 +72,7 @@ const ClientDetail = ({ client, onClose, onEdit, onDelete }) => {
               <div className="detail-field">
                 <span className="detail-field__key">Téléphone</span>
                 {client.telephone ? (
-                  <a
-                    href={`tel:${client.telephone}`}
-                    className="detail-field__value detail-field__link"
-                  >
+                  <a href={`tel:${client.telephone}`} className="detail-field__value detail-field__link">
                     📞 {client.telephone}
                   </a>
                 ) : (
@@ -72,10 +83,7 @@ const ClientDetail = ({ client, onClose, onEdit, onDelete }) => {
               <div className="detail-field">
                 <span className="detail-field__key">Email</span>
                 {client.email ? (
-                  <a
-                    href={`mailto:${client.email}`}
-                    className="detail-field__value detail-field__link"
-                  >
+                  <a href={`mailto:${client.email}`} className="detail-field__value detail-field__link">
                     ✉️ {client.email}
                   </a>
                 ) : (
@@ -83,19 +91,16 @@ const ClientDetail = ({ client, onClose, onEdit, onDelete }) => {
                 )}
               </div>
 
-              {client.adresse && 
-                <div className="detail-field" style={{gridColum: '1 / -1'}}>
+              {client.adresse &&
+                <div className="detail-field" style={{ gridColumn: '1 / -1' }}>
                   <span className="detail-field__key">Adresse</span>
-                  <span className="detail-field__value">
-                    📍 {client.adresse}
-                  </span>
+                  <span className="detail-field__value">📍 {client.adresse}</span>
                 </div>
               }
 
             </div>
           </div>
 
-          {/* NOTES */}
           {client.notes && (
             <div className="detail-section">
               <h3 className="detail-section__title">📝 Notes</h3>
@@ -103,59 +108,52 @@ const ClientDetail = ({ client, onClose, onEdit, onDelete }) => {
             </div>
           )}
 
-          {/* VÉHICULES — placeholder pour plus tard */}
           <div className="detail-section">
             <h3 className="detail-section__title">
               🚗 Véhicules
               <span className="detail-section__badge">Bientôt</span>
             </h3>
-            <div className="detail-placeholder">
-              Les véhicules de ce client apparaîtront ici
-            </div>
+            <div className="detail-placeholder">Les véhicules de ce client apparaîtront ici</div>
           </div>
 
-          {/* HISTORIQUE RDV — placeholder pour plus tard */}
           <div className="detail-section">
             <h3 className="detail-section__title">
               📅 Historique RDV
               <span className="detail-section__badge">Bientôt</span>
             </h3>
-            <div className="detail-placeholder">
-              L'historique des rendez-vous apparaîtra ici
-            </div>
+            <div className="detail-placeholder">L'historique des rendez-vous apparaîtra ici</div>
           </div>
 
-          {/* FACTURES — placeholder pour plus tard */}
           <div className="detail-section">
             <h3 className="detail-section__title">
               💰 Factures & Devis
               <span className="detail-section__badge">Bientôt</span>
             </h3>
-            <div className="detail-placeholder">
-              Les factures et devis apparaîtront ici
-            </div>
+            <div className="detail-placeholder">Les factures et devis apparaîtront ici</div>
           </div>
 
         </div>
 
         {/* ── FOOTER : BOUTONS ───────────────────────────────── */}
         <div className="client-detail__footer">
-          <button
-            className="detail-btn detail-btn--primary"
-            onClick={() => onEdit(client)}
-          >
-            ✏️ Modifier
+
+          <button className="detail-btn detail-btn--rdv" onClick={handleNewRdv}>
+            📅 Nouveau RDV
           </button>
-          <button
-            className="detail-btn detail-btn--danger"
-            onClick={() => onDelete(client)}
-          >
-            🗑️ Supprimer
-          </button>
+
+          <div className="client-detail__footer-actions">
+            <button className="detail-btn detail-btn--primary" onClick={() => onEdit(client)}>
+              ✏️ Modifier
+            </button>
+            <button className="detail-btn detail-btn--danger" onClick={() => onDelete(client)}>
+              🗑️ Supprimer
+            </button>
+          </div>
+
         </div>
 
-      </div>
-    </div>
+      </div> {/* ← fin client-detail__content */}
+    </div>   // ← fin client-detail__overlay
   );
 };
 

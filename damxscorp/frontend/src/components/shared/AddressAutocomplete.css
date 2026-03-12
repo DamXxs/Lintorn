@@ -46,8 +46,30 @@
   padding: 0;
   margin: 0;
 
+  /* ✅ Hauteur max + scroll uniquement sur les suggestions */
+  max-height: 260px;
+  overflow-y: auto;
+
+  /* Scrollbar discrète style dark */
+  scrollbar-width: thin;                        /* Firefox */
+  scrollbar-color: var(--accent) transparent;   /* Firefox : pouce / piste */
+
   /* Animation d'apparition */
   animation: dropdownAppear 0.15s ease;
+}
+
+/* Scrollbar Webkit (Chrome, Edge, Safari) */
+.address-autocomplete__dropdown::-webkit-scrollbar {
+  width: 5px;
+}
+
+.address-autocomplete__dropdown::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.address-autocomplete__dropdown::-webkit-scrollbar-thumb {
+  background-color: var(--accent);
+  border-radius: 10px;
 }
 
 @keyframes dropdownAppear {
@@ -112,4 +134,8 @@
   background: rgba(0, 0, 0, 0.2);
   cursor: default;
   letter-spacing: 0.3px;
+
+  /* ✅ Le footer reste toujours visible en bas, hors du scroll */
+  position: sticky;
+  bottom: 0;
 }
