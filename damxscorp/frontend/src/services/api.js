@@ -213,3 +213,68 @@ export const deleteVehicule = async (id) => {
     throw new Error('Erreur lors de la suppression du véhicule');
   }
 };
+
+// ── RÉFÉRENTIELS ─────────────────────────────────────────────────
+
+/**
+ * Récupère tous les référentiels (ou filtrés par catégorie)
+ * ex: fetchReferentiels('TYPE_VEHICULE') ou fetchReferentiels() pour tout
+ */
+export const fetchReferentiels = async (categorie = null, actifOnly = false) => {
+  try {
+    let url = '/referentiels/';
+    const params = [];
+    if (categorie)  params.push(`categorie=${categorie}`);
+    if (actifOnly)  params.push('actif=true');
+    if (params.length) url += '?' + params.join('&');
+
+    logger.api.send(`GET ${url}`);
+    const response = await api.get(url);
+    logger.api.receive(`GET ${url}`, response.data);
+    return response.data;
+  } catch (error) {
+    logger.api.error('GET /referentiels/', error);
+    throw new Error(`Erreur réseau: ${error.response?.status}`);
+  }
+};
+
+export const createReferentiel = async (data) => {
+  try {
+    logger.api.send('POST /referentiels/', data);
+    const response = await api.post('/referentiels/', data);
+    logger.api.receive('POST /referentiels/', response.data);
+    return response.data;
+  } catch (error) {
+    logger.api.error('POST /referentiels/', error);
+    if (error.response?.status === 400) {
+      const errors = Object.entries(error.response.data)
+        .map(([f, m]) => `${f}: ${m.join(', ')}`)
+        .join('\n');
+      throw new Error(`Données invalides :\n${errors}`);
+    }
+    throw new Error('Erreur lors de la création');
+  }
+};
+
+export const updateReferentiel = async (id, data) => {
+  try {
+    logger.api.send(`PATCH /referentiels/${id}/`, data);
+    const response = await api.patch(`/referentiels/${id}/`, data);
+    logger.api.receive(`PATCH /referentiels/${id}/`, response.data);
+    return response.data;
+  } catch (error) {
+    logger.api.error(`PATCH /referentiels/${id}/`, error);
+    throw new Error('Erreur lors de la modification');
+  }
+};
+
+export const deleteReferentiel = async (id) => {
+  try {
+    logger.api.send(`DELETE /referentiels/${id}/`);
+    await api.delete(`/referentiels/${id}/`);
+    logger.success(`Référentiel ${id} supprimé`);
+  } catch (error) {
+    logger.api.error(`DELETE /referentiels/${id}/`, error);
+    throw new Error('Erreur lors de la suppression');
+  }
+};

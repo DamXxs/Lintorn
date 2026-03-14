@@ -1,9 +1,11 @@
 // /frontend/src/pages/Vehicles/VehicleForm.jsx
 import React, { useState, useEffect } from 'react';
 import { addVehicule, editVehicule } from '../../utils/vehicleService';
-import { VEHICLE_TYPES } from '../../utils/constants';
+import { useReferentiels } from '../../context/ReferentielsContext';
 import { fetchClients } from '../../services/api';
 import './VehicleForm.css';
+
+
 
 const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
 
@@ -20,6 +22,7 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
   const [clients, setClients]   = useState([]);  // Liste pour le select
   const [errors, setErrors]     = useState({});
   const [saving, setSaving]     = useState(false);
+  const { getTypeVehicules } = useReferentiels();
 
   // Charger la liste des clients pour le select
   useEffect(() => {
@@ -144,8 +147,8 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
             <div className="vf-group">
               <label className="vf-label required">Type de véhicule</label>
               <select name="type_vehicule" value={formData.type_vehicule} onChange={handleChange} className="vf-input">
-                {Object.values(VEHICLE_TYPES).map(t => (
-                  <option key={t.value} value={t.value}>{t.label}</option>
+                {getTypeVehicules().map(t => (
+                  <option key={t.valeur} value={t.valeur}>{t.icone} {t.label}</option>
                 ))}
               </select>
             </div>

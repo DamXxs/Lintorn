@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
+import { ReferentielsProvider } from './context/ReferentielsContext'; // ← NOUVEAU
 import Sidebar from './components/layout/Sidebar';
 import Header from './components/layout/Header';
 import Planning from './pages/Planning/Planning';
@@ -16,30 +17,32 @@ const App = () => {
 
   return (
     <ThemeProvider>
-      <BrowserRouter>
-        <div className="app">
+      <ReferentielsProvider>  {/* ← NOUVEAU — enveloppe toute l'appli */}
+        <BrowserRouter>
+          <div className="app">
 
-          <Sidebar
-            isExpanded={isSidebarExpanded}
-            onToggle={() => setIsSidebarExpanded(!isSidebarExpanded)}
-          />
+            <Sidebar
+              isExpanded={isSidebarExpanded}
+              onToggle={() => setIsSidebarExpanded(!isSidebarExpanded)}
+            />
 
-          <Header isSidebarExpanded={isSidebarExpanded} />
+            <Header isSidebarExpanded={isSidebarExpanded} />
 
-          <main className={`app__content ${isSidebarExpanded ? 'app__content--sidebar-expanded' : ''}`}>
-            <Routes>
-              <Route path="/" element={<Navigate to="/planning" replace />} />
-              <Route path="/planning" element={<Planning isSidebarExpanded={isSidebarExpanded} />} />
-              <Route path="/stock" element={<StockVueEnsemble />} />
-              <Route path="/clients" element={<ClientList />} />
-              <Route path="/vehicles" element={<VehicleList />} />
-              <Route path="/parametres" element={<Parametres />} />
-              <Route path="*" element={<div className="page-404">Page non trouvée</div>} />
-            </Routes>
-          </main>
+            <main className={`app__content ${isSidebarExpanded ? 'app__content--sidebar-expanded' : ''}`}>
+              <Routes>
+                <Route path="/" element={<Navigate to="/planning" replace />} />
+                <Route path="/planning"    element={<Planning isSidebarExpanded={isSidebarExpanded} />} />
+                <Route path="/stock"       element={<StockVueEnsemble />} />
+                <Route path="/clients"     element={<ClientList />} />
+                <Route path="/vehicles"    element={<VehicleList />} />
+                <Route path="/parametres"  element={<Parametres />} />
+                <Route path="*"            element={<div className="page-404">Page non trouvée</div>} />
+              </Routes>
+            </main>
 
-        </div>
-      </BrowserRouter>
+          </div>
+        </BrowserRouter>
+      </ReferentielsProvider>
     </ThemeProvider>
   );
 };

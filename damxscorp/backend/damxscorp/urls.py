@@ -18,4 +18,5 @@ urlpatterns = [
     path('api/', include('planning.urls')),  # ← IMPORTANT : pas de préfixe "planning/"
     path('api/stock/', include('stock.urls')),
     path('api/fournisseurs/', include('fournisseurs.urls')),
+    path('api/referentiels/', include('referentiels.urls')),
 ]

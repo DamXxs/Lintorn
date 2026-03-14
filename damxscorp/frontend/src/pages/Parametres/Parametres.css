@@ -116,3 +116,11 @@
   .parametres-page { padding: 20px; }
   .theme-grid { grid-template-columns: repeat(3, 1fr); }
 }
+
+/* ── DESCRIPTION SOUS TITRE DE SECTION ──────────────────────── */
+.param-description {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}

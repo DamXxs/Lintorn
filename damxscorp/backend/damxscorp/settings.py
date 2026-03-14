@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'clients',
     'fournisseurs',
     'planning',
+    'referentiels',
     'stock',
     'vehicules',
 

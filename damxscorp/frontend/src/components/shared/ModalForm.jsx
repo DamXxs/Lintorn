@@ -4,12 +4,16 @@ import { DEPARTEMENTS, VEHICLE_TYPES, INTERVENTION_TYPES } from '../../utils/con
 import './ModalForm.css';
 import logger from '../../utils/logger';
 import AddressAutocomplete from './AddressAutocomplete';
+import { useReferentiels } from '../../context/ReferentielsContext';
+
+
 
 const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
     
     // =========================================================================
     // ÉTAT DU FORMULAIRE
     // =========================================================================
+    const { getTypeVehicules, getTypeInterventions } = useReferentiels();
     const [formData, setFormData] = useState({
         departement: 'ATELIER',
         typeIntervention: 'ENTRETIEN_VP2',
@@ -243,10 +247,8 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
                                             value={formData.vehicleType} 
                                             onChange={handleChange}
                                         >
-                                            {Object.values(VEHICLE_TYPES).map(type => (
-                                                <option key={type.value} value={type.value}>
-                                                    {type.label}
-                                                </option>
+                                            {getTypeVehicules().map(t => (
+                                                <option key={t.valeur} value={t.valeur}>{t.icone} {t.label}</option>
                                             ))}
                                         </select>
                                     </div>
@@ -259,10 +261,8 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
                                             value={formData.typeIntervention}  // ✅ Corrigé
                                             onChange={handleChange}  // ✅ Corrigé
                                         >
-                                            {Object.values(INTERVENTION_TYPES).map(type => (  // ✅ Corrigé
-                                                <option key={type.value} value={type.value}>
-                                                    {type.label}     
-                                                </option>
+                                            {getTypeInterventions().map(t => (
+                                                <option key={t.valeur} value={t.valeur}>{t.label}</option>
                                             ))}
                                         </select>
                                     </div>
