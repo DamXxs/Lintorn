@@ -1,6 +1,7 @@
 // /frontend/src/pages/Clients/ClientDetail.jsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getInitiales, formatDateLong } from '../../utils/dataFormatters';
 import {
   Phone, Mail, MapPin, FileText,
   Car, CalendarDays, Receipt,
@@ -12,19 +13,6 @@ const ClientDetail = ({ client, onClose, onEdit, onDelete }) => {
   const navigate = useNavigate();
 
   if (!client) return null;
-
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '—';
-    return new Date(dateStr).toLocaleDateString('fr-FR', {
-      day: '2-digit', month: 'long', year: 'numeric'
-    });
-  };
-
-  const getInitiales = (nom, prenom) => {
-    const n = nom?.charAt(0)?.toUpperCase() || '';
-    const p = prenom?.charAt(0)?.toUpperCase() || '';
-    return `${n}${p}` || '?';
-  };
 
   const handleNewRdv = () => {
     onClose();
@@ -53,7 +41,7 @@ const ClientDetail = ({ client, onClose, onEdit, onDelete }) => {
           <div className="client-detail__header-info">
             <h2 className="client-detail__name">{client.nom} {client.prenom}</h2>
             <span className="client-detail__since">
-              Client depuis {formatDate(client.date_creation)}
+              Client depuis {formatDateLong(client.date_creation)}
             </span>
           </div>
           <button className="client-detail__close" onClick={onClose}>

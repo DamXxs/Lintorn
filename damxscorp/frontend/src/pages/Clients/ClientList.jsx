@@ -1,10 +1,16 @@
 // /frontend/src/pages/Clients/ClientList.jsx
 import React, { useState, useEffect } from 'react';
 import { getAllClients, searchClients, removeClient } from '../../utils/clientService';
-import { Search, UserPlus, X, Phone, Mail } from 'lucide-react';
+import { getInitiales, formatDateCourt } from '../../utils/dataFormatters';
+import { Phone, Mail, UserPlus } from 'lucide-react';
 import './ClientList.css';
 import ClientDetail from './ClientDetail';
 import ClientForm from './ClientForm';
+import LoadingState from '../../components/shared/LoadingState';
+import ErrorState   from '../../components/shared/ErrorState';
+import PageHeader   from '../../components/shared/PageHeader';
+import SearchBar    from '../../components/shared/SearchBar';
+import useDelete    from '../../hooks/useDelete';
 
 
 const ClientList = () => {
@@ -38,80 +44,39 @@ const ClientList = () => {
     setFiltered(searchClients(clients, searchQuery));
   }, [searchQuery, clients]);
 
-  const handleDelete = async (client) => {
-    if (!window.confirm(`Supprimer "${client.nom} ${client.prenom}" ?`)) return;
-    try {
-      await removeClient(client.id);
+  // ── Suppression via le hook centralisé ──────────────────────────
+  const { handleDelete } = useDelete({
+    deleteService: removeClient,
+    onSuccess: async () => {
       setSelectedClient(null);
       await loadClients();
-    } catch {
-      alert('❌ Erreur lors de la suppression');
-    }
-  };
+    },
+    confirmMessage: (client) => `Supprimer "${client.nom} ${client.prenom}" ?`,
+  });
 
-  const getInitiales = (nom, prenom) => {
-    const n = nom?.charAt(0)?.toUpperCase() || '';
-    const p = prenom?.charAt(0)?.toUpperCase() || '';
-    return `${n}${p}` || '?';
-  };
-
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '—';
-    return new Date(dateStr).toLocaleDateString('fr-FR', {
-      day: '2-digit', month: 'short', year: 'numeric'
-    });
-  };
-
-  if (loading) return (
-    <div className="clients-loading">
-      <div className="spinner"></div>
-      <p>Chargement des clients...</p>
-    </div>
-  );
-
-  if (error) return (
-    <div className="clients-error">
-      <p>{error}</p>
-      <button onClick={loadClients}>Réessayer</button>
-    </div>
-  );
+  // ── États ────────────────────────────────────────────────────────
+  if (loading) return <LoadingState message="Chargement des clients..." />;
+  if (error)   return <ErrorState message={error} onRetry={loadClients} />;
 
   return (
     <div className="clients-page">
 
       {/* EN-TÊTE */}
-      <div className="clients-header">
-        <div className="clients-header__left">
-          <h1 className="clients-title">Clients</h1>
-          <span className="clients-count">
-            {filtered.length} client{filtered.length > 1 ? 's' : ''}
-          </span>
-        </div>
-        <button
-          className="btn-new-client"
-          onClick={() => { setEditingClient(null); setIsFormOpen(true); }}
-        >
-          <UserPlus size={16} />
-          Nouveau client
-        </button>
-      </div>
+      <PageHeader
+        title="Clients"
+        count={filtered.length}
+        countLabel="client"
+        onAdd={() => { setEditingClient(null); setIsFormOpen(true); }}
+        addLabel="Nouveau client"
+        addIcon={<UserPlus size={16} />}
+      />
 
       {/* RECHERCHE */}
-      <div className="clients-search">
-        <Search size={16} className="clients-search__icon" />
-        <input
-          type="text"
-          placeholder="Rechercher par nom, prénom, téléphone, email..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="clients-search__input"
-        />
-        {searchQuery && (
-          <button className="clients-search__clear" onClick={() => setSearchQuery('')}>
-            <X size={14} />
-          </button>
-        )}
-      </div>
+      <SearchBar
+        value={searchQuery}
+        onChange={setSearchQuery}
+        placeholder="Rechercher par nom, prénom, téléphone, email..."
+      />
 
       {/* GRILLE */}
       {filtered.length === 0 ? (
@@ -145,7 +110,7 @@ const ClientList = () => {
                 )}
               </div>
               <div className="client-card__footer">
-                <span className="client-card__date">Depuis {formatDate(client.date_creation)}</span>
+                <span className="client-card__date">Depuis {formatDateCourt(client.date_creation)}</span>
               </div>
             </div>
           ))}

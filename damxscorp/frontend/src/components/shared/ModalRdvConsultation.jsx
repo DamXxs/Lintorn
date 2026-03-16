@@ -1,7 +1,9 @@
 // /frontend/src/components/shared/ModalRdvConsultation.jsx
 import React, { useState } from 'react';
 import { getDepartementLabel, getStatutLabel, getStatutClass, STATUTS_RDV } from '../../utils/constants';
+import { formatDateFull, formatHeure } from '../../utils/dataFormatters';
 import './ModalRdvConsultation.css';
+import FrenchPlate from './FrenchPlate';
 import {
   CalendarClock, CirclePlay, CircleCheck, CircleX,
   Pencil, Trash2, X, Car, User, Phone, Mail, MapPin, FileText
@@ -46,23 +48,7 @@ const ModalRdvConsultation = ({ event, onClose, onEdit, onDelete, onStatusChange
   const date_debut = event.date_debut || event.start;
   const date_fin   = event.date_fin   || event.end;
 
-  // Formatage des dates pour affichage
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '—';
-    const d = new Date(dateStr);
-    return d.toLocaleDateString('fr-FR', {
-      weekday: 'long',
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-    });
-  };
-
-  const formatHeure = (dateStr) => {
-    if (!dateStr) return '—';
-    const d = new Date(dateStr);
-    return d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-  };
+  // formatDateFull et formatHeure viennent de dataFormatters.js
 
   // Changement de statut
   const handleStatusChange = async (newStatut) => {
@@ -133,13 +119,13 @@ const ModalRdvConsultation = ({ event, onClose, onEdit, onDelete, onStatusChange
               <div className="consult-field">
                 <span className="consult-field__key">Début</span>
                 <span className="consult-field__value">
-                  {formatDate(date_debut)} à {formatHeure(date_debut)}
+                  {formatDateFull(date_debut)} à {formatHeure(date_debut)}
                 </span>
               </div>
               <div className="consult-field">
                 <span className="consult-field__key">Fin</span>
                 <span className="consult-field__value">
-                  {formatDate(date_fin)} à {formatHeure(date_fin)}
+                  {formatDateFull(date_fin)} à {formatHeure(date_fin)}
                 </span>
               </div>
             </div>
@@ -193,9 +179,7 @@ const ModalRdvConsultation = ({ event, onClose, onEdit, onDelete, onStatusChange
                   {vehicule_immatriculation && (
                     <div className="consult-field">
                       <span className="consult-field__key">Immatriculation</span>
-                      <span className="consult-field__value consult-field__plate">
-                        {vehicule_immatriculation}
-                      </span>
+                      <FrenchPlate value={vehicule_immatriculation} size="md" />
                     </div>
                   )}
                   {(vehicule_marque || vehicule_modele) && (

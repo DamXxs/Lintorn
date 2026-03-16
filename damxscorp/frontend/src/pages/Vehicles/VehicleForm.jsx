@@ -3,65 +3,64 @@ import React, { useState, useEffect } from 'react';
 import { addVehicule, editVehicule } from '../../utils/vehicleService';
 import { useReferentiels } from '../../context/ReferentielsContext';
 import { fetchClients } from '../../services/api';
+// ✅ Validators centralisés (comme dans ClientForm)
+import { validateImmatriculation, validateAnnee } from '../../utils/validators';
+import useForm from '../../hooks/useForm';
 import './VehicleForm.css';
 
-
+// Valeurs vides du formulaire (état initial)
+const INITIAL_DATA = {
+  immatriculation: '',
+  marque:          '',
+  modele:          '',
+  annee:           '',
+  type_vehicule:   'VOITURE',
+  proprietaire:    '',
+  notes:           '',
+};
 
 const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
 
-  const [formData, setFormData] = useState({
-    immatriculation: '',
-    marque:          '',
-    modele:          '',
-    annee:           '',
-    type_vehicule:   'VOITURE',
-    proprietaire:    '',   // ID client
-    notes:           '',
-  });
+  const [clients, setClients] = useState([]);
+  const { getTypeVehicules }  = useReferentiels();
 
-  const [clients, setClients]   = useState([]);  // Liste pour le select
-  const [errors, setErrors]     = useState({});
-  const [saving, setSaving]     = useState(false);
-  const { getTypeVehicules } = useReferentiels();
-
-  // Charger la liste des clients pour le select
+  // Charger la liste des clients pour le select propriétaire
   useEffect(() => {
     fetchClients().then(setClients).catch(() => {});
   }, []);
 
-  // Pré-remplissage en modification
-  useEffect(() => {
-    if (editingVehicule) {
-      setFormData({
-        immatriculation: editingVehicule.immatriculation || '',
-        marque:          editingVehicule.marque          || '',
-        modele:          editingVehicule.modele          || '',
-        annee:           editingVehicule.annee           ? String(editingVehicule.annee) : '',
-        type_vehicule:   editingVehicule.type_vehicule   || 'VOITURE',
-        proprietaire:    editingVehicule.proprietaire_id ? String(editingVehicule.proprietaire_id) : '',
-        notes:           editingVehicule.notes           || '',
-      });
-    }
-    setErrors({});
-  }, [editingVehicule]);
+  // ── useForm gère : formData, errors, saving + handleChange + reset ──
+  const { formData, errors, setErrors, saving, setSaving, handleChange }
+    = useForm(
+        INITIAL_DATA,
+        editingVehicule,
+        // Fonction qui pré-remplit le formulaire depuis le véhicule existant
+        (v) => ({
+          immatriculation: v.immatriculation || '',
+          marque:          v.marque          || '',
+          modele:          v.modele          || '',
+          annee:           v.annee           ? String(v.annee) : '',
+          type_vehicule:   v.type_vehicule   || 'VOITURE',
+          proprietaire:    v.proprietaire_id ? String(v.proprietaire_id) : '',
+          notes:           v.notes           || '',
+        })
+      );
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    if (errors[name]) setErrors(prev => ({ ...prev, [name]: null }));
-  };
-
+  // ── Validation via validators.js ─────────────────────────────────
   const validate = () => {
     const newErrors = {};
-    if (!formData.immatriculation.trim()) newErrors.immatriculation = 'Immatriculation obligatoire';
-    if (!formData.marque.trim())          newErrors.marque          = 'Marque obligatoire';
-    if (!formData.modele.trim())          newErrors.modele          = 'Modèle obligatoire';
-    if (formData.annee && (isNaN(formData.annee) || formData.annee < 1900 || formData.annee > 2030)) {
-      newErrors.annee = 'Année invalide';
-    }
+    // Champs obligatoires manuels
+    if (!formData.marque.trim())  newErrors.marque  = 'Marque obligatoire';
+    if (!formData.modele.trim())  newErrors.modele  = 'Modèle obligatoire';
+    // Validation via validators.js (même fichier que ClientForm)
+    const immatError = validateImmatriculation(formData.immatriculation);
+    if (immatError) newErrors.immatriculation = immatError;
+    const anneeError = validateAnnee(formData.annee);
+    if (anneeError) newErrors.annee = anneeError;
     return newErrors;
   };
 
+  // ── Soumission ───────────────────────────────────────────────────
   const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validate();
@@ -69,11 +68,10 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
 
     try {
       setSaving(true);
-      // Prépare les données pour Django
       const data = {
         ...formData,
         immatriculation: formData.immatriculation.toUpperCase(),
-        annee:           formData.annee ? parseInt(formData.annee) : null,
+        annee:           formData.annee        ? parseInt(formData.annee)        : null,
         proprietaire:    formData.proprietaire ? parseInt(formData.proprietaire) : null,
       };
 
@@ -90,11 +88,12 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
     }
   };
 
-  // Recherche SIV (disabled pour l'instant)
+  // Recherche SIV (placeholder — sera développé plus tard)
   const handleSivSearch = () => {
     alert('API SIV en cours d\'implémentation — bientôt disponible !');
   };
 
+  // ── Rendu ────────────────────────────────────────────────────────
   return (
     <div className="vehicle-form__overlay" onClick={onClose}>
       <div className="vehicle-form__content" onClick={(e) => e.stopPropagation()}>
@@ -117,22 +116,17 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
           <div className="vf-section">
             <div className="vf-section__title">🔑 Identification</div>
 
-            {/* Immatriculation + bouton SIV */}
             <div className="vf-group">
               <label className="vf-label required">Immatriculation</label>
               <div className="vf-input-with-btn">
                 <input
-                  type="text"
-                  name="immatriculation"
-                  value={formData.immatriculation}
-                  onChange={handleChange}
-                  placeholder="AB-123-CD"
+                  type="text" name="immatriculation" value={formData.immatriculation}
+                  onChange={handleChange} placeholder="AB-123-CD"
                   className={`vf-input ${errors.immatriculation ? 'vf-input--error' : ''}`}
                   style={{ textTransform: 'uppercase' }}
                 />
                 <button
-                  type="button"
-                  className="vf-btn-siv"
+                  type="button" className="vf-btn-siv"
                   onClick={handleSivSearch}
                   disabled={!formData.immatriculation}
                   title="API SIV — bientôt disponible"
@@ -143,7 +137,6 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
               {errors.immatriculation && <span className="vf-error">{errors.immatriculation}</span>}
             </div>
 
-            {/* Type véhicule */}
             <div className="vf-group">
               <label className="vf-label required">Type de véhicule</label>
               <select name="type_vehicule" value={formData.type_vehicule} onChange={handleChange} className="vf-input">
@@ -161,11 +154,8 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
               <div className="vf-group">
                 <label className="vf-label required">Marque</label>
                 <input
-                  type="text"
-                  name="marque"
-                  value={formData.marque}
-                  onChange={handleChange}
-                  placeholder="Peugeot"
+                  type="text" name="marque" value={formData.marque}
+                  onChange={handleChange} placeholder="Peugeot"
                   className={`vf-input ${errors.marque ? 'vf-input--error' : ''}`}
                 />
                 {errors.marque && <span className="vf-error">{errors.marque}</span>}
@@ -173,11 +163,8 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
               <div className="vf-group">
                 <label className="vf-label required">Modèle</label>
                 <input
-                  type="text"
-                  name="modele"
-                  value={formData.modele}
-                  onChange={handleChange}
-                  placeholder="308"
+                  type="text" name="modele" value={formData.modele}
+                  onChange={handleChange} placeholder="308"
                   className={`vf-input ${errors.modele ? 'vf-input--error' : ''}`}
                 />
                 {errors.modele && <span className="vf-error">{errors.modele}</span>}
@@ -187,11 +174,8 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
             <div className="vf-group">
               <label className="vf-label">Année</label>
               <input
-                type="number"
-                name="annee"
-                value={formData.annee}
-                onChange={handleChange}
-                placeholder="2020"
+                type="number" name="annee" value={formData.annee}
+                onChange={handleChange} placeholder="2020"
                 min="1900" max="2030"
                 className={`vf-input ${errors.annee ? 'vf-input--error' : ''}`}
               />
@@ -207,9 +191,7 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
               <select name="proprietaire" value={formData.proprietaire} onChange={handleChange} className="vf-input">
                 <option value="">— Aucun propriétaire —</option>
                 {clients.map(c => (
-                  <option key={c.id} value={c.id}>
-                    {c.nom} {c.prenom}
-                  </option>
+                  <option key={c.id} value={c.id}>{c.nom} {c.prenom}</option>
                 ))}
               </select>
             </div>
@@ -220,12 +202,10 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
             <div className="vf-section__title">📝 Notes</div>
             <div className="vf-group">
               <textarea
-                name="notes"
-                value={formData.notes}
+                name="notes" value={formData.notes}
                 onChange={handleChange}
                 placeholder="Pneus hiver, historique particulier..."
-                className="vf-input vf-textarea"
-                rows="2"
+                className="vf-input vf-textarea" rows="2"
               />
             </div>
           </div>

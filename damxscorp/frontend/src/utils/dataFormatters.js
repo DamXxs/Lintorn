@@ -9,6 +9,65 @@ import logger from './logger';
  */
 
 // =========================================================================
+// HELPERS COMMUNS — utilisés dans toute l'application
+// Un seul endroit à modifier si on change le format !
+// =========================================================================
+
+/**
+ * Génère les initiales d'un nom + prénom
+ * Exemple : getInitiales("Dupont", "Jean") → "DJ"
+ */
+export const getInitiales = (nom, prenom) => {
+  const n = nom?.charAt(0)?.toUpperCase() || '';
+  const p = prenom?.charAt(0)?.toUpperCase() || '';
+  return `${n}${p}` || '?';
+};
+
+/**
+ * Date courte : "12 jan. 2024"
+ * Utilisée dans les listes, cartes, tableaux
+ */
+export const formatDateCourt = (dateStr) => {
+  if (!dateStr) return '—';
+  return new Date(dateStr).toLocaleDateString('fr-FR', {
+    day: '2-digit', month: 'short', year: 'numeric',
+  });
+};
+
+/**
+ * Date longue : "12 janvier 2024"
+ * Utilisée dans les fiches détail
+ */
+export const formatDateLong = (dateStr) => {
+  if (!dateStr) return '—';
+  return new Date(dateStr).toLocaleDateString('fr-FR', {
+    day: '2-digit', month: 'long', year: 'numeric',
+  });
+};
+
+/**
+ * Date complète avec jour : "lundi 12 janvier 2024"
+ * Utilisée dans les modals de RDV
+ */
+export const formatDateFull = (dateStr) => {
+  if (!dateStr) return '—';
+  return new Date(dateStr).toLocaleDateString('fr-FR', {
+    weekday: 'long', day: '2-digit', month: 'long', year: 'numeric',
+  });
+};
+
+/**
+ * Heure : "14:30"
+ * Utilisée dans les modals de RDV
+ */
+export const formatHeure = (dateStr) => {
+  if (!dateStr) return '—';
+  return new Date(dateStr).toLocaleTimeString('fr-FR', {
+    hour: '2-digit', minute: '2-digit',
+  });
+};
+
+// =========================================================================
 // REACT → DJANGO
 // Ce que le formulaire envoie au backend
 // Noms de champs = ce que le serializer attend en write_only

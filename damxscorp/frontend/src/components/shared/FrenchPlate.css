@@ -1,0 +1,111 @@
+/* ══════════════════════════════════════════════════════════════
+   FRENCH PLATE — Plaque d'immatriculation française (SIV)
+   Design fidèle au système SIV en vigueur depuis 2009
+   ══════════════════════════════════════════════════════════════ */
+
+/* Police condensée et grasse pour ressembler aux caractères des vraies plaques */
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=swap');
+
+/* ── Conteneur principal ─────────────────────────────────────── */
+.french-plate {
+  display: inline-flex;
+  align-items: stretch;
+  background: #FFFFFF;
+  border: 2px solid #444;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  user-select: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Bande bleue EU à gauche ─────────────────────────────────── */
+.french-plate__eu {
+  background: #003399; /* Bleu EU officiel */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+}
+
+/* Étoiles dorées */
+.french-plate__eu-stars {
+  color: #FFD700; /* Or EU officiel */
+  line-height: 1;
+  letter-spacing: 0px;
+}
+
+/* Lettre "F" en blanc */
+.french-plate__eu-letter {
+  font-family: 'Arial Black', 'Arial', sans-serif;
+  font-weight: 900;
+  color: #FFFFFF;
+  line-height: 1;
+}
+
+/* ── Numéro de plaque ─────────────────────────────────────────── */
+.french-plate__number {
+  font-family: 'Oswald', 'Arial Black', 'Arial', sans-serif;
+  font-weight: 700;
+  color: #000000;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+}
+
+/* ══ TAILLES ══════════════════════════════════════════════════ */
+
+/* -- sm : petite (dans les listes, badges) ------------------- */
+.french-plate--sm .french-plate__eu {
+  min-width: 16px;
+  padding: 2px 4px;
+}
+.french-plate--sm .french-plate__eu-stars {
+  font-size: 4px;
+}
+.french-plate--sm .french-plate__eu-letter {
+  font-size: 8px;
+}
+.french-plate--sm .french-plate__number {
+  font-size: 12px;
+  padding: 3px 8px;
+  letter-spacing: 2px;
+}
+
+/* -- md : taille par défaut (modals, fiches) ----------------- */
+.french-plate--md .french-plate__eu {
+  min-width: 20px;
+  padding: 2px 5px;
+}
+.french-plate--md .french-plate__eu-stars {
+  font-size: 5px;
+}
+.french-plate--md .french-plate__eu-letter {
+  font-size: 10px;
+}
+.french-plate--md .french-plate__number {
+  font-size: 16px;
+  padding: 5px 13px;
+  letter-spacing: 3px;
+}
+
+/* -- lg : grande (header de fiche véhicule) ------------------ */
+.french-plate--lg .french-plate__eu {
+  min-width: 26px;
+  padding: 3px 7px;
+}
+.french-plate--lg .french-plate__eu-stars {
+  font-size: 6px;
+}
+.french-plate--lg .french-plate__eu-letter {
+  font-size: 12px;
+}
+.french-plate--lg .french-plate__number {
+  font-size: 22px;
+  padding: 6px 18px;
+  letter-spacing: 4px;
+}

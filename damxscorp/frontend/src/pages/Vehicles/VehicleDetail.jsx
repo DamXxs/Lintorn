@@ -3,8 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getVehiculeIcon, getVehiculeTypeLabel } from '../../utils/vehicleService';
 import { fetchInterventionsByVehicule, patchIntervention } from '../../services/api';
+import { formatDateLong, formatDateCourt } from '../../utils/dataFormatters';
 import ModalRdvConsultation from '../../components/shared/ModalRdvConsultation';
-import { Search, Plus, X } from 'lucide-react';
+
+import FrenchPlate from '../../components/shared/FrenchPlate';
 import './VehicleDetail.css';
 
 // ── BADGE STATUT ──────────────────────────────────────────────────
@@ -51,20 +53,7 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
 
   if (!vehicule) return null;
 
-  // ── HELPERS ───────────────────────────────────────────────────
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '—';
-    return new Date(dateStr).toLocaleDateString('fr-FR', {
-      day: '2-digit', month: 'long', year: 'numeric'
-    });
-  };
-
-  const formatDateCourt = (dateStr) => {
-    if (!dateStr) return '—';
-    return new Date(dateStr).toLocaleDateString('fr-FR', {
-      day: '2-digit', month: 'short', year: 'numeric'
-    });
-  };
+  // ── HELPERS : formatDateLong et formatDateCourt viennent de dataFormatters.js ──
 
   const handleNewRdv = () => {
     onClose();
@@ -106,7 +95,7 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
               {getVehiculeIcon(vehicule.type_vehicule)}
             </div>
             <div className="vehicle-detail__header-info">
-              <div className="vehicle-detail__plate">{vehicule.immatriculation}</div>
+              <FrenchPlate value={vehicule.immatriculation} size="lg" />
               <div className="vehicle-detail__marque-modele">
                 {vehicule.marque} {vehicule.modele}
                 {vehicule.annee && <span className="vehicle-detail__annee"> — {vehicule.annee}</span>}
@@ -227,7 +216,7 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
             </div>
 
             <div className="vd-section">
-              <div className="vd-meta">Ajouté le {formatDate(vehicule.date_creation)}</div>
+              <div className="vd-meta">Ajouté le {formatDateLong(vehicule.date_creation)}</div>
             </div>
 
           </div>

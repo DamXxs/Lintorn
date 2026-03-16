@@ -3,21 +3,27 @@ import React, { useState, useEffect } from 'react';
 import { getAllVehicules, searchVehicules, removeVehicule, getVehiculeIcon } from '../../utils/vehicleService';
 import VehicleDetail from './VehicleDetail';
 import VehicleForm from './VehicleForm';
-import { Search, Plus, X } from 'lucide-react';
+import { Plus } from 'lucide-react';
+import FrenchPlate  from '../../components/shared/FrenchPlate';
+import LoadingState from '../../components/shared/LoadingState';
+import ErrorState   from '../../components/shared/ErrorState';
+import PageHeader   from '../../components/shared/PageHeader';
+import SearchBar    from '../../components/shared/SearchBar';
+import useDelete    from '../../hooks/useDelete';
 import './VehicleList.css';
 
 const VehicleList = () => {
 
-  const [vehicules, setVehicules]           = useState([]);
-  const [filtered, setFiltered]             = useState([]);
-  const [loading, setLoading]               = useState(true);
-  const [error, setError]                   = useState(null);
-  const [searchQuery, setSearchQuery]       = useState('');
+  const [vehicules, setVehicules]               = useState([]);
+  const [filtered, setFiltered]                 = useState([]);
+  const [loading, setLoading]                   = useState(true);
+  const [error, setError]                       = useState(null);
+  const [searchQuery, setSearchQuery]           = useState('');
   const [selectedVehicule, setSelectedVehicule] = useState(null);
-  const [isFormOpen, setIsFormOpen]         = useState(false);
-  const [editingVehicule, setEditingVehicule] = useState(null);
+  const [isFormOpen, setIsFormOpen]             = useState(false);
+  const [editingVehicule, setEditingVehicule]   = useState(null);
 
-  // ── CHARGEMENT ──────────────────────────────────────────────────
+  // ── Chargement ───────────────────────────────────────────────────
   const loadVehicules = async () => {
     try {
       setLoading(true);
@@ -25,7 +31,7 @@ const VehicleList = () => {
       const data = await getAllVehicules();
       setVehicules(data);
       setFiltered(data);
-    } catch (err) {
+    } catch {
       setError('Impossible de charger les véhicules');
     } finally {
       setLoading(false);
@@ -34,67 +40,45 @@ const VehicleList = () => {
 
   useEffect(() => { loadVehicules(); }, []);
 
-  // ── RECHERCHE ────────────────────────────────────────────────────
+  // ── Recherche ────────────────────────────────────────────────────
   useEffect(() => {
     setFiltered(searchVehicules(vehicules, searchQuery));
   }, [searchQuery, vehicules]);
 
-  // ── SUPPRESSION ──────────────────────────────────────────────────
-  const handleDelete = async (vehicule) => {
-    if (!window.confirm(`Supprimer "${vehicule.marque} ${vehicule.modele} (${vehicule.immatriculation})" ?`)) return;
-    try {
-      await removeVehicule(vehicule.id);
+  // ── Suppression via le hook centralisé ──────────────────────────
+  const { handleDelete } = useDelete({
+    deleteService: removeVehicule,
+    onSuccess: async () => {
       setSelectedVehicule(null);
       await loadVehicules();
-    } catch (err) {
-      alert('❌ Erreur lors de la suppression');
-    }
-  };
+    },
+    confirmMessage: (v) => `Supprimer "${v.marque} ${v.modele} (${v.immatriculation})" ?`,
+  });
 
-  // ── ÉTATS ────────────────────────────────────────────────────────
-  if (loading) return (
-    <div className="vehicles-loading">
-      <div className="spinner"></div>
-      <p>Chargement des véhicules...</p>
-    </div>
-  );
+  // ── États ────────────────────────────────────────────────────────
+  if (loading) return <LoadingState message="Chargement des véhicules..." />;
+  if (error)   return <ErrorState message={error} onRetry={loadVehicules} />;
 
-  if (error) return (
-    <div className="vehicles-error">
-      <p>❌ {error}</p>
-      <button onClick={loadVehicules}>Réessayer</button>
-    </div>
-  );
-
-  // ── RENDU ────────────────────────────────────────────────────────
+  // ── Rendu ────────────────────────────────────────────────────────
   return (
     <div className="vehicles-page">
 
       {/* EN-TÊTE */}
-      <div className="vehicles-header">
-        <div className="vehicles-header__left">
-          <h1 className="vehicles-title">🚗 Véhicules</h1>
-          <span className="vehicles-count">
-            {filtered.length} véhicule{filtered.length > 1 ? 's' : ''}
-          </span>
-        </div>
-        <button
-          className="btn-new-vehicle"
-          onClick={() => { setEditingVehicule(null); setIsFormOpen(true); }}
-        >
-          <Plus size={16} /> Nouveau véhicule
-        </button>
-      </div>
+      <PageHeader
+        title="🚗 Véhicules"
+        count={filtered.length}
+        countLabel="véhicule"
+        onAdd={() => { setEditingVehicule(null); setIsFormOpen(true); }}
+        addLabel="Nouveau véhicule"
+        addIcon={<Plus size={16} />}
+      />
 
       {/* BARRE DE RECHERCHE */}
-      <div className="vehicles-search">
-        <Search size={16} className="vehicles-search__icon" />
-        {searchQuery && (
-          <button className="vehicles-search__clear" onClick={() => setSearchQuery('')}>
-            <X size={14} />
-          </button>
-        )}
-      </div>
+      <SearchBar
+        value={searchQuery}
+        onChange={setSearchQuery}
+        placeholder="Rechercher par plaque, marque, modèle, propriétaire..."
+      />
 
       {/* GRILLE */}
       {filtered.length === 0 ? (
@@ -112,23 +96,16 @@ const VehicleList = () => {
               className="vehicle-card"
               onClick={() => setSelectedVehicule(vehicule)}
             >
-              {/* Icône type véhicule */}
               <div className="vehicle-card__icon">
                 {getVehiculeIcon(vehicule.type_vehicule)}
               </div>
-
-              {/* Plaque */}
               <div className="vehicle-card__plate">
-                {vehicule.immatriculation}
+                <FrenchPlate value={vehicule.immatriculation} size="sm" />
               </div>
-
-              {/* Marque + modèle */}
               <div className="vehicle-card__model">
                 <span className="vehicle-card__marque">{vehicule.marque}</span>
                 <span className="vehicle-card__modele">{vehicule.modele}</span>
               </div>
-
-              {/* Infos */}
               <div className="vehicle-card__infos">
                 {vehicule.annee && (
                   <div className="vehicle-card__info-row">
@@ -143,13 +120,11 @@ const VehicleList = () => {
                   </div>
                 )}
               </div>
-
             </div>
           ))}
         </div>
       )}
 
-      {/* MODALE DÉTAIL */}
       {selectedVehicule && (
         <VehicleDetail
           vehicule={selectedVehicule}
@@ -163,7 +138,6 @@ const VehicleList = () => {
         />
       )}
 
-      {/* MODALE FORMULAIRE */}
       {isFormOpen && (
         <VehicleForm
           editingVehicule={editingVehicule}

@@ -41,18 +41,8 @@
 
 .vehicle-detail__header-info { flex: 1; min-width: 0; }
 
-/* Plaque dans le header */
-.vehicle-detail__plate {
-  font-family: monospace;
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  color: white;
-  background: #1a3a5c;
-  border: 2px solid var(--accent);
-  border-radius: 6px;
-  padding: 4px 12px;
-  display: inline-block;
+/* Plaque dans le header — rendu par FrenchPlate */
+.vehicle-detail__header-info .french-plate {
   margin-bottom: 6px;
 }
 
