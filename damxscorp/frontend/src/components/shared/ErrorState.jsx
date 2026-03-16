@@ -1,5 +1,6 @@
 // /frontend/src/components/shared/ErrorState.jsx
 import React from 'react';
+import { CircleAlert } from '../../utils/icons';
 import './shared.css';
 
 /**
@@ -16,7 +17,7 @@ import './shared.css';
  */
 const ErrorState = ({ message, onRetry }) => (
   <div className="page-state">
-    <p>❌ {message}</p>
+    <p><CircleAlert size={16} /> {message}</p>
     {onRetry && (
       <button onClick={onRetry}>Réessayer</button>
     )}

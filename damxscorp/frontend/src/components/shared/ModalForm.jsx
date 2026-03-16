@@ -5,6 +5,7 @@ import './ModalForm.css';
 import logger from '../../utils/logger';
 import AddressAutocomplete from './AddressAutocomplete';
 import { useReferentiels } from '../../context/ReferentielsContext';
+import { User, Car, CalendarClock, FileText, X, Save, Search } from '../../utils/icons';
 
 
 
@@ -145,7 +146,7 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
                         
                         {/* ===== 1. INFORMATIONS CLIENT ===== */}
                         <div className="form-section">
-                            <div className="form-section-title">👤 Informations Client</div>
+                            <div className="form-section-title"><User size={14} /> Informations Client</div>
                             
                             <div className="form-grid-2col">
                                 <div className="form-group">
@@ -213,7 +214,7 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
                         {/* ===== 2. INFORMATIONS VÉHICULE (si ATELIER) ===== */}
                         {formData.departement === 'ATELIER' && (
                             <div className="form-section">
-                                <div className="form-section-title">🚗 Informations Véhicule</div>
+                                <div className="form-section-title"><Car size={14} /> Informations Véhicule</div>
                                 
                                 {/* Immatriculation + Bouton SIV */}
                                 <div className="form-group">
@@ -233,7 +234,7 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
                                             onClick={handleSivSearch}
                                             disabled={!formData.plate}
                                         >
-                                            🔍 API SIV
+                                            <Search size={14} /> SIV
                                         </button>
                                     </div>
                                 </div>
@@ -318,7 +319,7 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
 
                         {/* ===== 3. PLANIFICATION ===== */}
                         <div className="form-section">
-                            <div className="form-section-title">📆 Planification</div>
+                            <div className="form-section-title"><CalendarClock size={14} /> Planification</div>
                             
                             <div className="form-grid-2col">
                                 <div className="form-group">
@@ -369,7 +370,7 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
 
                         {/* ===== 4. TRAVAUX À EFFECTUER ===== */}
                         <div className="form-section">
-                            <div className="form-section-title">📝 Travaux à effectuer</div>
+                            <div className="form-section-title"><FileText size={14} /> Travaux à effectuer</div>
                             <div className="form-group">
                                 <label>Description</label>
                                 <textarea 
@@ -389,13 +390,13 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
                                 onClick={onClose} 
                                 className="btn-cancel"
                             >
-                                ❌ Annuler
+                                <X size={14} /> Annuler
                             </button>
                             <button 
                                 type="submit" 
                                 className="btn-save"
                             >
-                                {initialData?.id ? '💾 Modifier' : '💾 Enregistrer'}
+                                {initialData?.id ? <><Save size={14} /> Modifier</> : <><Save size={14} /> Enregistrer</>}
                             </button>
                         </div>
                     </form>

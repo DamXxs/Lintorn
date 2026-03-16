@@ -6,6 +6,7 @@ import { fetchClients } from '../../services/api';
 // ✅ Validators centralisés (comme dans ClientForm)
 import { validateImmatriculation, validateAnnee } from '../../utils/validators';
 import useForm from '../../hooks/useForm';
+import { Key, Car, User, FileText, Pencil, Plus, X, Save, Loader, CircleAlert, Search } from '../../utils/icons';
 import './VehicleForm.css';
 
 // Valeurs vides du formulaire (état initial)
@@ -101,20 +102,20 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
         {/* HEADER */}
         <div className="vehicle-form__header">
           <h2 className="vehicle-form__title">
-            {editingVehicule ? '✏️ Modifier le véhicule' : '➕ Nouveau véhicule'}
+            {editingVehicule ? <><Pencil size={15}/> Modifier le véhicule</> : <><Plus size={15}/> Nouveau véhicule</>}
           </h2>
-          <button className="vehicle-form__close" onClick={onClose}>✕</button>
+          <button className="vehicle-form__close" onClick={onClose}><X size={16} /></button>
         </div>
 
         <form className="vehicle-form__body" onSubmit={handleSubmit}>
 
           {errors.global && (
-            <div className="vf-error-global">❌ {errors.global}</div>
+            <div className="vf-error-global"><CircleAlert size={14} /> {errors.global}</div>
           )}
 
           {/* IDENTIFICATION */}
           <div className="vf-section">
-            <div className="vf-section__title">🔑 Identification</div>
+            <div className="vf-section__title"><Key size={14} /> Identification</div>
 
             <div className="vf-group">
               <label className="vf-label required">Immatriculation</label>
@@ -131,7 +132,7 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
                   disabled={!formData.immatriculation}
                   title="API SIV — bientôt disponible"
                 >
-                  🔍 SIV
+                  <Search size={14} /> SIV
                 </button>
               </div>
               {errors.immatriculation && <span className="vf-error">{errors.immatriculation}</span>}
@@ -149,7 +150,7 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
 
           {/* VÉHICULE */}
           <div className="vf-section">
-            <div className="vf-section__title">🚗 Informations véhicule</div>
+            <div className="vf-section__title"><Car size={14} /> Informations véhicule</div>
             <div className="vf-row-2col">
               <div className="vf-group">
                 <label className="vf-label required">Marque</label>
@@ -185,7 +186,7 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
 
           {/* PROPRIÉTAIRE */}
           <div className="vf-section">
-            <div className="vf-section__title">👤 Propriétaire</div>
+            <div className="vf-section__title"><User size={14} /> Propriétaire</div>
             <div className="vf-group">
               <label className="vf-label">Client propriétaire</label>
               <select name="proprietaire" value={formData.proprietaire} onChange={handleChange} className="vf-input">
@@ -199,7 +200,7 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
 
           {/* NOTES */}
           <div className="vf-section">
-            <div className="vf-section__title">📝 Notes</div>
+            <div className="vf-section__title"><FileText size={14} /> Notes</div>
             <div className="vf-group">
               <textarea
                 name="notes" value={formData.notes}
@@ -216,7 +217,7 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
               Annuler
             </button>
             <button type="submit" className="vf-btn vf-btn--save" disabled={saving}>
-              {saving ? '⏳ Enregistrement...' : editingVehicule ? '💾 Modifier' : '💾 Créer'}
+              {saving ? <><Loader size={14} /> Enregistrement...</> : editingVehicule ? <><Save size={14} /> Modifier</> : <><Save size={14} /> Créer</>}
             </button>
           </div>
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fetchPieces, deletePiece } from '../../services/api';
-import { Package, Search, Plus, Pencil, Trash2 } from 'lucide-react';
+import { Package, Search, Plus, Pencil, Trash2 } from '../../utils/icons';
 import './StockVueEnsemble.css';
 
 

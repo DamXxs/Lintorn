@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { getAllVehicules, searchVehicules, removeVehicule, getVehiculeIcon } from '../../utils/vehicleService';
 import VehicleDetail from './VehicleDetail';
 import VehicleForm from './VehicleForm';
-import { Plus } from 'lucide-react';
+import { Plus, Car, CalendarDays, User } from '../../utils/icons';
 import FrenchPlate  from '../../components/shared/FrenchPlate';
 import LoadingState from '../../components/shared/LoadingState';
 import ErrorState   from '../../components/shared/ErrorState';
@@ -65,7 +65,7 @@ const VehicleList = () => {
 
       {/* EN-TÊTE */}
       <PageHeader
-        title="🚗 Véhicules"
+        title={<><Car size={18} /> Véhicules</>}
         count={filtered.length}
         countLabel="véhicule"
         onAdd={() => { setEditingVehicule(null); setIsFormOpen(true); }}
@@ -109,13 +109,13 @@ const VehicleList = () => {
               <div className="vehicle-card__infos">
                 {vehicule.annee && (
                   <div className="vehicle-card__info-row">
-                    <span className="vehicle-card__info-icon">📅</span>
+                    <span className="vehicle-card__info-icon"><CalendarDays size={12} /></span>
                     <span>{vehicule.annee}</span>
                   </div>
                 )}
                 {vehicule.proprietaire_nom && (
                   <div className="vehicle-card__info-row">
-                    <span className="vehicle-card__info-icon">👤</span>
+                    <span className="vehicle-card__info-icon"><User size={12} /></span>
                     <span>{vehicule.proprietaire_nom}</span>
                   </div>
                 )}

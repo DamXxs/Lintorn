@@ -7,6 +7,11 @@ import { formatDateLong, formatDateCourt } from '../../utils/dataFormatters';
 import ModalRdvConsultation from '../../components/shared/ModalRdvConsultation';
 
 import FrenchPlate from '../../components/shared/FrenchPlate';
+import IconChip, { CHIP_COLORS } from '../../components/shared/IconChip';
+import {
+  User, Wrench, FileText, CalendarDays, Receipt,
+  CalendarPlus, Pencil, Trash2, X,
+} from '../../utils/icons';
 import './VehicleDetail.css';
 
 // ── BADGE STATUT ──────────────────────────────────────────────────
@@ -104,7 +109,7 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
                 {getVehiculeTypeLabel(vehicule.type_vehicule)}
               </div>
             </div>
-            <button className="vehicle-detail__close" onClick={onClose}>✕</button>
+            <button className="vehicle-detail__close" onClick={onClose}><X size={18} /></button>
           </div>
 
           {/* BODY */}
@@ -112,7 +117,7 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
 
             {/* Propriétaire */}
             <div className="vd-section">
-              <h3 className="vd-section__title">👤 Propriétaire</h3>
+              <h3 className="vd-section__title"><User size={14} /> Propriétaire</h3>
               {vehicule.proprietaire_nom ? (
                 <div className="vd-field">
                   <span className="vd-field__value">{vehicule.proprietaire_nom}</span>
@@ -135,7 +140,7 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
 
             {/* Infos véhicule */}
             <div className="vd-section">
-              <h3 className="vd-section__title">🔧 Informations</h3>
+              <h3 className="vd-section__title"><Wrench size={14} /> Informations</h3>
               <div className="vd-grid">
                 <div className="vd-field">
                   <span className="vd-field__key">Marque</span>
@@ -159,7 +164,7 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
             {/* Notes */}
             {vehicule.notes && (
               <div className="vd-section">
-                <h3 className="vd-section__title">📝 Notes</h3>
+                <h3 className="vd-section__title"><FileText size={14} /> Notes</h3>
                 <div className="vd-notes">{vehicule.notes}</div>
               </div>
             )}
@@ -167,7 +172,7 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
             {/* HISTORIQUE */}
             <div className="vd-section">
               <h3 className="vd-section__title">
-                📅 Historique interventions
+                <CalendarDays size={14} /> Historique interventions
                 {!loadingHistory && (
                   <span className="vd-badge">
                     {interventions.length} intervention{interventions.length > 1 ? 's' : ''}
@@ -209,7 +214,7 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
             {/* Factures — placeholder */}
             <div className="vd-section">
               <h3 className="vd-section__title">
-                💰 Factures & Devis
+                <Receipt size={14} /> Factures & Devis
                 <span className="vd-badge">Bientôt</span>
               </h3>
               <div className="vd-placeholder">Les factures liées à ce véhicule apparaîtront ici</div>
@@ -224,14 +229,14 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
           {/* FOOTER */}
           <div className="vehicle-detail__footer">
             <button className="vd-btn vd-btn--rdv" onClick={handleNewRdv}>
-              📅 Nouveau RDV
+              <IconChip icon={CalendarPlus} color={CHIP_COLORS.calendar} size="sm" /> Nouveau RDV
             </button>
             <div className="vehicle-detail__footer-actions">
               <button className="vd-btn vd-btn--primary" onClick={() => onEdit(vehicule)}>
-                ✏️ Modifier
+                <Pencil size={14} /> Modifier
               </button>
               <button className="vd-btn vd-btn--danger" onClick={() => onDelete(vehicule)}>
-                🗑️ Supprimer
+                <Trash2 size={14} /> Supprimer
               </button>
             </div>
           </div>

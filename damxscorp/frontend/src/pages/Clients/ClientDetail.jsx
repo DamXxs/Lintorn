@@ -6,7 +6,8 @@ import {
   Phone, Mail, MapPin, FileText,
   Car, CalendarDays, Receipt,
   Pencil, Trash2, X, CalendarPlus
-} from 'lucide-react';
+} from '../../utils/icons';
+import IconChip, { CHIP_COLORS } from '../../components/shared/IconChip';
 import './ClientDetail.css';
 
 const ClientDetail = ({ client, onClose, onEdit, onDelete }) => {
@@ -61,7 +62,7 @@ const ClientDetail = ({ client, onClose, onEdit, onDelete }) => {
                 <span className="detail-field__key">Téléphone</span>
                 {client.telephone ? (
                   <a href={`tel:${client.telephone}`} className="detail-field__value detail-field__link">
-                    <Phone size={13} /> {client.telephone}
+                    <IconChip icon={Phone} color={CHIP_COLORS.phone} size="sm" /> {client.telephone}
                   </a>
                 ) : (
                   <span className="detail-field__value detail-field__empty">Non renseigné</span>
@@ -71,7 +72,7 @@ const ClientDetail = ({ client, onClose, onEdit, onDelete }) => {
                 <span className="detail-field__key">Email</span>
                 {client.email ? (
                   <a href={`mailto:${client.email}`} className="detail-field__value detail-field__link">
-                    <Mail size={13} /> {client.email}
+                    <IconChip icon={Mail} color={CHIP_COLORS.mail} size="sm" /> {client.email}
                   </a>
                 ) : (
                   <span className="detail-field__value detail-field__empty">Non renseigné</span>
@@ -81,7 +82,7 @@ const ClientDetail = ({ client, onClose, onEdit, onDelete }) => {
                 <div className="detail-field" style={{ gridColumn: '1 / -1' }}>
                   <span className="detail-field__key">Adresse</span>
                   <span className="detail-field__value">
-                    <MapPin size={13} /> {client.adresse}
+                    <IconChip icon={MapPin} color={CHIP_COLORS.location} size="sm" /> {client.adresse}
                   </span>
                 </div>
               )}
@@ -124,7 +125,7 @@ const ClientDetail = ({ client, onClose, onEdit, onDelete }) => {
         {/* FOOTER */}
         <div className="client-detail__footer">
           <button className="detail-btn detail-btn--rdv" onClick={handleNewRdv}>
-            <CalendarPlus size={16} /> Nouveau RDV
+            <IconChip icon={CalendarPlus} color={CHIP_COLORS.calendar} size="sm" /> Nouveau RDV
           </button>
           <div className="client-detail__footer-actions">
             <button className="detail-btn detail-btn--primary" onClick={() => onEdit(client)}>

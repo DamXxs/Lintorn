@@ -4,10 +4,11 @@ import { getDepartementLabel, getStatutLabel, getStatutClass, STATUTS_RDV } from
 import { formatDateFull, formatHeure } from '../../utils/dataFormatters';
 import './ModalRdvConsultation.css';
 import FrenchPlate from './FrenchPlate';
+import IconChip, { CHIP_COLORS } from './IconChip';
 import {
-  CalendarClock, CirclePlay, CircleCheck, CircleX,
-  Pencil, Trash2, X, Car, User, Phone, Mail, MapPin, FileText
-} from 'lucide-react';
+  CalendarClock, Pencil, Trash2, X,
+  Car, User, Phone, Mail, MapPin, FileText, Tag,
+} from '../../utils/icons';
 
 /**
  * 📋 MODAL DE CONSULTATION D'UN RDV
@@ -87,7 +88,7 @@ const ModalRdvConsultation = ({ event, onClose, onEdit, onDelete, onStatusChange
               {getDepartementLabel(type_rdv)}
             </span>
           </div>
-          <button className="modal-consultation__close" onClick={onClose}>✕</button>
+          <button className="modal-consultation__close" onClick={onClose}><X size={16} /></button>
         </div>
 
         {/* ── BODY ─────────────────────────────────────────────── */}
@@ -95,7 +96,7 @@ const ModalRdvConsultation = ({ event, onClose, onEdit, onDelete, onStatusChange
 
           {/* STATUT — menu déroulant */}
           <div className="consult-section">
-            <label className="consult-label">📌 Statut du rendez-vous</label>
+            <label className="consult-label"><Tag size={12} /> Statut du rendez-vous</label>
             <select
               className={`consult-statut-select consult-statut-select--${getStatutClass(statut)}`}
               value={statut}
@@ -148,7 +149,7 @@ const ModalRdvConsultation = ({ event, onClose, onEdit, onDelete, onStatusChange
                   <span className="consult-field__key">Téléphone</span>
                   {/* Lien tel:// pour appeler directement sur mobile */}
                   <a href={`tel:${client_phone}`} className="consult-field__value consult-field__link">
-                    📞 {client_phone}
+                    <IconChip icon={Phone} color={CHIP_COLORS.phone} size="sm" /> {client_phone}
                   </a>
                 </div>
               )}
@@ -156,7 +157,7 @@ const ModalRdvConsultation = ({ event, onClose, onEdit, onDelete, onStatusChange
                 <div className="consult-field">
                   <span className="consult-field__key">Email</span>
                   <a href={`mailto:${client_email}`} className="consult-field__value consult-field__link">
-                    ✉️ {client_email}
+                    <IconChip icon={Mail} color={CHIP_COLORS.mail} size="sm" /> {client_email}
                   </a>
                 </div>
               )}
@@ -174,7 +175,7 @@ const ModalRdvConsultation = ({ event, onClose, onEdit, onDelete, onStatusChange
             <>
               <hr className="consult-separator" />
               <div className="consult-section">
-                <label className="consult-label">🚗 Véhicule</label>
+                <label className="consult-label"><Car size={12} /> Véhicule</label>
                 <div className="consult-grid-2">
                   {vehicule_immatriculation && (
                     <div className="consult-field">
@@ -213,7 +214,7 @@ const ModalRdvConsultation = ({ event, onClose, onEdit, onDelete, onStatusChange
               <hr className="consult-separator" />
               <div className="consult-section">
                 <label className="consult-label">
-                  📝 {type_rdv === 'ATELIER' ? 'Travaux à effectuer' : 'Description'}
+                  <FileText size={12} /> {type_rdv === 'ATELIER' ? 'Travaux à effectuer' : 'Description'}
                 </label>
                 <div className="consult-description">{description}</div>
               </div>
@@ -226,11 +227,11 @@ const ModalRdvConsultation = ({ event, onClose, onEdit, onDelete, onStatusChange
         <div className="modal-consultation__footer">
           
           <button className="consult-btn consult-btn--primary" onClick={() => onEdit(event)}>
-            ✏️ Modifier
+            <Pencil size={14} /> Modifier
           </button>
-          
+
           <button className="consult-btn consult-btn--danger" onClick={handleDelete}>
-            🗑️ Supprimer
+            <Trash2 size={14} /> Supprimer
           </button>
           
         </div>

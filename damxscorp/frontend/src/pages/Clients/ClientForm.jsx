@@ -3,6 +3,7 @@ import React from 'react';
 import { addClient, editClient } from '../../utils/clientService';
 import { validateNom, validatePhone, validateEmail } from '../../utils/validators';
 import useForm from '../../hooks/useForm';
+import { User, Phone, FileText, Pencil, UserPlus, X, Save, Loader, CircleAlert } from '../../utils/icons';
 import './ClientForm.css';
 import AddressAutocomplete from '../../components/shared/AddressAutocomplete';
 
@@ -70,21 +71,21 @@ const ClientForm = ({ editingClient, onClose, onSuccess }) => {
         {/* HEADER */}
         <div className="client-form__header">
           <h2 className="client-form__title">
-            {editingClient ? '✏️ Modifier le client' : '➕ Nouveau client'}
+            <>{editingClient ? <><Pencil size={15}/> Modifier le client</> : <><UserPlus size={15}/> Nouveau client</>}</> 
           </h2>
-          <button className="client-form__close" onClick={onClose}>✕</button>
+          <button className="client-form__close" onClick={onClose}><X size={16} /></button>
         </div>
 
         {/* FORMULAIRE */}
         <form className="client-form__body" onSubmit={handleSubmit}>
 
           {errors.global && (
-            <div className="client-form__error-global">❌ {errors.global}</div>
+            <div className="client-form__error-global"><CircleAlert size={14} /> {errors.global}</div>
           )}
 
           {/* IDENTITÉ */}
           <div className="form-section">
-            <div className="form-section__title">👤 Identité</div>
+            <div className="form-section__title"><User size={14} /> Identité</div>
             <div className="form-row-2col">
               <div className="form-group">
                 <label className="form-label required">Nom</label>
@@ -108,7 +109,7 @@ const ClientForm = ({ editingClient, onClose, onSuccess }) => {
 
           {/* CONTACT */}
           <div className="form-section">
-            <div className="form-section__title">📞 Contact</div>
+            <div className="form-section__title"><Phone size={14} /> Contact</div>
             <div className="form-row-2col">
               <div className="form-group">
                 <label className="form-label">Téléphone</label>
@@ -145,7 +146,7 @@ const ClientForm = ({ editingClient, onClose, onSuccess }) => {
 
           {/* NOTES */}
           <div className="form-section">
-            <div className="form-section__title">📝 Notes</div>
+            <div className="form-section__title"><FileText size={14} /> Notes</div>
             <div className="form-group">
               <textarea
                 name="notes" value={formData.notes}
@@ -162,7 +163,7 @@ const ClientForm = ({ editingClient, onClose, onSuccess }) => {
               Annuler
             </button>
             <button type="submit" className="form-btn form-btn--save" disabled={saving}>
-              {saving ? '⏳ Enregistrement...' : editingClient ? '💾 Modifier' : '💾 Créer'}
+              {saving ? <><Loader size={14} /> Enregistrement...</> : editingClient ? <><Save size={14} /> Modifier</> : <><Save size={14} /> Créer</>}
             </button>
           </div>
 

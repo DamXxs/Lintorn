@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { createReferentiel, updateReferentiel, deleteReferentiel } from '../../services/api';
 import { ICONES_CATALOGUE, renderIcone, suggererIcone } from '../../utils/iconUtils';
 import { COULEURS_PALETTE } from '../../utils/colorUtils';
+import { CheckCircle, Circle, Pencil, Trash2, Plus, Save, Loader, CircleAlert } from '../../utils/icons';
 import './ReferentielEditor.css';
 
 // ── GÉNÈRE LA CLÉ INTERNE depuis le label ────────────────────────
@@ -219,10 +220,10 @@ const ReferentielEditor = ({ categorie, items, onReload }) => {
                   onClick={() => handleToggleActif(item)}
                   title={item.actif ? 'Désactiver' : 'Activer'}
                 >
-                  {item.actif ? '✅' : '⭕'}
+                  {item.actif ? <CheckCircle size={16} /> : <Circle size={16} />}
                 </button>
-                <button className="ref-editor__btn ref-editor__btn--edit"   onClick={() => openEdit(item)}>✏️</button>
-                <button className="ref-editor__btn ref-editor__btn--delete" onClick={() => handleDelete(item)}>🗑️</button>
+                <button className="ref-editor__btn ref-editor__btn--edit"   onClick={() => openEdit(item)}><Pencil size={14} /></button>
+                <button className="ref-editor__btn ref-editor__btn--delete" onClick={() => handleDelete(item)}><Trash2 size={14} /></button>
               </div>
             </div>
           ))
@@ -233,10 +234,10 @@ const ReferentielEditor = ({ categorie, items, onReload }) => {
       {(isAdding || editingItem) && (
         <form className="ref-editor__form" onSubmit={handleSave}>
           <div className="ref-editor__form-title">
-            {isAdding ? '➕ Nouvelle entrée' : `✏️ Modifier "${editingItem.label}"`}
+            {isAdding ? <><Plus size={14} /> Nouvelle entrée</> : <><Pencil size={14} /> Modifier &quot;{editingItem.label}&quot;</>}
           </div>
 
-          {error && <div className="ref-editor__form-error">❌ {error}</div>}
+          {error && <div className="ref-editor__form-error"><CircleAlert size={14} /> {error}</div>}
 
           {/* PRÉVISUALISATION EN TEMPS RÉEL */}
           <div className="ref-editor__preview">
@@ -376,7 +377,7 @@ const ReferentielEditor = ({ categorie, items, onReload }) => {
               Annuler
             </button>
             <button type="submit" className="ref-editor__form-btn ref-editor__form-btn--save" disabled={saving}>
-              {saving ? '⏳...' : isAdding ? '💾 Créer' : '💾 Modifier'}
+              {saving ? <Loader size={14} /> : isAdding ? <><Save size={14} /> Créer</> : <><Save size={14} /> Modifier</>}
             </button>
           </div>
         </form>

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { getAllClients, searchClients, removeClient } from '../../utils/clientService';
 import { getInitiales, formatDateCourt } from '../../utils/dataFormatters';
-import { Phone, Mail, UserPlus } from 'lucide-react';
+import { Phone, Mail, UserPlus } from '../../utils/icons';
 import './ClientList.css';
 import ClientDetail from './ClientDetail';
 import ClientForm from './ClientForm';

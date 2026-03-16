@@ -1,0 +1,23 @@
+/* ══════════════════════════════════════════════════════════════
+   ICON CHIP — Icône iOS-style avec fond coloré
+   ══════════════════════════════════════════════════════════════ */
+
+.icon-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  /* Légère ombre pour donner du relief */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+
+  /* Transition douce au hover (si dans un lien) */
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Légère animation si dans un élément cliquable */
+a:hover .icon-chip,
+button:hover .icon-chip {
+  transform: scale(1.08);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+}

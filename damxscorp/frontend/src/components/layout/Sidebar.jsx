@@ -4,7 +4,7 @@ import { NavLink } from 'react-router-dom';
 import {
   CalendarDays, Users, Car, Package,
   Factory, Receipt, Settings, Menu, X
-} from 'lucide-react';
+} from '../../utils/icons';
 import './Sidebar.css';
 
 const Sidebar = ({ isExpanded, onToggle }) => {

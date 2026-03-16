@@ -1,6 +1,6 @@
 // /frontend/src/components/layout/Header.jsx
 import React, { useState, useEffect } from 'react';
-import { CircleAlert, Loader } from 'lucide-react';
+import { CircleAlert, Loader } from '../../utils/icons';
 import './Header.css';
 
 const Header = () => {

@@ -3,7 +3,7 @@ import React from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { useReferentiels } from '../../context/ReferentielsContext';
 import ReferentielEditor from './ReferentielEditor';
-import { Palette, Bell, Bot } from 'lucide-react';
+import { Palette, Bell, Bot, Settings, Loader, Car, Wrench, Package } from '../../utils/icons';
 import './Parametres.css';
 
 const Parametres = () => {
@@ -12,7 +12,7 @@ const Parametres = () => {
 
   return (
     <div className="parametres-page">
-      <h1 className="parametres-title">⚙️ Paramètres</h1>
+      <h1 className="parametres-title"><Settings size={20} /> Paramètres</h1>
 
       {/* THÈMES */}
       <section className="param-section">
@@ -40,12 +40,12 @@ const Parametres = () => {
       {/* RÉFÉRENTIELS */}
       {loading ? (
         <section className="param-section">
-          <p className="param-placeholder">⏳ Chargement des référentiels...</p>
+          <p className="param-placeholder"><Loader size={14} /> Chargement des référentiels...</p>
         </section>
       ) : (
         <>
           <section className="param-section">
-            <h2 className="param-section__title">🚗 Types de véhicules</h2>
+            <h2 className="param-section__title"><Car size={16} /> Types de véhicules</h2>
             <p className="param-description">
               Définissez les types de véhicules que vous acceptez dans votre garage.
               Désactivez ceux dont vous n'avez pas besoin — ils n'apparaîtront plus dans les formulaires.
@@ -58,7 +58,7 @@ const Parametres = () => {
           </section>
 
           <section className="param-section">
-            <h2 className="param-section__title">🔧 Types d'interventions</h2>
+            <h2 className="param-section__title"><Wrench size={16} /> Types d'interventions</h2>
             <p className="param-description">
               Personnalisez les types d'interventions selon votre activité.
               La couleur est utilisée dans le calendrier planning.
@@ -71,7 +71,7 @@ const Parametres = () => {
           </section>
 
           <section className="param-section">
-            <h2 className="param-section__title">📦 Catégories de stock</h2>
+            <h2 className="param-section__title"><Package size={16} /> Catégories de stock</h2>
             <p className="param-description">
               Organisez vos pièces par catégories adaptées à votre stock.
             </p>

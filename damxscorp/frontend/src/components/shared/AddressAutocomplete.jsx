@@ -1,5 +1,6 @@
 // /frontend/src/components/shared/AddressAutocomplete.jsx
 import React, { useState, useEffect, useRef } from 'react';
+import { Loader, MapPin } from '../../utils/icons';
 import './AddressAutocomplete.css';
 
 /**
@@ -188,12 +189,12 @@ const AddressAutocomplete = ({
 
         {/* Indicateur de chargement */}
         {loading && (
-          <span className="address-autocomplete__spinner">⏳</span>
+          <span className="address-autocomplete__spinner"><Loader size={14} /></span>
         )}
 
         {/* Icône adresse */}
         {!loading && (
-          <span className="address-autocomplete__icon">📍</span>
+          <span className="address-autocomplete__icon"><MapPin size={14} /></span>
         )}
       </div>
 

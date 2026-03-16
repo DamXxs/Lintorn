@@ -1,6 +1,7 @@
 // /frontend/src/components/shared/InfoPanel.jsx
 import React from 'react';
 import { getDepartementLabel, getDepartementDescription, getStatutLabel, getStatutClass } from '../../utils/constants';
+import { CalendarClock, Tag, User, Car, FileText, Pencil, Trash2, X } from '../../utils/icons';
 import './InfoPanel.css';
 
 const InfoPanel = ({ event, onDelete, onEdit, onClose }) => {
@@ -25,11 +26,11 @@ const InfoPanel = ({ event, onDelete, onEdit, onClose }) => {
                         className="info-panel__close" 
                         onClick={onClose}
                     >
-                        ✕
+                        <X size={16} />
                     </button>
                     
                     <div className="info-card">
-                        <h3>📋 Détails du Rendez-vous</h3>
+                        <h3><CalendarClock size={15} /> Détails du Rendez-vous</h3>
                         <hr />
                         
                         {/* STATUT - Utilise les constantes */}
@@ -41,7 +42,7 @@ const InfoPanel = ({ event, onDelete, onEdit, onClose }) => {
 
                         {/* TYPE DE RDV - Utilise les constantes */}
                         <div className="detail-section">
-                            <h4>📌 Type</h4>
+                            <h4><Tag size={13} /> Type</h4>
                             <div className="detail-row">
                                 <span style={{fontSize: '14px'}}>
                                     {getDepartementLabel(type_rdv)} ({getDepartementDescription(type_rdv)})
@@ -51,7 +52,7 @@ const InfoPanel = ({ event, onDelete, onEdit, onClose }) => {
 
                         {/* INFORMATIONS CLIENT */}
                         <div className="detail-section">
-                            <h4>👤 Client</h4>
+                            <h4><User size={13} /> Client</h4>
                             <div className="detail-row">
                                 <strong>Nom :</strong>
                                 <span>{client_nom} {client_prenom}</span>
@@ -61,7 +62,7 @@ const InfoPanel = ({ event, onDelete, onEdit, onClose }) => {
                         {/* INFORMATIONS VÉHICULE (si ATELIER) */}
                         {type_rdv === 'ATELIER' && vehicule_modele && (
                             <div className="detail-section">
-                                <h4>🚗 Véhicule</h4>
+                                <h4><Car size={13} /> Véhicule</h4>
                                 <div className="detail-row">
                                     <strong>Modèle :</strong>
                                     <span>{vehicule_modele}</span>
@@ -71,7 +72,7 @@ const InfoPanel = ({ event, onDelete, onEdit, onClose }) => {
 
                         {/* DESCRIPTION / TRAVAUX */}
                         <div className="detail-section">
-                            <h4>📝 {type_rdv === 'ATELIER' ? 'Travaux à effectuer' : 'Description du cours'}</h4>
+                            <h4><FileText size={13} /> {type_rdv === 'ATELIER' ? 'Travaux à effectuer' : 'Description du cours'}</h4>
                             <div className="description-box">
                                 {description || <em style={{color: '#666'}}>Pas de description</em>}
                             </div>
@@ -83,17 +84,17 @@ const InfoPanel = ({ event, onDelete, onEdit, onClose }) => {
                                 className="btn-modify"
                                 onClick={onEdit}
                             >
-                                ✏️ Modifier
+                                <Pencil size={14} /> Modifier
                             </button>
                             <button 
                                 className="btn-delete"
                                 onClick={() => {
-                                    if (window.confirm('🗑️ Supprimer ce rendez-vous ?')) {
+                                    if (window.confirm('Supprimer ce rendez-vous ?')) {
                                         onDelete(id);
                                     }
                                 }}
                             >
-                                🗑️ Supprimer
+                                <Trash2 size={14} /> Supprimer
                             </button>
                         </div>
                     </div>
