@@ -44,3 +44,16 @@ body {
 .fc-button-active {
   background: var(--accent) !important;
 }
+
+/* ── ALIGNEMENT ICÔNES LUCIDE INLINE ─────────────────────────── */
+/* Tous les boutons et labels avec icônes Lucide */
+button, a, h1, h2, h3, h4, label {
+  /* Ne pas forcer flex globalement — trop dangereux */
+}
+
+/* Classes utilitaires pour icônes inline */
+.icon-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}

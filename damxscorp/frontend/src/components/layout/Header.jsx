@@ -1,5 +1,6 @@
-// /src/components/layout/Header.jsx
+// /frontend/src/components/layout/Header.jsx
 import React, { useState, useEffect } from 'react';
+import { CircleAlert, Loader } from 'lucide-react';
 import './Header.css';
 
 const Header = () => {
@@ -7,21 +8,10 @@ const Header = () => {
 
   const checkDjangoConnection = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/health/', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        setDjangoStatus('connected');
-      } else {
-        setDjangoStatus('error');
-      }
-    } catch (error) {
+      const response = await fetch('http://localhost:8000/api/health/');
+      setDjangoStatus(response.ok ? 'connected' : 'error');
+    } catch {
       setDjangoStatus('error');
-      console.error('Erreur de connexion Django:', error);
     }
   };
 
@@ -31,17 +21,19 @@ const Header = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // N'afficher QUE si erreur
-  if (djangoStatus === 'connected') {
-    return null;
-  }
+  if (djangoStatus === 'connected') return null;
 
   return (
     <div className={`django-status django-status--${djangoStatus}`}>
-      <span className="django-status__dot"></span>
+      <span className="django-status__dot">
+        {djangoStatus === 'checking'
+          ? <Loader size={14} className="django-status__spin" />
+          : <CircleAlert size={14} />
+        }
+      </span>
       <span className="django-status__text">
-        {djangoStatus === 'checking' && '⏳ Connexion Django...'}
-        {djangoStatus === 'error' && '❌ Django déconnecté'}
+        {djangoStatus === 'checking' && 'Connexion Django...'}
+        {djangoStatus === 'error'    && 'Django déconnecté'}
       </span>
     </div>
   );

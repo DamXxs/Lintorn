@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { getAllVehicules, searchVehicules, removeVehicule, getVehiculeIcon } from '../../utils/vehicleService';
 import VehicleDetail from './VehicleDetail';
 import VehicleForm from './VehicleForm';
+import { Search, Plus, X } from 'lucide-react';
 import './VehicleList.css';
 
 const VehicleList = () => {
@@ -81,22 +82,17 @@ const VehicleList = () => {
           className="btn-new-vehicle"
           onClick={() => { setEditingVehicule(null); setIsFormOpen(true); }}
         >
-          + Nouveau véhicule
+          <Plus size={16} /> Nouveau véhicule
         </button>
       </div>
 
       {/* BARRE DE RECHERCHE */}
       <div className="vehicles-search">
-        <span className="vehicles-search__icon">🔍</span>
-        <input
-          type="text"
-          placeholder="Rechercher par immatriculation, marque, modèle, propriétaire..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="vehicles-search__input"
-        />
+        <Search size={16} className="vehicles-search__icon" />
         {searchQuery && (
-          <button className="vehicles-search__clear" onClick={() => setSearchQuery('')}>✕</button>
+          <button className="vehicles-search__clear" onClick={() => setSearchQuery('')}>
+            <X size={14} />
+          </button>
         )}
       </div>
 

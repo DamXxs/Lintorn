@@ -1,32 +1,29 @@
 // /frontend/src/components/layout/Sidebar.jsx
 import React, { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
+import {
+  CalendarDays, Users, Car, Package,
+  Factory, Receipt, Settings, Menu, X
+} from 'lucide-react';
 import './Sidebar.css';
 
 const Sidebar = ({ isExpanded, onToggle }) => {
 
-  // Ferme la sidebar si on clique en dehors (mobile uniquement)
   useEffect(() => {
     const handleClickOutside = (e) => {
-      // Vérifie si on est sur mobile ET si la sidebar est ouverte
       if (window.innerWidth <= 768 && isExpanded) {
         const sidebar = document.querySelector('.sidebar');
-        if (sidebar && !sidebar.contains(e.target)) {
-          onToggle(); // Ferme la sidebar
-        }
+        if (sidebar && !sidebar.contains(e.target)) onToggle();
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('touchstart', handleClickOutside); // Support tactile
-
+    document.addEventListener('touchstart', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('touchstart', handleClickOutside);
     };
   }, [isExpanded, onToggle]);
 
-  // Bloque le scroll du body quand la sidebar est ouverte sur mobile
   useEffect(() => {
     if (window.innerWidth <= 768) {
       document.body.style.overflow = isExpanded ? 'hidden' : '';
@@ -34,12 +31,19 @@ const Sidebar = ({ isExpanded, onToggle }) => {
     return () => { document.body.style.overflow = ''; };
   }, [isExpanded]);
 
+  // Liens de navigation
+  const navLinks = [
+    { to: '/planning',    icon: CalendarDays, label: 'Planning' },
+    { to: '/clients',     icon: Users,        label: 'Clients' },
+    { to: '/vehicles',    icon: Car,          label: 'Véhicules' },
+    { to: '/stock',       icon: Package,      label: 'Stock' },
+    { to: '/fournisseurs',icon: Factory,      label: 'Fournisseurs' },
+    { to: '/factures',    icon: Receipt,      label: 'Factures' },
+  ];
+
   return (
     <>
-      {/* OVERLAY : fond sombre derrière la sidebar sur mobile */}
-      {isExpanded && (
-        <div className="sidebar__overlay" onClick={onToggle} />
-      )}
+      {isExpanded && <div className="sidebar__overlay" onClick={onToggle} />}
 
       <aside className={`sidebar ${isExpanded ? 'sidebar--expanded' : 'sidebar--collapsed'}`}>
 
@@ -49,10 +53,10 @@ const Sidebar = ({ isExpanded, onToggle }) => {
           onClick={onToggle}
           aria-label={isExpanded ? 'Fermer le menu' : 'Ouvrir le menu'}
         >
-          {isExpanded ? '✕' : '☰'}
+          {isExpanded ? <X size={18} /> : <Menu size={18} />}
         </button>
 
-        {/* HEADER — visible uniquement en mode étendu */}
+        {/* HEADER */}
         {isExpanded && (
           <div className="sidebar__header">
             <h2 className="sidebar__title">DAMXSCORP</h2>
@@ -63,91 +67,23 @@ const Sidebar = ({ isExpanded, onToggle }) => {
         <nav className="sidebar__nav">
           <ul className="sidebar__menu">
 
-            <li className="sidebar__menu-item">
-              <NavLink
-                to="/planning"
-                className={({ isActive }) =>
-                  isActive ? 'sidebar__link sidebar__link--active' : 'sidebar__link'
-                }
-                title="Planning"
-                onClick={() => window.innerWidth <= 768 && onToggle()}
-              >
-                <span className="sidebar__icon">📅</span>
-                {isExpanded && <span className="sidebar__text">Planning</span>}
-              </NavLink>
-            </li>
+            {navLinks.map(({ to, icon: Icon, label }) => (
+              <li key={to} className="sidebar__menu-item">
+                <NavLink
+                  to={to}
+                  className={({ isActive }) =>
+                    isActive ? 'sidebar__link sidebar__link--active' : 'sidebar__link'
+                  }
+                  title={label}
+                  onClick={() => window.innerWidth <= 768 && onToggle()}
+                >
+                  <span className="sidebar__icon"><Icon size={20} /></span>
+                  {isExpanded && <span className="sidebar__text">{label}</span>}
+                </NavLink>
+              </li>
+            ))}
 
-            <li className="sidebar__menu-item">
-              <NavLink
-                to="/clients"
-                className={({ isActive }) =>
-                  isActive ? 'sidebar__link sidebar__link--active' : 'sidebar__link'
-                }
-                title="Clients"
-                onClick={() => window.innerWidth <= 768 && onToggle()}
-              >
-                <span className="sidebar__icon">👥</span>
-                {isExpanded && <span className="sidebar__text">Clients</span>}
-              </NavLink>
-            </li>
-
-            <li className="sidebar__menu-item">
-              <NavLink
-                to="/vehicles"
-                className={({ isActive }) =>
-                  isActive ? 'sidebar__link sidebar__link--active' : 'sidebar__link'
-                }
-                title="Véhicules"
-                onClick={() => window.innerWidth <= 768 && onToggle()}
-              >
-                <span className="sidebar__icon">🚗</span>
-                {isExpanded && <span className="sidebar__text">Véhicules</span>}
-              </NavLink>
-            </li>
-
-            <li className="sidebar__menu-item">
-              <NavLink
-                to="/stock"
-                className={({ isActive }) =>
-                  isActive ? 'sidebar__link sidebar__link--active' : 'sidebar__link'
-                }
-                title="Stock"
-                onClick={() => window.innerWidth <= 768 && onToggle()}
-              >
-                <span className="sidebar__icon">📦</span>
-                {isExpanded && <span className="sidebar__text">Stock</span>}
-              </NavLink>
-            </li>
-
-            <li className="sidebar__menu-item">
-              <NavLink
-                to="/fournisseurs"
-                className={({ isActive }) =>
-                  isActive ? 'sidebar__link sidebar__link--active' : 'sidebar__link'
-                }
-                title="Fournisseurs"
-                onClick={() => window.innerWidth <= 768 && onToggle()}
-              >
-                <span className="sidebar__icon">🏭</span>
-                {isExpanded && <span className="sidebar__text">Fournisseurs</span>}
-              </NavLink>
-            </li>
-
-            <li className="sidebar__menu-item">
-              <NavLink
-                to="/factures"
-                className={({ isActive }) =>
-                  isActive ? 'sidebar__link sidebar__link--active' : 'sidebar__link'
-                }
-                title="Factures"
-                onClick={() => window.innerWidth <= 768 && onToggle()}
-              >
-                <span className="sidebar__icon">💰</span>
-                {isExpanded && <span className="sidebar__text">Factures</span>}
-              </NavLink>
-            </li>
-
-            {/* 🔧 PARAMÈTRES — terrain préparé pour plus tard */}
+            {/* PARAMÈTRES — collé en bas */}
             <li className="sidebar__menu-item sidebar__menu-item--bottom">
               <NavLink
                 to="/parametres"
@@ -157,7 +93,7 @@ const Sidebar = ({ isExpanded, onToggle }) => {
                 title="Paramètres"
                 onClick={() => window.innerWidth <= 768 && onToggle()}
               >
-                <span className="sidebar__icon">⚙️</span>
+                <span className="sidebar__icon"><Settings size={20} /></span>
                 {isExpanded && <span className="sidebar__text">Paramètres</span>}
               </NavLink>
             </li>

@@ -273,3 +273,18 @@
   .btn-new-client { width: 100%; text-align: center; }
   .clients-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
 }
+
+/* Icône Lucide dans les infos de carte */
+.client-card__info-icon-lucide {
+  display: flex;
+  align-items: center;
+  min-width: 16px;
+  color: #666;
+}
+
+/* Ajustement bouton new client avec icône */
+.btn-new-client {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

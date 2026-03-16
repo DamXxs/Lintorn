@@ -335,3 +335,12 @@
     order: 3; /* Passe en dernier */
   }
 }
+
+.consult-label,
+.consult-field__value,
+.consult-field__link,
+.consult-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}

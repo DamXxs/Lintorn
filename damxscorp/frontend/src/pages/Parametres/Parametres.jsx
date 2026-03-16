@@ -3,6 +3,7 @@ import React from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { useReferentiels } from '../../context/ReferentielsContext';
 import ReferentielEditor from './ReferentielEditor';
+import { Palette, Bell, Bot } from 'lucide-react';
 import './Parametres.css';
 
 const Parametres = () => {
@@ -15,7 +16,7 @@ const Parametres = () => {
 
       {/* THÈMES */}
       <section className="param-section">
-        <h2 className="param-section__title">🎨 Thème de l'interface</h2>
+        <h2 className="param-section__title"><Palette size={16} /> Thème de l'interface</h2>
         <div className="theme-grid">
           {Object.entries(themes).map(([key, theme]) => (
             <button
@@ -85,12 +86,12 @@ const Parametres = () => {
 
       {/* FUTURES OPTIONS */}
       <section className="param-section">
-        <h2 className="param-section__title">🔔 Notifications <span className="coming-soon">Bientôt</span></h2>
+        <h2 className="param-section__title"><Bell size={16} /> Notifications ...</h2>
         <p className="param-placeholder">Gestion des alertes de stock, rappels RDV...</p>
       </section>
 
       <section className="param-section">
-        <h2 className="param-section__title">🤖 IA & Messagerie <span className="coming-soon">Bientôt</span></h2>
+        <h2 className="param-section__title"><Bot size={16} /> IA & Messagerie ...</h2>
         <p className="param-placeholder">Configuration de l'assistant IA pour les RDV automatiques...</p>
       </section>
 

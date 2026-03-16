@@ -271,3 +271,19 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Icônes Lucide inline dans les liens et valeurs */
+.detail-field__value,
+.detail-field__link,
+.detail-section__title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.detail-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}

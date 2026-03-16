@@ -2,6 +2,10 @@
 import React, { useState } from 'react';
 import { getDepartementLabel, getStatutLabel, getStatutClass, STATUTS_RDV } from '../../utils/constants';
 import './ModalRdvConsultation.css';
+import {
+  CalendarClock, CirclePlay, CircleCheck, CircleX,
+  Pencil, Trash2, X, Car, User, Phone, Mail, MapPin, FileText
+} from 'lucide-react';
 
 /**
  * 📋 MODAL DE CONSULTATION D'UN RDV
@@ -124,7 +128,7 @@ const ModalRdvConsultation = ({ event, onClose, onEdit, onDelete, onStatusChange
 
           {/* DATE ET HEURE */}
           <div className="consult-section">
-            <label className="consult-label">📅 Planification</label>
+            <label className="consult-label"><CalendarClock size={12} /> Planification</label>
             <div className="consult-grid-2">
               <div className="consult-field">
                 <span className="consult-field__key">Début</span>
@@ -145,7 +149,7 @@ const ModalRdvConsultation = ({ event, onClose, onEdit, onDelete, onStatusChange
 
           {/* CLIENT */}
           <div className="consult-section">
-            <label className="consult-label">👤 Client</label>
+            <label className="consult-label"><User size={12} /> Client</label>
             <div className="consult-grid-2">
               <div className="consult-field">
                 <span className="consult-field__key">Nom</span>

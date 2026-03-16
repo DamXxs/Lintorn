@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { fetchPieces, deletePiece } from '../../services/api';
+import { Package, Search, Plus, Pencil, Trash2 } from 'lucide-react';
 import './StockVueEnsemble.css';
+
 
 const StockVueEnsemble = () => {
     const [pieces, setPieces] = useState([]);
@@ -80,11 +82,11 @@ const StockVueEnsemble = () => {
             {/* EN-TÊTE */}
             <div className="stock-header">
                 <div>
-                    <h1>📦 Stock - Vue d'ensemble</h1>
+                    <h1><Package size={24} /> Stock — Vue d'ensemble</h1>
                     <p className="stock-subtitle">{pieces.length} pièces en stock</p>
                 </div>
                 <button className="btn-add-piece">
-                    ➕ Nouvelle pièce
+                    <Plus size={16} /> Nouvelle pièce
                 </button>
             </div>
 

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { getVehiculeIcon, getVehiculeTypeLabel } from '../../utils/vehicleService';
 import { fetchInterventionsByVehicule, patchIntervention } from '../../services/api';
 import ModalRdvConsultation from '../../components/shared/ModalRdvConsultation';
+import { Search, Plus, X } from 'lucide-react';
 import './VehicleDetail.css';
 
 // ── BADGE STATUT ──────────────────────────────────────────────────

@@ -279,3 +279,222 @@
   .ref-editor__form-fields { grid-template-columns: 1fr; }
   .ref-editor__valeur { display: none; }
 }
+
+/* ── PRÉVISUALISATION TEMPS RÉEL ─────────────────────────────── */
+.ref-editor__preview {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.ref-editor__preview-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+}
+
+.ref-editor__preview-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ref-editor__preview-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.ref-editor__preview-valeur {
+  font-size: 11px;
+  color: #555;
+  font-family: monospace;
+}
+
+/* ── ICÔNE PREVIEW DANS LA LISTE ─────────────────────────────── */
+.ref-editor__icone-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  flex-shrink: 0;
+}
+
+/* ── PASTILLE COULEUR ────────────────────────────────────────── */
+.ref-editor__color-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.2);
+  flex-shrink: 0;
+}
+
+/* ── CHAMP FULL WIDTH ────────────────────────────────────────── */
+.ref-editor__field--full {
+  grid-column: 1 / -1;
+}
+
+/* ── TRIGGER ICÔNE ───────────────────────────────────────────── */
+.ref-editor__icon-trigger,
+.ref-editor__color-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 10px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  text-align: left;
+}
+
+.ref-editor__icon-trigger:hover,
+.ref-editor__color-trigger:hover {
+  border-color: var(--accent);
+}
+
+.ref-editor__trigger-arrow {
+  margin-left: auto;
+  color: #555;
+  font-size: 11px;
+}
+
+/* ── PALETTE ICÔNES ──────────────────────────────────────────── */
+.ref-editor__icon-palette {
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.ref-editor__icon-palette::-webkit-scrollbar { width: 5px; }
+.ref-editor__icon-palette::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.ref-editor__icon-groupe-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #555;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.ref-editor__icon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: 6px;
+}
+
+.ref-editor__icon-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--text);
+  font-size: 10px;
+}
+
+.ref-editor__icon-item:hover {
+  border-color: var(--accent);
+  background: rgba(41,128,185,0.1);
+}
+
+.ref-editor__icon-item--active {
+  border-color: var(--accent);
+  background: rgba(41,128,185,0.15);
+}
+
+/* ── PALETTE COULEURS ────────────────────────────────────────── */
+.ref-editor__color-palette {
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ref-editor__color-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(28px, 1fr));
+  gap: 6px;
+}
+
+.ref-editor__color-item {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.ref-editor__color-item:hover {
+  transform: scale(1.15);
+  border-color: white;
+}
+
+.ref-editor__color-item--active {
+  border-color: white;
+  transform: scale(1.15);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.ref-editor__color-custom {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+
+.ref-editor__color-custom-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.ref-editor__color-picker {
+  width: 38px;
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px;
+  background: var(--input-bg);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ── SWATCH DANS LE TRIGGER COULEUR ──────────────────────────── */
+.ref-editor__color-swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.2);
+  flex-shrink: 0;
+}
