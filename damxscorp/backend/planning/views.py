@@ -9,6 +9,9 @@ from .serializers import InterventionSerializer
 def intervention_list(request):
     if request.method == 'GET':
         interventions = Intervention.objects.all()
+        vehicule_id = request.query_params.get('vehicule', None)
+        if vehicule_id:
+          interventions = interventions.filter(vehicule__id=vehicule_id)
         serializer = InterventionSerializer(interventions, many=True)
         return Response(serializer.data)
 

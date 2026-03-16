@@ -252,3 +252,77 @@
   .vehicle-detail__content { max-width: 100%; max-height: 92vh; border-radius: 20px 20px 0 0; }
   .vd-grid { grid-template-columns: 1fr; }
 }
+
+/* ── HISTORIQUE INTERVENTIONS ────────────────────────────────── */
+.vd-history-loading {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0;
+}
+
+.vd-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(255, 255, 255, 0.08);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.vd-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vd-history-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  font-size: 13px;
+}
+
+/* Date — largeur fixe pour aligner */
+.vd-history-date {
+  color: #666;
+  font-size: 11px;
+  white-space: nowrap;
+  min-width: 90px;
+}
+
+/* Description / type — prend l'espace restant */
+.vd-history-type {
+  flex: 1;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Badge statut coloré */
+.vd-statut-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.vd-history-row--clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.vd-history-row--clickable:hover {
+  border-color: var(--accent);
+  background: rgba(41, 128, 185, 0.08);
+  transform: translateX(3px);
+}

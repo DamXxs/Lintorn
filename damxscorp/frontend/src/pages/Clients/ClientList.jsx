@@ -1,9 +1,11 @@
 // /frontend/src/pages/Clients/ClientList.jsx
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { getAllClients, searchClients, removeClient } from '../../utils/clientService';
 import './ClientList.css';
 import ClientDetail from './ClientDetail';
 import ClientForm from './ClientForm';
+
 
 
 const ClientList = () => {
@@ -38,6 +40,21 @@ const ClientList = () => {
   };
 
   useEffect(() => { loadClients(); }, []);
+
+  const location = useLocation();
+
+// Ouvre automatiquement la fiche du client si on arrive avec un ID
+useEffect(() => {
+  // On attend que les clients soient chargés ET qu'un ID soit passé
+  if (location.state?.openClientId && clients.length > 0) {
+    const client = clients.find(c => c.id === location.state.openClientId);
+    if (client) {
+      setSelectedClient(client);
+      // Nettoie le state pour éviter de rouvrir si l'user navigue
+      window.history.replaceState({}, '');
+    }
+  }
+}, [location.state, clients]); // se déclenche quand les clients sont chargés
 
   // =========================================================================
   // RECHERCHE — se déclenche à chaque frappe

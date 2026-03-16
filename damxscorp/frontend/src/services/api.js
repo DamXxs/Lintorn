@@ -80,6 +80,19 @@ export const deleteIntervention = async (id) => {
   }
 };
 
+// Récupère les interventions d'un véhicule spécifique
+export const fetchInterventionsByVehicule = async (vehiculeId) => {
+  try {
+    logger.api.send(`GET /interventions/?vehicule=${vehiculeId}`);
+    const response = await api.get(`/interventions/?vehicule=${vehiculeId}`);
+    logger.api.receive(`GET /interventions/?vehicule=${vehiculeId}`, response.data);
+    return response.data;
+  } catch (error) {
+    logger.api.error(`GET /interventions/?vehicule=${vehiculeId}`, error);
+    throw new Error(`Erreur réseau: ${error.response?.status}`);
+  }
+};
+
 // ── PIÈCES (STOCK) ───────────────────────────────────────────────
 
 export const fetchPieces = async () => {
