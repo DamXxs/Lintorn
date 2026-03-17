@@ -343,8 +343,9 @@
 
 .cd-vehicle-card__info {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
 }
 
 .cd-vehicle-card__label {
