@@ -83,7 +83,7 @@
   padding: 20px 24px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .vehicle-detail__body::-webkit-scrollbar { width: 6px; }
@@ -146,21 +146,55 @@
   font-weight: 500;
 }
 
-/* Lien vers fiche client */
-.vd-link-btn {
-  background: none;
-  border: none;
-  color: var(--accent);
-  font-size: 13px;
-  cursor: pointer;
-  padding: 0;
-  margin-top: 4px;
-  text-align: left;
-  text-decoration: underline;
-  transition: opacity 0.2s;
+/* Bloc propriétaire avec avatar + bouton fiche client */
+.vd-proprietaire {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.vd-link-btn:hover { opacity: 0.7; }
+.vd-proprietaire__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8e44ad, #9b59b6);
+  color: white;
+  font-weight: 700;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.vd-proprietaire__nom {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.vd-btn-client {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  background: rgba(41, 128, 185, 0.12);
+  border: 1px solid rgba(41, 128, 185, 0.3);
+  border-radius: 8px;
+  color: #3498db;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.vd-btn-client:hover {
+  background: rgba(41, 128, 185, 0.22);
+  border-color: #3498db;
+  transform: translateX(2px);
+}
 
 .vd-notes {
   background: var(--input-bg);
@@ -214,6 +248,10 @@
 
 .vd-btn {
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   padding: 11px;
   border: none;
   border-radius: 8px;

@@ -10,7 +10,7 @@ import FrenchPlate from '../../components/shared/FrenchPlate';
 import IconChip, { CHIP_COLORS } from '../../components/shared/IconChip';
 import {
   User, Wrench, FileText, CalendarDays, Receipt,
-  CalendarPlus, Pencil, Trash2, X,
+  CalendarPlus, Pencil, Trash2, X, ArrowLeft,
 } from '../../utils/icons';
 import './VehicleDetail.css';
 
@@ -119,10 +119,13 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
             <div className="vd-section">
               <h3 className="vd-section__title"><User size={14} /> Propriétaire</h3>
               {vehicule.proprietaire_nom ? (
-                <div className="vd-field">
-                  <span className="vd-field__value">{vehicule.proprietaire_nom}</span>
+                <div className="vd-proprietaire">
+                  <div className="vd-proprietaire__avatar">
+                    {vehicule.proprietaire_nom.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="vd-proprietaire__nom">{vehicule.proprietaire_nom}</span>
                   <button
-                    className="vd-link-btn"
+                    className="vd-btn-client"
                     onClick={() => {
                       onClose();
                       navigate('/clients', {
@@ -130,7 +133,8 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
                       });
                     }}
                   >
-                    Voir la fiche client →
+                    <ArrowLeft size={13} style={{ transform: 'rotate(180deg)' }} />
+                    Voir la fiche client
                   </button>
                 </div>
               ) : (

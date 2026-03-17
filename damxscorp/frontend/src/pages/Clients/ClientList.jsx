@@ -1,5 +1,6 @@
 // /frontend/src/pages/Clients/ClientList.jsx
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { getAllClients, searchClients, removeClient } from '../../utils/clientService';
 import { getInitiales, formatDateCourt } from '../../utils/dataFormatters';
 import { Phone, Mail, UserPlus } from '../../utils/icons';
@@ -14,6 +15,7 @@ import useDelete    from '../../hooks/useDelete';
 
 
 const ClientList = () => {
+  const location = useLocation();
 
   const [clients, setClients]               = useState([]);
   const [filtered, setFiltered]             = useState([]);
@@ -43,6 +45,16 @@ const ClientList = () => {
   useEffect(() => {
     setFiltered(searchClients(clients, searchQuery));
   }, [searchQuery, clients]);
+
+  // ── Ouvre automatiquement la fiche d'un client précis ────────────
+  // Utilisé quand on navigue depuis VehicleDetail ("Voir fiche client")
+  useEffect(() => {
+    const openClientId = location.state?.openClientId;
+    if (openClientId && clients.length > 0) {
+      const client = clients.find(c => c.id === openClientId);
+      if (client) setSelectedClient(client);
+    }
+  }, [location.state, clients]);
 
   // ── Suppression via le hook centralisé ──────────────────────────
   const { handleDelete } = useDelete({

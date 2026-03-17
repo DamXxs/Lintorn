@@ -19,7 +19,7 @@ import './IconChip.css';
  *   <IconChip icon={MapPin} color="#e67e22" size="sm" />// adresse orange, petit
  *
  * Props :
- *   icon  : composant Lucide — ex: Phone, Mail, MapPin
+ *   icon  : composant Phosphor — ex: Phone, Mail, MapPin
  *   color : string           — couleur de fond hex/rgb
  *   size  : 'sm'|'md'|'lg'  — taille (défaut: 'md')
  */
@@ -61,7 +61,7 @@ const IconChip = ({ icon: Icon, color, size = 'md' }) => {
         minWidth:        box,   // empêche la compression dans les flex
       }}
     >
-      <Icon size={icon} color="white" strokeWidth={2.2} />
+      <Icon size={icon} color="white" weight="fill" />
     </span>
   );
 };

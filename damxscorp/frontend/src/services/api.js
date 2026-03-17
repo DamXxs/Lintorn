@@ -93,6 +93,32 @@ export const fetchInterventionsByVehicule = async (vehiculeId) => {
   }
 };
 
+// Récupère les interventions d'un client spécifique
+export const fetchInterventionsByClient = async (clientId) => {
+  try {
+    logger.api.send(`GET /interventions/?client=${clientId}`);
+    const response = await api.get(`/interventions/?client=${clientId}`);
+    logger.api.receive(`GET /interventions/?client=${clientId}`, response.data);
+    return response.data;
+  } catch (error) {
+    logger.api.error(`GET /interventions/?client=${clientId}`, error);
+    throw new Error(`Erreur réseau: ${error.response?.status}`);
+  }
+};
+
+// Récupère les véhicules d'un client spécifique
+export const fetchVehiculesByClient = async (clientId) => {
+  try {
+    logger.api.send(`GET /vehicules/?client=${clientId}`);
+    const response = await api.get(`/vehicules/?client=${clientId}`);
+    logger.api.receive(`GET /vehicules/?client=${clientId}`, response.data);
+    return response.data;
+  } catch (error) {
+    logger.api.error(`GET /vehicules/?client=${clientId}`, error);
+    throw new Error(`Erreur réseau: ${error.response?.status}`);
+  }
+};
+
 // ── PIÈCES (STOCK) ───────────────────────────────────────────────
 
 export const fetchPieces = async () => {
