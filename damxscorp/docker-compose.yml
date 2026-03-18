@@ -13,7 +13,10 @@ services:
       - ./backend:/app     # ← HOT-RELOAD : tes fichiers locaux montés en direct
     environment:
       - DEBUG=True
-      - DJANGO_SETTINGS_MODULE=damxscorp.settings  # ← adapte si ton nom diffère
+      - DJANGO_SETTINGS_MODULE=damxscorp.settings
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+    env_file:
+      - .env
     restart: unless-stopped
 
   # ─── SERVICE FRONTEND ──────────────────────────────────
