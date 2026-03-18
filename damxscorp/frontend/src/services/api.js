@@ -317,3 +317,85 @@ export const deleteReferentiel = async (id) => {
     throw new Error('Erreur lors de la suppression');
   }
 };
+
+// =============================================================================
+// DÉPARTEMENTS
+// =============================================================================
+
+export const fetchDepartements = async (actifSeulement = false) => {
+  try {
+    const params = actifSeulement ? '?actif=true' : '';
+    const response = await api.get(`/departements/${params}`);
+    return response.data;
+  } catch (error) {
+    throw new Error('Erreur lors du chargement des départements');
+  }
+};
+
+export const createDepartement = async (data) => {
+  try {
+    const response = await api.post('/departements/', data);
+    return response.data;
+  } catch (error) {
+    throw new Error('Erreur lors de la création du département');
+  }
+};
+
+export const updateDepartement = async (id, data) => {
+  try {
+    const response = await api.patch(`/departements/${id}/`, data);
+    return response.data;
+  } catch (error) {
+    const msg = error.response?.data?.error || 'Erreur lors de la modification';
+    throw new Error(msg);
+  }
+};
+
+export const deleteDepartement = async (id) => {
+  try {
+    await api.delete(`/departements/${id}/`);
+  } catch (error) {
+    const msg = error.response?.data?.error || 'Erreur lors de la suppression';
+    throw new Error(msg);
+  }
+};
+
+// =============================================================================
+// COLLABORATEURS
+// =============================================================================
+
+export const fetchCollaborateurs = async (actifSeulement = false) => {
+  try {
+    const params = actifSeulement ? '?actif=true' : '';
+    const response = await api.get(`/collaborateurs/${params}`);
+    return response.data;
+  } catch (error) {
+    throw new Error('Erreur lors du chargement des collaborateurs');
+  }
+};
+
+export const createCollaborateur = async (data) => {
+  try {
+    const response = await api.post('/collaborateurs/', data);
+    return response.data;
+  } catch (error) {
+    throw new Error('Erreur lors de la création du collaborateur');
+  }
+};
+
+export const updateCollaborateur = async (id, data) => {
+  try {
+    const response = await api.patch(`/collaborateurs/${id}/`, data);
+    return response.data;
+  } catch (error) {
+    throw new Error('Erreur lors de la modification du collaborateur');
+  }
+};
+
+export const deleteCollaborateur = async (id) => {
+  try {
+    await api.delete(`/collaborateurs/${id}/`);
+  } catch (error) {
+    throw new Error('Erreur lors de la suppression du collaborateur');
+  }
+};

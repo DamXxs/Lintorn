@@ -1,114 +1,179 @@
 from django.db import models
-from clients.models import Client      # ← Import du modèle Client
-from vehicules.models import Vehicule  # ← Import du modèle Vehicule
+from clients.models import Client
+from vehicules.models import Vehicule
+
+
+# =============================================================================
+# MODÈLE DÉPARTEMENT
+# Remplace le champ type_rdv hardcodé (ATELIER / ACADEMIE).
+# Maintenant chaque département est géré dynamiquement depuis les Paramètres.
+# =============================================================================
+class Departement(models.Model):
+    # Le CODE est l'identifiant technique (ex: 'ATELIER', 'ACADEMIE', 'CARROSSERIE')
+    # Il sert à la compatibilité avec l'existant et aux éventuels tests côté code
+    code = models.CharField(
+        max_length=30,
+        unique=True,
+        help_text="Identifiant technique unique, ex: ATELIER, ACADEMIE"
+    )
+
+    # Le NOM est ce que voit l'utilisateur dans l'interface
+    nom = models.CharField(
+        max_length=100,
+        help_text="Nom affiché dans l'interface, ex: Atelier, Académie"
+    )
+
+    # La COULEUR est utilisée dans le calendrier planning (format hex)
+    couleur = models.CharField(
+        max_length=7,
+        default='#2980b9',
+        help_text="Couleur hex affichée dans le planning, ex: #2980b9"
+    )
+
+    # ACTIF : si False, le département n'apparaît plus dans le formulaire de RDV
+    actif = models.BooleanField(
+        default=True,
+        help_text="Si désactivé, ce département n'apparaît plus dans les formulaires"
+    )
+
+    # ORDRE : pour trier les départements dans le formulaire
+    ordre = models.PositiveIntegerField(
+        default=0,
+        help_text="Ordre d'affichage (0 = en premier)"
+    )
+
+    # REQUIERT_VEHICULE : si True, la section véhicule s'affiche dans ModalForm
+    requiert_vehicule = models.BooleanField(
+        default=True,
+        help_text="Si True, le champ véhicule est demandé dans le formulaire de RDV"
+    )
+
+    class Meta:
+        ordering = ['ordre', 'nom']
+        verbose_name = "Département"
+        verbose_name_plural = "Départements"
+
+    def __str__(self):
+        return f"{self.nom} ({'actif' if self.actif else 'inactif'})"
+
+
+# =============================================================================
+# MODÈLE COLLABORATEUR
+# Représente un membre de l'équipe du garage.
+# =============================================================================
+class Collaborateur(models.Model):
+    nom = models.CharField(
+        max_length=100,
+        help_text="Nom complet du collaborateur, ex: Thomas Dupont"
+    )
+
+    couleur = models.CharField(
+        max_length=7,
+        default='#27ae60',
+        help_text="Couleur hex affichée dans le planning, ex: #27ae60"
+    )
+
+    role = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text="Rôle dans le garage, ex: Mécanicien, Formateur"
+    )
+
+    actif = models.BooleanField(
+        default=True,
+        help_text="Si désactivé, ce collaborateur n'apparaît plus dans les plannings"
+    )
+
+    class Meta:
+        ordering = ['nom']
+        verbose_name = "Collaborateur"
+        verbose_name_plural = "Collaborateurs"
+
+    def __str__(self):
+        return self.nom
 
 
 # =============================================================================
 # MODÈLE INTERVENTION
 # =============================================================================
 class Intervention(models.Model):
-    """
-    Représente un rendez-vous / intervention dans le planning.
-    """
-    # CHOIX pour le type de RDV
-    TYPE_CHOICES = [
-        ('ATELIER', 'Atelier (Mécanique)'),
-        ('ACADEMIE', 'Académie (Cours)'),
-    ]
 
-    # CHOIX pour le statut
     STATUT_CHOICES = [
         ('PLANIFIE', 'Planifié'),
         ('EN_COURS', 'En cours'),
         ('TERMINE', 'Terminé'),
         ('ANNULE', 'Annulé'),
     ]
-    
-    # Type de RDV
-    type_rdv = models.CharField(
-        max_length=20,
-        choices=TYPE_CHOICES,
-        default='ATELIER',
-        help_text="Type de rendez-vous (Atelier ou Académie)"
+
+    # ── DÉPARTEMENT ─────────────────────────────────────────────────────────
+    # Remplace l'ancien champ type_rdv hardcodé.
+    # PROTECT : impossible de supprimer un département qui a des interventions.
+    departement = models.ForeignKey(
+        Departement,
+        on_delete=models.PROTECT,
+        related_name='interventions',
+        null=True,
+        blank=True,
+        help_text="Département concerné (ex: Atelier, Académie)"
     )
 
-    # RELATIONS (les liens vers Client et Véhicule)
+    # ── COLLABORATEURS ───────────────────────────────────────────────────────
+    # ManyToMany : un RDV peut avoir 0, 1 ou plusieurs collaborateurs.
+    collaborateurs = models.ManyToManyField(
+        Collaborateur,
+        blank=True,
+        related_name='interventions',
+        help_text="Collaborateur(s) assigné(s) à cette intervention"
+    )
+
+    # ── CLIENT / VÉHICULE ────────────────────────────────────────────────────
     client = models.ForeignKey(
-        Client,  # ← Lien vers le modèle Client
-        on_delete=models.CASCADE,  # Si tu supprimes le client, ses rdv disparaissent
+        Client,
+        on_delete=models.CASCADE,
         related_name='interventions',
-        help_text="Client concerné par cette intervention"
     )
+
     vehicule = models.ForeignKey(
-        Vehicule,  # ← Lien vers le modèle Vehicule
-        on_delete=models.CASCADE,  # Si tu supprimes le véhicule, ses rdv disparaissent
+        Vehicule,
+        on_delete=models.CASCADE,
         related_name='interventions',
-        help_text="Véhicule concerné par cette intervention",
-        null=True,
-        blank=True
-    )
-    
-    # Date et heure
-    date_debut = models.DateTimeField(
-        help_text="Date et heure du début de l'intervention"
-    )
-    date_fin = models.DateTimeField(
         null=True,
         blank=True,
-        help_text="Date et heure de fin (optionnel, peut être calculé)"
     )
-    
-    # Description de l'intervention
-    description = models.TextField(
-        blank=True,
-        help_text="Travaux à effectuer (ex: Vidange + filtre à huile)"
-    )
-    
-    # Statut
+
+    # ── DATES ────────────────────────────────────────────────────────────────
+    date_debut = models.DateTimeField()
+    date_fin   = models.DateTimeField(null=True, blank=True)
+
+    # ── CONTENU ──────────────────────────────────────────────────────────────
+    description = models.TextField(blank=True)
+
     statut = models.CharField(
         max_length=20,
         choices=STATUT_CHOICES,
         default='PLANIFIE',
-        help_text="État actuel de l'intervention"
     )
-    
-    # Rappel (pour ton système de notifications)
-    rappel_envoye = models.BooleanField(
-        default=False,
-        help_text="True si le rappel a déjà été envoyé"
-    )
-    
-    # Métadonnées
-    date_creation = models.DateTimeField(
-        auto_now_add=True,
-        help_text="Date de création du rendez-vous"
-    )
-    date_modification = models.DateTimeField(
-        auto_now=True,  # Se met à jour automatiquement à chaque sauvegarde
-        help_text="Dernière modification"
-    )
-    
+
+    rappel_envoye = models.BooleanField(default=False)
+
+    # ── MÉTADONNÉES ──────────────────────────────────────────────────────────
+    date_creation     = models.DateTimeField(auto_now_add=True)
+    date_modification = models.DateTimeField(auto_now=True)
+
     class Meta:
-        ordering = ['-date_debut']  # Tri par date décroissante (plus récent en premier)
+        ordering = ['-date_debut']
         verbose_name = "Intervention"
         verbose_name_plural = "Interventions"
-    
+
     def __str__(self):
-        """
-        Affichage : "Dupont Jean - Peugeot 308 - 25/01/2025"
-        OU "Dupont Jean - Académie - 25/01/2025" si pas de véhicule
-        """
+        dept = self.departement.nom if self.departement else '?'
         if self.vehicule:
             return f"{self.client} - {self.vehicule.modele} - {self.date_debut.strftime('%d/%m/%Y')}"
-        else:
-            return f"{self.client} - {self.type_rdv} - {self.date_debut.strftime('%d/%m/%Y')}"
-        
+        return f"{self.client} - {dept} - {self.date_debut.strftime('%d/%m/%Y')}"
+
     @property
     def titre_calendrier(self):
-        """
-        Propriété calculée pour l'affichage dans FullCalendar.
-        """
         if self.vehicule:
             return f"{self.client.nom} - {self.vehicule.modele}"
-        else:
-            return f"{self.client.nom} - {self.type_rdv}"
+        dept = self.departement.nom if self.departement else ''
+        return f"{self.client.nom} - {dept}"

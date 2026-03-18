@@ -1,20 +1,51 @@
 // /frontend/src/pages/Parametres/Parametres.jsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { useReferentiels } from '../../context/ReferentielsContext';
 import ReferentielEditor from './ReferentielEditor';
-import { Palette, Bell, Bot, Settings, Loader, Car, Wrench, Package } from '../../utils/icons';
+import DepartementEditor from './DepartementEditor';
+import CollaborateurEditor from './CollaborateurEditor';
+import { fetchDepartements, fetchCollaborateurs } from '../../services/api';
+import {
+  Palette, Bell, Bot, Settings, Loader,
+  Car, Wrench, Package, Factory, Users
+} from '../../utils/icons';
 import './Parametres.css';
 
 const Parametres = () => {
   const { themeName, setTheme, themes } = useTheme();
   const { referentiels, loading, reload } = useReferentiels();
 
+  // ── Données chargées depuis l'API ─────────────────────────────────────────
+  const [departements,    setDepartements]    = useState([]);
+  const [collaborateurs,  setCollaborateurs]  = useState([]);
+  const [loadingDepts,    setLoadingDepts]    = useState(true);
+  const [loadingCollabs,  setLoadingCollabs]  = useState(true);
+
+  const reloadDepartements = () => {
+    setLoadingDepts(true);
+    fetchDepartements()
+      .then(setDepartements)
+      .finally(() => setLoadingDepts(false));
+  };
+
+  const reloadCollaborateurs = () => {
+    setLoadingCollabs(true);
+    fetchCollaborateurs()
+      .then(setCollaborateurs)
+      .finally(() => setLoadingCollabs(false));
+  };
+
+  useEffect(() => {
+    reloadDepartements();
+    reloadCollaborateurs();
+  }, []);
+
   return (
     <div className="parametres-page">
       <h1 className="parametres-title"><Settings size={20} /> Paramètres</h1>
 
-      {/* THÈMES */}
+      {/* ── THÈMES ─────────────────────────────────────────────────────────── */}
       <section className="param-section">
         <h2 className="param-section__title"><Palette size={16} /> Thème de l'interface</h2>
         <div className="theme-grid">
@@ -37,7 +68,36 @@ const Parametres = () => {
         </div>
       </section>
 
-      {/* RÉFÉRENTIELS */}
+      {/* ── DÉPARTEMENTS ───────────────────────────────────────────────────── */}
+      <section className="param-section">
+        <h2 className="param-section__title"><Factory size={16} /> Départements</h2>
+        <p className="param-description">
+          Définissez les départements de votre garage (ex : Atelier, Académie, Carrosserie…).
+          Chaque département apparaît dans le formulaire de prise de RDV.
+          Il doit en rester <strong>au moins un actif</strong>.
+        </p>
+        {loadingDepts ? (
+          <p className="param-placeholder"><Loader size={14} /> Chargement...</p>
+        ) : (
+          <DepartementEditor departements={departements} onReload={reloadDepartements} />
+        )}
+      </section>
+
+      {/* ── ÉQUIPE / COLLABORATEURS ─────────────────────────────────────────── */}
+      <section className="param-section">
+        <h2 className="param-section__title"><Users size={16} /> Équipe</h2>
+        <p className="param-description">
+          Gérez les membres de votre équipe. Chaque collaborateur apparaîtra dans le planning
+          avec sa propre couleur pour faciliter la lecture du calendrier.
+        </p>
+        {loadingCollabs ? (
+          <p className="param-placeholder"><Loader size={14} /> Chargement...</p>
+        ) : (
+          <CollaborateurEditor collaborateurs={collaborateurs} onReload={reloadCollaborateurs} />
+        )}
+      </section>
+
+      {/* ── RÉFÉRENTIELS ───────────────────────────────────────────────────── */}
       {loading ? (
         <section className="param-section">
           <p className="param-placeholder"><Loader size={14} /> Chargement des référentiels...</p>
@@ -61,7 +121,6 @@ const Parametres = () => {
             <h2 className="param-section__title"><Wrench size={16} /> Types d'interventions</h2>
             <p className="param-description">
               Personnalisez les types d'interventions selon votre activité.
-              La couleur est utilisée dans le calendrier planning.
             </p>
             <ReferentielEditor
               categorie="TYPE_INTERVENTION"
@@ -84,15 +143,15 @@ const Parametres = () => {
         </>
       )}
 
-      {/* FUTURES OPTIONS */}
+      {/* ── FUTURES OPTIONS ────────────────────────────────────────────────── */}
       <section className="param-section">
-        <h2 className="param-section__title"><Bell size={16} /> Notifications ...</h2>
-        <p className="param-placeholder">Gestion des alertes de stock, rappels RDV...</p>
+        <h2 className="param-section__title"><Bell size={16} /> Notifications <span className="coming-soon">bientôt</span></h2>
+        <p className="param-placeholder">Alertes de stock, rappels RDV automatiques...</p>
       </section>
 
       <section className="param-section">
-        <h2 className="param-section__title"><Bot size={16} /> IA & Messagerie ...</h2>
-        <p className="param-placeholder">Configuration de l'assistant IA pour les RDV automatiques...</p>
+        <h2 className="param-section__title"><Bot size={16} /> IA & Messagerie <span className="coming-soon">bientôt</span></h2>
+        <p className="param-placeholder">Assistant IA pour les prises de RDV automatiques...</p>
       </section>
 
     </div>

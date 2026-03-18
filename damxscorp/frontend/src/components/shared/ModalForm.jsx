@@ -1,6 +1,7 @@
 // /src/components/shared/ModalForm.jsx
 import React, { useState, useEffect } from 'react';
-import { DEPARTEMENTS, VEHICLE_TYPES, INTERVENTION_TYPES } from '../../utils/constants';
+import { VEHICLE_TYPES, INTERVENTION_TYPES } from '../../utils/constants';
+import { fetchDepartements } from '../../services/api';
 import './ModalForm.css';
 import logger from '../../utils/logger';
 import AddressAutocomplete from './AddressAutocomplete';
@@ -15,6 +16,26 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
     // ÉTAT DU FORMULAIRE
     // =========================================================================
     const { getTypeVehicules, getTypeInterventions } = useReferentiels();
+
+    // Départements chargés depuis l'API (remplace la constante hardcodée)
+    const [departements, setDepartements] = useState([]);
+
+    // Chargement des départements actifs au montage du composant
+    useEffect(() => {
+        fetchDepartements(true).then(data => {
+            setDepartements(data);
+            // Si aucun département n'est sélectionné, prendre le premier actif
+            if (data.length > 0) {
+                setFormData(prev => ({
+                    ...prev,
+                    departement: prev.departement || data[0].code,
+                }));
+            }
+        }).catch(() => {
+            // En cas d'erreur API, on garde la valeur actuelle
+        });
+    }, []);
+
     const [formData, setFormData] = useState({
         departement: 'ATELIER',
         typeIntervention: 'ENTRETIEN_VP2',
@@ -121,18 +142,22 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
         <div id="modal-rdv">
             <div className="modal-content">
                 
-                {/* ===== HEADER : SELECT DÉPARTEMENT ===== */}
+                {/* ===== HEADER : SELECT DÉPARTEMENT (chargé depuis l'API) ===== */}
                 <div className="modal-header">
-                    <select 
-                        name="departement" 
-                        value={formData.departement} 
+                    <select
+                        name="departement"
+                        value={formData.departement}
                         onChange={handleChange}
                     >
-                        {Object.values(DEPARTEMENTS).map(dept => (  // ✅ Corrigé
-                            <option key={dept.value} value={dept.value}>  {/* ✅ Corrigé */}
-                                {dept.label}
-                            </option>
-                        ))}
+                        {departements.length === 0 ? (
+                            <option value="ATELIER">Chargement...</option>
+                        ) : (
+                            departements.map(dept => (
+                                <option key={dept.code} value={dept.code}>
+                                    {dept.nom}
+                                </option>
+                            ))
+                        )}
                     </select>
                 </div>
 
@@ -211,8 +236,8 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
                             </div>
                         </div>
 
-                        {/* ===== 2. INFORMATIONS VÉHICULE (si ATELIER) ===== */}
-                        {formData.departement === 'ATELIER' && (
+                        {/* ===== 2. INFORMATIONS VÉHICULE (si le département le requiert) ===== */}
+                        {departements.find(d => d.code === formData.departement)?.requiert_vehicule && (
                             <div className="form-section">
                                 <div className="form-section-title"><Car size={14} /> Informations Véhicule</div>
                                 

@@ -124,3 +124,362 @@
   margin-bottom: 16px;
   line-height: 1.5;
 }
+
+/* =================================================================
+   SIMPLE EDITOR — partagé par DepartementEditor et CollaborateurEditor
+================================================================= */
+
+.simple-editor__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.simple-editor__empty {
+  font-size: 13px;
+  color: #555;
+  font-style: italic;
+  padding: 12px 0;
+}
+
+/* ── LIGNE D'UN ITEM ─────────────────────────────────────────── */
+.simple-editor__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  transition: border-color 0.2s;
+}
+
+.simple-editor__row--inactive {
+  opacity: 0.5;
+}
+
+.simple-editor__row--editing {
+  border-color: var(--accent);
+  background: rgba(41, 128, 185, 0.06);
+}
+
+/* Pastille couleur (pour les départements) */
+.simple-editor__color-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 2px solid rgba(255,255,255,0.15);
+}
+
+/* Avatar initiales (pour les collaborateurs) */
+.simple-editor__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+
+.simple-editor__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.simple-editor__nom {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.simple-editor__meta {
+  font-size: 12px;
+  color: #888;
+}
+
+/* ── ACTIONS ─────────────────────────────────────────────────── */
+.simple-editor__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.simple-editor__toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+.simple-editor__toggle.on  { color: #27ae60; }
+.simple-editor__toggle.off { color: #555; }
+.simple-editor__toggle:hover { opacity: 0.75; }
+
+.simple-editor__btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #888;
+  transition: all 0.15s;
+}
+.simple-editor__btn.edit:hover   { color: var(--accent); border-color: var(--accent); }
+.simple-editor__btn.delete:hover { color: #e74c3c; border-color: #e74c3c; }
+
+/* ── FORMULAIRE ──────────────────────────────────────────────── */
+.simple-editor__form {
+  background: var(--input-bg);
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 12px;
+}
+
+.simple-editor__form-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.simple-editor__error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(231, 76, 60, 0.1);
+  border: 1px solid #e74c3c;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #e74c3c;
+  margin-bottom: 12px;
+}
+
+.simple-editor__form-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.simple-editor__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.simple-editor__field--full {
+  grid-column: 1 / -1;
+}
+
+.simple-editor__field--toggle {
+  grid-column: 1 / -1;
+}
+
+.simple-editor__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.simple-editor__label .required {
+  color: #e74c3c;
+}
+
+.simple-editor__input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 8px 12px;
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.simple-editor__input:focus { border-color: var(--accent); }
+
+.simple-editor__hint {
+  font-size: 11px;
+  color: #888;
+  font-style: italic;
+}
+
+/* ── COULEUR TRIGGER ─────────────────────────────────────────── */
+.simple-editor__color-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 8px 12px;
+  cursor: pointer;
+  color: var(--text);
+  font-size: 13px;
+  transition: border-color 0.2s;
+}
+.simple-editor__color-trigger:hover { border-color: var(--accent); }
+
+.simple-editor__color-swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.15);
+  flex-shrink: 0;
+}
+
+.simple-editor__trigger-arrow {
+  margin-left: auto;
+  color: #888;
+}
+
+/* ── TOGGLE PILL (requiert_vehicule) ─────────────────────────── */
+.simple-editor__toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.simple-editor__toggle-pill {
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.simple-editor__toggle-pill.on  { background: #27ae60; color: white; }
+.simple-editor__toggle-pill.off { background: var(--border); color: #888; }
+
+/* ── PALETTE COULEURS ────────────────────────────────────────── */
+.simple-editor__color-palette {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.simple-editor__color-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.simple-editor__color-item {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.simple-editor__color-item:hover { transform: scale(1.2); }
+.simple-editor__color-item.active {
+  border-color: white;
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.simple-editor__color-custom {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.simple-editor__color-custom input[type="color"] {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 2px;
+  background: none;
+}
+
+/* ── APERÇU COLLABORATEUR ────────────────────────────────────── */
+.simple-editor__preview-collab {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+
+/* ── BOUTONS DU FORMULAIRE ───────────────────────────────────── */
+.simple-editor__form-btns {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.simple-editor__form-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+.simple-editor__form-btn.save {
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  color: white;
+}
+.simple-editor__form-btn.save:disabled { opacity: 0.5; cursor: not-allowed; }
+.simple-editor__form-btn.cancel {
+  background: var(--bg);
+  color: #aaa;
+  border: 1px solid var(--border);
+}
+.simple-editor__form-btn:hover:not(:disabled) { transform: translateY(-1px); }
+
+/* ── BOUTON AJOUTER ──────────────────────────────────────────── */
+.simple-editor__add-btn {
+  width: 100%;
+  padding: 10px;
+  background: none;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  color: #888;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 4px;
+}
+.simple-editor__add-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(41, 128, 185, 0.05);
+}

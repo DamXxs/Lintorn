@@ -1,17 +1,28 @@
 # /backend/planning/admin.py
 from django.contrib import admin
-from .models import Intervention
+from .models import Intervention, Departement, Collaborateur
+
+
+@admin.register(Departement)
+class DepartementAdmin(admin.ModelAdmin):
+    list_display  = ['id', 'code', 'nom', 'couleur', 'actif', 'ordre', 'requiert_vehicule']
+    list_filter   = ['actif', 'requiert_vehicule']
+    search_fields = ['code', 'nom']
+    ordering      = ['ordre', 'nom']
+
+
+@admin.register(Collaborateur)
+class CollaborateurAdmin(admin.ModelAdmin):
+    list_display  = ['id', 'nom', 'role', 'couleur', 'actif']
+    list_filter   = ['actif']
+    search_fields = ['nom', 'role']
+
 
 @admin.register(Intervention)
 class InterventionAdmin(admin.ModelAdmin):
-    """
-    Configuration de l'affichage des interventions dans l'admin Django
-    """
-    list_display = ['id', 'type_rdv', 'client', 'vehicule', 'date_debut', 'statut']
+    list_display       = ['id', 'departement', 'client', 'vehicule', 'date_debut', 'statut']
     list_display_links = ['id']
-    list_filter = ['type_rdv', 'statut', 'date_debut']
-    search_fields = ['client__nom', 'vehicule__immatriculation', 'description']
-    ordering = ['-date_debut']
-    
-    # Champs en lecture seule
-    readonly_fields = ['date_creation', 'date_modification']
+    list_filter        = ['departement', 'statut', 'date_debut']
+    search_fields      = ['client__nom', 'vehicule__immatriculation', 'description']
+    ordering           = ['-date_debut']
+    readonly_fields    = ['date_creation', 'date_modification']
