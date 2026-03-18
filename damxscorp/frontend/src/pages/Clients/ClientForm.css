@@ -181,6 +181,10 @@
 
 .form-btn {
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   padding: 11px;
   border: none;
   border-radius: 8px;
