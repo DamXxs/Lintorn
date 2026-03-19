@@ -165,8 +165,17 @@
 }
 
 .form-error {
-  font-size: 10px;
+  display: block;
+  font-size: 11px;
   color: #e74c3c;
+  margin-top: 4px;
+  padding-left: 2px;
+  animation: errorPop 0.2s ease-out;
+}
+
+@keyframes errorPop {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ── FOOTER ──────────────────────────────────────────────────── */

@@ -100,6 +100,9 @@ export const formatInterventionForDjango = (formData) => {
         vehicule_marque:          formData.vehicleBrand  || '',
         vehicule_modele_input:    formData.vehicleModel  || '',
         vehicule_annee_input:     formData.vehicleYear   || '',
+
+        // Collaborateurs — liste d'IDs (ex: [1, 3])
+        collaborateurs_ids: formData.collaborateursIds  || [],
     };
 
     logger.format.after('Intervention (React → Django)', formatted);
@@ -157,6 +160,9 @@ export const formatInterventionForReact = (djangoData) => {
         vehicleBrand: djangoData.vehicule_marque          || '',
         vehicleModel: djangoData.vehicule_modele          || '',
         vehicleYear:  djangoData.vehicule_annee           || '',
+
+        // Collaborateurs — on extrait les IDs depuis la liste d'objets [{id, nom, couleur}]
+        collaborateursIds: (djangoData.collaborateurs || []).map(c => c.id),
     };
 
     logger.format.after('Intervention (Django → React)', formatted);

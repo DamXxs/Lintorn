@@ -17,7 +17,7 @@
  */
 export const formatPhone = (value) => {
   // Garde uniquement les chiffres
-  const digits = value.replace(/\D/g, '');
+  const digits = value.replace(/\D/g, '').slice(0, 10); // Max 10 chiffres
   // Ajoute un espace tous les 2 chiffres
   return digits.match(/.{1,2}/g)?.join(' ') || '';
 };

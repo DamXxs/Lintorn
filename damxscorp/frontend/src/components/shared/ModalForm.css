@@ -131,6 +131,10 @@
     font-weight: bold;
     border-bottom: 1px solid var(--border);
     padding-bottom: 5px;
+    /* Alignement icône + texte */
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 /* === FORM GROUP === */
@@ -191,6 +195,28 @@
     box-shadow: 0 0 0 2px rgba(41, 128, 185, 0.1);
 }
 
+/* === MESSAGE D'ERREUR SOUS UN CHAMP === */
+@keyframes errorPop {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.field-error {
+    display: block;
+    color: #e74c3c;
+    font-size: 11px;
+    margin-top: 4px;
+    padding-left: 2px;
+    animation: errorPop 0.2s ease-out;
+}
+
+/* Bordure rouge discrète sur le champ en erreur */
+.form-group:has(.field-error) input,
+.form-group:has(.field-error) select {
+    border-color: #e74c3c !important;
+    box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.12) !important;
+}
+
 /* === CHAMPS OBLIGATOIRES === */
 .form-group label.required::after {
     content: " *";
@@ -221,6 +247,9 @@
     text-transform: uppercase;
     white-space: nowrap;
     transition: opacity 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .btn-api-siv:hover {
@@ -252,6 +281,11 @@
     text-transform: uppercase;
     font-size: 11px;
     transition: opacity 0.3s;
+    /* Alignement icône + texte */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
 }
 
 .btn-save {
@@ -297,4 +331,141 @@
     .form-grid-3col {
         grid-template-columns: 1fr;
     }
+}
+
+/* === DATE INPUT : fond sombre pour le popup calendrier === */
+.modal-content input[type="date"] {
+    color-scheme: dark;
+}
+
+/* === SELECT OPTIONS : fond sombre dans le menu déroulant === */
+.modal-content select option {
+    background: #1e1e1e;
+    color: white;
+}
+
+/* === PLAQUE D'IMMATRICULATION FRANÇAISE =================== */
+.input-with-button .french-plate-wrapper {
+    flex: 0 0 auto;                   /* Taille fixe, ne s'étire pas */
+    width: 185px;                     /* Largeur d'une plaque FR : AB-123-CD */
+}
+
+.french-plate-wrapper {
+    position: relative;
+}
+
+/* Bande bleue gauche (style plaque FR) */
+.french-plate-wrapper::before {
+    content: '🇪🇺\A F';
+    white-space: pre;
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 36px;
+    background: #003189;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: bold;
+    border-radius: 6px 0 0 6px;
+    z-index: 2;
+    letter-spacing: 0;
+    text-align: center;
+    line-height: 1.3;
+}
+
+/* L'input lui-même avec le style plaque */
+.french-plate-wrapper input {
+    padding-left: 48px !important;    /* Espace pour la bande bleue */
+    background: #f5f0e0 !important;   /* Fond ivoire comme une vraie plaque */
+    color: #111 !important;
+    font-weight: 800 !important;
+    font-size: 15px !important;
+    letter-spacing: 4px !important;
+    text-transform: uppercase;
+    border: 2px solid #333 !important;
+    border-radius: 6px !important;
+    font-family: 'Roboto Condensed', 'Arial Narrow', Arial, sans-serif;
+}
+
+.french-plate-wrapper input:focus {
+    border-color: #003189 !important;
+    box-shadow: 0 0 0 2px rgba(0, 49, 137, 0.25) !important;
+}
+
+.french-plate-wrapper input::placeholder {
+    color: #aaa !important;
+    font-weight: normal !important;
+    letter-spacing: 2px !important;
+    font-size: 12px !important;
+}
+
+/* ── SECTION COLLABORATEURS ──────────────────────────────────────── */
+.form-collab-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.form-collab-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px 7px 7px;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    color: var(--text);
+    font-size: 13px;
+}
+
+.form-collab-chip:hover {
+    border-color: var(--accent);
+}
+
+.form-collab-chip.selected {
+    font-weight: 600;
+}
+
+.form-collab-avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+}
+
+.form-collab-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    line-height: 1.2;
+}
+
+.form-collab-nom {
+    font-size: 13px;
+    color: var(--text);
+}
+
+.form-collab-role {
+    font-size: 10px;
+    color: #888;
+}
+
+.form-collab-check {
+    margin-left: 4px;
+    font-size: 12px;
+    color: #27ae60;
+    font-weight: 700;
 }

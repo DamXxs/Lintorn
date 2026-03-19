@@ -1,14 +1,22 @@
 // /src/components/shared/ModalForm.jsx
 import React, { useState, useEffect } from 'react';
 import { VEHICLE_TYPES, INTERVENTION_TYPES } from '../../utils/constants';
-import { fetchDepartements } from '../../services/api';
+import { fetchDepartements, fetchCollaborateurs } from '../../services/api';
 import './ModalForm.css';
 import logger from '../../utils/logger';
 import AddressAutocomplete from './AddressAutocomplete';
 import { useReferentiels } from '../../context/ReferentielsContext';
-import { User, Car, CalendarClock, FileText, X, Save, Search } from '../../utils/icons';
+import { User, Car, CalendarClock, FileText, X, Save, Search, Users } from '../../utils/icons';
+import { formatNom, formatPrenom, formatPhone, formatImmatriculation, validateEmail, validateImmatriculation } from '../../utils/validators';
 
 
+
+// ── Toutes les heures de 00:00 à 23:30 par pas de 30 minutes ──────────────
+const TIME_OPTIONS = [];
+for (let h = 0; h < 24; h++) {
+    TIME_OPTIONS.push(`${String(h).padStart(2, '0')}:00`);
+    TIME_OPTIONS.push(`${String(h).padStart(2, '0')}:30`);
+}
 
 const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
     
@@ -18,23 +26,46 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
     const { getTypeVehicules, getTypeInterventions } = useReferentiels();
 
     // Départements chargés depuis l'API (remplace la constante hardcodée)
-    const [departements, setDepartements] = useState([]);
+    const [departements,   setDepartements]   = useState([]);
+    // Collaborateurs actifs disponibles pour assignment
+    const [collaborateurs, setCollaborateurs] = useState([]);
+    // Erreurs de validation (ex: email invalide) - clé = nom du champ, valeur = message d'erreur
+    const [errors, setErrors] = useState({});
 
-    // Chargement des départements actifs au montage du composant
+    // Chargement au montage
     useEffect(() => {
         fetchDepartements(true).then(data => {
             setDepartements(data);
-            // Si aucun département n'est sélectionné, prendre le premier actif
             if (data.length > 0) {
                 setFormData(prev => ({
                     ...prev,
                     departement: prev.departement || data[0].code,
                 }));
             }
-        }).catch(() => {
-            // En cas d'erreur API, on garde la valeur actuelle
-        });
+        }).catch(() => {});
+
+        fetchCollaborateurs(true).then(setCollaborateurs).catch(() => {});
     }, []);
+
+    // Helper : génère les initiales d'un nom (ex: "Thomas Dupont" → "TD")
+    const getInitiales = (nom) => {
+        const parts = nom.trim().split(' ');
+        if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+        return nom.slice(0, 2).toUpperCase();
+    };
+
+    // Toggle sélection d'un collaborateur
+    const toggleCollab = (id) => {
+        setFormData(prev => {
+            const ids = prev.collaborateursIds || [];
+            return {
+                ...prev,
+                collaborateursIds: ids.includes(id)
+                    ? ids.filter(i => i !== id)   // déselectionner
+                    : [...ids, id],               // sélectionner
+            };
+        });
+    };
 
     const [formData, setFormData] = useState({
         departement: 'ATELIER',
@@ -54,7 +85,8 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
         timeStart: '08:00',
         dateEnd: '',
         timeEnd: '09:00',
-        description: ''
+        description: '',
+        collaborateursIds: [],
     });
 
     // =========================================================================
@@ -92,7 +124,8 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
                 timeStart: timeStr,
                 dateEnd: dateStr,
                 timeEnd: endTimeStr,
-                description: ''
+                description: '',
+                collaborateursIds: [],
             });
         } else {
             setFormData({
@@ -113,7 +146,8 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
                 timeStart: '08:00',
                 dateEnd: '',
                 timeEnd: '09:00',
-                description: ''
+                description: '',
+                collaborateursIds: [],
             });
         }
     }, [initialData, prefilledDate]);
@@ -122,9 +156,89 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
     // GESTION DES CHANGEMENTS
     // =========================================================================
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        let { name, value } = e.target;
+
+        // ── Validators automatiques (depuis utils/validators.js) ───────
+        if (name === 'clientName')      value = formatNom(value);
+        if (name === 'clientFirstName') value = formatPrenom(value);
+        if (name === 'clientPhone')     value = formatPhone(value);
+        if (name === 'plate')           value = formatImmatriculation(value);
+        // Validation en temps réel : efface l'erreur dès que le champ devient valide
+        if (name === 'clientName') {
+            setErrors(prev => ({ ...prev, clientName: value.trim() ? null : prev.clientName }));
+        }
+        if (name === 'clientEmail') {
+            setErrors(prev => ({ ...prev, clientEmail: validateEmail(value) }));
+        }
+        if (name === 'plate') {
+            setErrors(prev => ({ ...prev, plate: validateImmatriculation(value) }));
+        }
+        if (name === 'dateStart') {
+            setErrors(prev => ({ ...prev, dateStart: value ? null : prev.dateStart }));
+        }
+        if (name === 'dateEnd') {
+            setErrors(prev => ({ ...prev, dateEnd: value ? null : prev.dateEnd }));
+        }
+
         setFormData(prev => ({ ...prev, [name]: value }));
         logger.form.change(name, value);
+    };
+
+    // =========================================================================
+    // SOUMISSION AVEC VALIDATION COMPLÈTE
+    // =========================================================================
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        const newErrors = {};
+
+        // Nom : obligatoire
+        if (!formData.clientName.trim()) {
+            newErrors.clientName = 'Le nom est obligatoire';
+        }
+
+        // Dates : obligatoires
+        if (!formData.dateStart) newErrors.dateStart = 'Date de début obligatoire';
+        if (!formData.dateEnd)   newErrors.dateEnd   = 'Date de fin obligatoire';
+
+        // Email : optionnel, mais si rempli il doit être valide
+        if (formData.clientEmail) {
+            const emailError = validateEmail(formData.clientEmail);
+            if (emailError) newErrors.clientEmail = emailError;
+        }
+
+        // Plaque : obligatoire si le département requiert un véhicule
+        const deptRequiertVehicule = departements.find(
+            d => d.code === formData.departement
+        )?.requiert_vehicule;
+
+        if (deptRequiertVehicule) {
+            const plateError = validateImmatriculation(formData.plate);
+            if (plateError) newErrors.plate = plateError;
+        }
+
+        // Des erreurs ? On les affiche toutes et on scroll vers la première
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+
+            // Scroll automatique vers le premier champ en erreur
+            // setTimeout pour laisser React rendre les bulles avant de scroller
+            setTimeout(() => {
+                const premierChamp = Object.keys(newErrors)[0];
+                const el = document.querySelector(`.modal-body [name="${premierChamp}"]`);
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    el.focus(); // met aussi le focus sur le champ pour l'accessibilité
+                }
+            }, 50);
+
+            return;
+        }
+
+        // Tout est bon → on envoie
+        setErrors({});
+        logger.form.submit('ModalForm', formData);
+        onSubmit(formData);
     };
 
     // =========================================================================
@@ -163,11 +277,7 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
 
                 {/* ===== BODY : FORMULAIRE SCROLLABLE ===== */}
                 <div className="modal-body">
-                    <form onSubmit={(e) => { 
-                        e.preventDefault();
-                        logger.form.submit('ModalForm', formData);
-                        onSubmit(formData); 
-                    }}>
+                    <form onSubmit={handleSubmit} noValidate>
                         
                         {/* ===== 1. INFORMATIONS CLIENT ===== */}
                         <div className="form-section">
@@ -176,14 +286,16 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
                             <div className="form-grid-2col">
                                 <div className="form-group">
                                     <label className="required">Nom</label>
-                                    <input 
-                                        type="text" 
-                                        name="clientName" 
-                                        value={formData.clientName} 
-                                        onChange={handleChange} 
+                                    <input
+                                        type="text"
+                                        name="clientName"
+                                        value={formData.clientName}
+                                        onChange={handleChange}
                                         placeholder="Dupont"
-                                        required 
                                     />
+                                    {errors.clientName && (
+                                        <span className="field-error">{errors.clientName}</span>
+                                    )}
                                 </div>
                                 <div className="form-group">
                                     <label>Prénom</label>
@@ -210,13 +322,16 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
                                 </div>
                                 <div className="form-group">
                                     <label>Email</label>
-                                    <input 
-                                        type="email" 
-                                        name="clientEmail" 
-                                        value={formData.clientEmail} 
-                                        onChange={handleChange} 
+                                    <input
+                                        type="text"
+                                        name="clientEmail"
+                                        value={formData.clientEmail}
+                                        onChange={handleChange}
                                         placeholder="dupont@email.com"
                                     />
+                                    {errors.clientEmail && (
+                                        <span className="field-error">{errors.clientEmail}</span>
+                                    )}
                                 </div>
                             </div>
 
@@ -245,16 +360,18 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
                                 <div className="form-group">
                                     <label className="required">Immatriculation</label>
                                     <div className="input-with-button">
-                                        <input 
-                                            type="text" 
-                                            name="plate" 
-                                            value={formData.plate} 
-                                            onChange={handleChange}
-                                            placeholder="AB-123-CD"
-                                            required
-                                        />
-                                        <button 
-                                            type="button" 
+                                        <div className="french-plate-wrapper">
+                                            <input
+                                                type="text"
+                                                name="plate"
+                                                value={formData.plate}
+                                                onChange={handleChange}
+                                                placeholder="AB-123-CD"
+                                                required
+                                            />
+                                        </div>
+                                        <button
+                                            type="button"
                                             className="btn-api-siv"
                                             onClick={handleSivSearch}
                                             disabled={!formData.plate}
@@ -262,6 +379,9 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
                                             <Search size={14} /> SIV
                                         </button>
                                     </div>
+                                    {errors.plate && (
+                                        <span className="field-error">{errors.plate}</span>
+                                    )}
                                 </div>
 
                                 {/* Type véhicule + Type intervention */}
@@ -274,7 +394,7 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
                                             onChange={handleChange}
                                         >
                                             {getTypeVehicules().map(t => (
-                                                <option key={t.valeur} value={t.valeur}>{t.icone} {t.label}</option>
+                                                <option key={t.valeur} value={t.valeur}>{t.label}</option>
                                             ))}
                                         </select>
                                     </div>
@@ -345,52 +465,94 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
                         {/* ===== 3. PLANIFICATION ===== */}
                         <div className="form-section">
                             <div className="form-section-title"><CalendarClock size={14} /> Planification</div>
-                            
+
                             <div className="form-grid-2col">
                                 <div className="form-group">
                                     <label className="required">Date début</label>
-                                    <input 
-                                        type="date" 
-                                        name="dateStart" 
-                                        value={formData.dateStart} 
-                                        onChange={handleChange} 
-                                        required 
+                                    <input
+                                        type="date"
+                                        name="dateStart"
+                                        value={formData.dateStart}
+                                        onChange={handleChange}
                                     />
+                                    {errors.dateStart && (
+                                        <span className="field-error">{errors.dateStart}</span>
+                                    )}
                                 </div>
                                 <div className="form-group">
                                     <label className="required">Heure début</label>
-                                    <input 
-                                        type="time" 
-                                        name="timeStart" 
-                                        value={formData.timeStart} 
-                                        onChange={handleChange} 
-                                        required 
-                                    />
+                                    <select
+                                        name="timeStart"
+                                        value={formData.timeStart}
+                                        onChange={handleChange}
+                                        required
+                                    >
+                                        {TIME_OPTIONS.map(t => (
+                                            <option key={t} value={t}>{t}</option>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
 
                             <div className="form-grid-2col">
                                 <div className="form-group">
                                     <label className="required">Date fin</label>
-                                    <input 
-                                        type="date" 
-                                        name="dateEnd" 
-                                        value={formData.dateEnd} 
-                                        onChange={handleChange} 
-                                        required 
+                                    <input
+                                        type="date"
+                                        name="dateEnd"
+                                        value={formData.dateEnd}
+                                        onChange={handleChange}
                                     />
+                                    {errors.dateEnd && (
+                                        <span className="field-error">{errors.dateEnd}</span>
+                                    )}
                                 </div>
                                 <div className="form-group">
                                     <label className="required">Heure fin</label>
-                                    <input 
-                                        type="time" 
-                                        name="timeEnd" 
-                                        value={formData.timeEnd} 
-                                        onChange={handleChange} 
-                                        required 
-                                    />
+                                    <select
+                                        name="timeEnd"
+                                        value={formData.timeEnd}
+                                        onChange={handleChange}
+                                        required
+                                    >
+                                        {TIME_OPTIONS.map(t => (
+                                            <option key={t} value={t}>{t}</option>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
+
+                            {/* Collaborateurs — dans la planification */}
+                            {collaborateurs.length > 0 && (
+                                <div className="form-group" style={{ marginTop: '10px' }}>
+                                    <div className="form-section-title" style={{ marginBottom: '8px' }}>
+                                        <Users size={12} /> Collaborateur(s) assigné(s)
+                                    </div>
+                                    <div className="form-collab-grid">
+                                        {collaborateurs.map(c => {
+                                            const selected = (formData.collaborateursIds || []).includes(c.id);
+                                            return (
+                                                <button
+                                                    key={c.id}
+                                                    type="button"
+                                                    className={`form-collab-chip ${selected ? 'selected' : ''}`}
+                                                    style={selected ? { borderColor: c.couleur, background: c.couleur + '22' } : {}}
+                                                    onClick={() => toggleCollab(c.id)}
+                                                >
+                                                    <div className="form-collab-avatar" style={{ background: c.couleur }}>
+                                                        {getInitiales(c.nom)}
+                                                    </div>
+                                                    <div className="form-collab-info">
+                                                        <span className="form-collab-nom">{c.nom}</span>
+                                                        {c.role && <span className="form-collab-role">{c.role}</span>}
+                                                    </div>
+                                                    {selected && <span className="form-collab-check">✓</span>}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* ===== 4. TRAVAUX À EFFECTUER ===== */}
@@ -398,10 +560,10 @@ const ModalForm = ({isOpen, onClose, initialData, prefilledDate, onSubmit}) => {
                             <div className="form-section-title"><FileText size={14} /> Travaux à effectuer</div>
                             <div className="form-group">
                                 <label>Description</label>
-                                <textarea 
-                                    name="description" 
-                                    value={formData.description} 
-                                    onChange={handleChange} 
+                                <textarea
+                                    name="description"
+                                    value={formData.description}
+                                    onChange={handleChange}
                                     rows="4"
                                     placeholder="Ex: Vidange + filtre à huile + contrôle freins"
                                 ></textarea>

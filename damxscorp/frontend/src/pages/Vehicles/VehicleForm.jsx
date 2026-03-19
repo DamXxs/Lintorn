@@ -4,7 +4,7 @@ import { addVehicule, editVehicule } from '../../utils/vehicleService';
 import { useReferentiels } from '../../context/ReferentielsContext';
 import { fetchClients } from '../../services/api';
 // ✅ Validators centralisés (comme dans ClientForm)
-import { validateImmatriculation, validateAnnee } from '../../utils/validators';
+import { validateImmatriculation, validateAnnee, formatImmatriculation } from '../../utils/validators';
 import useForm from '../../hooks/useForm';
 import { Key, Car, User, FileText, Pencil, Plus, X, Save, Loader, CircleAlert, Search } from '../../utils/icons';
 import './VehicleForm.css';
@@ -30,8 +30,8 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
     fetchClients().then(setClients).catch(() => {});
   }, []);
 
-  // ── useForm gère : formData, errors, saving + handleChange + reset ──
-  const { formData, errors, setErrors, saving, setSaving, handleChange }
+  // ── useForm gère : formData, errors, saving + reset ──────────────
+  const { formData, setFormData, errors, setErrors, saving, setSaving }
     = useForm(
         INITIAL_DATA,
         editingVehicule,
@@ -46,6 +46,14 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
           notes:           v.notes           || '',
         })
       );
+
+  // ── handleChange avec formatters automatiques ────────────────────
+  const handleChange = (e) => {
+    let { name, value } = e.target;
+    if (name === 'immatriculation') value = formatImmatriculation(value);
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: null }));
+  };
 
   // ── Validation via validators.js ─────────────────────────────────
   const validate = () => {
@@ -65,7 +73,16 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) { setErrors(validationErrors); return; }
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      // Scroll vers le premier champ en erreur
+      setTimeout(() => {
+        const premier = Object.keys(validationErrors)[0];
+        document.querySelector(`.vehicle-form__body [name="${premier}"]`)
+          ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 50);
+      return;
+    }
 
     try {
       setSaving(true);
@@ -107,7 +124,7 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
           <button className="vehicle-form__close" onClick={onClose}><X size={16} /></button>
         </div>
 
-        <form className="vehicle-form__body" onSubmit={handleSubmit}>
+        <form className="vehicle-form__body" onSubmit={handleSubmit} noValidate>
 
           {errors.global && (
             <div className="vf-error-global"><CircleAlert size={14} /> {errors.global}</div>
@@ -120,12 +137,13 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
             <div className="vf-group">
               <label className="vf-label required">Immatriculation</label>
               <div className="vf-input-with-btn">
-                <input
-                  type="text" name="immatriculation" value={formData.immatriculation}
-                  onChange={handleChange} placeholder="AB-123-CD"
-                  className={`vf-input ${errors.immatriculation ? 'vf-input--error' : ''}`}
-                  style={{ textTransform: 'uppercase' }}
-                />
+                <div className="french-plate-wrapper">
+                  <input
+                    type="text" name="immatriculation" value={formData.immatriculation}
+                    onChange={handleChange} placeholder="AB-123-CD"
+                    className={errors.immatriculation ? 'vf-input--error' : ''}
+                  />
+                </div>
                 <button
                   type="button" className="vf-btn-siv"
                   onClick={handleSivSearch}
@@ -142,7 +160,7 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
               <label className="vf-label required">Type de véhicule</label>
               <select name="type_vehicule" value={formData.type_vehicule} onChange={handleChange} className="vf-input">
                 {getTypeVehicules().map(t => (
-                  <option key={t.valeur} value={t.valeur}>{t.icone} {t.label}</option>
+                  <option key={t.valeur} value={t.valeur}>{t.label}</option>
                 ))}
               </select>
             </div>

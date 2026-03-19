@@ -59,7 +59,7 @@ const Sidebar = ({ isExpanded, onToggle }) => {
         {/* HEADER */}
         {isExpanded && (
           <div className="sidebar__header">
-            <h2 className="sidebar__title">DAMXSCORP</h2>
+            <h2 className="sidebar__title">ELPIS</h2>
           </div>
         )}
 
@@ -104,7 +104,7 @@ const Sidebar = ({ isExpanded, onToggle }) => {
         {/* FOOTER */}
         {isExpanded && (
           <div className="sidebar__footer">
-            <p className="sidebar__footer-text">v1.0.0</p>
+            <p className="sidebar__footer-text">v14.0.0</p>
           </div>
         )}
 

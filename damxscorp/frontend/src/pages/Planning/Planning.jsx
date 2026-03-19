@@ -16,14 +16,16 @@ import './Planning.css';
 import { useLocation } from 'react-router-dom';
 
 // =========================================================================
-// COULEURS DES ÉVÉNEMENTS selon statut + type
+// COULEURS DES ÉVÉNEMENTS selon statut + couleur du département
 // =========================================================================
-const getEventColors = (type_rdv, statut) => {
+const getEventColors = (intervention) => {
+  const { statut, departement } = intervention;
   if (statut === 'ANNULE')   return { backgroundColor: '#7f8c8d', borderColor: '#95a5a6' }; // Gris
   if (statut === 'TERMINE')  return { backgroundColor: '#27ae60', borderColor: '#2ecc71' }; // Vert
   if (statut === 'EN_COURS') return { backgroundColor: '#e67e22', borderColor: '#f39c12' }; // Orange
-  if (type_rdv === 'ACADEMIE') return { backgroundColor: '#8e44ad', borderColor: '#9b59b6' }; // Violet
-  return { backgroundColor: '#2980b9', borderColor: '#3498db' }; // Bleu (ATELIER planifié)
+  // Couleur dynamique : vient du département en base (plus de couleurs hardcodées !)
+  const color = departement?.couleur || '#2980b9';
+  return { backgroundColor: color, borderColor: color };
 };
 
 // =========================================================================
@@ -31,7 +33,7 @@ const getEventColors = (type_rdv, statut) => {
 // =========================================================================
 const formatEventsForCalendar = (interventions) => {
   return interventions.map(intervention => {
-    const colors = getEventColors(intervention.type_rdv, intervention.statut);
+    const colors = getEventColors(intervention);
     return {
       id:              intervention.id,
       title:           intervention.title || `${intervention.client_nom} - ${intervention.type_rdv}`,

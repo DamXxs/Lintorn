@@ -1,7 +1,7 @@
 // /frontend/src/pages/Clients/ClientForm.jsx
 import React from 'react';
 import { addClient, editClient } from '../../utils/clientService';
-import { validateNom, validatePhone, validateEmail } from '../../utils/validators';
+import { validateNom, validatePhone, validateEmail, formatNom, formatPrenom, formatPhone } from '../../utils/validators';
 import useForm from '../../hooks/useForm';
 import { User, Phone, FileText, Pencil, UserPlus, X, Save, Loader, CircleAlert } from '../../utils/icons';
 import './ClientForm.css';
@@ -14,8 +14,8 @@ const INITIAL_DATA = {
 
 const ClientForm = ({ editingClient, onClose, onSuccess }) => {
 
-  // ── useForm gère : formData, errors, saving + handleChange + reset ──
-  const { formData, setFormData, errors, setErrors, saving, setSaving, handleChange }
+  // ── useForm gère : formData, errors, saving + reset ──────────────
+  const { formData, setFormData, errors, setErrors, saving, setSaving }
     = useForm(
         INITIAL_DATA,
         editingClient,
@@ -29,6 +29,16 @@ const ClientForm = ({ editingClient, onClose, onSuccess }) => {
           notes:     client.notes     || '',
         })
       );
+
+  // ── handleChange avec formatters automatiques ────────────────────
+  const handleChange = (e) => {
+    let { name, value } = e.target;
+    if (name === 'nom')       value = formatNom(value);
+    if (name === 'prenom')    value = formatPrenom(value);
+    if (name === 'telephone') value = formatPhone(value);
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: null }));
+  };
 
   // ── Validation via validators.js ─────────────────────────────────
   const validate = () => {
@@ -46,7 +56,16 @@ const ClientForm = ({ editingClient, onClose, onSuccess }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) { setErrors(validationErrors); return; }
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      // Scroll vers le premier champ en erreur
+      setTimeout(() => {
+        const premier = Object.keys(validationErrors)[0];
+        document.querySelector(`.client-form__body [name="${premier}"]`)
+          ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 50);
+      return;
+    }
 
     try {
       setSaving(true);
@@ -77,7 +96,7 @@ const ClientForm = ({ editingClient, onClose, onSuccess }) => {
         </div>
 
         {/* FORMULAIRE */}
-        <form className="client-form__body" onSubmit={handleSubmit}>
+        <form className="client-form__body" onSubmit={handleSubmit} noValidate>
 
           {errors.global && (
             <div className="client-form__error-global"><CircleAlert size={14} /> {errors.global}</div>

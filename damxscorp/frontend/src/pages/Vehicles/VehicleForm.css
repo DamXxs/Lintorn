@@ -134,7 +134,19 @@
 
 .vf-textarea { resize: none; min-height: 55px; font-family: inherit; }
 
-.vf-error { font-size: 10px; color: #e74c3c; }
+.vf-error {
+  display: block;
+  font-size: 11px;
+  color: #e74c3c;
+  margin-top: 4px;
+  padding-left: 2px;
+  animation: vfErrorPop 0.2s ease-out;
+}
+
+@keyframes vfErrorPop {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
 /* Input + bouton SIV côte à côte */
 .vf-input-with-btn {
@@ -143,6 +155,12 @@
 }
 
 .vf-input-with-btn .vf-input { flex: 1; }
+
+/* FrenchPlate dans VehicleForm — même largeur fixe que dans ModalForm */
+.vf-input-with-btn .french-plate-wrapper {
+  flex: 0 0 auto;
+  width: 185px;
+}
 
 .vf-btn-siv {
   background: var(--accent);
