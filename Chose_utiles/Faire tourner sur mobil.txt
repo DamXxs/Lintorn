@@ -1,0 +1,17 @@
+####################################################################################
+######################### TESTER LA RESPONSIVE SUR MOBILE ##########################
+####################################################################################
+
+Etape 1 :
+
+Fronted : Lancer la commande de start -} HOST=0.0.0.0 npm start
+Backend : Lancer la commande de runserver -} python manage.py 0.0.0.0:8000 runserver
+
+------------------------------------------------------------------------------------
+
+Etape 2 :
+
+Lancer sur mobile : 
+    - Ouvrire le navigateur :
+        - Fronted -} http://192.168."."":3000 = [Remplace (.'.'') par vrai IP] 
+        - Backend -} http://192.168."."":8000 = [Remplace (.'.'') par vrai IP]
