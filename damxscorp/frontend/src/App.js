@@ -10,6 +10,8 @@ import StockVueEnsemble from './pages/Stock/StockVueEnsemble';
 import ClientList from './pages/Clients/ClientList';
 import VehicleList from './pages/Vehicles/VehicleList';
 import Parametres from './pages/Parametres/Parametres';
+import Fournisseurs from './pages/Fournisseurs/Fournisseurs';
+import Factures from './pages/Factures/Factures';
 import './App.css';
 
 const App = () => {
@@ -35,6 +37,8 @@ const App = () => {
                 <Route path="/stock"       element={<StockVueEnsemble />} />
                 <Route path="/clients"     element={<ClientList />} />
                 <Route path="/vehicles"    element={<VehicleList />} />
+                <Route path="/fournisseurs" element={<Fournisseurs />} />
+                <Route path="/factures"     element={<Factures />} />
                 <Route path="/parametres"  element={<Parametres />} />
                 <Route path="*"            element={<div className="page-404">Page non trouvée</div>} />
               </Routes>

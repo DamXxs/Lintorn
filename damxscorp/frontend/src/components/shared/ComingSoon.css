@@ -1,0 +1,46 @@
+/* /frontend/src/components/shared/ComingSoon.css */
+
+.coming-soon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 16px;
+  padding: 40px;
+  text-align: center;
+}
+
+.coming-soon__icon {
+  font-size: 64px;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.coming-soon__title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.coming-soon__description {
+  font-size: 14px;
+  color: #666;
+  max-width: 400px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.coming-soon__badge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--accent);
+  background: rgba(41, 128, 185, 0.1);
+  border: 1px solid rgba(41, 128, 185, 0.3);
+  padding: 6px 16px;
+  border-radius: 20px;
+  margin-top: 8px;
+}

@@ -59,6 +59,16 @@ const StockVueEnsemble = () => {
         }
     };
 
+    return (
+        <ComingSoon
+        title="Gestion du Stock"
+        description="La gestion complète du stock de pièces arrive bientôt."
+        icon="📦"
+    />
+);
+    
+    /* REACTIVER QUAND LE MODULE SERA OPERATIONNEL --
+
     if (loading) {
         return (
             <div className="stock-loading">
@@ -76,7 +86,7 @@ const StockVueEnsemble = () => {
             </div>
         );
     }
-
+    -------------------------------------------------- */
     return (
         <div className="stock-vue-ensemble">
             {/* EN-TÊTE */}
