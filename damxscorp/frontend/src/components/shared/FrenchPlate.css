@@ -122,3 +122,61 @@
   padding: 6px 18px;
   letter-spacing: 4px;
 }
+
+/* ══ MODE ÉDITABLE (FrenchPlateInput) ══════════════════════════
+   La zone du numéro devient un <input> invisible stylé comme la plaque.
+   L'utilisateur tape directement "dans" la plaque sans champ séparé.
+   ══════════════════════════════════════════════════════════════ */
+.french-plate--editable {
+  cursor: text;
+}
+
+/* Bordure rouge si erreur de validation */
+.french-plate--error {
+  border-color: #e74c3c !important;
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.25) !important;
+}
+
+/* L'input reprend exactement les styles du span .french-plate__number */
+.french-plate__input {
+  font-family: 'Oswald', 'Arial Black', 'Arial', sans-serif;
+  font-weight: 700;
+  color: #000000;
+  text-transform: uppercase;
+  text-align: center;
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: text;
+  /* La largeur fixe empêche la plaque de rétrécir quand le champ est vide */
+}
+
+.french-plate__input::placeholder {
+  color: #bbb;
+  letter-spacing: 1px;
+  font-weight: 400;
+  font-family: 'Arial', sans-serif;
+  font-size: inherit;
+}
+
+/* Tailles — alignées avec .french-plate__number pour chaque variante */
+.french-plate--sm .french-plate__input {
+  font-size: 12px;
+  padding: 3px 8px;
+  letter-spacing: 2px;
+  width: 105px;
+}
+
+.french-plate--md .french-plate__input {
+  font-size: 16px;
+  padding: 5px 13px;
+  letter-spacing: 3px;
+  width: 148px;
+}
+
+.french-plate--lg .french-plate__input {
+  font-size: 22px;
+  padding: 6px 18px;
+  letter-spacing: 4px;
+  width: 200px;
+}

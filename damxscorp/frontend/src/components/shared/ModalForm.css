@@ -1,115 +1,44 @@
 /* =============================================================================
-   MODALFORM.CSS - Styles complets de la modal de RDV (VERSION COMPACTE)
+   MODALFORM.CSS — Styles du contenu interne du formulaire RDV
+   L'overlay, la boîte, le header et le footer sont gérés par Modal.jsx + Modal.css
    ============================================================================= */
 
-/* === OVERLAY DE LA MODALE (fond flou) === */
-#modal-rdv {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.75);
-    backdrop-filter: blur(8px);
+/* ── SÉLECTEUR DÉPARTEMENT (en tête de formulaire) ────────────── */
+.mf-dept-wrapper {
     display: flex;
-    align-items: center;
     justify-content: center;
-    z-index: 9999;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
 }
 
-/* === CONTENEUR DE LA MODALE === */
-.modal-content {
-    background: #151515;
-    color: white;
-    padding: 0;                           /* On enlève le padding global */
-    border-radius: 15px;
-    width: 90%;
-    height: 85%;                          /* Augmenté de 70% à 85% */
-    max-width: 580px;
-    overflow: hidden;                     /* Pour gérer le header fixe */
-    border: 1px solid var(--border);
-    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-    display: flex;
-    flex-direction: column;
-}
-
-/* === HEADER DE LA MODALE (Select Département) === */
-.modal-header {
-    background: linear-gradient(135deg, #1a1a1a 0%, #252525 100%);
-    border-bottom: 2px solid var(--accent);
-    padding: 15px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;                       /* Le header ne rétrécit pas */
-}
-
-.modal-header select {
+.mf-dept-select {
     background: transparent !important;
     border: none !important;
     color: var(--accent) !important;
-    font-size: 1.2rem !important;
+    font-size: 1rem !important;
     font-weight: bold !important;
     text-transform: uppercase !important;
     letter-spacing: 2px !important;
     cursor: pointer !important;
     padding: 5px 30px 5px 10px !important;
-    text-align: center;
     outline: none !important;
-    /* Flèche personnalisée */
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%232980b9' d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
     background-repeat: no-repeat !important;
     background-position: right 5px center !important;
 }
 
-.modal-header select:hover {
-    color: #3498db !important;
+.mf-dept-select option {
+    background: #1e1e1e;
+    color: white;
+    font-size: 13px;
+    text-transform: none;
+    letter-spacing: 0;
 }
 
-/* === BODY DE LA MODALE (scrollable) === */
-.modal-body {
-    flex: 1;                              /* Prend tout l'espace restant */
-    overflow-y: auto;                     /* Scroll si nécessaire */
-    padding: 20px;
-}
-
-/* === SCROLLBAR PERSONNALISÉE === */
-.modal-body::-webkit-scrollbar {
-    width: 6px;
-}
-
-.modal-body::-webkit-scrollbar-track {
-    background: #1a1a1a;
-    border-radius: 10px;
-}
-
-.modal-body::-webkit-scrollbar-thumb {
-    background: var(--accent);
-    border-radius: 10px;
-}
-
-.modal-body::-webkit-scrollbar-thumb:hover {
-    background: #3498db;
-}
-
-/* === GRILLES === */
-.form-grid-2col {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-top: 5px;
-}
-
-.form-grid-3col {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 10px;
-    margin-top: 5px;
-}
-
-/* === SECTIONS DU FORMULAIRE === */
-.form-section {
+/* ── SECTIONS ─────────────────────────────────────────────────── */
+.mf-section {
     margin-top: 12px;
     padding: 12px;
     background: rgba(255, 255, 255, 0.02);
@@ -117,12 +46,9 @@
     border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.form-section:first-child {
-    margin-top: 0;                        /* Pas de marge pour la 1ère section */
-}
+.mf-section:first-of-type { margin-top: 0; }
 
-/* Titre de section */
-.form-section-title {
+.mf-section-title {
     font-size: 10px;
     text-transform: uppercase;
     color: var(--accent);
@@ -131,18 +57,17 @@
     font-weight: bold;
     border-bottom: 1px solid var(--border);
     padding-bottom: 5px;
-    /* Alignement icône + texte */
     display: flex;
     align-items: center;
     gap: 5px;
 }
 
-/* === FORM GROUP === */
-.form-group {
+/* ── CHAMPS ───────────────────────────────────────────────────── */
+.mf-group {
     margin-bottom: 8px;
 }
 
-.form-group label {
+.mf-label {
     display: block;
     color: var(--accent);
     font-size: 9px;
@@ -152,10 +77,13 @@
     font-weight: 500;
 }
 
-/* === INPUTS, SELECT, TEXTAREA === */
-.modal-content input,
-.modal-content select,
-.modal-content textarea {
+.mf-label.required::after {
+    content: " *";
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+.mf-input {
     width: 100%;
     background: var(--input-bg) !important;
     border: 1px solid var(--border) !important;
@@ -164,254 +92,139 @@
     border-radius: 6px;
     font-size: 13px;
     outline: none;
-    transition: border-color 0.3s;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
 }
 
-/* Exception pour le select du header (déjà stylé plus haut) */
-.modal-header select {
-    width: auto !important;
+.mf-input:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 2px rgba(41, 128, 185, 0.1);
 }
 
-/* Textarea spécifique */
-.modal-content textarea {
-    padding: 10px;
-    resize: vertical;
-    min-height: 60px;
-}
-
-/* Placeholder */
-.modal-content input::placeholder,
-.modal-content textarea::placeholder {
+.mf-input::placeholder {
     color: #666;
     font-style: italic;
     font-size: 12px;
 }
 
-/* Focus */
-.modal-content input:focus,
-.modal-content textarea:focus,
-.modal-content select:focus {
-    border-color: var(--accent) !important;
-    box-shadow: 0 0 0 2px rgba(41, 128, 185, 0.1);
+textarea.mf-input {
+    padding: 10px;
+    resize: vertical;
+    min-height: 60px;
 }
 
-/* === MESSAGE D'ERREUR SOUS UN CHAMP === */
-@keyframes errorPop {
+/* Date input sombre */
+.mf-input--date { color-scheme: dark; }
+
+/* Options select sombres */
+.mf-input option {
+    background: #1e1e1e;
+    color: white;
+}
+
+/* ── CHAMP EN ERREUR ──────────────────────────────────────────── */
+@keyframes mfErrorPop {
     from { opacity: 0; transform: translateY(-4px); }
     to   { opacity: 1; transform: translateY(0); }
 }
 
-.field-error {
+.mf-error {
     display: block;
     color: #e74c3c;
     font-size: 11px;
     margin-top: 4px;
     padding-left: 2px;
-    animation: errorPop 0.2s ease-out;
+    animation: mfErrorPop 0.2s ease-out;
 }
 
-/* Bordure rouge discrète sur le champ en erreur */
-.form-group:has(.field-error) input,
-.form-group:has(.field-error) select {
+.mf-group:has(.mf-error) .mf-input {
     border-color: #e74c3c !important;
     box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.12) !important;
 }
 
-/* === CHAMPS OBLIGATOIRES === */
-.form-group label.required::after {
-    content: " *";
-    color: #e74c3c;
-    font-weight: bold;
+/* ── GRILLES ──────────────────────────────────────────────────── */
+.mf-grid-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 5px;
 }
 
-/* === BOUTON API SIV === */
-.input-with-button {
+.mf-grid-3col {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+/* ── IMMATRICULATION + BOUTON SIV ────────────────────────────── */
+.mf-input-with-btn {
     display: flex;
     gap: 8px;
     align-items: stretch;
 }
 
-.input-with-button input {
+.mf-input-with-btn .mf-input {
     flex: 1;
 }
 
-.btn-api-siv {
+.mf-btn-siv {
     background: var(--accent);
     color: white;
     border: none;
-    padding: 0 15px;
+    padding: 0 14px;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 10px;
-    font-weight: bold;
-    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 700;
     white-space: nowrap;
-    transition: opacity 0.3s;
+    transition: opacity 0.2s;
     display: flex;
     align-items: center;
     gap: 5px;
+    flex-shrink: 0;
 }
 
-.btn-api-siv:hover {
-    opacity: 0.8;
-}
+.mf-btn-siv:hover    { opacity: 0.85; }
+.mf-btn-siv:disabled { background: #555; cursor: not-allowed; opacity: 0.5; }
 
-.btn-api-siv:disabled {
-    background: #555;
-    cursor: not-allowed;
-    opacity: 0.5;
-}
-
-/* === BOUTONS DE LA MODALE === */
-.modal-buttons {
+/* ── APERÇU LIVE FrenchPlate ──────────────────────────────────── */
+.mf-plate-preview {
+    margin-top: 8px;
     display: flex;
-    gap: 12px;
-    margin-top: 15px;
-    padding-top: 12px;
-    border-top: 1px solid var(--border);
+    align-items: center;
 }
 
-.modal-buttons button {
+/* ── BOUTONS DU FOOTER (via Modal.jsx footer prop) ────────────── */
+.mf-btn {
     flex: 1;
-    padding: 10px;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    text-transform: uppercase;
-    font-size: 11px;
-    transition: opacity 0.3s;
-    /* Alignement icône + texte */
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-}
-
-.btn-save {
-    background: var(--success);
-    color: white;
-}
-
-.btn-cancel {
-    background: #333;
-    color: white;
-}
-
-.btn-save:hover,
-.btn-cancel:hover {
-    opacity: 0.8;
-}
-
-/* === RESPONSIVE === */
-@media (max-width: 1024px) {
-    .modal-content {
-        width: 85%;
-        height: 90%;
-    }
-    
-    .form-grid-3col {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 768px) {
-    /* Overlay - aligne en bas */
-    #modal-rdv {
-        align-items: flex-end;
-    }
-    .modal-content {
-        width: 100%;
-        max-width: 100%;
-        height: 9vh;
-        border-radius: 20px 20px 0 0; /* Coins arrondis uniquement en haut */
-    }
-    
-    .form-grid-2col,
-    .form-grid-3col {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* === DATE INPUT : fond sombre pour le popup calendrier === */
-.modal-content input[type="date"] {
-    color-scheme: dark;
-}
-
-/* === SELECT OPTIONS : fond sombre dans le menu déroulant === */
-.modal-content select option {
-    background: #1e1e1e;
-    color: white;
-}
-
-/* === PLAQUE D'IMMATRICULATION FRANÇAISE =================== */
-.input-with-button .french-plate-wrapper {
-    flex: 0 0 auto;                   /* Taille fixe, ne s'étire pas */
-    width: 185px;                     /* Largeur d'une plaque FR : AB-123-CD */
-}
-
-.french-plate-wrapper {
-    position: relative;
-}
-
-/* Bande bleue gauche (style plaque FR) */
-.french-plate-wrapper::before {
-    content: '🇪🇺\A F';
-    white-space: pre;
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 36px;
-    background: #003189;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: 9px;
-    font-weight: bold;
-    border-radius: 6px 0 0 6px;
-    z-index: 2;
-    letter-spacing: 0;
-    text-align: center;
-    line-height: 1.3;
-}
-
-/* L'input lui-même avec le style plaque */
-.french-plate-wrapper input {
-    padding-left: 48px !important;    /* Espace pour la bande bleue */
-    background: #f5f0e0 !important;   /* Fond ivoire comme une vraie plaque */
-    color: #111 !important;
-    font-weight: 800 !important;
-    font-size: 15px !important;
-    letter-spacing: 4px !important;
+    padding: 10px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
     text-transform: uppercase;
-    border: 2px solid #333 !important;
-    border-radius: 6px !important;
-    font-family: 'Roboto Condensed', 'Arial Narrow', Arial, sans-serif;
+    font-size: 11px;
+    transition: opacity 0.2s;
 }
 
-.french-plate-wrapper input:focus {
-    border-color: #003189 !important;
-    box-shadow: 0 0 0 2px rgba(0, 49, 137, 0.25) !important;
-}
+.mf-btn:hover { opacity: 0.85; }
 
-.french-plate-wrapper input::placeholder {
-    color: #aaa !important;
-    font-weight: normal !important;
-    letter-spacing: 2px !important;
-    font-size: 12px !important;
-}
+.mf-btn--save   { background: var(--success, #27ae60); color: white; }
+.mf-btn--cancel { background: #333; color: white; }
 
-/* ── SECTION COLLABORATEURS ──────────────────────────────────────── */
-.form-collab-grid {
+/* ── COLLABORATEURS ───────────────────────────────────────────── */
+.mf-collab-grid {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
 }
 
-.form-collab-chip {
+.mf-collab-chip {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -425,15 +238,10 @@
     font-size: 13px;
 }
 
-.form-collab-chip:hover {
-    border-color: var(--accent);
-}
+.mf-collab-chip:hover    { border-color: var(--accent); }
+.mf-collab-chip.selected { font-weight: 600; }
 
-.form-collab-chip.selected {
-    font-weight: 600;
-}
-
-.form-collab-avatar {
+.mf-collab-avatar {
     width: 26px;
     height: 26px;
     border-radius: 50%;
@@ -446,26 +254,19 @@
     flex-shrink: 0;
 }
 
-.form-collab-info {
+.mf-collab-info {
     display: flex;
     flex-direction: column;
     gap: 1px;
     line-height: 1.2;
 }
 
-.form-collab-nom {
-    font-size: 13px;
-    color: var(--text);
-}
+.mf-collab-nom  { font-size: 13px; color: var(--text); }
+.mf-collab-role { font-size: 10px; color: #888; }
+.mf-collab-check { margin-left: 4px; font-size: 12px; color: #27ae60; font-weight: 700; }
 
-.form-collab-role {
-    font-size: 10px;
-    color: #888;
-}
-
-.form-collab-check {
-    margin-left: 4px;
-    font-size: 12px;
-    color: #27ae60;
-    font-weight: 700;
+/* ── RESPONSIVE ───────────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .mf-grid-2col,
+    .mf-grid-3col { grid-template-columns: 1fr; }
 }

@@ -69,7 +69,7 @@ export const THEMES = {
       '--bg':       '#0d0505',   // Fond générale de la page
       '--panel':    '#1a0a0a',   // Fond des cartes, sidebar, modals
       '--accent':   '#c0392b',   // Couleur principale (boutons, liens actifs)
-      '--text':     '#f0e0e0',   // Couleur du texte
+      '--text':     '#f0e0e051',   // Couleur du texte
       '--border':   '#2a1010',   // Bordures des éléments
       '--danger':   '#e74c3c',   // Bouton supprimer
       '--success':  '#27ae60',   // Bouton valider

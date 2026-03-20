@@ -210,7 +210,7 @@ const Planning = ({ isSidebarExpanded }) => {
   return (
     <div className="planning-page">
 
-      {/* BARRE DE FILTRE (chips en haut) — filtre rapide multi-sélection */}
+      {/* BARRE DE FILTRE (chips en haut) */}
       <CollaborateurFilter
         collaborateurs={collaborateurs}
         selectedIds={selectedCollabIds}
@@ -218,10 +218,8 @@ const Planning = ({ isSidebarExpanded }) => {
         onSelectAll={() => setSelectedCollabIds([])}
       />
 
-      {/* ZONE PRINCIPALE : sidebar gauche + calendrier */}
+      {/* ZONE PRINCIPALE */}
       <div className="planning-body">
-
-        {/* CALENDRIER */}
         <Calendar
           events={filteredEvents}
           onEventClick={handleEventClick}
@@ -229,7 +227,6 @@ const Planning = ({ isSidebarExpanded }) => {
           onNewRdvClick={handleNewRdvClick}
           isSidebarExpanded={isSidebarExpanded}
         />
-
       </div>
 
       {consultEvent && (

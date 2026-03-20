@@ -7,7 +7,8 @@ import { fetchClients } from '../../services/api';
 import { validateImmatriculation, validateAnnee, formatImmatriculation } from '../../utils/validators';
 import useForm from '../../hooks/useForm';
 import { Key, Car, User, FileText, Pencil, Plus, Save, Loader, CircleAlert, Search } from '../../utils/icons';
-import Modal from '../../components/shared/Modal';
+import Modal            from '../../components/shared/Modal';
+import FrenchPlateInput from '../../components/shared/FrenchPlateInput';
 import '../../components/shared/forms.css';
 import './VehicleForm.css';
 
@@ -161,16 +162,16 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
 
           <div className="form-group">
             <label className="form-label required">Immatriculation</label>
-            <div className="vf-input-with-btn">
-              <div className="french-plate-wrapper">
-                <input
-                  type="text" name="immatriculation" value={formData.immatriculation}
-                  onChange={handleChange} placeholder="AB-123-CD"
-                  className={`form-input ${errors.immatriculation ? 'form-input--error' : ''}`}
-                />
-              </div>
+            <div className="plate-with-siv">
+              <FrenchPlateInput
+                name="immatriculation"
+                value={formData.immatriculation}
+                onChange={handleChange}
+                size="md"
+                hasError={Boolean(errors.immatriculation)}
+              />
               <button
-                type="button" className="vf-btn-siv"
+                type="button" className="btn-siv"
                 onClick={handleSivSearch}
                 disabled={!formData.immatriculation}
                 title="API SIV — bientôt disponible"
