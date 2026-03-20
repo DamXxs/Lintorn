@@ -10,7 +10,9 @@
 
 .app__content {
   flex: 1;
-  margin-left: 70px; /* Décalage sidebar réduite (desktop) */
+  min-height: 0;      /* ← clé : permet à flex:1 de ne pas dépasser le parent */
+  height: 100%;       /* ← établit une hauteur définie pour les enfants */
+  margin-left: 70px;
   overflow-y: auto;
   background: var(--bg);
   transition: margin-left 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);

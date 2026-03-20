@@ -6,7 +6,9 @@ import { fetchClients } from '../../services/api';
 // ✅ Validators centralisés (comme dans ClientForm)
 import { validateImmatriculation, validateAnnee, formatImmatriculation } from '../../utils/validators';
 import useForm from '../../hooks/useForm';
-import { Key, Car, User, FileText, Pencil, Plus, X, Save, Loader, CircleAlert, Search } from '../../utils/icons';
+import { Key, Car, User, FileText, Pencil, Plus, Save, Loader, CircleAlert, Search } from '../../utils/icons';
+import Modal from '../../components/shared/Modal';
+import '../../components/shared/forms.css';
 import './VehicleForm.css';
 
 // Valeurs vides du formulaire (état initial)
@@ -113,135 +115,147 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
 
   // ── Rendu ────────────────────────────────────────────────────────
   return (
-    <div className="vehicle-form__overlay" onClick={onClose}>
-      <div className="vehicle-form__content" onClick={(e) => e.stopPropagation()}>
+    <Modal
+      title={editingVehicule ? 'Modifier le véhicule' : 'Nouveau véhicule'}
+      titleIcon={editingVehicule ? <Pencil size={15} /> : <Plus size={15} />}
+      onClose={onClose}
+      footer={
+        <>
+          <button
+            type="button"
+            className="form-btn form-btn--cancel"
+            onClick={onClose}
+            disabled={saving}
+          >
+            Annuler
+          </button>
+          <button
+            type="submit"
+            form="vehicle-form"
+            className="form-btn form-btn--save"
+            disabled={saving}
+          >
+            {saving
+              ? <><Loader size={14} /> Enregistrement...</>
+              : editingVehicule
+                ? <><Save size={14} /> Modifier</>
+                : <><Save size={14} /> Créer</>
+            }
+          </button>
+        </>
+      }
+    >
+      <form
+        id="vehicle-form"
+        className="vehicle-form__body"
+        onSubmit={handleSubmit}
+        noValidate
+      >
+        {errors.global && (
+          <div className="form-error-global"><CircleAlert size={14} /> {errors.global}</div>
+        )}
 
-        {/* HEADER */}
-        <div className="vehicle-form__header">
-          <h2 className="vehicle-form__title">
-            {editingVehicule ? <><Pencil size={15}/> Modifier le véhicule</> : <><Plus size={15}/> Nouveau véhicule</>}
-          </h2>
-          <button className="vehicle-form__close" onClick={onClose}><X size={16} /></button>
+        {/* IDENTIFICATION */}
+        <div className="form-section">
+          <div className="form-section__title"><Key size={14} /> Identification</div>
+
+          <div className="form-group">
+            <label className="form-label required">Immatriculation</label>
+            <div className="vf-input-with-btn">
+              <div className="french-plate-wrapper">
+                <input
+                  type="text" name="immatriculation" value={formData.immatriculation}
+                  onChange={handleChange} placeholder="AB-123-CD"
+                  className={`form-input ${errors.immatriculation ? 'form-input--error' : ''}`}
+                />
+              </div>
+              <button
+                type="button" className="vf-btn-siv"
+                onClick={handleSivSearch}
+                disabled={!formData.immatriculation}
+                title="API SIV — bientôt disponible"
+              >
+                <Search size={14} /> SIV
+              </button>
+            </div>
+            {errors.immatriculation && <span className="form-error">{errors.immatriculation}</span>}
+          </div>
+
+          <div className="form-group">
+            <label className="form-label required">Type de véhicule</label>
+            <select name="type_vehicule" value={formData.type_vehicule} onChange={handleChange} className="form-input">
+              {getTypeVehicules().map(t => (
+                <option key={t.valeur} value={t.valeur}>{t.label}</option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        <form className="vehicle-form__body" onSubmit={handleSubmit} noValidate>
-
-          {errors.global && (
-            <div className="vf-error-global"><CircleAlert size={14} /> {errors.global}</div>
-          )}
-
-          {/* IDENTIFICATION */}
-          <div className="vf-section">
-            <div className="vf-section__title"><Key size={14} /> Identification</div>
-
-            <div className="vf-group">
-              <label className="vf-label required">Immatriculation</label>
-              <div className="vf-input-with-btn">
-                <div className="french-plate-wrapper">
-                  <input
-                    type="text" name="immatriculation" value={formData.immatriculation}
-                    onChange={handleChange} placeholder="AB-123-CD"
-                    className={errors.immatriculation ? 'vf-input--error' : ''}
-                  />
-                </div>
-                <button
-                  type="button" className="vf-btn-siv"
-                  onClick={handleSivSearch}
-                  disabled={!formData.immatriculation}
-                  title="API SIV — bientôt disponible"
-                >
-                  <Search size={14} /> SIV
-                </button>
-              </div>
-              {errors.immatriculation && <span className="vf-error">{errors.immatriculation}</span>}
-            </div>
-
-            <div className="vf-group">
-              <label className="vf-label required">Type de véhicule</label>
-              <select name="type_vehicule" value={formData.type_vehicule} onChange={handleChange} className="vf-input">
-                {getTypeVehicules().map(t => (
-                  <option key={t.valeur} value={t.valeur}>{t.label}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* VÉHICULE */}
-          <div className="vf-section">
-            <div className="vf-section__title"><Car size={14} /> Informations véhicule</div>
-            <div className="vf-row-2col">
-              <div className="vf-group">
-                <label className="vf-label required">Marque</label>
-                <input
-                  type="text" name="marque" value={formData.marque}
-                  onChange={handleChange} placeholder="Peugeot"
-                  className={`vf-input ${errors.marque ? 'vf-input--error' : ''}`}
-                />
-                {errors.marque && <span className="vf-error">{errors.marque}</span>}
-              </div>
-              <div className="vf-group">
-                <label className="vf-label required">Modèle</label>
-                <input
-                  type="text" name="modele" value={formData.modele}
-                  onChange={handleChange} placeholder="308"
-                  className={`vf-input ${errors.modele ? 'vf-input--error' : ''}`}
-                />
-                {errors.modele && <span className="vf-error">{errors.modele}</span>}
-              </div>
-            </div>
-
-            <div className="vf-group">
-              <label className="vf-label">Année</label>
+        {/* VÉHICULE */}
+        <div className="form-section">
+          <div className="form-section__title"><Car size={14} /> Informations véhicule</div>
+          <div className="form-row-2col">
+            <div className="form-group">
+              <label className="form-label required">Marque</label>
               <input
-                type="number" name="annee" value={formData.annee}
-                onChange={handleChange} placeholder="2020"
-                min="1900" max="2030"
-                className={`vf-input ${errors.annee ? 'vf-input--error' : ''}`}
+                type="text" name="marque" value={formData.marque}
+                onChange={handleChange} placeholder="Peugeot"
+                className={`form-input ${errors.marque ? 'form-input--error' : ''}`}
               />
-              {errors.annee && <span className="vf-error">{errors.annee}</span>}
+              {errors.marque && <span className="form-error">{errors.marque}</span>}
             </div>
-          </div>
-
-          {/* PROPRIÉTAIRE */}
-          <div className="vf-section">
-            <div className="vf-section__title"><User size={14} /> Propriétaire</div>
-            <div className="vf-group">
-              <label className="vf-label">Client propriétaire</label>
-              <select name="proprietaire" value={formData.proprietaire} onChange={handleChange} className="vf-input">
-                <option value="">— Aucun propriétaire —</option>
-                {clients.map(c => (
-                  <option key={c.id} value={c.id}>{c.nom} {c.prenom}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* NOTES */}
-          <div className="vf-section">
-            <div className="vf-section__title"><FileText size={14} /> Notes</div>
-            <div className="vf-group">
-              <textarea
-                name="notes" value={formData.notes}
-                onChange={handleChange}
-                placeholder="Pneus hiver, historique particulier..."
-                className="vf-input vf-textarea" rows="2"
+            <div className="form-group">
+              <label className="form-label required">Modèle</label>
+              <input
+                type="text" name="modele" value={formData.modele}
+                onChange={handleChange} placeholder="308"
+                className={`form-input ${errors.modele ? 'form-input--error' : ''}`}
               />
+              {errors.modele && <span className="form-error">{errors.modele}</span>}
             </div>
           </div>
 
-          {/* BOUTONS */}
-          <div className="vehicle-form__footer">
-            <button type="button" className="vf-btn vf-btn--cancel" onClick={onClose} disabled={saving}>
-              Annuler
-            </button>
-            <button type="submit" className="vf-btn vf-btn--save" disabled={saving}>
-              {saving ? <><Loader size={14} /> Enregistrement...</> : editingVehicule ? <><Save size={14} /> Modifier</> : <><Save size={14} /> Créer</>}
-            </button>
+          <div className="form-group">
+            <label className="form-label">Année</label>
+            <input
+              type="number" name="annee" value={formData.annee}
+              onChange={handleChange} placeholder="2020"
+              min="1900" max="2030"
+              className={`form-input ${errors.annee ? 'form-input--error' : ''}`}
+            />
+            {errors.annee && <span className="form-error">{errors.annee}</span>}
           </div>
+        </div>
 
-        </form>
-      </div>
-    </div>
+        {/* PROPRIÉTAIRE */}
+        <div className="form-section">
+          <div className="form-section__title"><User size={14} /> Propriétaire</div>
+          <div className="form-group">
+            <label className="form-label">Client propriétaire</label>
+            <select name="proprietaire" value={formData.proprietaire} onChange={handleChange} className="form-input">
+              <option value="">— Aucun propriétaire —</option>
+              {clients.map(c => (
+                <option key={c.id} value={c.id}>{c.nom} {c.prenom}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* NOTES */}
+        <div className="form-section">
+          <div className="form-section__title"><FileText size={14} /> Notes</div>
+          <div className="form-group">
+            <textarea
+              name="notes" value={formData.notes}
+              onChange={handleChange}
+              placeholder="Pneus hiver, historique particulier..."
+              className="form-input form-textarea" rows="2"
+            />
+          </div>
+        </div>
+
+      </form>
+    </Modal>
   );
 };
 

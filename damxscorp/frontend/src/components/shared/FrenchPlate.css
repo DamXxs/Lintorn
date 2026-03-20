@@ -57,10 +57,21 @@
   align-items: center;
 }
 
+/*---- Bande bleue régionale à droite (optionnelle) ────────────────────────── */
+.french-plate__region {
+  background: #003399; /* Bleu EU officiel */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+}
+
 /* ══ TAILLES ══════════════════════════════════════════════════ */
 
 /* -- sm : petite (dans les listes, badges) ------------------- */
-.french-plate--sm .french-plate__eu {
+.french-plate--sm .french-plate__eu,
+.french-plate--sm .french-plate__region {
   min-width: 16px;
   padding: 2px 4px;
 }
@@ -77,7 +88,8 @@
 }
 
 /* -- md : taille par défaut (modals, fiches) ----------------- */
-.french-plate--md .french-plate__eu {
+.french-plate--md .french-plate__eu,
+.french-plate--md .french-plate__region {
   min-width: 20px;
   padding: 2px 5px;
 }
@@ -94,7 +106,8 @@
 }
 
 /* -- lg : grande (header de fiche véhicule) ------------------ */
-.french-plate--lg .french-plate__eu {
+.french-plate--lg .french-plate__eu,
+.french-plate--lg .french-plate__region {
   min-width: 26px;
   padding: 3px 7px;
 }

@@ -1,0 +1,180 @@
+/* =============================================================================
+   FORMS.CSS — Styles partagés pour tous les formulaires de l'application
+   À importer dans chaque composant qui utilise Modal.jsx
+   ============================================================================= */
+
+/* === ERREUR GLOBALE (en haut du formulaire) === */
+.form-error-global {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(192, 57, 43, 0.15);
+  border: 1px solid var(--danger);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #e74c3c;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+/* === SECTIONS === */
+.form-section {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.form-section:last-of-type {
+  border-bottom: none;
+}
+
+.form-section__title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+/* === GRILLE 2 COLONNES === */
+.form-row-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* === CHAMP (label + input + erreur) === */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-label {
+  font-size: 10px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.form-label.required::after {
+  content: ' *';
+  color: #e74c3c;
+}
+
+/* === INPUTS, SELECTS, TEXTAREAS === */
+.form-input {
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--text);
+  font-size: 13px;
+  padding: 8px 10px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(41, 128, 185, 0.1);
+}
+
+.form-input::placeholder {
+  color: #444;
+  font-style: italic;
+  font-size: 12px;
+}
+
+/* Options des selects */
+.form-input option {
+  background: #1e1e1e;
+  color: white;
+}
+
+/* Date picker en dark mode */
+.form-input[type="date"] {
+  color-scheme: dark;
+}
+
+/* État erreur */
+.form-input--error {
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 0 2px rgba(192, 57, 43, 0.1) !important;
+}
+
+/* Textarea */
+.form-textarea {
+  resize: none;
+  min-height: 58px;
+  font-family: inherit;
+}
+
+/* === MESSAGE D'ERREUR SOUS UN CHAMP === */
+@keyframes errorPop {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.form-error {
+  display: block;
+  font-size: 11px;
+  color: #e74c3c;
+  margin-top: 3px;
+  padding-left: 2px;
+  animation: errorPop 0.2s ease-out;
+}
+
+/* === BOUTONS (dans .modal-footer) === */
+.form-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 42px;
+}
+
+.form-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.form-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.form-btn--save {
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  color: white;
+}
+
+.form-btn--cancel {
+  background: #2a2a2a;
+  color: #aaa;
+  border: 1px solid var(--border);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .form-row-2col {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,9 +1,22 @@
 /* /frontend/src/pages/Planning/Planning.css */
 
 /* ── PAGE PRINCIPALE ─────────────────────────────────────────── */
+/* height: 100% au lieu de 100vh → prend la hauteur de app__content */
+/* sans ça, planning-page = 100vh ET la filter bar s'y ajoute       */
+/* → overflow de 45px → calendrier coupé en bas                     */
 .planning-page {
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  height: 100vh;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ── ZONE PRINCIPALE (sidebar + calendrier côte à côte) ─────── */
+.planning-body {
+  flex: 1;
+  display: flex;
+  min-height: 0;      /* ← évite l'overflow dans un flex column */
   overflow: hidden;
 }
 
@@ -13,7 +26,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  height: 100%;
   gap: 16px;
   color: #888;
 }

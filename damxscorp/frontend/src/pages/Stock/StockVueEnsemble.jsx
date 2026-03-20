@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fetchPieces, deletePiece } from '../../services/api';
-import { Package, Search, Plus, Pencil, Trash2 } from '../../utils/icons';
+import { Package, Plus } from '../../utils/icons';
 import './StockVueEnsemble.css';
 
 
@@ -59,16 +59,7 @@ const StockVueEnsemble = () => {
         }
     };
 
-    return (
-        <ComingSoon
-        title="Gestion du Stock"
-        description="La gestion complète du stock de pièces arrive bientôt."
-        icon="📦"
-    />
-);
-    
-    /* REACTIVER QUAND LE MODULE SERA OPERATIONNEL --
-
+    // ── Affichage des états loading / erreur ──────────────────────
     if (loading) {
         return (
             <div className="stock-loading">
@@ -86,7 +77,7 @@ const StockVueEnsemble = () => {
             </div>
         );
     }
-    -------------------------------------------------- */
+
     return (
         <div className="stock-vue-ensemble">
             {/* EN-TÊTE */}

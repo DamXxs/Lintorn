@@ -57,3 +57,30 @@ button, a, h1, h2, h3, h4, label {
   align-items: center;
   gap: 6px;
 }
+
+/* ── SCROLLBAR GLOBALE ────────────────────────────────────────── */
+/* Appliquée partout dans l'appli — accent = couleur du thème     */
+/* Pour désactiver sur un élément précis : scrollbar-width: auto  */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;      /* scrollbar horizontale */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3498db;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) transparent;
+}

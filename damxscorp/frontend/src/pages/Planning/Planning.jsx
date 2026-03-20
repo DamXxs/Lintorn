@@ -1,12 +1,14 @@
 // /frontend/src/pages/Planning/Planning.jsx
 import React, { useState, useEffect } from 'react';
 import Calendar from './components/Calendar';
+import CollaborateurFilter from './components/CollaborateurFilter';
 import ModalRdvConsultation from '../../components/shared/ModalRdvConsultation';
 import ModalForm from '../../components/shared/ModalForm';
 import logger from '../../utils/logger';
 import { formatInterventionForDjango, formatInterventionForReact } from '../../utils/dataFormatters';
 import {
   fetchInterventions,
+  fetchCollaborateurs,
   saveIntervention,
   updateIntervention,
   patchIntervention,
@@ -20,10 +22,9 @@ import { useLocation } from 'react-router-dom';
 // =========================================================================
 const getEventColors = (intervention) => {
   const { statut, departement } = intervention;
-  if (statut === 'ANNULE')   return { backgroundColor: '#7f8c8d', borderColor: '#95a5a6' }; // Gris
-  if (statut === 'TERMINE')  return { backgroundColor: '#27ae60', borderColor: '#2ecc71' }; // Vert
-  if (statut === 'EN_COURS') return { backgroundColor: '#e67e22', borderColor: '#f39c12' }; // Orange
-  // Couleur dynamique : vient du département en base (plus de couleurs hardcodées !)
+  if (statut === 'ANNULE')   return { backgroundColor: '#7f8c8d', borderColor: '#95a5a6' };
+  if (statut === 'TERMINE')  return { backgroundColor: '#27ae60', borderColor: '#2ecc71' };
+  if (statut === 'EN_COURS') return { backgroundColor: '#e67e22', borderColor: '#f39c12' };
   const color = departement?.couleur || '#2980b9';
   return { backgroundColor: color, borderColor: color };
 };
@@ -42,7 +43,7 @@ const formatEventsForCalendar = (interventions) => {
       backgroundColor: colors.backgroundColor,
       borderColor:     colors.borderColor,
       textColor:       'white',
-      extendedProps:   intervention, // Toutes les données Django accessibles au clic
+      extendedProps:   intervention,
     };
   });
 };
@@ -58,28 +59,27 @@ const Planning = ({ isSidebarExpanded }) => {
   const [isFormOpen, setIsFormOpen]       = useState(false);
   const [editingEvent, setEditingEvent]   = useState(null);
   const [prefilledDate, setPrefilledDate] = useState(null);
-  const [clientPrefill, setClientPrefill] = useState(null); 
+  const [clientPrefill, setClientPrefill] = useState(null);
 
-  const location = useLocation(); // ← Récupère le state de navigation
+  // ── COLLABORATEURS & FILTRE ──────────────────────────────────────
+  const [collaborateurs, setCollaborateurs] = useState([]);
+  // selectedCollabIds = [] → tout afficher / [1, 3] → filtrer sur ces IDs
+  const [selectedCollabIds, setSelectedCollabIds] = useState([]);
+
+  const location = useLocation();
 
   // ── PRÉ-REMPLISSAGE DEPUIS FICHE CLIENT ─────────────────────────
-  // Si on arrive depuis ClientDetail avec des données client,
-  // on ouvre automatiquement la modal pré-remplie
   useEffect(() => {
     if (location.state?.clientPrefill) {
       setEditingEvent(null);
       setPrefilledDate(null);
-      // On stocke les données client pour pré-remplir la modal
       setClientPrefill(location.state.clientPrefill);
       setIsFormOpen(true);
-
-      // On nettoie le state pour éviter de rouvrir la modal
-      // si l'utilisateur navigue ailleurs puis revient
       window.history.replaceState({}, '');
     }
-}, [location.state]);
+  }, [location.state]);
 
-  // ── CHARGEMENT ──────────────────────────────────────────────────
+  // ── CHARGEMENT DES DONNÉES ───────────────────────────────────────
   const loadData = async () => {
     try {
       setLoading(true);
@@ -92,10 +92,34 @@ const Planning = ({ isSidebarExpanded }) => {
     }
   };
 
-  useEffect(() => { loadData(); }, []);
+  // Charge les interventions ET les collaborateurs au montage
+  useEffect(() => {
+    loadData();
+    fetchCollaborateurs()
+      .then(setCollaborateurs)
+      .catch(() => {}); // Si erreur, la barre ne s'affiche simplement pas
+  }, []);
+
+  // ── FILTRAGE DES ÉVÉNEMENTS ──────────────────────────────────────
+  // Si aucun filtre actif → on montre tout
+  // Sinon → on ne garde que les events qui ont AU MOINS UN des collabs sélectionnés
+  const filteredEvents = selectedCollabIds.length === 0
+    ? events
+    : events.filter(event => {
+        const collabs = event.extendedProps?.collaborateurs || [];
+        return collabs.some(c => selectedCollabIds.includes(c.id));
+      });
+
+  // ── TOGGLE COLLABORATEUR ─────────────────────────────────────────
+  const handleCollabToggle = (id) => {
+    setSelectedCollabIds(prev =>
+      prev.includes(id)
+        ? prev.filter(x => x !== id)  // Déjà actif → on retire
+        : [...prev, id]                // Pas encore actif → on ajoute
+    );
+  };
 
   // ── CLIC SUR UN ÉVÉNEMENT ────────────────────────────────────────
-  // FullCalendar met tout à la racine de l'objet event directement
   const handleEventClick = (event) => {
     setConsultEvent(event);
   };
@@ -124,18 +148,12 @@ const Planning = ({ isSidebarExpanded }) => {
   // ── CHANGEMENT DE STATUT ─────────────────────────────────────────
   const handleStatusChange = async (id, newStatut) => {
     try {
-      // On envoie UNIQUEMENT le statut — Django met à jour seulement ce champ
       await patchIntervention(id, { statut: newStatut });
       logger.success(`Statut → ${newStatut}`);
-
-      // Recharge le calendrier avec les nouvelles couleurs
       const data = await fetchInterventions();
       setEvents(formatEventsForCalendar(data));
-
-      // Met à jour la modal avec le nouveau statut
       const updated = data.find(e => String(e.id) === String(id));
       if (updated) setConsultEvent({ ...updated });
-
     } catch (err) {
       logger.error('Erreur statut', err);
       throw err;
@@ -192,13 +210,27 @@ const Planning = ({ isSidebarExpanded }) => {
   return (
     <div className="planning-page">
 
-      <Calendar
-        events={events}
-        onEventClick={handleEventClick}
-        onDateClick={handleDateClick}
-        onNewRdvClick={handleNewRdvClick}
-        isSidebarExpanded={isSidebarExpanded}
+      {/* BARRE DE FILTRE (chips en haut) — filtre rapide multi-sélection */}
+      <CollaborateurFilter
+        collaborateurs={collaborateurs}
+        selectedIds={selectedCollabIds}
+        onToggle={handleCollabToggle}
+        onSelectAll={() => setSelectedCollabIds([])}
       />
+
+      {/* ZONE PRINCIPALE : sidebar gauche + calendrier */}
+      <div className="planning-body">
+
+        {/* CALENDRIER */}
+        <Calendar
+          events={filteredEvents}
+          onEventClick={handleEventClick}
+          onDateClick={handleDateClick}
+          onNewRdvClick={handleNewRdvClick}
+          isSidebarExpanded={isSidebarExpanded}
+        />
+
+      </div>
 
       {consultEvent && (
         <ModalRdvConsultation

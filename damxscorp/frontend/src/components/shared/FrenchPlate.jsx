@@ -37,6 +37,9 @@ const FrenchPlate = ({ value, size = 'md' }) => {
         {value.toUpperCase()}
       </span>
 
+      {/* ── Bande bleue à droite (vide) ── */}
+      <div className="french-plate__region"></div>
+
     </div>
   );
 };

@@ -2,12 +2,13 @@
 
 /* === CONTENEUR PRINCIPAL === */
 .calendar-container {
-  padding: 30px;
-  height: 100%;
+  flex: 1;          /* ← remplit l'espace restant dans .planning-body */
+  min-width: 0;     /* ← évite l'overflow horizontal dans un flex */
+  min-height: 0;    /* ← évite l'overflow vertical */
+  padding: 16px 20px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transition: width 0.3s ease; /* Animation fluide */
 }
 
 
@@ -286,6 +287,65 @@
     font-size: 1.1rem !important;
   }
 }
+/* === ÉVÉNEMENT PERSONNALISÉ (avec avatars collaborateurs) === */
+
+/* Conteneur principal de l'event */
+.cal-event {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Vue semaine : titre + avatars en dessous */
+.cal-event--week {
+  padding: 1px 0;
+}
+
+/* Vue mois : titre + avatars sur la même ligne */
+.cal-event--month {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+/* Titre de l'événement */
+.cal-event__title {
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+/* Rangée d'avatars */
+.cal-event__avatars {
+  display: flex;
+  gap: 3px;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+}
+
+/* Un avatar = cercle coloré avec les initiales */
+.cal-event__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  font-size: 8px;
+  font-weight: 700;
+  color: white;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
 /* === POPUP "+X en plus" (vue mois) === */
 .fc-popover {
   background: var(--panel) !important;

@@ -7,8 +7,13 @@ import interactionPlugin from '@fullcalendar/interaction';
 import frLocale from '@fullcalendar/core/locales/fr';
 import './Calendar.css';
 
+// ── Génère les initiales d'un nom (ex: "Jean Dupont" → "JD") ────
+const getInitiales = (nom) =>
+  nom.split(' ').filter(Boolean).map(w => w[0].toUpperCase()).slice(0, 2).join('');
+
 const Calendar = ({
   events,
+  collaborateurs,
   onEventClick,
   onDateClick,
   onNewRdvClick,
@@ -16,40 +21,24 @@ const Calendar = ({
 }) => {
   const calendarRef = useRef(null);
 
-  // ── FIX RESIZE ────────────────────────────────────────────────
-  // On attend la fin de la transition CSS (300ms) + marge de sécurité (50ms)
-  // avant de demander à FullCalendar de recalculer sa taille
+  // ── FIX RESIZE après transition sidebar ──────────────────────
   useEffect(() => {
     if (!calendarRef.current) return;
-
-    // Durée de la transition sidebar en ms (doit correspondre au CSS)
-    const TRANSITION_DURATION = 350;
-
     const timer = setTimeout(() => {
-      const calendarApi = calendarRef.current?.getApi();
-      if (calendarApi) {
-        calendarApi.updateSize();
-      }
-    }, TRANSITION_DURATION);
-
-    // Nettoyage : annule le timer si le composant se démonte avant
+      calendarRef.current?.getApi()?.updateSize();
+    }, 350);
     return () => clearTimeout(timer);
-
-  }, [isSidebarExpanded]); // Se déclenche à chaque changement de la sidebar
+  }, [isSidebarExpanded]);
 
   // ── CLIC SUR UN ÉVÉNEMENT ────────────────────────────────────
   const handleEventClick = (info) => {
-    const event = {
+    onEventClick({
       id: info.event.id,
       title: info.event.title,
       start: info.event.start,
       end: info.event.end,
-      // extendedProps contient toutes les données Django
       ...info.event.extendedProps,
-    };
-
-    console.log('📅 Événement cliqué (données complètes) :', event);
-    onEventClick(event);
+    });
   };
 
   // ── CLIC SUR UNE CASE VIDE ───────────────────────────────────
@@ -57,6 +46,57 @@ const Calendar = ({
     if (info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay') {
       onDateClick(info.date);
     }
+  };
+
+  // ── RENDU PERSONNALISÉ DES ÉVÉNEMENTS ────────────────────────
+  // Affiche le titre + les avatars des collaborateurs assignés
+  const renderEventContent = (arg) => {
+    const collabs = arg.event.extendedProps?.collaborateurs || [];
+    const isMonthView = arg.view.type === 'dayGridMonth';
+
+    // Vue mois : affichage compact (point coloré + titre court)
+    if (isMonthView) {
+      return (
+        <div className="cal-event cal-event--month">
+          <span className="cal-event__title">{arg.event.title}</span>
+          {collabs.length > 0 && (
+            <div className="cal-event__avatars">
+              {collabs.slice(0, 3).map(c => (
+                <span
+                  key={c.id}
+                  className="cal-event__avatar"
+                  style={{ background: c.couleur }}
+                  title={c.nom}
+                >
+                  {getInitiales(c.nom)}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Vue semaine/jour : affichage complet (titre + avatars)
+    return (
+      <div className="cal-event cal-event--week">
+        <span className="cal-event__title">{arg.event.title}</span>
+        {collabs.length > 0 && (
+          <div className="cal-event__avatars">
+            {collabs.map(c => (
+              <span
+                key={c.id}
+                className="cal-event__avatar"
+                style={{ background: c.couleur }}
+                title={c.nom}
+              >
+                {getInitiales(c.nom)}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -84,6 +124,7 @@ const Calendar = ({
           events={events}
           eventClick={handleEventClick}
           dateClick={handleDateClick}
+          eventContent={renderEventContent}
           editable={false}
           selectable={true}
           selectMirror={true}

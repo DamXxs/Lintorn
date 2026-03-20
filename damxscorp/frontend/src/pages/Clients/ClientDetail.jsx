@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getInitiales, formatDateLong, formatDateCourt } from '../../utils/dataFormatters';
 import { fetchInterventionsByClient, fetchVehiculesByClient, patchIntervention } from '../../services/api';
-import { getVehiculeIcon } from '../../utils/vehicleService';
+import { getVehiculeIcon, removeVehicule } from '../../utils/vehicleService';
+import VehicleForm from '../Vehicles/VehicleForm';
 import FrenchPlate from '../../components/shared/FrenchPlate';
 import ModalRdvConsultation from '../../components/shared/ModalRdvConsultation';
 import VehicleDetail from '../Vehicles/VehicleDetail';
@@ -40,6 +41,9 @@ const ClientDetail = ({ client, onClose, onEdit, onDelete }) => {
   const [loadingHistory, setLoadingHistory]           = useState(true);
   const [consultIntervention, setConsultIntervention] = useState(null);
   const [selectedVehicule, setSelectedVehicule]       = useState(null);
+  // ── VehicleForm (modifier un véhicule depuis la fiche client) ──
+  const [editingVehicule, setEditingVehicule]         = useState(null);
+  const [isVehicleFormOpen, setIsVehicleFormOpen]     = useState(false);
 
   // ── Chargement des données liées au client ─────────────────────
   useEffect(() => {
@@ -280,8 +284,40 @@ const ClientDetail = ({ client, onClose, onEdit, onDelete }) => {
         <VehicleDetail
           vehicule={selectedVehicule}
           onClose={() => setSelectedVehicule(null)}
-          onEdit={() => setSelectedVehicule(null)}
-          onDelete={() => setSelectedVehicule(null)}
+          onEdit={(v) => {
+            // Ouvre VehicleForm pour modifier ce véhicule
+            setSelectedVehicule(null);
+            setEditingVehicule(v);
+            setIsVehicleFormOpen(true);
+          }}
+          onDelete={async (v) => {
+            if (window.confirm(`Supprimer "${v.marque} ${v.modele}" ?`)) {
+              try {
+                await removeVehicule(v.id);
+                setSelectedVehicule(null);
+                // Recharger la liste des véhicules du client
+                const data = await fetchVehiculesByClient(client.id);
+                setVehicules(data);
+              } catch {
+                alert('❌ Erreur lors de la suppression');
+              }
+            }
+          }}
+        />
+      )}
+
+      {/* FORMULAIRE MODIFICATION VÉHICULE — par dessus la fiche client */}
+      {isVehicleFormOpen && (
+        <VehicleForm
+          editingVehicule={editingVehicule}
+          onClose={() => { setIsVehicleFormOpen(false); setEditingVehicule(null); }}
+          onSuccess={async () => {
+            setIsVehicleFormOpen(false);
+            setEditingVehicule(null);
+            // Recharger la liste des véhicules mis à jour
+            const data = await fetchVehiculesByClient(client.id);
+            setVehicules(data);
+          }}
         />
       )}
     </>

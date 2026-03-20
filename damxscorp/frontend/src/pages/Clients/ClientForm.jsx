@@ -3,7 +3,9 @@ import React from 'react';
 import { addClient, editClient } from '../../utils/clientService';
 import { validateNom, validatePhone, validateEmail, formatNom, formatPrenom, formatPhone } from '../../utils/validators';
 import useForm from '../../hooks/useForm';
-import { User, Phone, FileText, Pencil, UserPlus, X, Save, Loader, CircleAlert } from '../../utils/icons';
+import { User, Phone, FileText, Pencil, UserPlus, Save, Loader, CircleAlert } from '../../utils/icons';
+import Modal from '../../components/shared/Modal';
+import '../../components/shared/forms.css';
 import './ClientForm.css';
 import AddressAutocomplete from '../../components/shared/AddressAutocomplete';
 
@@ -84,111 +86,123 @@ const ClientForm = ({ editingClient, onClose, onSuccess }) => {
 
   // ── Rendu ────────────────────────────────────────────────────────
   return (
-    <div className="client-form__overlay" onClick={onClose}>
-      <div className="client-form__content" onClick={(e) => e.stopPropagation()}>
+    <Modal
+      title={editingClient ? 'Modifier le client' : 'Nouveau client'}
+      titleIcon={editingClient ? <Pencil size={15} /> : <UserPlus size={15} />}
+      onClose={onClose}
+      footer={
+        <>
+          <button
+            type="button"
+            className="form-btn form-btn--cancel"
+            onClick={onClose}
+            disabled={saving}
+          >
+            Annuler
+          </button>
+          <button
+            type="submit"
+            form="client-form"
+            className="form-btn form-btn--save"
+            disabled={saving}
+          >
+            {saving
+              ? <><Loader size={14} /> Enregistrement...</>
+              : editingClient
+                ? <><Save size={14} /> Modifier</>
+                : <><Save size={14} /> Créer</>
+            }
+          </button>
+        </>
+      }
+    >
+      {/* FORMULAIRE */}
+      <form
+        id="client-form"
+        className="client-form__body"
+        onSubmit={handleSubmit}
+        noValidate
+      >
+        {errors.global && (
+          <div className="form-error-global"><CircleAlert size={14} /> {errors.global}</div>
+        )}
 
-        {/* HEADER */}
-        <div className="client-form__header">
-          <h2 className="client-form__title">
-            <>{editingClient ? <><Pencil size={15}/> Modifier le client</> : <><UserPlus size={15}/> Nouveau client</>}</> 
-          </h2>
-          <button className="client-form__close" onClick={onClose}><X size={16} /></button>
+        {/* IDENTITÉ */}
+        <div className="form-section">
+          <div className="form-section__title"><User size={14} /> Identité</div>
+          <div className="form-row-2col">
+            <div className="form-group">
+              <label className="form-label required">Nom</label>
+              <input
+                type="text" name="nom" value={formData.nom}
+                onChange={handleChange} placeholder="DUPONT"
+                className={`form-input ${errors.nom ? 'form-input--error' : ''}`}
+              />
+              {errors.nom && <span className="form-error">{errors.nom}</span>}
+            </div>
+            <div className="form-group">
+              <label className="form-label">Prénom</label>
+              <input
+                type="text" name="prenom" value={formData.prenom}
+                onChange={handleChange} placeholder="Jean"
+                className="form-input"
+              />
+            </div>
+          </div>
         </div>
 
-        {/* FORMULAIRE */}
-        <form className="client-form__body" onSubmit={handleSubmit} noValidate>
-
-          {errors.global && (
-            <div className="client-form__error-global"><CircleAlert size={14} /> {errors.global}</div>
-          )}
-
-          {/* IDENTITÉ */}
-          <div className="form-section">
-            <div className="form-section__title"><User size={14} /> Identité</div>
-            <div className="form-row-2col">
-              <div className="form-group">
-                <label className="form-label required">Nom</label>
-                <input
-                  type="text" name="nom" value={formData.nom}
-                  onChange={handleChange} placeholder="DUPONT"
-                  className={`form-input ${errors.nom ? 'form-input--error' : ''}`}
-                />
-                {errors.nom && <span className="form-error">{errors.nom}</span>}
-              </div>
-              <div className="form-group">
-                <label className="form-label">Prénom</label>
-                <input
-                  type="text" name="prenom" value={formData.prenom}
-                  onChange={handleChange} placeholder="Jean"
-                  className="form-input"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* CONTACT */}
-          <div className="form-section">
-            <div className="form-section__title"><Phone size={14} /> Contact</div>
-            <div className="form-row-2col">
-              <div className="form-group">
-                <label className="form-label">Téléphone</label>
-                <input
-                  type="tel" name="telephone" value={formData.telephone}
-                  onChange={handleChange} placeholder="06 12 34 56 78"
-                  className={`form-input ${errors.telephone ? 'form-input--error' : ''}`}
-                />
-                {errors.telephone && <span className="form-error">{errors.telephone}</span>}
-              </div>
-              <div className="form-group">
-                <label className="form-label">Email</label>
-                <input
-                  type="email" name="email" value={formData.email}
-                  onChange={handleChange} placeholder="jean@email.com"
-                  className={`form-input ${errors.email ? 'form-input--error' : ''}`}
-                />
-                {errors.email && <span className="form-error">{errors.email}</span>}
-              </div>
-            </div>
-
-            {/* Adresse avec autocomplétion (API Adresse du gouvernement) */}
-            <div className="form-group" style={{ marginTop: '10px' }}>
-              <label className="form-label">Adresse postale</label>
-              <AddressAutocomplete
-                value={formData.adresse}
-                onChange={(val) => setFormData(prev => ({ ...prev, adresse: val }))}
-                onSelect={(adresseObj) => {
-                  setFormData(prev => ({ ...prev, adresse: adresseObj.adresse }));
-                }}
-              />
-            </div>
-          </div>
-
-          {/* NOTES */}
-          <div className="form-section">
-            <div className="form-section__title"><FileText size={14} /> Notes</div>
+        {/* CONTACT */}
+        <div className="form-section">
+          <div className="form-section__title"><Phone size={14} /> Contact</div>
+          <div className="form-row-2col">
             <div className="form-group">
-              <textarea
-                name="notes" value={formData.notes}
-                onChange={handleChange}
-                placeholder="Informations utiles sur ce client..."
-                className="form-input form-textarea" rows="2"
+              <label className="form-label">Téléphone</label>
+              <input
+                type="tel" name="telephone" value={formData.telephone}
+                onChange={handleChange} placeholder="06 12 34 56 78"
+                className={`form-input ${errors.telephone ? 'form-input--error' : ''}`}
               />
+              {errors.telephone && <span className="form-error">{errors.telephone}</span>}
+            </div>
+            <div className="form-group">
+              <label className="form-label">Email</label>
+              <input
+                type="text" name="email" value={formData.email}
+                onChange={handleChange} placeholder="jean@email.com"
+                className={`form-input ${errors.email ? 'form-input--error' : ''}`}
+              />
+              {errors.email && <span className="form-error">{errors.email}</span>}
             </div>
           </div>
 
-          {/* BOUTONS */}
-          <div className="client-form__footer">
-            <button type="button" className="form-btn form-btn--cancel" onClick={onClose} disabled={saving}>
-              Annuler
-            </button>
-            <button type="submit" className="form-btn form-btn--save" disabled={saving}>
-              {saving ? <><Loader size={14} /> Enregistrement...</> : editingClient ? <><Save size={14} /> Modifier</> : <><Save size={14} /> Créer</>}
-            </button>
+          {/* Adresse avec autocomplétion (API Adresse du gouvernement) */}
+          <div className="form-group" style={{ marginTop: '10px' }}>
+            <label className="form-label">Adresse postale</label>
+            <AddressAutocomplete
+              value={formData.adresse}
+              onChange={(val) => setFormData(prev => ({ ...prev, adresse: val }))}
+              onSelect={(adresseObj) => {
+                setFormData(prev => ({ ...prev, adresse: adresseObj.adresse }));
+              }}
+            />
           </div>
+        </div>
 
-        </form>
-      </div>
-    </div>
+        {/* NOTES */}
+        <div className="form-section">
+          <div className="form-section__title"><FileText size={14} /> Notes</div>
+          <div className="form-group">
+            <textarea
+              name="notes" value={formData.notes}
+              onChange={handleChange}
+              placeholder="Informations utiles sur ce client..."
+              className="form-input form-textarea" rows="2"
+            />
+          </div>
+        </div>
+
+      </form>
+    </Modal>
   );
 };
 

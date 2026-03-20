@@ -1,10 +1,7 @@
 // /frontend/src/components/layout/Sidebar.jsx
 import React, { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import {
-  CalendarDays, Users, Car, Package,
-  Factory, Receipt, Settings, Menu, X
-} from '../../utils/icons';
+import { CalendarDays, Users, Car, Package,Factory, Receipt, Settings, Menu, X } from '../../utils/icons';
 import './Sidebar.css';
 
 const Sidebar = ({ isExpanded, onToggle }) => {
@@ -59,7 +56,7 @@ const Sidebar = ({ isExpanded, onToggle }) => {
         {/* HEADER */}
         {isExpanded && (
           <div className="sidebar__header">
-            <h2 className="sidebar__title">ELPIS</h2>
+            <h2 className="sidebar__title">MATORN</h2>
           </div>
         )}
 
@@ -104,7 +101,7 @@ const Sidebar = ({ isExpanded, onToggle }) => {
         {/* FOOTER */}
         {isExpanded && (
           <div className="sidebar__footer">
-            <p className="sidebar__footer-text">v14.0.0</p>
+            <p className="sidebar__footer-text">v14.1.0</p>
           </div>
         )}
 
