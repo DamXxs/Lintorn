@@ -5,8 +5,8 @@ import { useReferentiels } from '../../context/ReferentielsContext';
 import { formatNom, formatPrenom, formatPhone, formatImmatriculation, validateEmail, validateImmatriculation } from '../../utils/validators';
 import logger from '../../utils/logger';
 
-import Modal       from './Modal';
-import FrenchPlate from './FrenchPlate';
+import Modal            from './Modal';
+import FrenchPlateInput from './FrenchPlateInput';
 import AddressAutocomplete from './AddressAutocomplete';
 import { User, Car, CalendarClock, FileText, Save, Search, Users, X } from '../../utils/icons';
 
@@ -253,14 +253,16 @@ const ModalForm = ({ isOpen, onClose, initialData, prefilledDate, onSubmit }) =>
                     <div className="mf-section">
                         <div className="mf-section-title"><Car size={14} /> Informations Véhicule</div>
 
-                        {/* Immatriculation + bouton SIV + aperçu FrenchPlate */}
+                        {/* Immatriculation + bouton SIV — saisie directe dans la plaque */}
                         <div className="mf-group">
                             <label className="mf-label required">Immatriculation</label>
                             <div className="plate-with-siv">
-                                <input
-                                    type="text" name="plate" value={formData.plate}
-                                    onChange={handleChange} placeholder="AB-123-CD"
-                                    className="mf-input"
+                                <FrenchPlateInput
+                                    name="plate"
+                                    value={formData.plate}
+                                    onChange={handleChange}
+                                    size="md"
+                                    hasError={Boolean(errors.plate)}
                                 />
                                 <button
                                     type="button" className="btn-siv"
@@ -271,12 +273,6 @@ const ModalForm = ({ isOpen, onClose, initialData, prefilledDate, onSubmit }) =>
                                     <Search size={14} /> SIV
                                 </button>
                             </div>
-                            {/* Aperçu live de la plaque dès que l'utilisateur tape */}
-                            {formData.plate && (
-                                <div className="plate-preview">
-                                    <FrenchPlate value={formData.plate} size="sm" />
-                                </div>
-                            )}
                             {errors.plate && <span className="mf-error">{errors.plate}</span>}
                         </div>
 

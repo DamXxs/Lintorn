@@ -84,7 +84,7 @@ const StockVueEnsemble = () => {
             <div className="stock-header">
                 <div>
                     <h1><Package size={24} /> Stock — Vue d'ensemble</h1>
-                    <p className="stock-subtitle">{pieces.length} pièces en stock</p>
+                    <p className="stock-subtitle">{pieces.length} Références en stock</p>
                 </div>
                 <button className="btn-add-piece">
                     <Plus size={16} /> Nouvelle pièce
