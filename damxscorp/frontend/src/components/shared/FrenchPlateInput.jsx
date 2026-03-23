@@ -3,36 +3,50 @@ import React from 'react';
 import './FrenchPlate.css'; // Réutilise le CSS de FrenchPlate
 
 /**
- * 🚗 FrenchPlateInput — Version interactive de FrenchPlate pour les formulaires
+ * 🚗 FrenchPlateInput — Composant unique pour afficher ET saisir une plaque française (SIV)
  *
- * Même visuel qu'une vraie plaque française SIV, mais la zone du numéro
- * est un <input> : l'utilisateur tape directement "dans" la plaque.
- * Plus besoin d'un champ séparé + d'un aperçu en dessous.
+ * Remplace FrenchPlate.jsx (supprimé). Un seul composant pour deux usages :
+ *
+ *   MODE AFFICHAGE (readOnly=true) :
+ *     Même visuel qu'une vraie plaque — la zone du numéro est un <input readOnly>.
+ *     Pas de curseur, pas d'interaction. Idéal pour les listes, fiches, modales de consultation.
+ *     Usage : <FrenchPlateInput value="AB-123-CD" readOnly />
+ *             <FrenchPlateInput value={vehicule.immatriculation} size="lg" readOnly />
+ *
+ *   MODE SAISIE (readOnly=false, défaut) :
+ *     L'utilisateur tape directement "dans" la plaque — plus besoin d'un champ séparé.
+ *     Usage : <FrenchPlateInput name="immatriculation" value={...} onChange={...} />
  *
  * Props :
- *   name        : string          — attribut name de l'input (obligatoire)
- *   value       : string          — valeur contrôlée
- *   onChange    : func            — handler de changement
- *   size        : 'sm'|'md'|'lg'  — taille (défaut: 'md')
+ *   value       : string          — numéro de plaque (ex: "AB-123-CD")
+ *   name        : string          — attribut name de l'input (utile en mode saisie)
+ *   onChange    : func            — handler de changement (mode saisie uniquement)
+ *   size        : 'sm'|'md'|'lg'  — taille d'affichage (défaut: 'md')
  *   placeholder : string          — texte indicatif (défaut: 'AB-123-CD')
  *   hasError    : bool            — bordure rouge si erreur de validation
+ *   readOnly    : bool            — true = mode affichage pur, pas de saisie (défaut: false)
  */
 const FrenchPlateInput = ({
-  name,
   value,
+  name,
   onChange,
   size        = 'md',
   placeholder = 'AB-123-CD',
   hasError    = false,
+  readOnly    = false,
 }) => {
+  // En mode affichage, si pas de valeur on n'affiche rien (comme l'ancien FrenchPlate)
+  if (readOnly && !value) return null;
+
   return (
     <div
       className={[
         'french-plate',
         `french-plate--${size}`,
-        'french-plate--editable',
-        hasError ? 'french-plate--error' : '',
+        !readOnly ? 'french-plate--editable' : '',
+        hasError   ? 'french-plate--error'    : '',
       ].filter(Boolean).join(' ')}
+      title={readOnly && value ? `Immatriculation : ${value.toUpperCase()}` : undefined}
     >
       {/* ── Bande bleue EU à gauche ── */}
       <div className="french-plate__eu">
@@ -40,17 +54,19 @@ const FrenchPlateInput = ({
         <span className="french-plate__eu-letter">F</span>
       </div>
 
-      {/* ── Zone de saisie ── */}
+      {/* ── Zone numéro (saisie ou affichage selon readOnly) ── */}
       <input
         type="text"
         name={name}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
+        value={readOnly ? (value ? value.toUpperCase() : '') : value}
+        onChange={readOnly ? undefined : onChange}
+        placeholder={readOnly ? undefined : placeholder}
         className="french-plate__input"
         maxLength={10}
         autoComplete="off"
         spellCheck={false}
+        readOnly={readOnly}
+        tabIndex={readOnly ? -1 : undefined}
       />
 
       {/* ── Bande bleue à droite ── */}

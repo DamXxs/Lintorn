@@ -1,6 +1,8 @@
 /* =============================================================================
-   MODALFORM.CSS — Styles du contenu interne du formulaire RDV
+   MODALFORM.CSS — Styles du contenu interne du formulaire RDV (Planning)
+   Fichier : pages/Planning/components/ModalForm.css
    L'overlay, la boîte, le header et le footer sont gérés par Modal.jsx + Modal.css
+   Le bouton SIV (.btn-siv) et le wrapper plaque (.plate-with-siv) viennent de forms.css
    ============================================================================= */
 
 /* ── SÉLECTEUR DÉPARTEMENT (en tête de formulaire) ────────────── */
@@ -13,20 +15,21 @@
 }
 
 .mf-dept-select {
-    background: transparent !important;
-    border: none !important;
-    color: var(--accent) !important;
-    font-size: 1rem !important;
-    font-weight: bold !important;
-    text-transform: uppercase !important;
-    letter-spacing: 2px !important;
-    cursor: pointer !important;
-    padding: 5px 30px 5px 10px !important;
-    outline: none !important;
+    /* On utilise background-color séparément pour ne pas écraser background-image */
+    background-color: transparent;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%232980b9' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 5px center;
+    border: none;
+    color: var(--accent);
+    font-size: 1rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    padding: 5px 30px 5px 10px;
+    outline: none;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%232980b9' d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
-    background-repeat: no-repeat !important;
-    background-position: right 5px center !important;
 }
 
 .mf-dept-select option {
@@ -85,9 +88,9 @@
 
 .mf-input {
     width: 100%;
-    background: var(--input-bg) !important;
-    border: 1px solid var(--border) !important;
-    color: white !important;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    color: white;
     padding: 8px 10px;
     border-radius: 6px;
     font-size: 13px;
@@ -97,7 +100,7 @@
 }
 
 .mf-input:focus {
-    border-color: var(--accent) !important;
+    border-color: var(--accent);
     box-shadow: 0 0 0 2px rgba(41, 128, 185, 0.1);
 }
 
@@ -138,8 +141,8 @@ textarea.mf-input {
 }
 
 .mf-group:has(.mf-error) .mf-input {
-    border-color: #e74c3c !important;
-    box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.12) !important;
+    border-color: #e74c3c;
+    box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.12);
 }
 
 /* ── GRILLES ──────────────────────────────────────────────────── */
@@ -155,44 +158,6 @@ textarea.mf-input {
     grid-template-columns: 1fr 1fr 1fr;
     gap: 10px;
     margin-top: 5px;
-}
-
-/* ── IMMATRICULATION + BOUTON SIV ────────────────────────────── */
-.mf-input-with-btn {
-    display: flex;
-    gap: 8px;
-    align-items: stretch;
-}
-
-.mf-input-with-btn .mf-input {
-    flex: 1;
-}
-
-.mf-btn-siv {
-    background: var(--accent);
-    color: white;
-    border: none;
-    padding: 0 14px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 11px;
-    font-weight: 700;
-    white-space: nowrap;
-    transition: opacity 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    flex-shrink: 0;
-}
-
-.mf-btn-siv:hover    { opacity: 0.85; }
-.mf-btn-siv:disabled { background: #555; cursor: not-allowed; opacity: 0.5; }
-
-/* ── APERÇU LIVE FrenchPlate ──────────────────────────────────── */
-.mf-plate-preview {
-    margin-top: 8px;
-    display: flex;
-    align-items: center;
 }
 
 /* ── BOUTONS DU FOOTER (via Modal.jsx footer prop) ────────────── */
@@ -261,8 +226,8 @@ textarea.mf-input {
     line-height: 1.2;
 }
 
-.mf-collab-nom  { font-size: 13px; color: var(--text); }
-.mf-collab-role { font-size: 10px; color: #888; }
+.mf-collab-nom   { font-size: 13px; color: var(--text); }
+.mf-collab-role  { font-size: 10px; color: #888; }
 .mf-collab-check { margin-left: 4px; font-size: 12px; color: #27ae60; font-weight: 700; }
 
 /* ── RESPONSIVE ───────────────────────────────────────────────── */

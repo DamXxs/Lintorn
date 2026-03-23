@@ -7,29 +7,14 @@ import { formatDateLong, formatDateCourt } from '../../utils/dataFormatters';
 import ModalRdvConsultation from '../../components/shared/ModalRdvConsultation';
 
 import Modal from '../../components/shared/Modal';
-import FrenchPlate from '../../components/shared/FrenchPlate';
+import FrenchPlateInput from '../../components/shared/FrenchPlateInput';
+import StatutBadge from '../../components/shared/StatutBadge';
 import IconChip, { CHIP_COLORS } from '../../components/shared/IconChip';
 import {
   User, Wrench, FileText, CalendarDays, Receipt,
   CalendarPlus, Pencil, Trash2,
 } from '../../utils/icons';
 import './VehicleDetail.css';
-
-// ── BADGE STATUT ──────────────────────────────────────────────────
-const StatutBadge = ({ statut }) => {
-  const config = {
-    PLANIFIE: { label: 'Planifié',  color: '#2980b9' },
-    EN_COURS: { label: 'En cours',  color: '#e67e22' },
-    TERMINE:  { label: 'Terminé',   color: '#27ae60' },
-    ANNULE:   { label: 'Annulé',    color: '#7f8c8d' },
-  };
-  const s = config[statut] || { label: statut, color: '#666' };
-  return (
-    <span className="vd-statut-badge" style={{ background: s.color }}>
-      {s.label}
-    </span>
-  );
-};
 
 const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
   const navigate = useNavigate();
@@ -118,7 +103,7 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
 
           {/* ── PLAQUE EN VEDETTE ──────────────────────────────── */}
           <div className="vd-plate-hero">
-            <FrenchPlate value={vehicule.immatriculation} size="lg" />
+            <FrenchPlateInput value={vehicule.immatriculation} size="lg" readOnly />
             <span className="vd-type-label">
               {getVehiculeTypeLabel(vehicule.type_vehicule)}
             </span>

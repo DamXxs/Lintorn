@@ -4,7 +4,7 @@ import { getAllVehicules, searchVehicules, removeVehicule, getVehiculeIcon } fro
 import VehicleDetail from './VehicleDetail';
 import VehicleForm from './VehicleForm';
 import { Plus, Car, CalendarDays, User } from '../../utils/icons';
-import FrenchPlate  from '../../components/shared/FrenchPlate';
+import FrenchPlateInput from '../../components/shared/FrenchPlateInput';
 import LoadingState from '../../components/shared/LoadingState';
 import ErrorState   from '../../components/shared/ErrorState';
 import PageHeader   from '../../components/shared/PageHeader';
@@ -100,7 +100,7 @@ const VehicleList = () => {
                 {getVehiculeIcon(vehicule.type_vehicule)}
               </div>
               <div className="vehicle-card__plate">
-                <FrenchPlate value={vehicule.immatriculation} size="sm" />
+                <FrenchPlateInput value={vehicule.immatriculation} size="sm" readOnly />
               </div>
               <div className="vehicle-card__model">
                 <span className="vehicle-card__marque">{vehicule.marque}</span>

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Calendar from './components/Calendar';
 import CollaborateurFilter from './components/CollaborateurFilter';
 import ModalRdvConsultation from '../../components/shared/ModalRdvConsultation';
-import ModalForm from '../../components/shared/ModalForm';
+import ModalForm from './components/ModalForm';
 import logger from '../../utils/logger';
 import { formatInterventionForDjango, formatInterventionForReact } from '../../utils/dataFormatters';
 import {

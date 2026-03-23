@@ -1,7 +1,7 @@
 // /frontend/src/components/layout/Sidebar.jsx
 import React, { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { CalendarDays, Users, Car, Package,Factory, Receipt, Settings, Menu, X } from '../../utils/icons';
+import { CalendarDays, CalendarClock, Users, Car, Package, Factory, Receipt, Settings, Menu, X } from '../../utils/icons';
 import './Sidebar.css';
 
 const Sidebar = ({ isExpanded, onToggle }) => {
@@ -30,12 +30,13 @@ const Sidebar = ({ isExpanded, onToggle }) => {
 
   // Liens de navigation
   const navLinks = [
-    { to: '/planning',    icon: CalendarDays, label: 'Planning' },
-    { to: '/clients',     icon: Users,        label: 'Clients' },
-    { to: '/vehicles',    icon: Car,          label: 'Véhicules' },
-    { to: '/stock',       icon: Package,      label: 'Stock' },
-    { to: '/fournisseurs',icon: Factory,      label: 'Fournisseurs' },
-    { to: '/factures',    icon: Receipt,      label: 'Factures' },
+    { to: '/planning',    icon: CalendarDays,  label: 'Planning' },
+    { to: '/rdv',         icon: CalendarClock, label: 'Rendez-vous' },
+    { to: '/clients',     icon: Users,         label: 'Clients' },
+    { to: '/vehicles',    icon: Car,           label: 'Véhicules' },
+    { to: '/stock',       icon: Package,       label: 'Stock' },
+    { to: '/fournisseurs',icon: Factory,       label: 'Fournisseurs' },
+    { to: '/factures',    icon: Receipt,       label: 'Factures' },
   ];
 
   return (

@@ -4,7 +4,7 @@ import { getDepartementLabel, getStatutClass, STATUTS_RDV } from '../../utils/co
 import { formatDateFull, formatHeure } from '../../utils/dataFormatters';
 import './ModalRdvConsultation.css';
 import Modal from './Modal';
-import FrenchPlate from './FrenchPlate';
+import FrenchPlateInput from './FrenchPlateInput';
 import IconChip, { CHIP_COLORS } from './IconChip';
 import {
   CalendarClock, Pencil, Trash2,
@@ -169,7 +169,7 @@ const ModalRdvConsultation = ({ event, onClose, onEdit, onDelete, onStatusChange
               {vehicule_immatriculation && (
                 <div className="consult-field">
                   <span className="consult-field__key">Immatriculation</span>
-                  <FrenchPlate value={vehicule_immatriculation} size="md" />
+                  <FrenchPlateInput value={vehicule_immatriculation} size="md" readOnly />
                 </div>
               )}
               {(vehicule_marque || vehicule_modele) && (

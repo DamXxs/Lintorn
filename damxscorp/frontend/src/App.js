@@ -6,6 +6,7 @@ import { ReferentielsProvider } from './context/ReferentielsContext'; // ← NOU
 import Sidebar from './components/layout/Sidebar';
 import Header from './components/layout/Header';
 import Planning from './pages/Planning/Planning';
+import RdvList from './pages/RendezVous/RdvList';
 import StockVueEnsemble from './pages/Stock/StockVueEnsemble';
 import ClientList from './pages/Clients/ClientList';
 import VehicleList from './pages/Vehicles/VehicleList';
@@ -34,6 +35,7 @@ const App = () => {
               <Routes>
                 <Route path="/" element={<Navigate to="/planning" replace />} />
                 <Route path="/planning"    element={<Planning isSidebarExpanded={isSidebarExpanded} />} />
+                <Route path="/rdv"         element={<RdvList />} />
                 <Route path="/stock"       element={<StockVueEnsemble />} />
                 <Route path="/clients"     element={<ClientList />} />
                 <Route path="/vehicles"    element={<VehicleList />} />

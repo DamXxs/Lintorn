@@ -13,44 +13,46 @@ import './Modal.css';
  * Pour changer la taille de toutes les modales → modifier Modal.css.
  *
  * Props :
- *   title      : texte du titre (string)
- *   titleIcon  : icône React avant le titre (optionnel)
- *   onClose    : fonction au clic sur X ou l'overlay
- *   children   : contenu principal (scrollable) — les champs du formulaire
- *   footer     : boutons d'action (Annuler / Enregistrer) — sticky en bas
+ *   title        : texte du titre (string)
+ *   titleIcon    : icône React avant le titre (optionnel)
+ *   onClose      : fonction au clic sur X ou l'overlay
+ *   children     : contenu principal (scrollable) — les champs du formulaire
+ *   footer       : boutons d'action (Annuler / Enregistrer) — sticky en bas
+ *   customHeader : JSX complet qui remplace le header standard (optionnel)
+ *                  Utile quand le header est trop spécifique pour title+icon
+ *                  (ex: ClientDetail avec avatar circulaire + sous-titre)
  *
- * Usage :
- *   <Modal
- *     title="Nouveau client"
- *     titleIcon={<UserPlus size={15}/>}
- *     onClose={onClose}
- *     footer={<>
- *       <button className="form-btn form-btn--cancel" onClick={onClose}>Annuler</button>
- *       <button className="form-btn form-btn--save" type="submit">Créer</button>
- *     </>}
- *   >
- *     <form onSubmit={handleSubmit} noValidate>
- *       ... champs spécifiques à ce formulaire ...
- *     </form>
+ * Usage standard :
+ *   <Modal title="Nouveau client" titleIcon={<UserPlus size={15}/>} onClose={onClose} footer={...}>
+ *     <form>...</form>
+ *   </Modal>
+ *
+ * Usage avec header custom :
+ *   <Modal onClose={onClose} customHeader={<div className="mon-header">...</div>} footer={...}>
+ *     ...
  *   </Modal>
  */
-const Modal = ({ title, titleIcon, onClose, children, footer }) => {
+const Modal = ({ title, titleIcon, onClose, children, footer, customHeader }) => {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div
         className="modal-box"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* HEADER */}
-        <div className="modal-header">
-          <h2 className="modal-title">
-            {titleIcon && <span className="modal-title__icon">{titleIcon}</span>}
-            {title}
-          </h2>
-          <button className="modal-close" onClick={onClose} type="button">
-            <X size={16} />
-          </button>
-        </div>
+        {/* HEADER — custom (ex: avatar client) ou standard (titre + icône + ✕) */}
+        {customHeader ? (
+          customHeader
+        ) : (
+          <div className="modal-header">
+            <h2 className="modal-title">
+              {titleIcon && <span className="modal-title__icon">{titleIcon}</span>}
+              {title}
+            </h2>
+            <button className="modal-close" onClick={onClose} type="button">
+              <X size={16} />
+            </button>
+          </div>
+        )}
 
         {/* CONTENU (scrollable) — children = JSX spécifique à chaque formulaire */}
         <div className="modal-inner">

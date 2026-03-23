@@ -10,6 +10,7 @@
 .french-plate {
   display: inline-flex;
   align-items: stretch;
+  align-self: flex-start;   /* ← empêche l'étirement dans un container flex/grid */
   background: #FFFFFF;
   border: 2px solid #444;
   border-radius: 5px;
@@ -129,6 +130,18 @@
    ══════════════════════════════════════════════════════════════ */
 .french-plate--editable {
   cursor: text;
+}
+
+/* ── Mode lecture seule (readOnly) ────────────────────────────
+   Bloque toute interaction — la plaque est purement décorative/affichage.
+   pointer-events: none  → plus de clic, plus de focus
+   cursor: default       → curseur normal (pas de texte)
+   user-select: none     → impossible de sélectionner le contenu
+   ──────────────────────────────────────────────────────────── */
+.french-plate:not(.french-plate--editable) .french-plate__input {
+  pointer-events: none;
+  cursor: default;
+  user-select: none;
 }
 
 /* Bordure rouge si erreur de validation */

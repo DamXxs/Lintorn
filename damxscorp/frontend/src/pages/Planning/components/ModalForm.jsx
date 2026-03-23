@@ -1,14 +1,14 @@
-// /src/components/shared/ModalForm.jsx
+// /src/pages/Planning/components/ModalForm.jsx
 import React, { useState, useEffect } from 'react';
-import { fetchDepartements, fetchCollaborateurs } from '../../services/api';
-import { useReferentiels } from '../../context/ReferentielsContext';
-import { formatNom, formatPrenom, formatPhone, formatImmatriculation, validateEmail, validateImmatriculation } from '../../utils/validators';
-import logger from '../../utils/logger';
+import { fetchDepartements, fetchCollaborateurs } from '../../../services/api';
+import { useReferentiels } from '../../../context/ReferentielsContext';
+import { formatNom, formatPrenom, formatPhone, formatImmatriculation, validateEmail, validateImmatriculation } from '../../../utils/validators';
+import logger from '../../../utils/logger';
 
-import Modal            from './Modal';
-import FrenchPlateInput from './FrenchPlateInput';
-import AddressAutocomplete from './AddressAutocomplete';
-import { User, Car, CalendarClock, FileText, Save, Search, Users, X } from '../../utils/icons';
+import Modal            from '../../../components/shared/Modal';
+import FrenchPlateInput from '../../../components/shared/FrenchPlateInput';
+import AddressAutocomplete from '../../../components/shared/AddressAutocomplete';
+import { User, Car, CalendarClock, FileText, Save, Search, Users, X } from '../../../utils/icons';
 
 import './ModalForm.css';
 

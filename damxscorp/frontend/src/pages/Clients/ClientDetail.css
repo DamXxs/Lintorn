@@ -1,33 +1,9 @@
 /* /frontend/src/pages/Clients/ClientDetail.css */
+/* L'overlay, la boîte (modal-box), le corps scrollable (modal-inner) et le
+   footer (modal-footer) sont gérés par Modal.jsx + Modal.css.
+   Ici uniquement les styles spécifiques à la fiche client. */
 
-/* ── OVERLAY ─────────────────────────────────────────────────── */
-.client-detail__overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(6px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  padding: 20px;
-}
-
-/* ── CONTENU ─────────────────────────────────────────────────── */
-.client-detail__content {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  width: 90%;
-  max-width: 560px;
-  max-height: 88vh;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
-  overflow: hidden;
-}
-
-/* ── HEADER ──────────────────────────────────────────────────── */
+/* ── HEADER CUSTOM (avatar + nom + sous-titre) ────────────────── */
 .client-detail__header {
   display: flex;
   align-items: center;
@@ -77,43 +53,6 @@
   margin-top: 3px;
   display: block;
 }
-
-.client-detail__close {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 36px;
-  height: 36px;
-  background: rgba(255, 255, 255, 0.08);
-  border: none;
-  border-radius: 8px;
-  color: #888;
-  font-size: 18px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-
-.client-detail__close:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: white;
-}
-
-/* ── BODY ────────────────────────────────────────────────────── */
-.client-detail__body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 20px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.client-detail__body::-webkit-scrollbar { width: 6px; }
-.client-detail__body::-webkit-scrollbar-track { background: transparent; }
-.client-detail__body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
 /* ── SECTIONS ────────────────────────────────────────────────── */
 .detail-section {
@@ -169,6 +108,14 @@
   font-weight: 600;
 }
 
+.detail-field__value,
+.detail-field__link,
+.detail-section__title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .detail-field__value {
   font-size: 14px;
   color: var(--text);
@@ -204,7 +151,7 @@
   white-space: pre-wrap;
 }
 
-/* ── PLACEHOLDER ─────────────────────────────────────────────── */
+/* ── PLACEHOLDER (vide) ──────────────────────────────────────── */
 .detail-placeholder {
   background: rgba(255, 255, 255, 0.02);
   border: 1px dashed var(--border);
@@ -216,19 +163,27 @@
   font-style: italic;
 }
 
-/* ── FOOTER ──────────────────────────────────────────────────── */
-.client-detail__footer {
+/* Lien dans le placeholder ("ajouter maintenant") */
+.cd-placeholder-link {
+  background: none;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 13px;
+  font-style: italic;
+  text-decoration: underline;
+  padding: 0;
+}
+
+/* ── FOOTER — deux rangées (Nouveau RDV + Modifier/Supprimer) ── */
+.cd-footer-wrap {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 16px 24px;
-  border-top: 1px solid var(--border);
-  background: rgba(0, 0, 0, 0.2);
-  flex-shrink: 0;
+  width: 100%;
 }
 
-/* Ligne du bas : Modifier + Supprimer */
-.client-detail__footer-actions {
+.cd-footer-actions {
   display: flex;
   gap: 8px;
 }
@@ -274,30 +229,26 @@
   color: white;
 }
 
-/* ── RESPONSIVE ──────────────────────────────────────────────── */
-@media (max-width: 768px) {
-  .client-detail__overlay {
-    padding: 0;
-    align-items: flex-end;
-  }
-  .client-detail__content {
-    max-width: 100%;
-    max-height: 92vh;
-    border-radius: 20px 20px 0 0;
-  }
-  .detail-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Icônes inline dans les liens et valeurs */
-.detail-field__value,
-.detail-field__link,
-.detail-section__title {
+/* ── BOUTON AJOUT VÉHICULE (dans le titre de section) ─────────── */
+.cd-add-vehicle-btn {
+  margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
+
+.cd-add-vehicle-btn:hover { opacity: 0.85; }
 
 /* ── CHARGEMENT INLINE ───────────────────────────────────────── */
 .cd-loading {
@@ -400,15 +351,9 @@
   white-space: nowrap;
 }
 
-/* ── BADGE STATUT RDV ────────────────────────────────────────── */
-.cd-statut-badge {
-  font-size: 10px;
-  font-weight: 700;
-  color: white;
-  padding: 3px 8px;
-  border-radius: 20px;
-  white-space: nowrap;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+/* ── RESPONSIVE ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
 }
-
