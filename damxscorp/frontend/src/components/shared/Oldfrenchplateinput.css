@@ -1,0 +1,104 @@
+/* /frontend/src/components/OldFrenchPlateInput.css */
+/* 🆕 NOUVEAU FICHIER */
+/* Style calqué sur FrenchPlateInput pour cohérence visuelle */
+
+.old-plate-input {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+/* ── Hint de format détecté ─────────────────────────────────────────── */
+.old-plate-input__format-hint {
+  min-height: 18px; /* Évite le saut de layout quand le hint apparaît */
+}
+
+.old-plate-input__hint {
+  font-size: 0.72rem;
+  color: var(--color-primary, #4a90e2);
+  font-style: italic;
+  transition: opacity 0.2s ease;
+}
+
+.old-plate-input__hint--neutral {
+  color: var(--color-text-muted, #888);
+}
+
+/* ── Wrapper du champ ───────────────────────────────────────────────── */
+.old-plate-input__wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1.5px solid var(--color-border, #ccc);
+  border-radius: 6px;
+  padding: 6px 10px;
+  background: var(--color-input-bg, #fff);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.old-plate-input__wrapper:focus-within {
+  border-color: var(--color-primary, #4a90e2);
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.15);
+}
+
+/* Bordure verte si plaque valide */
+.old-plate-input__wrapper--valid {
+  border-color: var(--color-success, #28a745);
+}
+
+.old-plate-input__wrapper--valid:focus-within {
+  box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.15);
+}
+
+/* Bordure rouge si erreur */
+.old-plate-input__wrapper--error {
+  border-color: var(--color-danger, #dc3545);
+}
+
+.old-plate-input__wrapper--error:focus-within {
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
+}
+
+/* ── Drapeau ────────────────────────────────────────────────────────── */
+.old-plate-input__flag {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+/* ── Champ texte ────────────────────────────────────────────────────── */
+.old-plate-input__field {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--color-text, #333);
+  font-size: 1rem;
+  font-family: "Courier New", monospace; /* Police fixe = chiffres/lettres alignés */
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.old-plate-input__field::placeholder {
+  color: var(--color-text-muted, #aaa);
+  font-style: italic;
+}
+
+/* ── Checkmark de validité ──────────────────────────────────────────── */
+.old-plate-input__check {
+  color: var(--color-success, #28a745);
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  animation: plate-pop 0.2s ease;
+}
+
+@keyframes plate-pop {
+  0%   { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+/* ── Message d'erreur ───────────────────────────────────────────────── */
+.old-plate-input__error {
+  font-size: 0.75rem;
+  color: var(--color-danger, #dc3545);
+}
