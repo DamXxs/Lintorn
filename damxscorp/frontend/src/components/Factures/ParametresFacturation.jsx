@@ -257,7 +257,7 @@ const ParametresFacturation = ({ onBack }) => {
                   type="text"
                   value={forfaitForm.nom}
                   onChange={(e) => setForfaitForm((p) => ({ ...p, nom: e.target.value }))}
-                  placeholder="Ex : Vidange VP 2L"
+                  placeholder="Ex : Révision simple, Diagnostique..."
                   required
                 />
               </div>

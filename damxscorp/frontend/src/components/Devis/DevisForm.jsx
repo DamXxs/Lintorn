@@ -573,7 +573,7 @@ const DevisForm = ({ devisId, onSave, onCancel }) => {
                   onChange={handleLigneChange}
                   placeholder={
                     ligneForm.type === TYPE_SERVICE
-                      ? "Ex : Main d'œuvre vidange — 1h"
+                      ? "Ex : Dépose boite de vitesse... (Toute interventions sans forfait)"
                       : ligneForm.type === TYPE_FORFAIT
                       ? 'Sélectionnez un forfait ci-dessus…'
                       : 'Nom de la pièce'
