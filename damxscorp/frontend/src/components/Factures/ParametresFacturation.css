@@ -1,0 +1,378 @@
+/* /frontend/src/components/Factures/ParametresFacturation.css
+   Utilise exclusivement les variables CSS du thème : --bg, --panel, --accent,
+   --text, --border, --danger, --success, --input-bg, --shadow
+*/
+
+.parametres-facturation {
+  padding: 1.5rem 2rem;
+  background: var(--bg);
+  min-height: 100vh;
+}
+
+/* ── En-tête ─────────────────────────────────────────────────────────────── */
+
+.parametres-facturation__header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.parametres-facturation__btn-back {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--accent);
+  font-size: 14px;
+  padding: 6px 0;
+  white-space: nowrap;
+}
+
+.parametres-facturation__btn-back:hover {
+  text-decoration: underline;
+}
+
+.parametres-facturation__title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+/* ── Section générale ────────────────────────────────────────────────────── */
+
+.parametres-facturation__form {
+  margin-bottom: 0;
+}
+
+.parametres-facturation__section {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+
+.parametres-facturation__section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 16px 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.parametres-facturation__section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 10px;
+}
+
+.parametres-facturation__section-header .parametres-facturation__section-title {
+  margin-bottom: 0;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.parametres-facturation__section-desc {
+  font-size: 12px;
+  color: var(--text);
+  opacity: 0.65;
+  margin: 0 0 16px 0;
+}
+
+/* ── Champs ──────────────────────────────────────────────────────────────── */
+
+.parametres-facturation__group {
+  margin-bottom: 14px;
+}
+
+.parametres-facturation__group label {
+  display: block;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 5px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  opacity: 0.8;
+}
+
+.parametres-facturation__group input[type="text"],
+.parametres-facturation__group input[type="number"] {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+  background: var(--input-bg);
+  color: var(--text);
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.parametres-facturation__group input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(41, 128, 185, 0.15);
+}
+
+.parametres-facturation__group--large { flex: 3; }
+.parametres-facturation__group--small { flex: 1; }
+
+.parametres-facturation__group--inline {
+  display: flex;
+  align-items: center;
+}
+
+.parametres-facturation__toggle-label {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  opacity: 1 !important;
+}
+
+.parametres-facturation__toggle-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+
+.parametres-facturation__help {
+  display: block;
+  margin-top: 4px;
+  color: var(--text);
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+/* ── Alertes ──────────────────────────────────────────────────────────────  */
+
+.parametres-facturation__error {
+  background: color-mix(in srgb, var(--danger) 12%, var(--panel));
+  color: var(--danger);
+  padding: 12px 16px;
+  border-radius: 6px;
+  border-left: 3px solid var(--danger);
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+
+.parametres-facturation__success {
+  background: color-mix(in srgb, var(--success) 12%, var(--panel));
+  color: var(--success);
+  padding: 12px 16px;
+  border-radius: 6px;
+  border-left: 3px solid var(--success);
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+
+/* ── Actions (footer de section) ─────────────────────────────────────────── */
+
+.parametres-facturation__actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.parametres-facturation__btn-cancel {
+  padding: 9px 20px;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.parametres-facturation__btn-cancel:hover:not(:disabled) {
+  opacity: 0.8;
+}
+
+.parametres-facturation__btn-cancel:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.parametres-facturation__btn-save {
+  padding: 9px 20px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.parametres-facturation__btn-save:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.parametres-facturation__btn-save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Bouton "Nouveau forfait" ─────────────────────────────────────────────── */
+
+.parametres-facturation__btn-add-forfait {
+  padding: 7px 16px;
+  background: var(--success);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+}
+
+.parametres-facturation__btn-add-forfait:hover {
+  opacity: 0.88;
+}
+
+/* ── Formulaire d'ajout/édition de forfait ────────────────────────────────  */
+
+.parametres-facturation__forfait-form {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.parametres-facturation__forfait-form-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 14px 0;
+}
+
+.parametres-facturation__forfait-form-row {
+  display: flex;
+  gap: 14px;
+}
+
+.parametres-facturation__forfait-form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+/* ── Tableau des forfaits ─────────────────────────────────────────────────── */
+
+.parametres-facturation__forfaits-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.parametres-facturation__forfaits-table th {
+  padding: 8px 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--text);
+  opacity: 0.7;
+  border-bottom: 1px solid var(--border);
+}
+
+.parametres-facturation__forfaits-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+
+.parametres-facturation__forfaits-table tr:last-child td {
+  border-bottom: none;
+}
+
+.parametres-facturation__forfait--inactif td {
+  opacity: 0.45;
+}
+
+.parametres-facturation__forfait-nom {
+  font-weight: 600;
+}
+
+.parametres-facturation__forfait-desc {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.parametres-facturation__forfait-prix {
+  font-weight: 600;
+  color: var(--success);
+}
+
+.parametres-facturation__forfait-actions {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+}
+
+.parametres-facturation__toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: transform 0.15s;
+}
+
+.parametres-facturation__toggle-btn:hover {
+  transform: scale(1.2);
+}
+
+.parametres-facturation__btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.parametres-facturation__btn-icon:hover {
+  opacity: 1;
+}
+
+.parametres-facturation__forfaits-empty {
+  font-size: 13px;
+  color: var(--text);
+  opacity: 0.6;
+  font-style: italic;
+  padding: 12px 0;
+}
+
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 600px) {
+  .parametres-facturation { padding: 1rem; }
+  .parametres-facturation__forfait-form-row { flex-direction: column; }
+}

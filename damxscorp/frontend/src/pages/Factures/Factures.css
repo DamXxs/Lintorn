@@ -1,0 +1,77 @@
+/* /frontend/src/pages/Factures/Factures.css */
+
+/* ===========================================================================
+   PAGE FACTURES — Layout général + onglets
+   =========================================================================== */
+
+.factures-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0;
+  background: var(--bg); /* Utilise le fond général du thème */
+}
+
+/* ── Barre d'onglets ─────────────────────────────────────────────────────── */
+
+.factures-page__tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--border); /* Variable du thème */
+  background: var(--panel); /* Fond de panneau pour contraster */
+  padding: 0 24px;
+}
+
+.factures-page__tab {
+  padding: 14px 24px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text); /* Texte du thème */
+  opacity: 0.7; /* Pour simuler le "secondary" sans nouvelle variable */
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.factures-page__tab:hover {
+  color: var(--accent); /* Couleur d'accentuation */
+  background: var(--input-bg); /* Légère nuance au survol */
+  opacity: 1;
+}
+
+.factures-page__tab--active {
+  color: var(--accent); /* Accent pour l'onglet actif */
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+  opacity: 1;
+}
+
+/* ── Zone de contenu ─────────────────────────────────────────────────────── */
+
+.factures-page__content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  background: var(--bg); /* Cohérence avec la page */
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 600px) {
+  .factures-page__tabs {
+    padding: 0 8px;
+  }
+  .factures-page__tab {
+    padding: 12px 12px;
+    font-size: 12px;
+  }
+  .factures-page__content {
+    padding: 12px;
+  }
+}

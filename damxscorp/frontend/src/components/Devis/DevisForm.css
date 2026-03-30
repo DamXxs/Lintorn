@@ -1,0 +1,502 @@
+/* /frontend/src/components/Devis/DevisForm.css */
+
+/* ===========================================================================
+   FORMULAIRE DEVIS — utilise exclusivement les variables de theme.js
+   Variables disponibles : --bg, --panel, --accent, --text, --border,
+                           --danger, --success, --input-bg, --shadow
+   =========================================================================== */
+
+.devis-form {
+  padding: 0;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* ── En-tête ──────────────────────────────────────────────────────────────── */
+
+.devis-form__header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.devis-form__btn-back {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--accent);
+  font-size: 14px;
+  padding: 6px 0;
+  white-space: nowrap;
+}
+
+.devis-form__btn-back:hover {
+  text-decoration: underline;
+}
+
+.devis-form__title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+/* ── Conteneur principal ────────────────────────────────────────────────────  */
+
+.devis-form__container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────────  */
+
+.devis-form__section {
+  background: var(--panel);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  padding: 20px 24px;
+}
+
+.devis-form__section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 16px 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ── Champs ─────────────────────────────────────────────────────────────────  */
+
+.devis-form__row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.devis-form__group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 180px;
+  margin-bottom: 12px;
+}
+
+.devis-form__group--large  { flex: 3; min-width: 240px; }
+.devis-form__group--medium { flex: 2; min-width: 180px; }
+.devis-form__group--small  { flex: 1; min-width: 100px; max-width: 140px; }
+
+.devis-form__label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.8;
+}
+
+.devis-form__input,
+.devis-form__textarea {
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--input-bg);
+  transition: border-color 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.devis-form__input:focus,
+.devis-form__textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(41, 128, 185, 0.15);
+}
+
+.devis-form__input:disabled {
+  background: var(--input-bg);
+  color: var(--text);
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.devis-form__textarea { resize: vertical; }
+
+/* ── Section infos client compacte ─────────────────────────────────────────  */
+
+.devis-form__client-compact {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 12px 16px;
+  margin-bottom: 4px;
+}
+
+.devis-form__client-compact .devis-form__group {
+  margin-bottom: 0;
+}
+
+.devis-form__intervention-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+/* ── Tableau des lignes ─────────────────────────────────────────────────────  */
+
+.devis-form__lignes-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  font-size: 13px;
+}
+
+.devis-form__lignes-table th {
+  background: var(--bg);
+  padding: 8px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border);
+}
+
+.devis-form__lignes-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+
+.devis-form__lignes-table tr:last-child td { border-bottom: none; }
+
+.devis-form__lignes-table tr:hover td {
+  background: var(--input-bg);
+}
+
+/* Ligne locale (pas encore sauvegardée) */
+.devis-form__ligne--local td {
+  opacity: 0.85;
+}
+
+.devis-form__local-badge {
+  font-size: 10px;
+  color: var(--accent);
+  font-style: italic;
+  margin-left: 6px;
+  opacity: 0.7;
+}
+
+/* Badge "forfait" dans les lignes */
+.devis-form__forfait-badge {
+  font-size: 10px;
+  color: var(--success);
+  font-style: italic;
+  margin-left: 6px;
+}
+
+/* Alignements */
+.devis-form__lignes-table .text-center { text-align: center; }
+.devis-form__lignes-table .text-right  { text-align: right; }
+
+/* Bouton supprimer ligne */
+.devis-form__btn-delete-ligne {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  opacity: 0.7;
+  transition: opacity 0.2s, background 0.2s;
+  color: var(--danger);
+}
+
+.devis-form__btn-delete-ligne:hover {
+  opacity: 1;
+  background: color-mix(in srgb, var(--danger) 15%, transparent);
+}
+
+/* Message vide */
+.devis-form__empty {
+  color: var(--text);
+  font-style: italic;
+  font-size: 13px;
+  margin: 0 0 16px 0;
+  opacity: 0.6;
+}
+
+/* ── Formulaire d'ajout de ligne ────────────────────────────────────────────  */
+
+.devis-form__add-ligne {
+  background: var(--bg);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.devis-form__add-ligne-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 12px 0;
+  opacity: 0.8;
+}
+
+/* Toggle Service / Pièce / Forfait */
+.devis-form__type-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.devis-form__type-btn {
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--input-bg);
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text);
+  transition: all 0.2s;
+}
+
+.devis-form__type-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.devis-form__type-btn--active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Sélecteur de forfait */
+.devis-form__forfait-selector {
+  background: color-mix(in srgb, var(--accent) 8%, var(--panel));
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.devis-form__forfait-selector-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.devis-form__forfait-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+}
+
+.devis-form__forfait-card {
+  padding: 10px 12px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.devis-form__forfait-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+.devis-form__forfait-card--active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 15%, var(--panel));
+}
+
+.devis-form__forfait-card-nom {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  display: block;
+}
+
+.devis-form__forfait-card-prix {
+  font-size: 12px;
+  color: var(--success);
+  font-weight: 600;
+  margin-top: 2px;
+  display: block;
+}
+
+.devis-form__forfait-card-desc {
+  font-size: 11px;
+  color: var(--text);
+  opacity: 0.6;
+  margin-top: 2px;
+  display: block;
+}
+
+.devis-form__no-forfaits {
+  font-size: 12px;
+  color: var(--text);
+  opacity: 0.6;
+  font-style: italic;
+}
+
+/* Info stock */
+.devis-form__stock-info {
+  font-size: 12px;
+  color: var(--success);
+  margin: 4px 0 0 0;
+}
+
+.devis-form__stock-suspendu {
+  color: var(--accent);
+}
+
+/* Sous-total en live */
+.devis-form__sous-total-preview {
+  font-size: 13px;
+  color: var(--text);
+  margin: 6px 0 0 0;
+  opacity: 0.8;
+}
+
+/* Bouton ajouter ligne */
+.devis-form__btn-add-ligne {
+  margin-top: 12px;
+  padding: 9px 20px;
+  background: var(--success);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.devis-form__btn-add-ligne:hover {
+  opacity: 0.88;
+}
+
+/* ── Totaux ─────────────────────────────────────────────────────────────────  */
+
+.devis-form__totaux {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.devis-form__total-row {
+  display: flex;
+  gap: 32px;
+  font-size: 14px;
+  color: var(--text);
+  min-width: 260px;
+  justify-content: space-between;
+  opacity: 0.85;
+}
+
+.devis-form__total-ttc {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  opacity: 1;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+/* ── Footer ─────────────────────────────────────────────────────────────────  */
+
+.devis-form__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.devis-form__btn-cancel {
+  padding: 10px 20px;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: opacity 0.2s;
+}
+
+.devis-form__btn-cancel:hover {
+  opacity: 0.8;
+}
+
+.devis-form__btn-save {
+  padding: 10px 24px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+
+.devis-form__btn-save:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.devis-form__btn-save:disabled,
+.devis-form__btn-cancel:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Info pédagogique ───────────────────────────────────────────────────────  */
+
+.devis-form__info {
+  font-size: 12px;
+  color: var(--text);
+  opacity: 0.6;
+  text-align: center;
+  margin: 0;
+  padding: 8px;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────────  */
+
+@media (max-width: 640px) {
+  .devis-form { padding: 0; }
+
+  .devis-form__section { padding: 16px; }
+
+  .devis-form__client-compact { grid-template-columns: 1fr; }
+
+  .devis-form__row { flex-direction: column; }
+
+  .devis-form__group--small { max-width: none; }
+
+  .devis-form__type-toggle { flex-direction: column; }
+
+  .devis-form__footer { flex-direction: column-reverse; }
+
+  .devis-form__btn-save,
+  .devis-form__btn-cancel { width: 100%; text-align: center; }
+
+  .devis-form__forfait-grid { grid-template-columns: 1fr; }
+}

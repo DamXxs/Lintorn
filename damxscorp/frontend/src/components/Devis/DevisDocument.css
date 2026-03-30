@@ -1,0 +1,281 @@
+/* /frontend/src/components/Devis/DevisDocument.css */
+
+.devis-document {
+  padding: 2rem;
+  background: white;
+}
+
+.devis-document__actions {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #ecf0f1;
+}
+
+.devis-document__btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.devis-document__btn:first-child {
+  background: #f39c12;
+  color: white;
+}
+
+.devis-document__btn:first-child:hover {
+  background: #e67e22;
+}
+
+.devis-document__btn:last-child {
+  background: #3498db;
+  color: white;
+}
+
+.devis-document__btn:last-child:hover {
+  background: #2980b9;
+}
+
+.devis-document__content {
+  max-width: 850px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: white;
+  border: 1px solid #ecf0f1;
+  border-radius: 0.4rem;
+}
+
+.devis-document__header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #2c3e50;
+}
+
+.devis-document__title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0 0 1rem 0;
+  letter-spacing: 2px;
+}
+
+.devis-document__header-info {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  font-size: 0.9rem;
+}
+
+.devis-document__header-info p {
+  margin: 0;
+  color: #34495e;
+}
+
+.devis-document__section {
+  margin-bottom: 1.5rem;
+}
+
+.devis-document__section-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: white;
+  background: #2c3e50;
+  padding: 0.6rem 0.8rem;
+  margin: 0 0 0.8rem 0;
+  border-radius: 0.3rem;
+  letter-spacing: 1px;
+}
+
+.devis-document__client-info {
+  padding: 0 0 0 1rem;
+  border-left: 3px solid #3498db;
+}
+
+.devis-document__client-info p {
+  margin: 0.4rem 0;
+  font-size: 0.9rem;
+  color: #34495e;
+}
+
+/* Tableau */
+
+.devis-document__table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.9rem;
+}
+
+.devis-document__table thead {
+  background: #2c3e50;
+  color: white;
+}
+
+.devis-document__table th {
+  padding: 0.8rem;
+  text-align: left;
+  font-weight: 600;
+  border: 1px solid #34495e;
+}
+
+.devis-document__th-center {
+  text-align: center;
+}
+
+.devis-document__th-right {
+  text-align: right;
+}
+
+.devis-document__table td {
+  padding: 0.8rem;
+  border: 1px solid #ecf0f1;
+  background: white;
+}
+
+.devis-document__table tbody tr:nth-child(odd) {
+  background: #f8f9fa;
+}
+
+.devis-document__table tbody tr:hover {
+  background: #ecf0f1;
+}
+
+.devis-document__td-center {
+  text-align: center;
+}
+
+.devis-document__td-right {
+  text-align: right;
+  font-weight: 600;
+}
+
+/* Totaux */
+
+.devis-document__totals {
+  margin: 2rem 0;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 0.4rem;
+  border-left: 4px solid #3498db;
+}
+
+.devis-document__total-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.6rem 0;
+  font-size: 0.95rem;
+  color: #34495e;
+  border-bottom: 1px solid #bdc3c7;
+}
+
+.devis-document__total-row:last-child {
+  border-bottom: none;
+}
+
+.devis-document__total-ttc {
+  background: white;
+  padding: 0.8rem;
+  margin: 0.5rem -1rem -1rem -1rem;
+  border-radius: 0 0 0.4rem 0.4rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #27ae60;
+  border-bottom: none;
+  border-left: 4px solid #27ae60;
+}
+
+/* Notes */
+
+.devis-document__notes {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: #fff8f0;
+  border-radius: 0.4rem;
+  border-left: 4px solid #f39c12;
+}
+
+.devis-document__notes h3 {
+  margin: 0 0 0.5rem 0;
+  color: #f39c12;
+  font-size: 0.95rem;
+}
+
+.devis-document__notes p {
+  margin: 0;
+  color: #34495e;
+  font-size: 0.9rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* Impression */
+
+@media print {
+  .devis-document {
+    padding: 0;
+    background: white;
+  }
+
+  .devis-document__actions {
+    display: none;
+  }
+
+  .devis-document__content {
+    max-width: 100%;
+    padding: 0;
+    border: none;
+    margin: 0;
+  }
+
+  .devis-document__header {
+    page-break-after: avoid;
+  }
+
+  .devis-document__table {
+    page-break-inside: avoid;
+  }
+
+  .devis-document__totals {
+    page-break-inside: avoid;
+  }
+
+  body {
+    background: white;
+  }
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+  .devis-document {
+    padding: 1rem;
+  }
+
+  .devis-document__content {
+    padding: 1rem;
+  }
+
+  .devis-document__title {
+    font-size: 2rem;
+  }
+
+  .devis-document__header-info {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .devis-document__table {
+    font-size: 0.8rem;
+  }
+
+  .devis-document__table th,
+  .devis-document__table td {
+    padding: 0.5rem;
+  }
+}

@@ -1,0 +1,219 @@
+/* ══════════════════════════════════════════════════════════════
+   LigneArticleForm.css — Formulaire pour ajouter/modifier lignes
+   Utilisé dans DevisForm et FactureForm
+   ══════════════════════════════════════════════════════════════ */
+
+.ligne-article-form {
+  background: var(--panel, #fff);
+  border: 1px solid var(--border, #e1e8ed);
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.2s ease;
+}
+
+.ligne-article-form:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* ── TITRE ─────────────────────────────────────────────────── */
+.ligne-article-form__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text, #1a1a1a);
+  margin: 0;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--border, #e1e8ed);
+}
+
+/* ── TYPE TOGGLE (Pièce / Service) ───────────────────────── */
+.ligne-article-form__type-toggle {
+  display: flex;
+  gap: 12px;
+  background: var(--bg, #f8f9fa);
+  padding: 8px;
+  border-radius: 10px;
+}
+
+.ligne-article-form__type-btn {
+  flex: 1;
+  padding: 10px 16px;
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #666;
+  transition: all 0.2s ease;
+}
+
+.ligne-article-form__type-btn.active {
+  background: white;
+  border-color: var(--accent, #2980b9);
+  color: var(--accent, #2980b9);
+  box-shadow: 0 2px 8px rgba(41, 128, 185, 0.15);
+}
+
+.ligne-article-form__type-btn:hover:not(.active) {
+  color: var(--text, #1a1a1a);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+/* ── GRILLE DE FORMULAIRE ──────────────────────────────────── */
+.ligne-article-form__grid {
+  display: grid;
+  gap: 16px;
+}
+
+.ligne-article-form__grid--2cols {
+  grid-template-columns: 1fr 1fr;
+}
+
+.ligne-article-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ligne-article-form__field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text, #1a1a1a);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ligne-article-form__field input,
+.ligne-article-form__field select {
+  padding: 12px;
+  background: var(--bg, #f8f9fa);
+  border: 1px solid var(--border, #e1e8ed);
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--text, #1a1a1a);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.ligne-article-form__field input:focus,
+.ligne-article-form__field select:focus {
+  outline: none;
+  border-color: var(--accent, #2980b9);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(41, 128, 185, 0.1);
+}
+
+.ligne-article-form__field input:disabled,
+.ligne-article-form__field select:disabled {
+  background: #f0f0f0;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.ligne-article-form__field input::placeholder {
+  color: #999;
+}
+
+/* ── INFO STOCK ───────────────────────────────────────────── */
+.ligne-article-form__stock-info {
+  font-size: 13px;
+  color: #27ae60;
+  padding: 8px 12px;
+  background: rgba(39, 174, 96, 0.05);
+  border-left: 3px solid #27ae60;
+  border-radius: 6px;
+  margin-top: 4px;
+}
+
+/* ── MESSAGES D'ERREUR ───────────────────────────────────── */
+.ligne-article-form__loading,
+.ligne-article-form__error {
+  font-size: 13px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin: 0;
+}
+
+.ligne-article-form__loading {
+  color: #666;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.ligne-article-form__error {
+  color: #c0392b;
+  background: rgba(192, 57, 43, 0.1);
+}
+
+/* ── SOUS-TOTAL ────────────────────────────────────────────── */
+.ligne-article-form__subtotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(41, 128, 185, 0.08), rgba(39, 174, 96, 0.04));
+  border-left: 4px solid var(--accent, #2980b9);
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.ligne-article-form__subtotal strong {
+  color: var(--accent, #2980b9);
+  font-size: 18px;
+}
+
+/* ── BOUTON AJOUTER ────────────────────────────────────────── */
+.ligne-article-form__btn-add {
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #27ae60, #229954);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  align-self: flex-end;
+  min-width: 140px;
+  text-align: center;
+}
+
+.ligne-article-form__btn-add:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(39, 174, 96, 0.3);
+}
+
+.ligne-article-form__btn-add:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(39, 174, 96, 0.2);
+}
+
+/* ── RESPONSIVE ────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .ligne-article-form {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .ligne-article-form__grid--2cols {
+    grid-template-columns: 1fr;
+  }
+
+  .ligne-article-form__type-toggle {
+    gap: 8px;
+  }
+
+  .ligne-article-form__type-btn {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .ligne-article-form__btn-add {
+    align-self: stretch;
+  }
+}

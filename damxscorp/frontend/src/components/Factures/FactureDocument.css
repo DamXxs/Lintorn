@@ -1,0 +1,265 @@
+/* /frontend/src/components/Factures/FactureDocument.css */
+
+.facture-document {
+  padding: 2rem;
+  background: #f5f7fa;
+  min-height: 100vh;
+}
+
+.facture-document__preview {
+  background: white;
+  border-radius: 0.4rem;
+  padding: 3rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-width: 900px;
+  margin: 0 auto 2rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.facture-document__header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid #ecf0f1;
+}
+
+.facture-document__header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0 0 1rem 0;
+  letter-spacing: 2px;
+}
+
+.facture-document__numero {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #3498db;
+  margin: 0.5rem 0;
+}
+
+.facture-document__header p {
+  margin: 0.3rem 0;
+  color: #7f8c8d;
+}
+
+.facture-document__section {
+  margin-bottom: 2rem;
+}
+
+.facture-document__section h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  text-transform: uppercase;
+  border-bottom: 1px solid #bdc3c7;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  margin-top: 0;
+}
+
+.facture-document__section p {
+  margin: 0.3rem 0;
+  color: #34495e;
+}
+
+/* Tableau */
+.facture-document__table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.9rem;
+}
+
+.facture-document__table thead {
+  background: #ecf0f1;
+  border: 1px solid #bdc3c7;
+}
+
+.facture-document__table thead th {
+  padding: 0.8rem;
+  text-align: left;
+  font-weight: 600;
+  color: #2c3e50;
+  border: 1px solid #bdc3c7;
+}
+
+.facture-document__table tbody td {
+  padding: 0.8rem;
+  border: 1px solid #ecf0f1;
+  color: #34495e;
+}
+
+.facture-document__table tbody tr:nth-child(odd) {
+  background: #f9fafb;
+}
+
+.text-right {
+  text-align: right;
+  font-family: 'Courier New', monospace;
+}
+
+/* Totaux */
+.facture-document__totaux {
+  background: #f9fafb;
+  border: 1px solid #bdc3c7;
+  padding: 1.5rem;
+  border-radius: 0.3rem;
+  margin: 2rem 0;
+  float: right;
+  width: 40%;
+  margin-left: 2rem;
+}
+
+.facture-document__total-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+  font-size: 0.95rem;
+  color: #34495e;
+}
+
+.facture-document__total-row span {
+  font-weight: 600;
+}
+
+.facture-document__total-row strong {
+  color: #2c3e50;
+  min-width: 100px;
+  text-align: right;
+  font-family: 'Courier New', monospace;
+}
+
+.facture-document__total-ttc {
+  border-top: 1px solid #bdc3c7;
+  padding-top: 0.8rem;
+  margin-top: 0.8rem;
+  font-size: 1.1rem;
+  color: #27ae60;
+}
+
+.facture-document__total-ttc strong {
+  font-size: 1.1rem;
+  color: #27ae60;
+}
+
+/* Paiement */
+.facture-document__paiement {
+  clear: both;
+  background: #e8f8f5;
+  border-left: 4px solid #27ae60;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  border-radius: 0.3rem;
+}
+
+.facture-document__paiement-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  color: #34495e;
+}
+
+.facture-document__paiement-row span {
+  font-weight: 600;
+}
+
+.facture-document__paiement-row strong {
+  color: #27ae60;
+  font-size: 1rem;
+  font-family: 'Courier New', monospace;
+}
+
+/* Notes */
+.facture-document__notes {
+  background: #fffaf0;
+  border-left: 4px solid #f39c12;
+  padding: 1.5rem;
+  margin-top: 2rem;
+  border-radius: 0.3rem;
+}
+
+.facture-document__notes h3 {
+  margin-top: 0;
+  color: #2c3e50;
+  font-size: 1rem;
+}
+
+.facture-document__notes p {
+  margin: 0;
+  color: #34495e;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* Actions */
+.facture-document__actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.facture-document__btn-imprimer,
+.facture-document__btn-telecharger {
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 0.4rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  color: white;
+}
+
+.facture-document__btn-imprimer {
+  background: #3498db;
+}
+
+.facture-document__btn-imprimer:hover {
+  background: #2980b9;
+}
+
+.facture-document__btn-telecharger {
+  background: #27ae60;
+}
+
+.facture-document__btn-telecharger:hover {
+  background: #229954;
+}
+
+/* Print styles */
+@media print {
+  body {
+    background: white;
+  }
+
+  .facture-document {
+    padding: 0;
+    background: white;
+  }
+
+  .facture-document__preview {
+    box-shadow: none;
+    padding: 0;
+    border-radius: 0;
+    margin: 0;
+  }
+
+  .facture-document__actions {
+    display: none;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .facture-document__totaux {
+    float: right;
+    width: 40%;
+    page-break-inside: avoid;
+  }
+}

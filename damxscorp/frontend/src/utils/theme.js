@@ -53,7 +53,7 @@ export const THEMES = {
       '--panel':     '#141008',
       '--accent':    '#e67e22',
       '--text':      '#696868',
-      '--border':    '#2a1f10',
+      '--border':    '#473721',
       '--danger':    '#c0392b',
       '--success':   '#27ae60',
       '--input-bg':  '#1a1208',

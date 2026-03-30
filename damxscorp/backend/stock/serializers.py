@@ -14,6 +14,7 @@ class PieceSerializer(serializers.ModelSerializer):
 
     # Champs calculés (read_only = on ne peut pas les modifier via l'API)
     stock_status      = serializers.ReadOnlyField()
+    stock_disponible  = serializers.ReadOnlyField()  # stock_actuel - stock_suspendu
     marge             = serializers.ReadOnlyField()
     marge_pourcentage = serializers.ReadOnlyField()
 
@@ -31,10 +32,12 @@ class PieceSerializer(serializers.ModelSerializer):
             'marge_pourcentage',
             'stock_actuel',
             'stock_minimum',
+            'stock_suspendu',   # ← pièces réservées sur des devis en cours
+            'stock_disponible', # ← stock_actuel - stock_suspendu (calculé)
             'stock_status',
             'fournisseur',
             'delai_livraison',
             'date_creation',
             'date_modification',
         ]
-        read_only_fields = ['id', 'date_creation', 'date_modification']
+        read_only_fields = ['id', 'date_creation', 'date_modification', 'stock_suspendu']

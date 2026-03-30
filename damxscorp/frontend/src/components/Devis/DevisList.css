@@ -1,0 +1,231 @@
+/* /frontend/src/components/Devis/DevisList.css */
+
+.devis-list {
+  padding: 1.25rem 1.5rem;
+  background: var(--bg);
+  min-height: 100vh;
+}
+
+.devis-list__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.devis-list__title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+.devis-list__btn-new {
+  padding: 0.75rem 1.5rem;
+  background: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 0.4rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.devis-list__btn-new:hover {
+  background: #229954;
+}
+
+.devis-list__filters {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.devis-list__select-filtre {
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  background:var(--panel);
+  font-size: 0.9rem;
+  cursor: pointer;
+  min-width: 180px;
+  color: var(--text);
+}
+
+.devis-list__select-filtre:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.devis-list__btn-refresh {
+  padding: 0.6rem 1rem;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.devis-list__btn-refresh:hover {
+  background: #2980b9;
+}
+
+.devis-list__empty {
+  text-align: center;
+  padding: 3rem;
+  background: var(--panel);
+  border-radius: 0.4rem;
+  color: var(--text);
+  font-size: 1rem;
+  opacity: 0.7;
+  border: 1px solid var(--border);
+}
+
+.devis-list__table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--panel);
+  border-radius: 0.4rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.devis-list__table thead {
+  background: var(--border);
+  color: var(--text);
+}
+
+.devis-list__table th {
+  padding: 0.55rem 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.82rem;
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+  color: var(--text);
+}
+
+.devis-list__table td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+
+.devis-list__row:hover {
+  background: var(--input-bg);
+}
+
+.devis-list__row--clickable {
+  cursor: pointer;
+}
+
+.devis-list__row--clickable:hover td {
+  background: var(--input-bg);
+}
+
+.devis-list__cell-numero {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.devis-list__cell-client {
+  color: var(--text);
+}
+
+.devis-list__cell-date {
+  color: var(--text);
+  opacity: 0.75;
+}
+
+.devis-list__cell-montant {
+  font-weight: 600;
+  color: var(--success);
+}
+
+.devis-list__cell-statut {
+  text-align: center;
+}
+
+.devis-list__badge {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  border-radius: 1.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: white;
+}
+
+.devis-list__badge.badge-cree {
+  background: #3498db;
+}
+
+.devis-list__badge.badge-valide {
+  background: #27ae60;
+}
+
+.devis-list__badge.badge-refuse {
+  background: #e74c3c;
+}
+
+.devis-list__badge.badge-expire {
+  background: #95a5a6;
+}
+
+.devis-list__badge.badge-facture {
+  background: #9b59b6;
+}
+
+.devis-list__badge.badge-default {
+  background: #7f8c8d;
+}
+
+.devis-list__cell-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-start;
+}
+
+.devis-list__btn-action {
+  padding: 0.4rem 0.6rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.devis-list__btn-action:hover {
+  transform: scale(1.2);
+  filter: brightness(1.3);
+}
+
+.devis-list__btn-edit {
+  color: #f39c12;
+}
+
+.devis-list__btn-voir {
+  color: #3498db;
+}
+
+@media (max-width: 768px) {
+  .devis-list {
+    padding: 1rem;
+  }
+
+  .devis-list__table {
+    font-size: 0.78rem;
+  }
+
+  .devis-list__table th,
+  .devis-list__table td {
+    padding: 0.4rem 0.5rem;
+  }
+}

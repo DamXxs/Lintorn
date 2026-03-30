@@ -65,6 +65,10 @@ class Piece(models.Model):
         default=5,
         help_text="Seuil d'alerte (si stock < seuil → alerte)"
     )
+    stock_suspendu = models.IntegerField(
+        default=0,
+        help_text="Quantité réservée pour des devis en cours (non encore facturés)"
+    )
     
     # Fournisseur
     fournisseur = models.CharField(
@@ -99,13 +103,22 @@ class Piece(models.Model):
         return f"{self.reference} - {self.nom}"
     
     @property
+    def stock_disponible(self):
+        """
+        Stock réellement disponible = stock_actuel - stock_suspendu.
+        Ce sont les pièces qu'on peut encore utiliser sur un nouveau devis.
+        """
+        return max(0, self.stock_actuel - self.stock_suspendu)
+
+    @property
     def stock_status(self):
         """
-        Retourne le statut du stock : OK, ALERTE, ou RUPTURE
+        Retourne le statut du stock basé sur le stock disponible : OK, ALERTE, ou RUPTURE
         """
-        if self.stock_actuel == 0:
+        dispo = self.stock_disponible
+        if dispo == 0:
             return "RUPTURE"
-        elif self.stock_actuel < self.stock_minimum:
+        elif dispo < self.stock_minimum:
             return "ALERTE"
         else:
             return "OK"
