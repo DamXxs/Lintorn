@@ -1,6 +1,6 @@
 // /frontend/src/components/shared/Modal.jsx
 import React from 'react';
-import { X } from '../../utils/icons';
+import { X } from '../../../utils/icons';
 import './Modal.css';
 
 /**

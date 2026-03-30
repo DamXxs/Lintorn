@@ -5,9 +5,9 @@ import { useReferentiels } from '../../../context/ReferentielsContext';
 import { formatNom, formatPrenom, formatPhone, formatImmatriculation, validateEmail, validateImmatriculation } from '../../../utils/validators';
 import logger from '../../../utils/logger';
 
-import Modal            from '../../../components/shared/Modal';
-import FrenchPlateInput from '../../../components/shared/FrenchPlateInput';
-import AddressAutocomplete from '../../../components/shared/AddressAutocomplete';
+import Modal            from '../../../components/shared/Modals/Modal';
+import FrenchPlateInput from '../../../components/shared/Frenchplate/FrenchPlateInput';
+import AddressAutocomplete from '../../../components/shared/AdressAutocomplete/AddressAutocomplete';
 import { User, Car, CalendarClock, FileText, Save, Search, Users, X } from '../../../utils/icons';
 
 import './ModalForm.css';

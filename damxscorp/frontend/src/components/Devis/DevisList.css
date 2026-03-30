@@ -212,7 +212,12 @@
 }
 
 .devis-list__btn-voir {
-  color: #3498db;
+  color: var(--accent);
+}
+
+.devis-list__btn-pdf {
+  color: var(--accent);
+  opacity: 0.85;
 }
 
 @media (max-width: 768px) {

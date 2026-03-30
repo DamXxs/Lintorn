@@ -8,7 +8,7 @@ import {
 } from '../../services/devisService';
 import LoadingState from '../shared/LoadingState';
 import ErrorState from '../shared/ErrorState';
-import Modal from '../shared/Modal';
+import Modal from '../shared/Modals/Modal';
 import DevisDocument from './DevisDocument';
 import './DevisDetail.css';
 

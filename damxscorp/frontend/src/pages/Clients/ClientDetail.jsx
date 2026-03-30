@@ -5,17 +5,17 @@ import { getInitiales, formatDateLong, formatDateCourt } from '../../utils/dataF
 import { fetchInterventionsByClient, fetchVehiculesByClient, patchIntervention } from '../../services/api';
 import { getVehiculeIcon, removeVehicule } from '../../utils/vehicleService';
 import VehicleForm from '../Vehicles/VehicleForm';
-import FrenchPlateInput from '../../components/shared/FrenchPlateInput';
+import FrenchPlateInput from '../../components/shared/Frenchplate/FrenchPlateInput';
 import StatutBadge from '../../components/shared/StatutBadge';
-import ModalRdvConsultation from '../../components/shared/ModalRdvConsultation';
+import ModalRdvConsultation from '../../components/shared/Modals/ModalRdvConsultation';
 import VehicleDetail from '../Vehicles/VehicleDetail';
-import Modal from '../../components/shared/Modal';
+import Modal from '../../components/shared/Modals/Modal';
 import {
   Phone, Mail, MapPin, FileText,
   Car, CalendarDays, Receipt,
   Pencil, Trash2, X, CalendarPlus, Loader, Plus
 } from '../../utils/icons';
-import IconChip, { CHIP_COLORS } from '../../components/shared/IconChip';
+import IconChip, { CHIP_COLORS } from '../../components/shared/IconChip/IconChip';
 import './ClientDetail.css';
 
 const ClientDetail = ({ client, onClose, onEdit, onDelete }) => {

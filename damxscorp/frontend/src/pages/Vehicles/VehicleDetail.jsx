@@ -4,12 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import { getVehiculeIcon, getVehiculeTypeLabel } from '../../utils/vehicleService';
 import { fetchInterventionsByVehicule, patchIntervention } from '../../services/api';
 import { formatDateLong, formatDateCourt } from '../../utils/dataFormatters';
-import ModalRdvConsultation from '../../components/shared/ModalRdvConsultation';
+import ModalRdvConsultation from '../../components/shared/Modals/ModalRdvConsultation';
 
-import Modal from '../../components/shared/Modal';
-import FrenchPlateInput from '../../components/shared/FrenchPlateInput';
+import Modal from '../../components/shared/Modals/Modal';
+import FrenchPlateInput from '../../components/shared/Frenchplate/FrenchPlateInput';
 import StatutBadge from '../../components/shared/StatutBadge';
-import IconChip, { CHIP_COLORS } from '../../components/shared/IconChip';
+import IconChip, { CHIP_COLORS } from '../../components/shared/IconChip/IconChip';
 import {
   User, Wrench, FileText, CalendarDays, Receipt,
   CalendarPlus, Pencil, Trash2,

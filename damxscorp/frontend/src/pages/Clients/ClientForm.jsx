@@ -4,10 +4,10 @@ import { addClient, editClient } from '../../utils/clientService';
 import { validateNom, validatePhone, validateEmail, formatNom, formatPrenom, formatPhone } from '../../utils/validators';
 import useForm from '../../hooks/useForm';
 import { User, Phone, FileText, Pencil, UserPlus, Save, Loader, CircleAlert } from '../../utils/icons';
-import Modal from '../../components/shared/Modal';
+import Modal from '../../components/shared/Modals/Modal';
 import '../../components/shared/forms.css';
 import './ClientForm.css';
-import AddressAutocomplete from '../../components/shared/AddressAutocomplete';
+import AddressAutocomplete from '../../components/shared/AdressAutocomplete/AddressAutocomplete';
 
 // Valeurs vides du formulaire (état initial)
 const INITIAL_DATA = {

@@ -1,0 +1,88 @@
+/* /frontend/src/components/Devis/DevisPDFModal.css
+   Overlay plein écran pour l'aperçu PDF direct depuis la liste.
+   Utilise les variables de theme.js : --bg, --panel, --text, --border,
+   --accent, --shadow
+*/
+
+/* ── Fond semi-transparent ──────────────────────────────────────────────── */
+.devis-pdf-modal__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+  backdrop-filter: blur(2px);
+}
+
+/* ── Boîte principale ───────────────────────────────────────────────────── */
+.devis-pdf-modal__container {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 8px 32px var(--shadow);
+  width: 100%;
+  max-width: 860px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Barre de titre ─────────────────────────────────────────────────────── */
+.devis-pdf-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  flex-shrink: 0;
+}
+
+.devis-pdf-modal__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.devis-pdf-modal__close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--text);
+  opacity: 0.6;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: opacity 0.2s, background 0.2s;
+  line-height: 1;
+}
+
+.devis-pdf-modal__close:hover {
+  opacity: 1;
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+}
+
+/* ── Corps scrollable ───────────────────────────────────────────────────── */
+.devis-pdf-modal__body {
+  overflow-y: auto;
+  padding: 20px;
+  flex: 1;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .devis-pdf-modal__overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .devis-pdf-modal__container {
+    border-radius: 12px 12px 0 0;
+    max-height: 95vh;
+  }
+}

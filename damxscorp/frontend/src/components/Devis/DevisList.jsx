@@ -5,7 +5,7 @@ import LoadingState from '../shared/LoadingState';
 import ErrorState from '../shared/ErrorState';
 import './DevisList.css';
 
-const DevisList = ({ onSelectDevis, onCreateDevis, onEditDevis }) => {
+const DevisList = ({ onSelectDevis, onCreateDevis, onEditDevis, onViewPDF }) => {
   const [devis, setDevis] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -152,6 +152,17 @@ const DevisList = ({ onSelectDevis, onCreateDevis, onEditDevis }) => {
                   </span>
                 </td>
                 <td className="devis-list__cell-actions" onClick={(e) => e.stopPropagation()}>
+                  {/* Bouton PDF — toujours visible */}
+                  {onViewPDF && (
+                    <button
+                      className="devis-list__btn-action devis-list__btn-pdf"
+                      onClick={() => onViewPDF(d.id)}
+                      title="Aperçu / Télécharger PDF"
+                    >
+                      📄
+                    </button>
+                  )}
+
                   {d.statut === 'CREE' && onEditDevis && (
                     <button
                       className="devis-list__btn-action devis-list__btn-edit"

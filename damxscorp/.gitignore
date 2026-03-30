@@ -1,0 +1,36 @@
+# Variables d'environnement — NE JAMAIS COMMITER
+.env
+backend/.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# Django
+db.sqlite3
+*.sqlite3
+staticfiles/
+media/
+
+# Node / React
+node_modules/
+frontend/build/
+frontend/.env.local
+frontend/.env.*.local
+
+# Éditeurs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

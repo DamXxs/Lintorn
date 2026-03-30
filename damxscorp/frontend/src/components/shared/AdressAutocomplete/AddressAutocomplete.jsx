@@ -1,6 +1,6 @@
 // /frontend/src/components/shared/AddressAutocomplete.jsx
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader, MapPin } from '../../utils/icons';
+import { Loader, MapPin } from '../../../utils/icons';
 import './AddressAutocomplete.css';
 
 /**
