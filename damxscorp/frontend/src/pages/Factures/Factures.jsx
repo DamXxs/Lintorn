@@ -2,15 +2,15 @@
 import React, { useState } from 'react';
 
 // Composants Devis
-import DevisList      from '../../components/Devis/DevisList';
-import DevisForm      from '../../components/Devis/DevisForm';
-import DevisDetail    from '../../components/Devis/DevisDetail';
+import DevisList      from '../../pages/Factures/Devis/DevisList';
+import DevisForm      from '../../pages/Factures/Devis/DevisForm';
+import DevisDetail    from '../../pages/Factures/Devis/DevisDetail';
 
 // Composants Factures
-import FactureList    from '../../components/Factures/FactureList';
-import FactureForm    from '../../components/Factures/FactureForm';
-import FactureDetail  from '../../components/Factures/FactureDetail';
-import ParametresFacturation from '../../components/Factures/ParametresFacturation';
+import FactureList    from '../../pages/Factures/Factures/FactureList';
+import FactureForm    from '../../pages/Factures/Factures/FactureForm';
+import FactureDetail  from '../../pages/Factures/Factures/FactureDetail';
+import ParametresFacturation from '../../pages/Factures/Factures/ParametresFacturation';
 
 import './Factures.css';
 

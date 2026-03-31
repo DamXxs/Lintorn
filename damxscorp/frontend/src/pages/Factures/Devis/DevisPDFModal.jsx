@@ -4,10 +4,10 @@
 // Charge le devis par son id et affiche DevisDocument (aperçu + téléchargement).
 
 import React, { useState, useEffect } from 'react';
-import { fetchDevisById } from '../../services/devisService';
+import { fetchDevisById } from '@/services/devisService';
 import DevisDocument from './DevisDocument';
-import LoadingState from '../shared/LoadingState';
-import ErrorState from '../shared/ErrorState';
+import LoadingState from '@/components/shared/LoadingState';
+import ErrorState from '@/components/shared/ErrorState';
 import './DevisPDFModal.css';
 
 const DevisPDFModal = ({ devisId, onClose }) => {

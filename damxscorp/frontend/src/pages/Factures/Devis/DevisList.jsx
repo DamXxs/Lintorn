@@ -1,8 +1,8 @@
 // /frontend/src/components/Devis/DevisList.jsx
 import React, { useState, useEffect, useCallback } from 'react';
-import { fetchDevis, validerDevis, refuserDevis } from '../../services/devisService';
-import LoadingState from '../shared/LoadingState';
-import ErrorState from '../shared/ErrorState';
+import { fetchDevis, validerDevis, refuserDevis } from '../../../services/devisService';
+import LoadingState from '../../../components/shared/LoadingState';
+import ErrorState from '../../../components/shared/ErrorState';
 import './DevisList.css';
 
 const DevisList = ({ onSelectDevis, onCreateDevis, onEditDevis, onViewPDF }) => {

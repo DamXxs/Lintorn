@@ -5,10 +5,10 @@ import {
   validerDevis,
   refuserDevis,
   creerFactureDepuisDevis,
-} from '../../services/devisService';
-import LoadingState from '../shared/LoadingState';
-import ErrorState from '../shared/ErrorState';
-import Modal from '../shared/Modals/Modal';
+} from '@/services/devisService';
+import LoadingState from '@/components/shared/LoadingState';
+import ErrorState from '@/components/shared/ErrorState';
+import Modal from '@/components/shared/Modals/Modal';
 import DevisDocument from './DevisDocument';
 import './DevisDetail.css';
 

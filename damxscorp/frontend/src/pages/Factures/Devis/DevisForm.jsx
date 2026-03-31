@@ -12,17 +12,17 @@
 //     → Le bouton "Enregistrer" met à jour uniquement les infos générales.
 
 import React, { useState, useEffect } from 'react';
-import { fetchClients, fetchInterventionsByClient, fetchPieces } from '../../services/api';
+import { fetchClients, fetchInterventionsByClient, fetchPieces } from '@/services/api';
 import {
   fetchDevisById,
   createDevis,
   updateDevis,
   addLigneDevis,
   deleteLigneDevis,
-} from '../../services/devisService';
-import { fetchForfaits } from '../../services/parametresService';
-import LoadingState from '../shared/LoadingState';
-import ErrorState from '../shared/ErrorState';
+} from '@/services/devisService';
+import { fetchForfaits } from '@/services/parametresService';
+import LoadingState from '@/components/shared/LoadingState';
+import ErrorState from '@/components/shared/ErrorState';
 import './DevisForm.css';
 
 // Génère un identifiant temporaire pour les lignes locales (avant sauvegarde)
