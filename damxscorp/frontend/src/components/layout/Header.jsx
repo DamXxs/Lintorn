@@ -17,7 +17,7 @@ const Header = () => {
 
   useEffect(() => {
     checkDjangoConnection();
-    const interval = setInterval(checkDjangoConnection, 30000);
+    const interval = setInterval(checkDjangoConnection, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -32,8 +32,8 @@ const Header = () => {
         }
       </span>
       <span className="django-status__text">
-        {djangoStatus === 'checking' && 'Connexion Django...'}
-        {djangoStatus === 'error'    && 'Django déconnecté'}
+        {djangoStatus === 'checking' && 'Connexion au serveur...'}
+        {djangoStatus === 'error'    && 'Serveur déconnecté'}
       </span>
     </div>
   );
