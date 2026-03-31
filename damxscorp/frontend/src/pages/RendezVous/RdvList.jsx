@@ -9,7 +9,7 @@ import PageHeader from '../../components/shared/PageHeader';
 import SearchBar from '../../components/shared/SearchBar';
 import LoadingState from '../../components/shared/LoadingState';
 import ErrorState from '../../components/shared/ErrorState';
-import { CalendarClock, Car, User, FileText } from '../../utils/icons';
+import { CalendarClock, User, FileText } from '../../utils/icons';
 import './RdvList.css';
 
 // ── Valeurs des filtres statut ────────────────────────────────────

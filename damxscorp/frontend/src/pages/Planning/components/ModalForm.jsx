@@ -1,5 +1,5 @@
 // /src/pages/Planning/components/ModalForm.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { fetchDepartements, fetchCollaborateurs } from '../../../services/api';
 import { useReferentiels } from '../../../context/ReferentielsContext';
 import { formatNom, formatPrenom, formatPhone, formatImmatriculation, validateEmail, validateImmatriculation } from '../../../utils/validators';
@@ -63,7 +63,9 @@ const ModalForm = ({ isOpen, onClose, initialData, prefilledDate, onSubmit }) =>
     };
 
     // ── État initial du formulaire ─────────────────────────────────
-    const emptyForm = {
+    // useMemo avec [] : toutes les valeurs sont des constantes, l'objet
+    // ne change jamais → stable pour le useEffect qui en dépend
+    const emptyForm = useMemo(() => ({
         departement:      'ATELIER',
         typeIntervention: 'ENTRETIEN_VP2',
         clientName:       '',
@@ -83,7 +85,7 @@ const ModalForm = ({ isOpen, onClose, initialData, prefilledDate, onSubmit }) =>
         timeEnd:          '09:00',
         description:      '',
         collaborateursIds: [],
-    };
+    }), []);
 
     const [formData, setFormData] = useState(emptyForm);
 
@@ -101,7 +103,7 @@ const ModalForm = ({ isOpen, onClose, initialData, prefilledDate, onSubmit }) =>
         } else {
             setFormData(emptyForm);
         }
-    }, [initialData, prefilledDate]);
+    }, [initialData, prefilledDate, emptyForm]);
 
     // ── Gestion des changements ────────────────────────────────────
     const handleChange = (e) => {

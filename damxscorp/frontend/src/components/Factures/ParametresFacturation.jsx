@@ -51,6 +51,7 @@ const ParametresFacturation = ({ onBack }) => {
         setForfaits(Array.isArray(forf) ? forf : []);
       } catch (err) {
         setErrorParams(err.message);
+        setErrorForfaits(err.message);
       } finally {
         setLoadingParams(false);
         setLoadingForfaits(false);

@@ -110,8 +110,6 @@ const DevisDetail = ({ devisId, onBack, onFactureCreee, onEdit }) => {
   if (error) return <ErrorState error={error} />;
   if (!devis) return <ErrorState error="Devis non trouvé" />;
 
-  const isReadOnly = ['REFUSE', 'EXPIRE', 'FACTURE'].includes(devis.statut);
-
   return (
     <div className="devis-detail">
       <div className="devis-detail__header">

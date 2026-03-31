@@ -1,5 +1,5 @@
 // /frontend/src/pages/Vehicles/VehicleDetail.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getVehiculeIcon, getVehiculeTypeLabel } from '../../utils/vehicleService';
 import { fetchInterventionsByVehicule, patchIntervention } from '../../services/api';
@@ -24,7 +24,7 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
   const [consultIntervention, setConsultIntervention] = useState(null);
 
   // ── CHARGEMENT HISTORIQUE ─────────────────────────────────────
-  const loadHistory = async () => {
+  const loadHistory = useCallback(async () => {
     if (!vehicule?.id) return;
     try {
       setLoadingHistory(true);
@@ -38,9 +38,9 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
     } finally {
       setLoadingHistory(false);
     }
-  };
+  }, [vehicule?.id]);
 
-  useEffect(() => { loadHistory(); }, [vehicule?.id]);
+  useEffect(() => { loadHistory(); }, [loadHistory]);
 
   if (!vehicule) return null;
 

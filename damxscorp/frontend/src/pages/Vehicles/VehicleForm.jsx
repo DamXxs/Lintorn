@@ -9,7 +9,7 @@ import useForm from '../../hooks/useForm';
 import { Key, Car, User, FileText, Pencil, Plus, Save, Loader, CircleAlert, Search } from '../../utils/icons';
 import Modal            from '../../components/shared/Modals/Modal';
 import FrenchPlateInput from '../../components/shared/Frenchplate/FrenchPlateInput';
-import '../../components/shared/forms.css';
+import '../../components/shared/Modals/forms.css';
 import './VehicleForm.css';
 
 // Valeurs vides du formulaire (état initial)

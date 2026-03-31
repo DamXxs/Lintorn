@@ -1,5 +1,5 @@
 // /frontend/src/pages/Clients/ClientDetail.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getInitiales, formatDateLong, formatDateCourt } from '../../utils/dataFormatters';
 import { fetchInterventionsByClient, fetchVehiculesByClient, patchIntervention } from '../../services/api';
@@ -30,22 +30,21 @@ const ClientDetail = ({ client, onClose, onEdit, onDelete }) => {
   const [editingVehicule, setEditingVehicule]         = useState(null);
   const [isVehicleFormOpen, setIsVehicleFormOpen]     = useState(false);
 
-  // ── Chargement des données liées au client ─────────────────────
-  const loadVehicules = async () => {
+  // ── Chargement des véhicules ───────────────────────────────────
+  const loadVehicules = useCallback(async () => {
+    if (!client?.id) return;
     setLoadingVehicules(true);
     fetchVehiculesByClient(client.id)
       .then(data => setVehicules(data))
       .catch(() => setVehicules([]))
       .finally(() => setLoadingVehicules(false));
-  };
+  }, [client?.id]);
 
+  useEffect(() => { loadVehicules(); }, [loadVehicules]);
+
+  // ── Chargement historique RDV ──────────────────────────────────
   useEffect(() => {
     if (!client?.id) return;
-
-    // Véhicules du client
-    loadVehicules();
-
-    // Historique RDV du client
     setLoadingHistory(true);
     fetchInterventionsByClient(client.id)
       .then(data => {
@@ -56,7 +55,6 @@ const ClientDetail = ({ client, onClose, onEdit, onDelete }) => {
       })
       .catch(() => setInterventions([]))
       .finally(() => setLoadingHistory(false));
-
   }, [client?.id]);
 
   if (!client) return null;

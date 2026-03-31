@@ -5,7 +5,7 @@ import { validateNom, validatePhone, validateEmail, formatNom, formatPrenom, for
 import useForm from '../../hooks/useForm';
 import { User, Phone, FileText, Pencil, UserPlus, Save, Loader, CircleAlert } from '../../utils/icons';
 import Modal from '../../components/shared/Modals/Modal';
-import '../../components/shared/forms.css';
+import '../../components/shared/Modals/forms.css';
 import './ClientForm.css';
 import AddressAutocomplete from '../../components/shared/AdressAutocomplete/AddressAutocomplete';
 
