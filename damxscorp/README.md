@@ -89,6 +89,8 @@ damxscorp/
 
 **Django refuse de démarrer** → Vérifie que ton fichier `.env` existe et que `DJANGO_SECRET_KEY` est remplie.
 
+**Commande pour la secretkey avec Docker** : docker-compose exec backend python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+
 **Port déjà utilisé** → Un autre programme utilise le port 3000 ou 8000. Arrête-le ou change le port dans `docker-compose.yml`.
 
 **Modifications non prises en compte** → Le hot-reload est activé, mais si ça bloque : `docker-compose restart`.
