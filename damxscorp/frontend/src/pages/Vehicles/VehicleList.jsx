@@ -8,7 +8,7 @@ import FrenchPlateInput from '../../components/shared/Frenchplate/FrenchPlateInp
 import LoadingState from '../../components/shared/LoadingState';
 import ErrorState   from '../../components/shared/ErrorState';
 import PageHeader   from '../../components/shared/PageHeader';
-import SearchBar    from '../../components/shared/SearchBar';
+import SearchBar    from '../../components/shared/SearchBar/SearchBar';
 import useDelete    from '../../hooks/useDelete';
 import './VehicleList.css';
 

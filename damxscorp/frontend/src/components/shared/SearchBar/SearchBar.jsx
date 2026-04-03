@@ -1,7 +1,7 @@
 // /frontend/src/components/shared/SearchBar.jsx
 import React from 'react';
-import { Search, X } from '../../utils/icons';
-import './shared.css';
+import { Search, X } from '../../../utils/icons';
+import '../shared.css';
 
 /**
  * 🔍 Composant SearchBar

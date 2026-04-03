@@ -57,6 +57,7 @@
 
 // INSTALLER LES DEPENDANCES //
     ** pip install -r requirements.txt **  # A FAIRE A CHAQUE NOUVELLE MACHINE #
+    ** secretkey Django : python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())" **
 
 ## METTRE A JOUR LES DEPENDANCES ##
     ** pip freeze > requirements.txt **
