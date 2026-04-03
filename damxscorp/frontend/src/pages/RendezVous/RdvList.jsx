@@ -1,5 +1,6 @@
 // /frontend/src/pages/RendezVous/RdvList.jsx
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { fetchInterventions, deleteIntervention, patchIntervention } from '../../services/api';
 import { formatDateCourt, formatHeure } from '../../utils/dataFormatters';
 import StatutBadge from '../../components/shared/StatutBadge';
@@ -30,6 +31,8 @@ const FILTRE_COLORS = {
 };
 
 const RdvList = () => {
+  const location = useLocation();
+
   const [rdvs, setRdvs]                     = useState([]);
   const [filtered, setFiltered]             = useState([]);
   const [loading, setLoading]               = useState(true);
@@ -58,6 +61,18 @@ const RdvList = () => {
   };
 
   useEffect(() => { loadRdvs(); }, []);
+
+  // ── Ouvre automatiquement la fiche d'un RDV précis ──────────────
+  // Utilisé quand on clique un résultat dans la recherche globale
+  useEffect(() => {
+    const openRdvId = location.state?.openRdvId;
+    if (openRdvId && rdvs.length > 0) {
+      const rdv = rdvs.find(r => r.id === openRdvId);
+      if (rdv) setConsultRdv(rdv);
+      // Nettoie le state pour éviter de réouvrir au retour
+      window.history.replaceState({}, '');
+    }
+  }, [location.state, rdvs]);
 
   // ── Filtrage (statut + recherche texte) ─────────────────────────
   useEffect(() => {

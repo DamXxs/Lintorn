@@ -1,5 +1,6 @@
 // /frontend/src/pages/Vehicles/VehicleList.jsx
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { getAllVehicules, searchVehicules, removeVehicule, getVehiculeIcon } from '../../utils/vehicleService';
 import VehicleDetail from './VehicleDetail';
 import VehicleForm from './VehicleForm';
@@ -13,6 +14,7 @@ import useDelete    from '../../hooks/useDelete';
 import './VehicleList.css';
 
 const VehicleList = () => {
+  const location = useLocation();
 
   const [vehicules, setVehicules]               = useState([]);
   const [filtered, setFiltered]                 = useState([]);
@@ -44,6 +46,18 @@ const VehicleList = () => {
   useEffect(() => {
     setFiltered(searchVehicules(vehicules, searchQuery));
   }, [searchQuery, vehicules]);
+
+  // ── Ouvre automatiquement la fiche d'un véhicule précis ─────────
+  // Utilisé quand on clique un résultat dans la recherche globale
+  useEffect(() => {
+    const openVehiculeId = location.state?.openVehiculeId;
+    if (openVehiculeId && vehicules.length > 0) {
+      const vehicule = vehicules.find(v => v.id === openVehiculeId);
+      if (vehicule) setSelectedVehicule(vehicule);
+      // Nettoie le state pour éviter de réouvrir au retour
+      window.history.replaceState({}, '');
+    }
+  }, [location.state, vehicules]);
 
   // ── Suppression via le hook centralisé ──────────────────────────
   const { handleDelete } = useDelete({
@@ -83,7 +97,7 @@ const VehicleList = () => {
       {/* GRILLE */}
       {filtered.length === 0 ? (
         <div className="vehicles-empty">
-          <p>😔 Aucun véhicule trouvé</p>
+          <p>Aucun véhicule trouvé</p>
           {searchQuery && (
             <button onClick={() => setSearchQuery('')}>Effacer la recherche</button>
           )}
