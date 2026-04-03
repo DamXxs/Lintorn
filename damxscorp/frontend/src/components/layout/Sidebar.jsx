@@ -1,16 +1,20 @@
 // /frontend/src/components/layout/Sidebar.jsx
 import React, { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { CalendarDays, CalendarClock, Users, Car, Package, Factory, Receipt, Settings, Menu, X } from '../../utils/icons';
+import { CalendarDays, CalendarClock, Users, Car, Package, Factory, Receipt, Settings } from '../../utils/icons';
 import './Sidebar.css';
 
 const Sidebar = ({ isExpanded, onToggle }) => {
 
+  // Ferme la sidebar au clic dehors (mobile uniquement)
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (window.innerWidth <= 768 && isExpanded) {
         const sidebar = document.querySelector('.sidebar');
-        if (sidebar && !sidebar.contains(e.target)) onToggle();
+        const header = document.querySelector('.header');
+        if (sidebar && !sidebar.contains(e.target) && !header.contains(e.target)) {
+          onToggle();
+        }
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -21,6 +25,7 @@ const Sidebar = ({ isExpanded, onToggle }) => {
     };
   }, [isExpanded, onToggle]);
 
+  // Bloque le scroll du body quand sidebar ouverte sur mobile
   useEffect(() => {
     if (window.innerWidth <= 768) {
       document.body.style.overflow = isExpanded ? 'hidden' : '';
@@ -30,37 +35,23 @@ const Sidebar = ({ isExpanded, onToggle }) => {
 
   // Liens de navigation
   const navLinks = [
-    { to: '/planning',    icon: CalendarDays,  label: 'Planning' },
-    { to: '/rdv',         icon: CalendarClock, label: 'Rendez-vous' },
-    { to: '/clients',     icon: Users,         label: 'Clients' },
-    { to: '/vehicles',    icon: Car,           label: 'Véhicules' },
-    { to: '/stock',       icon: Package,       label: 'Stock' },
-    { to: '/fournisseurs',icon: Factory,       label: 'Fournisseurs' },
-    { to: '/factures',    icon: Receipt,       label: 'Factures' },
+    { to: '/planning',     icon: CalendarDays,  label: 'Planning' },
+    { to: '/rdv',          icon: CalendarClock,  label: 'Rendez-vous' },
+    { to: '/clients',      icon: Users,          label: 'Clients' },
+    { to: '/vehicles',     icon: Car,            label: 'Véhicules' },
+    { to: '/stock',        icon: Package,        label: 'Stock' },
+    { to: '/fournisseurs', icon: Factory,        label: 'Fournisseurs' },
+    { to: '/factures',     icon: Receipt,        label: 'Factures' },
   ];
 
   return (
     <>
+      {/* Overlay mobile (fond sombre) */}
       {isExpanded && <div className="sidebar__overlay" onClick={onToggle} />}
 
-      <aside className={`sidebar ${isExpanded ? 'sidebar--expanded' : 'sidebar--collapsed'}`}>
-
-        {/* BOUTON TOGGLE */}
-        <button
-          className="sidebar__toggle"
-          onClick={onToggle}
-          aria-label={isExpanded ? 'Fermer le menu' : 'Ouvrir le menu'}
-        >
-          {isExpanded ? <X size={18} /> : <Menu size={18} />}
-        </button>
-
-        {/* HEADER */}
-        {isExpanded && (
-          <div className="sidebar__header">
-            <h2 className="sidebar__title">MATORN</h2>
-          </div>
-        )}
-
+      <aside
+        className={`sidebar ${isExpanded ? 'sidebar--expanded' : 'sidebar--collapsed'}`}
+      >
         {/* NAVIGATION */}
         <nav className="sidebar__nav">
           <ul className="sidebar__menu">
@@ -76,7 +67,7 @@ const Sidebar = ({ isExpanded, onToggle }) => {
                   onClick={() => window.innerWidth <= 768 && onToggle()}
                 >
                   <span className="sidebar__icon"><Icon size={20} /></span>
-                  {isExpanded && <span className="sidebar__text">{label}</span>}
+                  <span className="sidebar__text">{label}</span>
                 </NavLink>
               </li>
             ))}
@@ -92,19 +83,17 @@ const Sidebar = ({ isExpanded, onToggle }) => {
                 onClick={() => window.innerWidth <= 768 && onToggle()}
               >
                 <span className="sidebar__icon"><Settings size={20} /></span>
-                {isExpanded && <span className="sidebar__text">Paramètres</span>}
+                <span className="sidebar__text">Paramètres</span>
               </NavLink>
             </li>
 
           </ul>
         </nav>
 
-        {/* FOOTER */}
-        {isExpanded && (
-          <div className="sidebar__footer">
-            <p className="sidebar__footer-text">v14.1.0</p>
-          </div>
-        )}
+        {/* FOOTER (visible seulement quand étendu ou hover) */}
+        <div className="sidebar__footer">
+          <p className="sidebar__footer-text">v14.2.0</p>
+        </div>
 
       </aside>
     </>

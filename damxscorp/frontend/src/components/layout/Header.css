@@ -1,89 +1,170 @@
 /* /src/components/layout/Header.css */
 
-/* === STATUT DJANGO (bulle flottante) === */
-.django-status {
-  position: fixed; /* ← Position fixe, pas de header bar */
-  top: 20px;
-  right: 20px;
-  z-index: 9999; /* Au-dessus de tout */
-  
+/* ── HEADER PRINCIPAL — pleine largeur, au-dessus de tout ──── */
+.header {
+  display: flex;
+  align-items: center;
+  height: 56px;
+  padding: 0 20px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  z-index: 1100;           /* Au-dessus de la sidebar (1000) */
+  flex-shrink: 0;          /* Ne rétrécit jamais */
+}
+
+/* ── ZONE GAUCHE : Burger + Logo ──────────────────────────── */
+.header__left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 200px;        /* Garantit un espace stable */
+}
+
+.header__burger {
+  width: 38px;
+  height: 38px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.header__burger:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.header__logo {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: 3px;
+  margin: 0;
+  user-select: none;
+}
+
+/* ── ZONE CENTRE : Recherche globale ──────────────────────── */
+.header__center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 0 24px;
+}
+
+/* Placeholder temporaire (sera remplacé par GlobalSearch) */
+.header__search-placeholder {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 18px;
-  border-radius: 25px;
+  width: 100%;
+  max-width: 520px;
+  padding: 9px 16px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: #555;
   font-size: 13px;
+  cursor: text;
+  transition: border-color 0.2s ease;
+}
+
+.header__search-placeholder:hover {
+  border-color: var(--accent);
+}
+
+.header__search-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.header__search-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── ZONE DROITE : Statut Django ──────────────────────────── */
+.header__right {
+  display: flex;
+  align-items: center;
+  min-width: 200px;
+  justify-content: flex-end;
+}
+
+.header__status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
   font-weight: 600;
-  
-  /* Ombre pour bien se détacher */
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  
-  transition: all 0.3s ease;
 }
 
-.django-status__dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  animation: pulse 2s infinite;
+.header__status--checking {
+  background: rgba(149, 165, 166, 0.2);
+  color: #95a5a6;
 }
 
-.django-status__text {
+.header__status--error {
+  background: rgba(231, 76, 60, 0.15);
+  color: #e74c3c;
+}
+
+.header__status-dot {
+  display: flex;
+  align-items: center;
+}
+
+.header__status-text {
   white-space: nowrap;
 }
 
-/* Vérification en cours */
-.django-status--checking {
-  background: rgba(149, 165, 166, 0.9);
-  color: white;
+/* Animation spinner */
+.header__spin {
+  animation: header-spin 1s linear infinite;
 }
 
-.django-status--checking .django-status__dot {
-  background: white;
-}
-
-/* Erreur */
-.django-status--error {
-  background: rgba(231, 76, 60, 0.95);
-  color: white;
-}
-
-.django-status--error .django-status__dot {
-  background: white;
-}
-
-/* Animation du point */
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.5;
-    transform: scale(1.2);
-  }
-}
-
-/* === RESPONSIVE === */
-@media (max-width: 768px) {
-  .django-status {
-    top: 10px;
-    right: 10px;
-    font-size: 11px;
-    padding: 8px 14px;
-  }
-  
-  .django-status__dot {
-    width: 8px;
-    height: 8px;
-  }
-}
-
-/* Animation spinner Lucide */
-.django-status__spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
+@keyframes header-spin {
   to { transform: rotate(360deg); }
+}
+
+/* ── RESPONSIVE MOBILE ────────────────────────────────────── */
+@media (max-width: 768px) {
+  .header {
+    padding: 0 12px;
+    height: 50px;
+  }
+
+  .header__left {
+    min-width: auto;
+    gap: 10px;
+  }
+
+  .header__logo {
+    font-size: 15px;
+    letter-spacing: 2px;
+  }
+
+  .header__center {
+    padding: 0 10px;
+  }
+
+  .header__search-text {
+    display: none;           /* Sur mobile, juste l'icône */
+  }
+
+  .header__right {
+    min-width: auto;
+  }
+
+  .header__status-text {
+    display: none;           /* Juste le point coloré sur mobile */
+  }
 }

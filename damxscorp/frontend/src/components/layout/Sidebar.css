@@ -2,88 +2,72 @@
 
 /* === OVERLAY MOBILE (fond sombre derrière la sidebar) === */
 .sidebar__overlay {
-  display: none; /* Caché sur desktop */
+  display: none;
 }
 
 /* === SIDEBAR === */
 .sidebar {
   position: fixed;
-  top: 0;
+  top: 56px;                    /* ← Commence SOUS le header (56px) */
   left: 0;
-  height: 100vh;
+  height: calc(100vh - 56px);  /* ← Hauteur = écran - header */
   background: var(--panel);
-  border-right: 2px solid var(--border);
-  transition: width 0.3s ease, transform 0.3s ease;
+  border-right: 1px solid var(--border);
   z-index: 1000;
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
   overflow-y: auto;
+
+  /* Transition fluide pour la largeur (hover) */
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Mode réduit */
+/* ── Mode réduit (fermé — par défaut) ─────────────────────── */
 .sidebar--collapsed {
   width: 70px;
 }
 
-/* Mode étendu */
+/* ── HOVER OVERLAY — le cœur du comportement Gmail ─────────
+   Quand la sidebar est en mode collapsed ET que la souris
+   passe dessus : elle s'élargit à 260px EN OVERLAY.
+   Le contenu derrière ne bouge PAS (pas de changement de margin).
+   L'ombre portée donne l'effet de profondeur.
+   ─────────────────────────────────────────────────────────── */
+.sidebar--collapsed:hover {
+  width: 260px;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.5);
+}
+
+/* Quand on hover en mode collapsed → montrer les textes */
+.sidebar--collapsed:hover .sidebar__text {
+  opacity: 1;
+  width: auto;
+  overflow: visible;
+}
+
+.sidebar--collapsed:hover .sidebar__link {
+  justify-content: flex-start;
+  padding: 14px 15px;
+}
+
+.sidebar--collapsed:hover .sidebar__icon {
+  margin-right: 12px;
+}
+
+.sidebar--collapsed:hover .sidebar__footer {
+  opacity: 1;
+}
+
+/* ── Mode étendu (épinglé — clic burger) ─────────────────── */
 .sidebar--expanded {
   width: 260px;
-}
-
-/* === BOUTON TOGGLE === */
-.sidebar__toggle {
-  position: absolute;
-  top: 12px;
-  right: 8px;
-  width: 36px;
-  height: 36px;
-  background: var(--border);
-  border: none;
-  border-radius: 6px;
-  color: var(--text);
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-  /* Taille tactile suffisante (min 44px recommandé, on compense avec padding) */
-  min-width: 36px;
-  min-height: 36px;
-}
-
-.sidebar__toggle:hover {
-  background: #666;
-  transform: scale(1.05);
-}
-
-/* === HEADER SIDEBAR === */
-.sidebar__header {
-  padding: 15px 10px;
-  border-bottom: 2px solid var(--border);
-  text-align: center;
-  min-height: 60px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.sidebar__title {
-  margin: 0;
-  font-size: 18px;
-  color: var(--accent);
-  font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
 }
 
 /* === NAVIGATION === */
 .sidebar__nav {
   flex: 1;
-  padding: 15px 0;
-  padding-top: 55px;
+  padding: 12px 0;
 }
 
 .sidebar__menu {
@@ -110,16 +94,16 @@
 .sidebar__link {
   display: flex;
   align-items: center;
-  padding: 14px 15px; /* 14px pour zone tactile confortable */
+  padding: 14px 15px;
   color: var(--text);
   text-decoration: none;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   border-left: 3px solid transparent;
   font-size: 14px;
   font-weight: 500;
   white-space: nowrap;
   position: relative;
-  min-height: 44px; /* Taille minimale recommandée pour le tactile */
+  min-height: 44px;
 }
 
 /* Mode réduit : centrer les icônes */
@@ -140,23 +124,26 @@
   font-weight: 700;
 }
 
+/* === ICÔNES === */
 .sidebar__icon {
   font-size: 20px;
   min-width: 24px;
   text-align: center;
-  transition: margin 0.3s ease;
+  transition: margin 0.25s ease;
 }
 
 .sidebar--expanded .sidebar__icon {
   margin-right: 12px;
 }
 
+/* === TEXTES === */
 .sidebar__text {
   flex: 1;
   opacity: 1;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.2s ease;
 }
 
+/* En mode collapsed, les textes sont cachés (mais réapparaissent au hover) */
 .sidebar--collapsed .sidebar__text {
   opacity: 0;
   width: 0;
@@ -165,9 +152,15 @@
 
 /* === FOOTER === */
 .sidebar__footer {
-  padding: 15px;
-  border-top: 2px solid var(--border);
+  padding: 12px;
+  border-top: 1px solid var(--border);
   text-align: center;
+  transition: opacity 0.2s ease;
+}
+
+/* Footer caché en mode collapsed (réapparaît au hover) */
+.sidebar--collapsed .sidebar__footer {
+  opacity: 0;
 }
 
 .sidebar__footer-text {
@@ -189,29 +182,43 @@
    ================================================================ */
 @media (max-width: 768px) {
 
-  /* Overlay : fond sombre visible sur mobile quand sidebar ouverte */
+  /* Overlay visible sur mobile */
   .sidebar__overlay {
     display: block;
     position: fixed;
-    inset: 0; /* top/right/bottom/left = 0 en une ligne */
+    inset: 0;
+    top: 50px;                  /* ← Sous le header mobile */
     background: rgba(0, 0, 0, 0.6);
-    z-index: 999; /* Juste en dessous de la sidebar (z-index: 1000) */
+    z-index: 999;
     backdrop-filter: blur(2px);
   }
 
-  /* Sidebar cachée par défaut sur mobile (hors écran à gauche) */
-  .sidebar--collapsed {
-    width: 260px; /* Même largeur que expanded */
-    transform: translateX(-100%); /* Glisse hors écran */
+  .sidebar {
+    top: 50px;                  /* ← Header mobile = 50px */
+    height: calc(100vh - 50px);
   }
 
-  /* Sidebar visible sur mobile */
+  /* Sur mobile, collapsed = complètement hors écran */
+  .sidebar--collapsed {
+    width: 260px;
+    transform: translateX(-100%);
+  }
+
+  /* Pas de hover overlay sur mobile (tactile) */
+  .sidebar--collapsed:hover {
+    width: 260px;
+    transform: translateX(-100%);
+    box-shadow: none;
+  }
+
+  /* Sidebar ouverte sur mobile = slide in */
   .sidebar--expanded {
     width: 260px;
-    transform: translateX(0); /* Revient à sa place */
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.5);
   }
 
-  /* Les icônes reprennent leur comportement normal sur mobile */
+  /* Textes toujours visibles sur mobile (pas de mode icônes seules) */
   .sidebar--collapsed .sidebar__text {
     opacity: 1;
     width: auto;
@@ -224,5 +231,9 @@
 
   .sidebar--collapsed .sidebar__icon {
     margin-right: 12px;
+  }
+
+  .sidebar--collapsed .sidebar__footer {
+    opacity: 1;
   }
 }
