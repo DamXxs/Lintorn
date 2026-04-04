@@ -1,5 +1,5 @@
 """
-WSGI config for empire_meca project.
+WSGI config for damxscorp project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 

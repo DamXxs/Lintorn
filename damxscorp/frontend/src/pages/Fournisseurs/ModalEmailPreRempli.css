@@ -1,0 +1,272 @@
+/* =============================================================================
+   MODALEMAILPREREMPLI.CSS
+   ============================================================================= */
+
+/* ── OVERLAY ─────────────────────────────────────────────────────────────── */
+
+.modal-email-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+/* ── BOÎTE ───────────────────────────────────────────────────────────────── */
+
+.modal-email-box {
+  background: #1e1e2e;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 780px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── EN-TÊTE ─────────────────────────────────────────────────────────────── */
+
+.modal-email-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: #1e1e2e;
+  z-index: 1;
+}
+
+.modal-email-header h2 {
+  margin: 0;
+  font-size: 18px;
+  color: #fff;
+}
+
+.modal-email-close {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
+  line-height: 1;
+}
+
+.modal-email-close:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ── ÉTATS ───────────────────────────────────────────────────────────────── */
+
+.modal-email-loading,
+.modal-email-vide,
+.modal-email-erreur {
+  padding: 48px 24px;
+  text-align: center;
+  font-size: 16px;
+}
+
+.modal-email-loading { color: #888; }
+.modal-email-vide    { color: #27ae60; line-height: 1.8; }
+.modal-email-erreur  { color: #e74c3c; }
+
+/* ── META (À / Objet) ────────────────────────────────────────────────────── */
+
+.email-meta {
+  padding: 14px 24px;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.email-meta-ligne {
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+}
+
+.email-meta-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #777;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 52px;
+}
+
+.email-meta-valeur {
+  color: #ccc;
+  font-size: 14px;
+}
+
+.email-destinataire {
+  color: #74b9ff;
+  font-weight: 600;
+}
+
+/* ── SECTIONS ────────────────────────────────────────────────────────────── */
+
+.email-section {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.email-section-titre {
+  margin: 0 0 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.email-compteur {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ── TABLEAU DES PIÈCES ──────────────────────────────────────────────────── */
+
+.email-pieces-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.email-pieces-table th {
+  text-align: left;
+  padding: 8px 10px;
+  color: #777;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border-bottom: 1px solid var(--border);
+}
+
+.th-center { text-align: center !important; }
+
+.email-pieces-table td {
+  padding: 9px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: #ccc;
+}
+
+.td-center { text-align: center; }
+
+/* Couleurs selon le statut */
+.tr-rupture td { background: rgba(231, 76, 60, 0.06); }
+.tr-alerte  td { background: rgba(243, 156, 18, 0.06); }
+
+.td-stock {
+  font-weight: 700;
+  color: #e74c3c !important;
+}
+
+.tr-alerte .td-stock {
+  color: #f39c12 !important;
+}
+
+.td-qte {
+  font-weight: 700;
+  color: #3498db !important;
+}
+
+/* Badge référence */
+.code-ref {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.07);
+  padding: 2px 7px;
+  border-radius: 4px;
+  color: #a29bfe;
+}
+
+/* ── APERÇU DU CORPS ─────────────────────────────────────────────────────── */
+
+.email-corps-preview {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-size: 13px;
+  color: #ccc;
+  white-space: pre-wrap;
+  font-family: inherit;
+  line-height: 1.65;
+  max-height: 180px;
+  overflow-y: auto;
+  margin: 0;
+}
+
+/* ── ACTIONS ─────────────────────────────────────────────────────────────── */
+
+.email-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding: 16px 24px;
+}
+
+.email-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  border: none;
+}
+
+.email-btn--copier {
+  background: rgba(52, 152, 219, 0.15);
+  border: 1px solid rgba(52, 152, 219, 0.4) !important;
+  color: #3498db;
+}
+
+.email-btn--copier:hover {
+  background: rgba(52, 152, 219, 0.28);
+}
+
+.email-btn--ouvrir {
+  background: linear-gradient(135deg, #2980b9, #3498db);
+  color: #fff;
+}
+
+.email-btn--ouvrir:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(52, 152, 219, 0.45);
+}
+
+.email-btn--fermer {
+  background: var(--input-bg);
+  border: 1px solid var(--border) !important;
+  color: #aaa;
+}
+
+.email-btn--fermer:hover {
+  color: #fff;
+}

@@ -1,0 +1,217 @@
+/* =============================================================================
+   FOURNISSEURS.CSS — styles de la page shell uniquement
+   (CardFournisseur, ModalFournisseur, ModalEmailPreRempli ont leurs propres CSS)
+   ============================================================================= */
+
+/* ── PAGE ─────────────────────────────────────────────────────────────────── */
+
+.fournisseurs-page {
+  padding: 30px;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+/* ── ÉTATS DE CHARGEMENT / ERREUR ─────────────────────────────────────────── */
+
+.fournisseurs-loading,
+.fournisseurs-erreur {
+  text-align: center;
+  padding: 80px 20px;
+  font-size: 16px;
+  color: #888;
+}
+
+.fournisseurs-erreur { color: #e74c3c; }
+
+/* ── MINI DASHBOARD STOCK ─────────────────────────────────────────────────── */
+
+.fournisseurs-stock-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 20px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.stock-header-label {
+  color: #777;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stock-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.18s, box-shadow 0.18s;
+  cursor: pointer;
+}
+
+.stock-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.stock-badge--alerte {
+  background: rgba(243, 156, 18, 0.15);
+  color: #f39c12;
+  border: 1px solid rgba(243, 156, 18, 0.4);
+}
+
+.stock-badge--rupture {
+  background: rgba(231, 76, 60, 0.15);
+  color: #e74c3c;
+  border: 1px solid rgba(231, 76, 60, 0.4);
+}
+
+.stock-badge--ok {
+  background: rgba(39, 174, 96, 0.1);
+  color: #27ae60;
+  border: 1px solid rgba(39, 174, 96, 0.3);
+}
+
+/* ── EN-TÊTE DE PAGE ──────────────────────────────────────────────────────── */
+
+.fournisseurs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.fournisseurs-header h1 {
+  margin: 0;
+  font-size: 28px;
+  color: #fff;
+}
+
+.fournisseurs-subtitle {
+  margin: 4px 0 0;
+  color: #888;
+  font-size: 14px;
+}
+
+.btn-add-fournisseur {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  white-space: nowrap;
+}
+
+.btn-add-fournisseur:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(39, 174, 96, 0.5);
+}
+
+/* ── FILTRES ──────────────────────────────────────────────────────────────── */
+
+.fournisseurs-filtres {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.fournisseurs-search {
+  width: 100%;
+  padding: 13px 20px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 15px;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.fournisseurs-search:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.categorie-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.categorie-tab {
+  padding: 6px 14px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: #aaa;
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+
+.categorie-tab:hover {
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.categorie-tab--actif {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 700;
+}
+
+/* ── SECTIONS ─────────────────────────────────────────────────────────────── */
+
+.fournisseurs-section {
+  margin-bottom: 32px;
+}
+
+.section-titre {
+  font-size: 13px;
+  font-weight: 700;
+  color: #888;
+  margin: 0 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.section-titre--favoris {
+  color: #f1c40f;
+  border-color: rgba(241, 196, 15, 0.3);
+}
+
+/* ── GRILLE ───────────────────────────────────────────────────────────────── */
+
+.fournisseurs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+/* ── ÉTAT VIDE ────────────────────────────────────────────────────────────── */
+
+.fournisseurs-vide {
+  text-align: center;
+  padding: 70px 20px;
+  color: #666;
+  font-size: 16px;
+}

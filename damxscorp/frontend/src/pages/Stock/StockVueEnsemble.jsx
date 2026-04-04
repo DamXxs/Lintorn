@@ -1,21 +1,38 @@
+// /frontend/src/pages/Stock/StockVueEnsemble.jsx
 import React, { useState, useEffect } from 'react';
-import { fetchPieces, deletePiece } from '../../services/api';
+import axios from 'axios';
 import { Package, Plus } from '../../utils/icons';
+import StockForm from './StockForm';
 import './StockVueEnsemble.css';
 
+// ── API stock (create / update / delete) ─────────────────────────────────────
+const stockApi = axios.create({
+  baseURL: 'http://localhost:8000/api',
+  headers: { 'Content-Type': 'application/json' },
+  withCredentials: true,
+});
+
+const fetchPieces    = () => stockApi.get('/stock/pieces/').then(r => r.data);
+const createPiece    = (data) => stockApi.post('/stock/pieces/', data).then(r => r.data);
+const updatePiece    = (id, data) => stockApi.put(`/stock/pieces/${id}/`, data).then(r => r.data);
+const deletePieceApi = (id) => stockApi.delete(`/stock/pieces/${id}/`);
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 const StockVueEnsemble = () => {
-    const [pieces, setPieces] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [pieces,     setPieces]     = useState([]);
+    const [loading,    setLoading]    = useState(true);
+    const [error,      setError]      = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
 
-    // Chargement des pièces
+    // modalForm : null = fermé | {} = création | {id,...} = édition
+    const [modalForm,  setModalForm]  = useState(null);
+
+    // ── Chargement ────────────────────────────────────────────────────────────
     const loadPieces = async () => {
         try {
             setLoading(true);
-            const data = await fetchPieces();
-            setPieces(data);
+            setPieces(await fetchPieces());
         } catch (err) {
             setError("Impossible de charger les pièces");
             console.error(err);
@@ -24,17 +41,34 @@ const StockVueEnsemble = () => {
         }
     };
 
-    useEffect(() => {
-        loadPieces();
-    }, []);
+    useEffect(() => { loadPieces(); }, []);
 
-    // Suppression d'une pièce
+    // ── Sauvegarde (création ou modification) ─────────────────────────────────
+    const handleSave = async (formData) => {
+        try {
+            if (formData.id) {
+                await updatePiece(formData.id, formData);
+            } else {
+                await createPiece(formData);
+            }
+            await loadPieces();
+        } catch (err) {
+            // On remonte l'erreur au StockForm pour qu'il l'affiche
+            const msg = err.response?.data
+                ? Object.entries(err.response.data)
+                    .map(([k, v]) => `${k}: ${v.join ? v.join(', ') : v}`)
+                    .join('\n')
+                : 'Erreur lors de la sauvegarde';
+            throw new Error(msg);
+        }
+    };
+
+    // ── Suppression ───────────────────────────────────────────────────────────
     const handleDelete = async (id, nom) => {
         if (window.confirm(`Supprimer la pièce "${nom}" ?`)) {
             try {
-                await deletePiece(id);
+                await deletePieceApi(id);
                 await loadPieces();
-                alert('✅ Pièce supprimée !');
             } catch (err) {
                 alert('❌ Erreur lors de la suppression');
                 console.error(err);
@@ -42,51 +76,48 @@ const StockVueEnsemble = () => {
         }
     };
 
-    // Filtrage des pièces
+    // ── Filtrage ──────────────────────────────────────────────────────────────
     const filteredPieces = pieces.filter(piece =>
         piece.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
         piece.reference.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (piece.fournisseur_nom && piece.fournisseur_nom.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (piece.fournisseur && piece.fournisseur.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
-    // Fonction pour obtenir la couleur du badge de statut
     const getStatusColor = (status) => {
-        switch(status) {
-            case 'OK': return '#27ae60';
-            case 'ALERTE': return '#f39c12';
+        switch (status) {
+            case 'OK':      return '#27ae60';
+            case 'ALERTE':  return '#f39c12';
             case 'RUPTURE': return '#e74c3c';
-            default: return '#95a5a6';
+            default:        return '#95a5a6';
         }
     };
 
-    // ── Affichage des états loading / erreur ──────────────────────
-    if (loading) {
-        return (
-            <div className="stock-loading">
-                <div className="spinner"></div>
-                <p>Chargement du stock...</p>
-            </div>
-        );
-    }
+    // ── Rendu états intermédiaires ────────────────────────────────────────────
+    if (loading) return (
+        <div className="stock-loading">
+            <div className="spinner"></div>
+            <p>Chargement du stock...</p>
+        </div>
+    );
 
-    if (error) {
-        return (
-            <div className="stock-error">
-                <p>❌ {error}</p>
-                <button onClick={loadPieces}>Réessayer</button>
-            </div>
-        );
-    }
+    if (error) return (
+        <div className="stock-error">
+            <p>❌ {error}</p>
+            <button onClick={loadPieces}>Réessayer</button>
+        </div>
+    );
 
     return (
         <div className="stock-vue-ensemble">
+
             {/* EN-TÊTE */}
             <div className="stock-header">
                 <div>
                     <h1><Package size={24} /> Stock — Vue d'ensemble</h1>
-                    <p className="stock-subtitle">{pieces.length} Références en stock</p>
+                    <p className="stock-subtitle">{pieces.length} références en stock</p>
                 </div>
-                <button className="btn-add-piece">
+                <button className="btn-add-piece" onClick={() => setModalForm({})}>
                     <Plus size={16} /> Nouvelle pièce
                 </button>
             </div>
@@ -97,28 +128,22 @@ const StockVueEnsemble = () => {
                     type="text"
                     placeholder="🔍 Rechercher par nom, référence ou fournisseur..."
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={e => setSearchTerm(e.target.value)}
                 />
             </div>
 
             {/* STATISTIQUES RAPIDES */}
             <div className="stock-stats">
                 <div className="stat-card stat-ok">
-                    <div className="stat-value">
-                        {pieces.filter(p => p.stock_status === 'OK').length}
-                    </div>
+                    <div className="stat-value">{pieces.filter(p => p.stock_status === 'OK').length}</div>
                     <div className="stat-label">Stock OK</div>
                 </div>
                 <div className="stat-card stat-alerte">
-                    <div className="stat-value">
-                        {pieces.filter(p => p.stock_status === 'ALERTE').length}
-                    </div>
+                    <div className="stat-value">{pieces.filter(p => p.stock_status === 'ALERTE').length}</div>
                     <div className="stat-label">Alertes</div>
                 </div>
                 <div className="stat-card stat-rupture">
-                    <div className="stat-value">
-                        {pieces.filter(p => p.stock_status === 'RUPTURE').length}
-                    </div>
+                    <div className="stat-value">{pieces.filter(p => p.stock_status === 'RUPTURE').length}</div>
                     <div className="stat-label">Ruptures</div>
                 </div>
             </div>
@@ -157,29 +182,32 @@ const StockVueEnsemble = () => {
                                         <span className="stock-minimum">{piece.stock_minimum}</span>
                                     </td>
                                     <td>
-                                        <span 
+                                        <span
                                             className="status-badge"
                                             style={{ backgroundColor: getStatusColor(piece.stock_status) }}
                                         >
                                             {piece.stock_status}
                                         </span>
                                     </td>
-                                    <td className="prix-cell">{parseFloat(piece.prix_achat).toFixed(2)}€</td>
-                                    <td className="prix-cell">{parseFloat(piece.prix_vente).toFixed(2)}€</td>
-                                    <td className="marge-cell">
-                                        +{parseFloat(piece.marge).toFixed(2)}€
+                                    <td className="prix-cell">{parseFloat(piece.prix_achat).toFixed(2)} €</td>
+                                    <td className="prix-cell">{parseFloat(piece.prix_vente).toFixed(2)} €</td>
+                                    <td className="marge-cell">+{parseFloat(piece.marge).toFixed(2)} €</td>
+                                    <td>
+                                        {/* Affiche le nom depuis la fiche fournisseur, sinon le champ texte */}
+                                        {piece.fournisseur_nom || piece.fournisseur || '—'}
                                     </td>
-                                    <td>{piece.fournisseur || '-'}</td>
                                     <td className="actions-cell">
-                                        <button 
+                                        <button
                                             className="btn-edit"
-                                            onClick={() => alert('Modification à venir')}
+                                            onClick={() => setModalForm(piece)}
+                                            title="Modifier cette pièce"
                                         >
                                             ✏️
                                         </button>
-                                        <button 
+                                        <button
                                             className="btn-delete"
                                             onClick={() => handleDelete(piece.id, piece.nom)}
+                                            title="Supprimer cette pièce"
                                         >
                                             🗑️
                                         </button>
@@ -189,6 +217,15 @@ const StockVueEnsemble = () => {
                         </tbody>
                     </table>
                 </div>
+            )}
+
+            {/* MODAL CRÉATION / MODIFICATION */}
+            {modalForm !== null && (
+                <StockForm
+                    piece={modalForm?.id ? modalForm : null}
+                    onSave={handleSave}
+                    onClose={() => setModalForm(null)}
+                />
             )}
         </div>
     );

@@ -74,7 +74,17 @@ class Piece(models.Model):
     fournisseur = models.CharField(
         max_length=200,
         blank=True,
-        help_text="Nom du fournisseur principal"
+        help_text="Nom du fournisseur (ancien champ texte — utiliser fournisseur_ref)"
+    )
+    # Lien vers la fiche fournisseur (pour l'email automatique)
+    # null=True / blank=True → les anciennes pièces sans fiche fournisseur restent valides
+    fournisseur_ref = models.ForeignKey(
+        'fournisseurs.Fournisseur',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='pieces',
+        help_text="Fiche fournisseur liée (pour la génération de l'email de commande)"
     )
     delai_livraison = models.IntegerField(
         default=2,

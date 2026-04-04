@@ -1,0 +1,165 @@
+/* =============================================================================
+   CARDFOURNISSEUR.CSS
+   ============================================================================= */
+
+.card-fournisseur {
+  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 18px 14px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-fournisseur:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Carte favori : bordure dorée */
+.card-fournisseur--favori {
+  border-color: rgba(241, 196, 15, 0.5);
+  box-shadow: 0 0 0 1px rgba(241, 196, 15, 0.15);
+}
+
+/* Carte inactif : opacité réduite */
+.card-fournisseur--inactif {
+  opacity: 0.55;
+}
+
+/* ── BADGE CATÉGORIE ─────────────────────────────────────────────────────── */
+
+.card-cat-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 11px;
+  color: #aaa;
+  margin-bottom: 10px;
+  /* Laisser de la place pour le bouton étoile à droite */
+  max-width: calc(100% - 36px);
+}
+
+/* ── BOUTON ÉTOILE ───────────────────────────────────────────────────────── */
+
+.card-btn-favori {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 2px;
+  line-height: 1;
+  transition: transform 0.2s;
+}
+
+.card-btn-favori:hover {
+  transform: scale(1.25);
+}
+
+.card-btn-favori--actif {
+  filter: drop-shadow(0 0 5px rgba(241, 196, 15, 0.9));
+}
+
+/* ── INFOS ───────────────────────────────────────────────────────────────── */
+
+.card-info {
+  flex: 1;
+  margin-bottom: 14px;
+}
+
+.card-nom {
+  margin: 0 0 8px;
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+  padding-right: 28px; /* évite le chevauchement avec l'étoile */
+}
+
+.card-badge-inactif {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  background: rgba(231, 76, 60, 0.2);
+  color: #e74c3c;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.card-ligne {
+  margin: 4px 0;
+  font-size: 13px;
+  color: #aaa;
+}
+
+.card-email {
+  color: #74b9ff;
+}
+
+.card-pieces {
+  color: #a29bfe;
+}
+
+.card-notes {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
+}
+
+/* ── ACTIONS ─────────────────────────────────────────────────────────────── */
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.card-btn {
+  padding: 8px 12px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  border: none;
+}
+
+.card-btn--email {
+  flex: 1;
+  background: linear-gradient(135deg, #2980b9, #3498db);
+  color: #fff;
+}
+
+.card-btn--email:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.5);
+}
+
+.card-btn--edit {
+  background: var(--input-bg);
+  border: 1px solid var(--border) !important;
+  color: #aaa;
+}
+
+.card-btn--edit:hover {
+  border-color: #f39c12 !important;
+  color: #f39c12;
+}
+
+.card-btn--delete {
+  background: var(--input-bg);
+  border: 1px solid var(--border) !important;
+  color: #aaa;
+}
+
+.card-btn--delete:hover {
+  border-color: #e74c3c !important;
+  color: #e74c3c;
+}

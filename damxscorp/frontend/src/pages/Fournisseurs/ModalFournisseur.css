@@ -1,0 +1,214 @@
+/* =============================================================================
+   MODALFOURNISSEUR.CSS
+   ============================================================================= */
+
+/* ── OVERLAY ─────────────────────────────────────────────────────────────── */
+
+.modal-fourn-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+/* ── BOÎTE ───────────────────────────────────────────────────────────────── */
+
+.modal-fourn-box {
+  background: #1e1e2e;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 640px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── EN-TÊTE ─────────────────────────────────────────────────────────────── */
+
+.modal-fourn-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: #1e1e2e;
+  z-index: 1;
+}
+
+.modal-fourn-header h2 {
+  margin: 0;
+  font-size: 18px;
+  color: #fff;
+}
+
+.modal-fourn-close {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
+  line-height: 1;
+}
+
+.modal-fourn-close:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ── FORMULAIRE ──────────────────────────────────────────────────────────── */
+
+.modal-fourn-form {
+  padding: 20px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Message d'erreur */
+.modal-fourn-error {
+  background: rgba(231, 76, 60, 0.15);
+  border: 1px solid rgba(231, 76, 60, 0.4);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #e74c3c;
+  font-size: 13px;
+  white-space: pre-line;
+}
+
+/* Ligne de champs côte à côte */
+.mf-row {
+  display: flex;
+  gap: 12px;
+}
+
+/* Groupe label + input */
+.mf-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.mf-group--large {
+  flex: 2;
+}
+
+.mf-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.mf-group input,
+.mf-group select,
+.mf-group textarea {
+  padding: 10px 14px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.mf-group textarea {
+  resize: vertical;
+}
+
+.mf-group input:focus,
+.mf-group select:focus,
+.mf-group textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.mf-group select option {
+  background: #1e1e2e;
+  color: #fff;
+}
+
+/* Cases à cocher */
+.mf-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+.mf-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #ccc;
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.mf-checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+
+/* ── PIED DU MODAL ───────────────────────────────────────────────────────── */
+
+.modal-fourn-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+}
+
+.mf-btn-cancel {
+  padding: 10px 20px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: #aaa;
+  font-size: 14px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.mf-btn-cancel:hover {
+  color: #fff;
+}
+
+.mf-btn-save {
+  padding: 10px 24px;
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.mf-btn-save:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.mf-btn-save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

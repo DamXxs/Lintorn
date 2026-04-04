@@ -5,18 +5,31 @@ from .models import Piece
 
 class PieceSerializer(serializers.ModelSerializer):
     """
-    Sérialise le modèle Piece.
+    Sérialise le modèle Piece pour l'API REST.
 
-    Les @property (stock_status, marge, marge_pourcentage) sont en lecture seule :
-    Django les calcule automatiquement à partir du modèle, on n'a pas besoin
-    de les envoyer lors d'une création ou modification.
+    Champs calculés (read_only) :
+      - stock_status     : OK / ALERTE / RUPTURE
+      - stock_disponible : stock_actuel - stock_suspendu
+      - marge / marge_pourcentage : calculés depuis les prix
+
+    Champs fournisseur :
+      - fournisseur      : ancien champ texte libre (conservé)
+      - fournisseur_ref  : ID de la fiche fournisseur liée (pour écriture)
+      - fournisseur_nom  : nom calculé depuis fournisseur_ref (lecture seule)
+      - fournisseur_email: email calculé depuis fournisseur_ref (lecture seule)
     """
 
-    # Champs calculés (read_only = on ne peut pas les modifier via l'API)
+    # Champs calculés depuis les @property du modèle
     stock_status      = serializers.ReadOnlyField()
-    stock_disponible  = serializers.ReadOnlyField()  # stock_actuel - stock_suspendu
+    stock_disponible  = serializers.ReadOnlyField()
     marge             = serializers.ReadOnlyField()
     marge_pourcentage = serializers.ReadOnlyField()
+
+    # Champs calculés depuis la FK fournisseur_ref
+    # Le frontend React reçoit ces infos directement, sans devoir faire
+    # une deuxième requête vers /api/fournisseurs/
+    fournisseur_nom   = serializers.SerializerMethodField()
+    fournisseur_email = serializers.SerializerMethodField()
 
     class Meta:
         model  = Piece
@@ -32,12 +45,34 @@ class PieceSerializer(serializers.ModelSerializer):
             'marge_pourcentage',
             'stock_actuel',
             'stock_minimum',
-            'stock_suspendu',   # ← pièces réservées sur des devis en cours
-            'stock_disponible', # ← stock_actuel - stock_suspendu (calculé)
+            'stock_suspendu',
+            'stock_disponible',
             'stock_status',
-            'fournisseur',
+            'fournisseur',        # ancien champ texte (conservé pour compat)
+            'fournisseur_ref',    # ID FK (pour écriture depuis React)
+            'fournisseur_nom',    # nom calculé (lecture seule)
+            'fournisseur_email',  # email calculé (lecture seule)
             'delai_livraison',
             'date_creation',
             'date_modification',
         ]
-        read_only_fields = ['id', 'date_creation', 'date_modification', 'stock_suspendu']
+        read_only_fields = [
+            'id',
+            'date_creation',
+            'date_modification',
+            'stock_suspendu',   # géré par les devis, pas manuellement
+            'fournisseur_nom',
+            'fournisseur_email',
+        ]
+
+    def get_fournisseur_nom(self, obj):
+        """Retourne le nom depuis la fiche fournisseur, sinon l'ancien champ texte."""
+        if obj.fournisseur_ref:
+            return obj.fournisseur_ref.nom
+        return obj.fournisseur or None
+
+    def get_fournisseur_email(self, obj):
+        """Retourne l'email depuis la fiche fournisseur, sinon None."""
+        if obj.fournisseur_ref:
+            return obj.fournisseur_ref.email
+        return None

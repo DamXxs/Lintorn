@@ -1,130 +1,85 @@
+# /backend/fournisseurs/models.py
 from django.db import models
-from stock.models import Piece  # ← Import du modèle Piece
 
 
-# =============================================================================
-# MODÈLE COMMANDE FOURNISSEUR
-# =============================================================================
-class CommandeFournisseur(models.Model):
+class Fournisseur(models.Model):
     """
-    Représente une commande passée auprès d'un fournisseur.
+    Représente un fournisseur de pièces détachées.
+    Chaque pièce en stock peut être liée à un fournisseur via une FK.
+    Ce modèle sert aussi à générer les emails de commande automatiques
+    quand le stock d'une pièce passe sous le seuil minimum.
     """
-    
-    # CHOIX pour le statut
-    STATUT_CHOICES = [
-        ('BROUILLON', 'Brouillon'),
-        ('ENVOYEE', 'Envoyée'),
-        ('EN_ATTENTE', 'En attente de livraison'),
-        ('LIVREE', 'Livrée'),
-        ('ANNULEE', 'Annulée'),
+
+    CATEGORIE_CHOICES = [
+        ('PNEUS',            'Pneumatiques'),
+        ('PIECES_COMMUNES',  'Pièces communes'),
+        ('PIECES_SPEC',      'Pièces spécifiques'),
+        ('CARROSSERIE',      'Carrosserie'),
+        ('ELECTRICITE',      'Électricité'),
+        ('HUILES',           'Huiles & Liquides'),
+        ('AUTRE',            'Autre'),
     ]
-    
-    # Informations de base
-    numero_commande = models.CharField(
-        max_length=50,
-        unique=True,
-        help_text="Numéro de commande (ex: CMD-2026-001)"
-    )
-    fournisseur = models.CharField(
+
+    nom = models.CharField(
         max_length=200,
-        help_text="Nom du fournisseur"
+        help_text="Nom de l'entreprise fournisseur (ex: Autodis, LKQ)"
     )
-    
-    # Dates
-    date_commande = models.DateField(
-        help_text="Date de la commande"
+    email = models.EmailField(
+        help_text="Email principal pour les commandes (ex: commandes@fournisseur.fr)"
     )
-    date_livraison_prevue = models.DateField(
-        null=True,
-        blank=True,
-        help_text="Date de livraison prévue"
-    )
-    date_livraison_reelle = models.DateField(
-        null=True,
-        blank=True,
-        help_text="Date de livraison réelle"
-    )
-    
-    # Statut
-    statut = models.CharField(
+    telephone = models.CharField(
         max_length=20,
-        choices=STATUT_CHOICES,
-        default='BROUILLON',
-        help_text="État de la commande"
+        blank=True,
+        help_text="Téléphone du fournisseur"
     )
-    
-    # Notes
+    contact_nom = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text="Nom du contact commercial (ex: Jean Dupont)"
+    )
+    adresse = models.TextField(
+        blank=True,
+        help_text="Adresse postale complète"
+    )
+    categorie = models.CharField(
+        max_length=20,
+        choices=CATEGORIE_CHOICES,
+        default='AUTRE',
+        help_text="Type de fournisseur (Pneus, Pièces communes, etc.)"
+    )
+    est_favori = models.BooleanField(
+        default=False,
+        help_text="Fournisseur favori ? Apparaît en premier dans la liste"
+    )
+    actif = models.BooleanField(
+        default=True,
+        help_text="Fournisseur actif ? Si False, il n'apparaît plus dans les listes"
+    )
     notes = models.TextField(
         blank=True,
-        help_text="Notes ou commentaires sur la commande"
+        help_text="Notes libres (conditions de paiement, remises, etc.)"
     )
-    
-    # Métadonnées
     date_creation = models.DateTimeField(
         auto_now_add=True,
-        help_text="Date de création de la commande"
+        help_text="Date d'ajout du fournisseur"
     )
     date_modification = models.DateTimeField(
         auto_now=True,
         help_text="Dernière modification"
     )
-    
-    class Meta:
-        ordering = ['-date_commande']
-        verbose_name = "Commande Fournisseur"
-        verbose_name_plural = "Commandes Fournisseurs"
-    
-    def __str__(self):
-        """
-        Affichage : "CMD-2026-001 - Garage Center - Envoyée"
-        """
-        return f"{self.numero_commande} - {self.fournisseur} - {self.get_statut_display()}"
 
-
-# =============================================================================
-# MODÈLE LIGNE DE COMMANDE (pour lier Commande ↔ Pièce)
-# =============================================================================
-class LigneCommande(models.Model):
-    """
-    Représente une ligne dans une commande (1 pièce + quantité).
-    """
-    
-    # Relations
-    commande = models.ForeignKey(
-        CommandeFournisseur,
-        on_delete=models.CASCADE,
-        related_name='lignes',
-        help_text="Commande à laquelle appartient cette ligne"
-    )
-    piece = models.ForeignKey(
-        Piece,  # ← Lien vers le modèle Piece
-        on_delete=models.CASCADE,
-        help_text="Pièce commandée"
-    )
-    
-    # Quantité
-    quantite = models.IntegerField(
-        default=1,
-        help_text="Quantité commandée"
-    )
-    
-    # Prix au moment de la commande (peut être différent du prix actuel)
-    prix_unitaire = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        help_text="Prix unitaire au moment de la commande"
-    )
-    
     class Meta:
-        verbose_name = "Ligne de commande"
-        verbose_name_plural = "Lignes de commande"
-    
+        ordering = ['nom']
+        verbose_name = "Fournisseur"
+        verbose_name_plural = "Fournisseurs"
+
     def __str__(self):
-        return f"{self.piece.nom} x{self.quantite}"
-    
+        return self.nom
+
     @property
-    def total(self):
+    def pieces_en_alerte(self):
         """
-        Calcule le total de la ligne (quantité × prix unitaire)
+        Retourne les pièces liées à ce fournisseur dont le stock est faible.
+        C'est ce qu'on met dans l'email de commande.
         """
-        return self.quantite * self.prix_unitaire
+        return self.pieces.filter(stock_actuel__lt=models.F('stock_minimum'))
