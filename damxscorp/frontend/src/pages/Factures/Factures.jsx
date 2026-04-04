@@ -1,5 +1,6 @@
 // /frontend/src/pages/Factures/Factures.jsx
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // Composants Devis
 import DevisList      from '../../pages/Factures/Devis/DevisList';
@@ -10,7 +11,6 @@ import DevisDetail    from '../../pages/Factures/Devis/DevisDetail';
 import FactureList    from '../../pages/Factures/Factures/FactureList';
 import FactureForm    from '../../pages/Factures/Factures/FactureForm';
 import FactureDetail  from '../../pages/Factures/Factures/FactureDetail';
-import ParametresFacturation from '../../pages/Factures/Factures/ParametresFacturation';
 
 import './Factures.css';
 
@@ -19,7 +19,9 @@ import './Factures.css';
 // ===========================================================================
 
 const Factures = () => {
-  // Onglet actif : 'devis' | 'factures' | 'parametres'
+  const navigate = useNavigate();
+
+  // Onglet actif : 'devis' | 'factures'
   const [onglet, setOnglet] = useState('devis');
 
   // Vue dans l'onglet Devis : 'list' | 'create' | 'edit' | 'detail'
@@ -168,10 +170,6 @@ const Factures = () => {
       );
     }
 
-    if (onglet === 'parametres') {
-      return <ParametresFacturation onBack={() => handleOnglet('devis')} />;
-    }
-
     return null;
   };
 
@@ -192,8 +190,9 @@ const Factures = () => {
           🧾 Factures
         </button>
         <button
-          className={`factures-page__tab ${onglet === 'parametres' ? 'factures-page__tab--active' : ''}`}
-          onClick={() => handleOnglet('parametres')}
+          className="factures-page__tab"
+          onClick={() => navigate('/parametres')}
+          title="Accéder aux paramètres de facturation (TVA, forfaits…)"
         >
           ⚙️ Paramètres
         </button>

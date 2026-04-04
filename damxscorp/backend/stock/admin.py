@@ -1,5 +1,6 @@
 # /backend/stock/admin.py
 from django.contrib import admin
+from django.db.models import F, ExpressionWrapper, IntegerField
 from django.utils.html import format_html
 from .models import Piece
 
@@ -20,12 +21,28 @@ class StatutStockFilter(admin.SimpleListFilter):
         ]
 
     def queryset(self, request, qs):
-        # stock_status est une @property → on filtre manuellement
         val = self.value()
-        if not val:
-            return qs
-        ids = [p.pk for p in qs if p.stock_status == val]
-        return qs.filter(pk__in=ids)
+
+        if val == 'RUPTURE':
+            # Stock disponible <= 0 (tout le stock est suspendu ou épuisé)
+            return qs.filter(stock_actuel__lte=F('stock_suspendu'))
+
+        if val in ('ALERTE', 'OK'):
+            # Django ne peut pas faire "stock_actuel - stock_suspendu" directement
+            # dans un lookup → on utilise annotate() pour créer un champ calculé SQL
+            qs = qs.annotate(
+                stock_dispo=ExpressionWrapper(
+                    F('stock_actuel') - F('stock_suspendu'),
+                    output_field=IntegerField()
+                )
+            )
+            if val == 'ALERTE':
+                # Stock dispo > 0 mais sous le seuil minimum
+                return qs.filter(stock_dispo__gt=0, stock_dispo__lt=F('stock_minimum'))
+            # OK : stock dispo >= seuil minimum
+            return qs.filter(stock_dispo__gte=F('stock_minimum'))
+
+        return qs
 
 
 # =============================================================================
@@ -59,7 +76,7 @@ class PieceAdmin(admin.ModelAdmin):
     )
 
     # ── Recherche ─────────────────────────────────────────────────────────────
-    search_fields = ('reference', 'nom', 'fournisseur', 'description')
+    search_fields = ('reference', 'nom', 'description', 'fournisseur_ref__nom')
 
     # ── Filtres latéraux ──────────────────────────────────────────────────────
     list_filter = ('categorie', StatutStockFilter, 'fournisseur_ref', 'date_creation')
@@ -67,7 +84,7 @@ class PieceAdmin(admin.ModelAdmin):
     # ── Tri par défaut ────────────────────────────────────────────────────────
     ordering = ('categorie', 'nom')
 
-    # ── Édition rapide dans la liste (double-clic sur la cellule) ─────────────
+    # ── Édition rapide dans la liste ──────────────────────────────────────────
     list_editable = ('stock_actuel', 'stock_minimum')
 
     # ── Organisation du formulaire en sections ────────────────────────────────
@@ -83,11 +100,8 @@ class PieceAdmin(admin.ModelAdmin):
             'description': '⚠️ stock_suspendu est géré automatiquement par les devis, ne pas le modifier manuellement.',
         }),
         ('Fournisseur', {
-            'fields': ('fournisseur', 'fournisseur_ref'),
-            'description': (
-                'Utilisez fournisseur_ref pour lier la fiche fournisseur (email automatique). '
-                'Le champ "fournisseur" texte libre est conservé pour compatibilité.'
-            ),
+            'fields': ('fournisseur_ref',),
+            'description': 'Liez une fiche fournisseur pour la génération automatique d\'email de commande.',
         }),
         ('Infos calculées (lecture seule)', {
             'fields': ('stock_status', 'stock_disponible', 'marge', 'marge_pourcentage'),
@@ -108,13 +122,17 @@ class PieceAdmin(admin.ModelAdmin):
     # ── Colonne statut colorée ────────────────────────────────────────────────
     @admin.display(description='Statut', ordering='stock_actuel')
     def statut_colore(self, obj):
-        styles = {
+        couleurs = {
             'OK':      ('#27ae60', '✅ OK'),
             'ALERTE':  ('#f39c12', '⚠️ Alerte'),
             'RUPTURE': ('#e74c3c', '🔴 Rupture'),
         }
-        couleur, label = styles.get(obj.stock_status, ('#aaa', obj.stock_status))
+        status = obj.stock_status
+        couleur, label = couleurs.get(status, ('#95a5a6', status))
         return format_html(
-            '<span style="color:{}; font-weight:bold;">{}</span>',
+            '<span style="'
+            'background:{};color:#fff;padding:3px 10px;'
+            'border-radius:12px;font-size:12px;font-weight:600;'
+            '">{}</span>',
             couleur, label
         )

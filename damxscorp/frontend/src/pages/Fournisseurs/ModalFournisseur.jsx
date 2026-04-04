@@ -1,6 +1,8 @@
 // /frontend/src/pages/Fournisseurs/ModalFournisseur.jsx
 import React, { useState } from 'react';
-import { CATEGORIES } from './CardFournisseur';
+import Modal from '../../components/shared/Modals/Modal';
+import { useReferentiels } from '../../context/ReferentielsContext';
+import '../../components/shared/Modals/forms.css';
 import './ModalFournisseur.css';
 
 // Valeurs par défaut pour le formulaire de création
@@ -19,19 +21,24 @@ const FORMULAIRE_VIDE = {
 /**
  * ModalFournisseur
  * Modal pour créer ou modifier un fournisseur.
+ * Utilise Modal.jsx (coquille partagée) + forms.css (styles partagés).
  *
  * Props :
  *   fournisseur – null = création, objet = édition
- *   onSave      – fn(formData) → doit créer ou modifier via l'API
- *   onClose     – fn() → ferme le modal
+ *   onSave      – fn(formData) → appelle l'API puis recharge la liste
+ *   onClose     – fn() → ferme la modal
  */
 const ModalFournisseur = ({ fournisseur, onSave, onClose }) => {
-  // Si on édite, on pré-remplit le formulaire avec les données existantes
-  const [form, setForm]     = useState(fournisseur || FORMULAIRE_VIDE);
+  const { getCategoriesFournisseur } = useReferentiels();
+  const categories = getCategoriesFournisseur();
+
+  const [form,   setForm]   = useState(fournisseur || FORMULAIRE_VIDE);
   const [saving, setSaving] = useState(false);
   const [erreur, setErreur] = useState(null);
 
-  // Met à jour le champ correspondant dans l'état du formulaire
+  const isEdition = Boolean(fournisseur?.id);
+
+  // Met à jour le champ correspondant (gère checkboxes et champs texte)
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm(prev => ({
@@ -40,7 +47,6 @@ const ModalFournisseur = ({ fournisseur, onSave, onClose }) => {
     }));
   };
 
-  // Soumission du formulaire
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -55,66 +61,85 @@ const ModalFournisseur = ({ fournisseur, onSave, onClose }) => {
     }
   };
 
-  const isEdition = Boolean(fournisseur?.id);
+  // Boutons collés en bas — passés en prop footer à Modal
+  const footer = (
+    <>
+      <button type="button" className="form-btn form-btn--cancel" onClick={onClose}>
+        Annuler
+      </button>
+      <button
+        type="submit"
+        form="form-fournisseur"
+        className="form-btn form-btn--save"
+        disabled={saving}
+      >
+        {saving ? 'Enregistrement…' : (isEdition ? '💾 Enregistrer' : '➕ Créer')}
+      </button>
+    </>
+  );
 
   return (
-    <div className="modal-fourn-overlay" onClick={onClose}>
-      {/* stopPropagation : empêche le clic sur la boîte de fermer le modal */}
-      <div className="modal-fourn-box" onClick={e => e.stopPropagation()}>
+    <Modal
+      title={isEdition ? 'Modifier le fournisseur' : 'Nouveau fournisseur'}
+      titleIcon={<span>🏭</span>}
+      onClose={onClose}
+      footer={footer}
+    >
+      <form id="form-fournisseur" onSubmit={handleSubmit}>
 
-        {/* En-tête */}
-        <div className="modal-fourn-header">
-          <h2>{isEdition ? '✏️ Modifier le fournisseur' : '➕ Nouveau fournisseur'}</h2>
-          <button className="modal-fourn-close" onClick={onClose} title="Fermer">✕</button>
-        </div>
+        {/* Erreur globale */}
+        {erreur && <div className="form-error-global">⚠️ {erreur}</div>}
 
-        {/* Formulaire */}
-        <form onSubmit={handleSubmit} className="modal-fourn-form">
+        {/* ── Section : Identité ─────────────────────────────────── */}
+        <div className="form-section">
+          <p className="form-section__title">🏭 Identité</p>
 
-          {/* Message d'erreur éventuel */}
-          {erreur && <div className="modal-fourn-error">{erreur}</div>}
-
-          {/* Ligne 1 : Nom + Catégorie */}
-          <div className="mf-row">
-            <div className="mf-group mf-group--large">
-              <label>Nom du fournisseur *</label>
-              <input
-                name="nom"
-                value={form.nom}
-                onChange={handleChange}
-                placeholder="Ex : Utiligroup, Norauto, Autorectif…"
-                required
-              />
-            </div>
-            <div className="mf-group">
-              <label>Catégorie</label>
-              <select name="categorie" value={form.categorie} onChange={handleChange}>
-                {CATEGORIES.map(c => (
-                  <option key={c.value} value={c.value}>
-                    {c.icon} {c.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div className="form-group">
+            <label className="form-label required">Nom du fournisseur</label>
+            <input
+              name="nom"
+              className="form-input"
+              value={form.nom}
+              onChange={handleChange}
+              placeholder="Ex : Utiligroup, Norauto, Autorectif…"
+              required
+            />
           </div>
 
-          {/* Ligne 2 : Email + Téléphone */}
-          <div className="mf-row">
-            <div className="mf-group mf-group--large">
-              <label>Email de commande *</label>
+          <div className="form-group">
+            <label className="form-label">Catégorie</label>
+            <select name="categorie" className="form-input" value={form.categorie} onChange={handleChange}>
+              {categories.map(c => (
+                <option key={c.valeur} value={c.valeur}>
+                  {c.icone} {c.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* ── Section : Contact ──────────────────────────────────── */}
+        <div className="form-section">
+          <p className="form-section__title">📞 Contact</p>
+
+          <div className="form-row-2col">
+            <div className="form-group">
+              <label className="form-label required">Email de commande</label>
               <input
                 name="email"
                 type="email"
+                className="form-input"
                 value={form.email}
                 onChange={handleChange}
                 placeholder="commandes@fournisseur.fr"
                 required
               />
             </div>
-            <div className="mf-group">
-              <label>Téléphone</label>
+            <div className="form-group">
+              <label className="form-label">Téléphone</label>
               <input
                 name="telephone"
+                className="form-input"
                 value={form.telephone}
                 onChange={handleChange}
                 placeholder="01 23 45 67 89"
@@ -122,42 +147,45 @@ const ModalFournisseur = ({ fournisseur, onSave, onClose }) => {
             </div>
           </div>
 
-          {/* Contact commercial */}
-          <div className="mf-group">
-            <label>Nom du contact commercial</label>
+          <div className="form-group">
+            <label className="form-label">Nom du contact commercial</label>
             <input
               name="contact_nom"
+              className="form-input"
               value={form.contact_nom}
               onChange={handleChange}
               placeholder="Ex : Jean Dupont"
             />
           </div>
 
-          {/* Adresse */}
-          <div className="mf-group">
-            <label>Adresse</label>
+          <div className="form-group">
+            <label className="form-label">Adresse postale</label>
             <textarea
               name="adresse"
+              className="form-input form-textarea"
               value={form.adresse}
               onChange={handleChange}
-              rows={2}
-              placeholder="Adresse postale complète"
+              placeholder="Adresse complète…"
             />
           </div>
+        </div>
 
-          {/* Notes */}
-          <div className="mf-group">
-            <label>Notes internes</label>
+        {/* ── Section : Notes & Options ─────────────────────────── */}
+        <div className="form-section">
+          <p className="form-section__title">📝 Notes & Options</p>
+
+          <div className="form-group">
+            <label className="form-label">Notes internes</label>
             <textarea
               name="notes"
+              className="form-input form-textarea"
               value={form.notes}
               onChange={handleChange}
-              rows={2}
               placeholder="Conditions de paiement, remises négociées, délais habituels…"
             />
           </div>
 
-          {/* Cases à cocher */}
+          {/* Cases à cocher — style dans ModalFournisseur.css */}
           <div className="mf-checkboxes">
             <label className="mf-checkbox-label">
               <input
@@ -178,20 +206,10 @@ const ModalFournisseur = ({ fournisseur, onSave, onClose }) => {
               ✅ Fournisseur actif
             </label>
           </div>
+        </div>
 
-          {/* Pied de modal : boutons */}
-          <div className="modal-fourn-footer">
-            <button type="button" className="mf-btn-cancel" onClick={onClose}>
-              Annuler
-            </button>
-            <button type="submit" className="mf-btn-save" disabled={saving}>
-              {saving ? 'Enregistrement…' : (isEdition ? '💾 Enregistrer' : '➕ Créer')}
-            </button>
-          </div>
-
-        </form>
-      </div>
-    </div>
+      </form>
+    </Modal>
   );
 };
 

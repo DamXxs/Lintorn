@@ -70,12 +70,8 @@ class Piece(models.Model):
         help_text="Quantité réservée pour des devis en cours (non encore facturés)"
     )
     
-    # Fournisseur
-    fournisseur = models.CharField(
-        max_length=200,
-        blank=True,
-        help_text="Nom du fournisseur (ancien champ texte — utiliser fournisseur_ref)"
-    )
+
+    
     # Lien vers la fiche fournisseur (pour l'email automatique)
     # null=True / blank=True → les anciennes pièces sans fiche fournisseur restent valides
     fournisseur_ref = models.ForeignKey(

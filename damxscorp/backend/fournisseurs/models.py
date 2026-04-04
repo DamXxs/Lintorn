@@ -10,7 +10,11 @@ class Fournisseur(models.Model):
     quand le stock d'une pièce passe sous le seuil minimum.
     """
 
-    CATEGORIE_CHOICES = [
+    # Les catégories sont maintenant gérées dynamiquement via les Référentiels
+    # (catégorie CATEGORIE_FOURNISSEUR dans la table referentiels_referentiel)
+    # Ce champ accepte n'importe quelle valeur — la validation se fait côté frontend.
+    # Valeurs par défaut gardées ici pour référence / compatibilité avec l'existant.
+    CATEGORIES_DEFAUT = [
         ('PNEUS',            'Pneumatiques'),
         ('PIECES_COMMUNES',  'Pièces communes'),
         ('PIECES_SPEC',      'Pièces spécifiques'),
@@ -42,10 +46,10 @@ class Fournisseur(models.Model):
         help_text="Adresse postale complète"
     )
     categorie = models.CharField(
-        max_length=20,
-        choices=CATEGORIE_CHOICES,
+        max_length=50,          # élargi pour les valeurs custom via référentiels
+        blank=True,
         default='AUTRE',
-        help_text="Type de fournisseur (Pneus, Pièces communes, etc.)"
+        help_text="Catégorie du fournisseur — valeur libre, gérée via les Référentiels"
     )
     est_favori = models.BooleanField(
         default=False,

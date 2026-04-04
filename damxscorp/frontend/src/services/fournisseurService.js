@@ -2,12 +2,15 @@
 // Toutes les fonctions qui parlent à l'API Django pour les fournisseurs
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8000/api';
+// Si REACT_APP_API_URL est vide → URLs relatives (/api/...)
+// Le proxy craco redirige /api → http://localhost:8000
+// Fonctionne en local ET sur GitHub Codespaces.
+const API_BASE_URL = process.env.REACT_APP_API_URL || '/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: { 'Content-Type': 'application/json' },
-  withCredentials: true,
+  // withCredentials retiré : inutile avec le proxy et cause des erreurs CSRF
 });
 
 // ── FOURNISSEURS CRUD ────────────────────────────────────────────────────────

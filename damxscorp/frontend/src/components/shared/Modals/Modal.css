@@ -94,6 +94,12 @@
 
 /* La scrollbar est gérée globalement dans index.css */
 
+/* === VARIANTES DE TAILLE === */
+/* Modale large — ex: email avec tableau de pièces */
+.modal-box--wide {
+  max-width: 780px;
+}
+
 /* === RESPONSIVE === */
 @media (max-width: 768px) {
   .modal-overlay { align-items: flex-end; padding: 0; }

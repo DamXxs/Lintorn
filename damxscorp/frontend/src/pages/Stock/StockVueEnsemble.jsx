@@ -7,9 +7,9 @@ import './StockVueEnsemble.css';
 
 // ── API stock (create / update / delete) ─────────────────────────────────────
 const stockApi = axios.create({
-  baseURL: 'http://localhost:8000/api',
+  baseURL: process.env.REACT_APP_API_URL || '/api',
   headers: { 'Content-Type': 'application/json' },
-  withCredentials: true,
+  // withCredentials retiré : inutile avec le proxy craco
 });
 
 const fetchPieces    = () => stockApi.get('/stock/pieces/').then(r => r.data);

@@ -20,7 +20,13 @@ import './ParametresFacturation.css';
 // ── Formulaire vierge pour un nouveau forfait ──────────────────────────────
 const FORFAIT_VIDE = { nom: '', description: '', prix_forfait: '', actif: true };
 
-const ParametresFacturation = ({ onBack }) => {
+/**
+ * Props :
+ *   onBack   – fn() → bouton retour (utilisé dans l'onglet Factures)
+ *   embedded – bool → si true, masque le header et les boutons Annuler/Retour
+ *              (utilisé quand le composant est intégré dans la page Paramètres)
+ */
+const ParametresFacturation = ({ onBack, embedded = false }) => {
   // ── TVA ───────────────────────────────────────────────────────────────────
   const [parametres, setParametres] = useState({ tva_pourcentage: 20 });
   const [loadingParams, setLoadingParams] = useState(true);
@@ -169,12 +175,16 @@ const ParametresFacturation = ({ onBack }) => {
 
   return (
     <div className="parametres-facturation">
-      <div className="parametres-facturation__header">
-        <button className="parametres-facturation__btn-back" onClick={onBack}>
-          ← Retour
-        </button>
-        <h1 className="parametres-facturation__title">Paramètres de facturation</h1>
-      </div>
+      {/* L'en-tête avec le bouton retour est masqué quand le composant est intégré
+          dans une autre page (ex : Paramètres). Il reste visible dans l'onglet Factures. */}
+      {!embedded && (
+        <div className="parametres-facturation__header">
+          <button className="parametres-facturation__btn-back" onClick={onBack}>
+            ← Retour
+          </button>
+          <h1 className="parametres-facturation__title">Paramètres de facturation</h1>
+        </div>
+      )}
 
       {/* ── Section TVA ──────────────────────────────────────────────────── */}
       <form onSubmit={handleSubmitParams} className="parametres-facturation__form">
@@ -205,14 +215,16 @@ const ParametresFacturation = ({ onBack }) => {
           )}
 
           <div className="parametres-facturation__actions">
-            <button
-              type="button"
-              className="parametres-facturation__btn-cancel"
-              onClick={onBack}
-              disabled={savingParams}
-            >
-              Annuler
-            </button>
+            {!embedded && (
+              <button
+                type="button"
+                className="parametres-facturation__btn-cancel"
+                onClick={onBack}
+                disabled={savingParams}
+              >
+                Annuler
+              </button>
+            )}
             <button
               type="submit"
               className="parametres-facturation__btn-save"

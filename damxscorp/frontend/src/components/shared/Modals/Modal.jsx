@@ -21,22 +21,24 @@ import './Modal.css';
  *   customHeader : JSX complet qui remplace le header standard (optionnel)
  *                  Utile quand le header est trop spécifique pour title+icon
  *                  (ex: ClientDetail avec avatar circulaire + sous-titre)
+ *   boxClassName : classe CSS supplémentaire sur modal-box (optionnel)
+ *                  Utile pour changer la largeur : "modal-box--wide" (780px max)
  *
  * Usage standard :
  *   <Modal title="Nouveau client" titleIcon={<UserPlus size={15}/>} onClose={onClose} footer={...}>
  *     <form>...</form>
  *   </Modal>
  *
- * Usage avec header custom :
- *   <Modal onClose={onClose} customHeader={<div className="mon-header">...</div>} footer={...}>
+ * Usage large (ex: email avec tableau) :
+ *   <Modal title="Email" boxClassName="modal-box--wide" onClose={onClose}>
  *     ...
  *   </Modal>
  */
-const Modal = ({ title, titleIcon, onClose, children, footer, customHeader }) => {
+const Modal = ({ title, titleIcon, onClose, children, footer, customHeader, boxClassName }) => {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div
-        className="modal-box"
+        className={`modal-box${boxClassName ? ` ${boxClassName}` : ''}`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* HEADER — custom (ex: avatar client) ou standard (titre + icône + ✕) */}

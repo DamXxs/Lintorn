@@ -5,10 +5,11 @@ import { useReferentiels } from '../../context/ReferentielsContext';
 import ReferentielEditor from './ReferentielEditor';
 import DepartementEditor from './DepartementEditor';
 import CollaborateurEditor from './CollaborateurEditor';
+import ParametresFacturation from '../Factures/Factures/ParametresFacturation';
 import { fetchDepartements, fetchCollaborateurs } from '../../services/api';
 import {
   Palette, Bell, Bot, Settings, Loader,
-  Car, Wrench, Package, Factory, Users
+  Car, Wrench, Package, Factory, Users, Tag, Banknote
 } from '../../utils/icons';
 import './Parametres.css';
 
@@ -140,8 +141,30 @@ const Parametres = () => {
               onReload={reload}
             />
           </section>
+
+          <section className="param-section">
+            <h2 className="param-section__title"><Tag size={16} /> Catégories de fournisseurs</h2>
+            <p className="param-description">
+              Personnalisez les catégories de vos fournisseurs (pneumatiques, pièces, carrosserie…).
+              Elles apparaissent dans la page Fournisseurs pour filtrer et classer vos contacts.
+            </p>
+            <ReferentielEditor
+              categorie="CATEGORIE_FOURNISSEUR"
+              items={referentiels.CATEGORIE_FOURNISSEUR}
+              onReload={reload}
+            />
+          </section>
         </>
       )}
+
+      {/* ── PARAMÈTRES DE FACTURATION ──────────────────────────────────────── */}
+      <section className="param-section">
+        <h2 className="param-section__title"><Banknote size={16} /> Facturation</h2>
+        <p className="param-description">
+          Configurez le taux de TVA et les forfaits main d'œuvre utilisés dans vos devis et factures.
+        </p>
+        <ParametresFacturation embedded />
+      </section>
 
       {/* ── FUTURES OPTIONS ────────────────────────────────────────────────── */}
       <section className="param-section">

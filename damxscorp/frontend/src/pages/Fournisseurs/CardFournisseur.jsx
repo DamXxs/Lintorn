@@ -1,21 +1,12 @@
 // /frontend/src/pages/Fournisseurs/CardFournisseur.jsx
 import React from 'react';
+import { useReferentiels } from '../../context/ReferentielsContext';
 import './CardFournisseur.css';
-
-// Liste des catégories — doit rester synchronisée avec le backend (models.py)
-export const CATEGORIES = [
-  { value: 'PNEUS',           label: 'Pneumatiques',       icon: '🔵' },
-  { value: 'PIECES_COMMUNES', label: 'Pièces communes',    icon: '🔧' },
-  { value: 'PIECES_SPEC',     label: 'Pièces spécifiques', icon: '⚙️' },
-  { value: 'CARROSSERIE',     label: 'Carrosserie',        icon: '🚗' },
-  { value: 'ELECTRICITE',     label: 'Électricité',        icon: '⚡' },
-  { value: 'HUILES',          label: 'Huiles & Liquides',  icon: '🛢️' },
-  { value: 'AUTRE',           label: 'Autre',              icon: '📦' },
-];
 
 /**
  * CardFournisseur
  * Affiche les infos d'un fournisseur sous forme de carte.
+ * Les catégories viennent des référentiels (configurables dans Paramètres).
  *
  * Props :
  *   fournisseur   – objet fournisseur venant de l'API
@@ -25,15 +16,21 @@ export const CATEGORIES = [
  *   onEmail       – fn(fournisseur) → ouvre le modal email
  */
 const CardFournisseur = ({ fournisseur, onEdit, onDelete, onToggleFavori, onEmail }) => {
+  const { getCategoriesFournisseur } = useReferentiels();
+  const categories = getCategoriesFournisseur();
+
   // Trouve la catégorie pour afficher l'icône et le libellé
-  const cat = CATEGORIES.find(c => c.value === fournisseur.categorie) || CATEGORIES[6];
+  // Fallback sur le dernier élément (AUTRE) si la catégorie n'est pas trouvée
+  const cat = categories.find(c => c.valeur === fournisseur.categorie)
+           || categories[categories.length - 1]
+           || { valeur: 'AUTRE', label: 'Autre', icone: '📦' };
 
   return (
     <div className={`card-fournisseur ${fournisseur.est_favori ? 'card-fournisseur--favori' : ''} ${!fournisseur.actif ? 'card-fournisseur--inactif' : ''}`}>
 
       {/* Badge catégorie — en haut à gauche */}
       <span className="card-cat-badge">
-        {cat.icon} {cat.label}
+        {cat.icone} {cat.label}
       </span>
 
       {/* Bouton étoile — en haut à droite */}

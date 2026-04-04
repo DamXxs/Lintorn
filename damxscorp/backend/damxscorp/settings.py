@@ -167,3 +167,16 @@ CSRF_COOKIE_SECURE = False       # False en HTTP local (True uniquement en HTTPS
 SESSION_COOKIE_SECURE = False    # Idem
 CSRF_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_SAMESITE = 'Lax'
+
+# =============================================================================
+# DJANGO REST FRAMEWORK
+# On désactive l'authentification par défaut pour l'API en dev.
+# Sans ça, DRF's SessionAuthentication exige un token CSRF pour chaque POST/PUT/DELETE,
+# ce qui bloque React si le cookie CSRF n'est pas envoyé correctement.
+# =============================================================================
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [],      # pas d'auth par session en dev
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',  # tout le monde peut appeler l'API
+    ],
+}

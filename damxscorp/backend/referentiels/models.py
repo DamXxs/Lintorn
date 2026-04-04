@@ -11,9 +11,10 @@ class Referentiel(models.Model):
 
     # Catégories disponibles
     CATEGORIE_CHOICES = [
-        ('TYPE_VEHICULE',      'Types de véhicules'),
-        ('TYPE_INTERVENTION',  'Types d\'interventions'),
-        ('CATEGORIE_STOCK',    'Catégories de stock'),
+        ('TYPE_VEHICULE',       'Types de véhicules'),
+        ('TYPE_INTERVENTION',   'Types d\'interventions'),
+        ('CATEGORIE_STOCK',     'Catégories de stock'),
+        ('CATEGORIE_FOURNISSEUR', 'Catégories de fournisseurs'),
     ]
 
     categorie = models.CharField(

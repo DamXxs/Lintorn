@@ -12,7 +12,8 @@ import {
   deleteFournisseur,
   fetchPiecesEnAlerte,
 } from '../../services/fournisseurService';
-import CardFournisseur, { CATEGORIES } from './CardFournisseur';
+import { useReferentiels } from '../../context/ReferentielsContext';
+import CardFournisseur from './CardFournisseur';
 import ModalFournisseur from './ModalFournisseur';
 import ModalEmailPreRempli from './ModalEmailPreRempli';
 import './Fournisseurs.css';
@@ -22,6 +23,9 @@ import './Fournisseurs.css';
 // ─────────────────────────────────────────────────────────────────────────────
 
 const Fournisseurs = () => {
+  const { getCategoriesFournisseur } = useReferentiels();
+  const categories = getCategoriesFournisseur();
+
   // ── Données ────────────────────────────────────────────────────────────────
   const [fournisseurs, setFournisseurs] = useState([]);
   const [stockAlertes, setStockAlertes] = useState({ alerte: [], rupture: [] });
@@ -106,10 +110,10 @@ const Fournisseurs = () => {
 
   // Séparation favoris / groupés par catégorie
   const favoris     = fournisseursFiltres.filter(f => f.est_favori);
-  const parCategorie = CATEGORIES
+  const parCategorie = categories
     .map(cat => ({
       ...cat,
-      items: fournisseursFiltres.filter(f => !f.est_favori && f.categorie === cat.value),
+      items: fournisseursFiltres.filter(f => !f.est_favori && f.categorie === cat.valeur),
     }))
     .filter(cat => cat.items.length > 0);
 
@@ -169,13 +173,13 @@ const Fournisseurs = () => {
           >
             Tous
           </button>
-          {CATEGORIES.map(c => (
+          {categories.map(c => (
             <button
-              key={c.value}
-              className={`categorie-tab ${filtreCategorie === c.value ? 'categorie-tab--actif' : ''}`}
-              onClick={() => setFiltreCategorie(c.value)}
+              key={c.valeur}
+              className={`categorie-tab ${filtreCategorie === c.valeur ? 'categorie-tab--actif' : ''}`}
+              onClick={() => setFiltreCategorie(c.valeur)}
             >
-              {c.icon} {c.label}
+              {c.icone} {c.label}
             </button>
           ))}
         </div>
@@ -211,8 +215,8 @@ const Fournisseurs = () => {
 
           {/* Sections par catégorie */}
           {parCategorie.map(cat => (
-            <section key={cat.value} className="fournisseurs-section">
-              <h2 className="section-titre">{cat.icon} {cat.label}</h2>
+            <section key={cat.valeur} className="fournisseurs-section">
+              <h2 className="section-titre">{cat.icone} {cat.label}</h2>
               <div className="fournisseurs-grid">
                 {cat.items.map(f => (
                   <CardFournisseur

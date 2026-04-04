@@ -11,38 +11,51 @@ import logger from '../utils/logger';
  * les constantes figées de constants.js
  *
  * Usage dans un composant :
- *   const { getTypeVehicules, getTypeInterventions } = useReferentiels();
+ *   const { getTypeVehicules, getTypeInterventions, getCategoriesFournisseur } = useReferentiels();
  */
 
 const ReferentielsContext = createContext(null);
+
+// ── Catégories de fournisseurs par défaut ─────────────────────────────────
+// Utilisées comme FALLBACK si aucune entrée CATEGORIE_FOURNISSEUR dans la DB.
+// Elles correspondent aux valeurs historiques du champ categorie (Fournisseur.model).
+// Dès que l'utilisateur crée des catégories dans Paramètres → elles remplacent ce fallback.
+export const CATEGORIES_FOURNISSEUR_DEFAUT = [
+  { valeur: 'PNEUS',           label: 'Pneumatiques',       icone: '🔵', couleur: '#3498db' },
+  { valeur: 'PIECES_COMMUNES', label: 'Pièces communes',    icone: '🔧', couleur: '#7f8c8d' },
+  { valeur: 'PIECES_SPEC',     label: 'Pièces spécifiques', icone: '⚙️', couleur: '#95a5a6' },
+  { valeur: 'CARROSSERIE',     label: 'Carrosserie',        icone: '🚗', couleur: '#e74c3c' },
+  { valeur: 'ELECTRICITE',     label: 'Électricité',        icone: '⚡', couleur: '#f1c40f' },
+  { valeur: 'HUILES',          label: 'Huiles & Liquides',  icone: '🛢️', couleur: '#e67e22' },
+  { valeur: 'AUTRE',           label: 'Autre',              icone: '📦', couleur: '#6c757d' },
+];
 
 export const ReferentielsProvider = ({ children }) => {
 
   // Stocke tous les référentiels regroupés par catégorie
   const [referentiels, setReferentiels] = useState({
-    TYPE_VEHICULE:     [],
-    TYPE_INTERVENTION: [],
-    CATEGORIE_STOCK:   [],
+    TYPE_VEHICULE:          [],
+    TYPE_INTERVENTION:      [],
+    CATEGORIE_STOCK:        [],
+    CATEGORIE_FOURNISSEUR:  [],
   });
 
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState(null);
 
   // ── CHARGEMENT ────────────────────────────────────────────────
-  // useCallback pour pouvoir appeler reload depuis l'éditeur Paramètres
   const loadReferentiels = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // Un seul appel API → tout récupérer d'un coup
       const data = await fetchReferentiels();
 
-      // Regrouper par catégorie
       const grouped = {
-        TYPE_VEHICULE:     [],
-        TYPE_INTERVENTION: [],
-        CATEGORIE_STOCK:   [],
+        TYPE_VEHICULE:          [],
+        TYPE_INTERVENTION:      [],
+        CATEGORIE_STOCK:        [],
+        CATEGORIE_FOURNISSEUR:  [],
       };
 
       data.forEach(item => {
@@ -51,7 +64,6 @@ export const ReferentielsProvider = ({ children }) => {
         }
       });
 
-      // Trier par ordre dans chaque catégorie
       Object.keys(grouped).forEach(cat => {
         grouped[cat].sort((a, b) => a.ordre - b.ordre);
       });
@@ -61,6 +73,7 @@ export const ReferentielsProvider = ({ children }) => {
         vehicules:     grouped.TYPE_VEHICULE.length,
         interventions: grouped.TYPE_INTERVENTION.length,
         stock:         grouped.CATEGORIE_STOCK.length,
+        fournisseurs:  grouped.CATEGORIE_FOURNISSEUR.length,
       });
 
     } catch (err) {
@@ -75,46 +88,58 @@ export const ReferentielsProvider = ({ children }) => {
 
   // ── HELPERS ───────────────────────────────────────────────────
 
-  /** Retourne les types de véhicules ACTIFS pour les selects */
   const getTypeVehicules = (tousInclus = false) => {
     const list = referentiels.TYPE_VEHICULE;
     return tousInclus ? list : list.filter(r => r.actif);
   };
 
-  /** Retourne les types d'interventions ACTIFS */
   const getTypeInterventions = (tousInclus = false) => {
     const list = referentiels.TYPE_INTERVENTION;
     return tousInclus ? list : list.filter(r => r.actif);
   };
 
-  /** Retourne les catégories de stock ACTIVES */
   const getCategoriesStock = (tousInclus = false) => {
     const list = referentiels.CATEGORIE_STOCK;
     return tousInclus ? list : list.filter(r => r.actif);
   };
 
-  /** Trouve le label d'une valeur dans une catégorie */
+  /**
+   * Retourne les catégories de fournisseurs.
+   * → Si des catégories ont été créées dans Paramètres : on les utilise.
+   * → Sinon : on retourne le fallback codé en dur (7 catégories par défaut).
+   *
+   * Le résultat est toujours au format { valeur, label, icone, couleur }
+   * pour être compatible avec les composants CardFournisseur et ModalFournisseur.
+   */
+  const getCategoriesFournisseur = (tousInclus = false) => {
+    const list = referentiels.CATEGORIE_FOURNISSEUR;
+    if (list.length === 0) {
+      // Aucune catégorie configurée → fallback sur les valeurs par défaut
+      return CATEGORIES_FOURNISSEUR_DEFAUT;
+    }
+    return tousInclus ? list : list.filter(r => r.actif);
+  };
+
   const getLabel = (categorie, valeur) => {
     const item = referentiels[categorie]?.find(r => r.valeur === valeur);
     return item ? item.label : valeur;
   };
 
-  /** Trouve l'icône d'une valeur dans une catégorie */
   const getIcone = (categorie, valeur) => {
     const item = referentiels[categorie]?.find(r => r.valeur === valeur);
     return item ? item.icone : '';
   };
 
   const value = {
-    referentiels,         // Données brutes (pour l'éditeur Paramètres)
+    referentiels,
     loading,
     error,
-    reload: loadReferentiels,  // Permet de recharger après modification
+    reload: loadReferentiels,
 
-    // Accesseurs pratiques
     getTypeVehicules,
     getTypeInterventions,
     getCategoriesStock,
+    getCategoriesFournisseur,   // ← nouveau
     getLabel,
     getIcone,
   };
@@ -126,7 +151,6 @@ export const ReferentielsProvider = ({ children }) => {
   );
 };
 
-/** Hook d'accès au contexte */
 export const useReferentiels = () => {
   const context = useContext(ReferentielsContext);
   if (!context) {

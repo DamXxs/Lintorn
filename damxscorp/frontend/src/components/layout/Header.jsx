@@ -15,7 +15,9 @@ const Header = ({ isSidebarExpanded, onToggleSidebar }) => {
   // ── Vérification connexion Django ────────────────────────────
   const checkDjangoConnection = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/health/');
+      // URL relative → fonctionne avec le proxy craco en local ET sur Codespaces
+      const apiBase = process.env.REACT_APP_API_URL || '/api';
+      const response = await fetch(`${apiBase}/health/`);
       setDjangoStatus(response.ok ? 'connected' : 'error');
     } catch {
       setDjangoStatus('error');

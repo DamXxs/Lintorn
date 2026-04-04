@@ -26,7 +26,6 @@ const PIECE_VIDE = {
   prix_vente:     '',
   stock_actuel:   0,
   stock_minimum:  5,
-  fournisseur:    '',   // ancien champ texte (compat)
   fournisseur_ref: '',  // ID FK vers la fiche fournisseur
   delai_livraison: 2,
 };
@@ -254,15 +253,6 @@ const StockForm = ({ piece, onSave, onClose }) => {
               </span>
             </div>
 
-            <div className="sf-group">
-              <label>Fournisseur (texte libre — ancien champ)</label>
-              <input
-                name="fournisseur"
-                value={form.fournisseur}
-                onChange={handleChange}
-                placeholder="Ex : Autodis — à remplir si pas de fiche liée"
-              />
-            </div>
           </fieldset>
 
           {/* Pied */}

@@ -13,7 +13,6 @@ class PieceSerializer(serializers.ModelSerializer):
       - marge / marge_pourcentage : calculés depuis les prix
 
     Champs fournisseur :
-      - fournisseur      : ancien champ texte libre (conservé)
       - fournisseur_ref  : ID de la fiche fournisseur liée (pour écriture)
       - fournisseur_nom  : nom calculé depuis fournisseur_ref (lecture seule)
       - fournisseur_email: email calculé depuis fournisseur_ref (lecture seule)
@@ -48,7 +47,6 @@ class PieceSerializer(serializers.ModelSerializer):
             'stock_suspendu',
             'stock_disponible',
             'stock_status',
-            'fournisseur',        # ancien champ texte (conservé pour compat)
             'fournisseur_ref',    # ID FK (pour écriture depuis React)
             'fournisseur_nom',    # nom calculé (lecture seule)
             'fournisseur_email',  # email calculé (lecture seule)
@@ -66,10 +64,10 @@ class PieceSerializer(serializers.ModelSerializer):
         ]
 
     def get_fournisseur_nom(self, obj):
-        """Retourne le nom depuis la fiche fournisseur, sinon l'ancien champ texte."""
+        """Retourne le nom depuis la fiche fournisseur liée, sinon None."""
         if obj.fournisseur_ref:
             return obj.fournisseur_ref.nom
-        return obj.fournisseur or None
+        return None
 
     def get_fournisseur_email(self, obj):
         """Retourne l'email depuis la fiche fournisseur, sinon None."""
