@@ -3,7 +3,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getInitiales, formatDateLong, formatDateCourt } from '../../utils/dataFormatters';
 import { fetchInterventionsByClient, fetchVehiculesByClient, patchIntervention } from '../../services/api';
-import { getVehiculeIcon, removeVehicule } from '../Vehicles/vehicleService';
+import { removeVehicule } from '../Vehicles/vehicleService';
+import useVehiculeHelpers from '../../hooks/useVehiculeHelpers'; // ← hook dynamique
 import VehicleForm from '../Vehicles/VehicleForm';
 import FrenchPlateInput from '../../components/shared/Frenchplate/FrenchPlateInput';
 import StatutBadge from '../../components/shared/StatutBadge';
@@ -20,6 +21,7 @@ import './ClientDetail.css';
 
 const ClientDetail = ({ client, onClose, onEdit, onDelete }) => {
   const navigate = useNavigate();
+  const { getVehiculeIcon } = useVehiculeHelpers(); // ← hook dynamique
 
   const [vehicules, setVehicules]                     = useState([]);
   const [interventions, setInterventions]             = useState([]);

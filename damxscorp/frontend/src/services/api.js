@@ -136,6 +136,36 @@ export const fetchPieces = async () => {
   }
 };
 
+export const createPiece = async (data) => {
+  try {
+    logger.api.send('POST /stock/pieces/', data);
+    const response = await api.post('/stock/pieces/', data);
+    logger.api.receive('POST /stock/pieces/', response.data);
+    return response.data;
+  } catch (error) {
+    logger.api.error('POST /stock/pieces/', error);
+    if (error.response?.status === 400) {
+      const errors = Object.entries(error.response.data)
+        .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
+        .join('\n');
+      throw new Error(`Données invalides :\n${errors}`);
+    }
+    throw new Error('Erreur lors de la création de la pièce');
+  }
+};
+
+export const updatePiece = async (id, data) => {
+  try {
+    logger.api.send(`PUT /stock/pieces/${id}/`, data);
+    const response = await api.put(`/stock/pieces/${id}/`, data);
+    logger.api.receive(`PUT /stock/pieces/${id}/`, response.data);
+    return response.data;
+  } catch (error) {
+    logger.api.error(`PUT /stock/pieces/${id}/`, error);
+    throw new Error('Erreur lors de la modification de la pièce');
+  }
+};
+
 export const deletePiece = async (id) => {
   try {
     logger.api.send(`DELETE /stock/pieces/${id}/`);

@@ -1,7 +1,13 @@
 // /frontend/src/pages/RendezVous/RdvList.jsx
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { fetchInterventions, deleteIntervention, patchIntervention } from '../../services/api';
+import {
+  getAllRdvs,
+  searchRdvs,
+  patchRdv,
+  removeRdv,
+  STATUTS_RDV,
+} from './rdvService';
 import { formatDateCourt, formatHeure } from '../../utils/dataFormatters';
 import StatutBadge from '../../components/shared/StatutBadge';
 import FrenchPlateInput from '../../components/shared/Frenchplate/FrenchPlateInput';
@@ -13,16 +19,7 @@ import ErrorState from '../../components/shared/ErrorState';
 import { CalendarClock, User, FileText } from '../../utils/icons';
 import './RdvList.css';
 
-// ── Valeurs des filtres statut ────────────────────────────────────
-const FILTRES_STATUT = [
-  { value: 'ALL',      label: 'Tous' },
-  { value: 'PLANIFIE', label: 'Planifiés' },
-  { value: 'EN_COURS', label: 'En cours' },
-  { value: 'TERMINE',  label: 'Terminés' },
-  { value: 'ANNULE',   label: 'Annulés' },
-];
-
-// ── Couleurs des filtres (cohérent avec StatutBadge) ─────────────
+// Couleurs des filtres (cohérent avec StatutBadge)
 const FILTRE_COLORS = {
   PLANIFIE: '#2980b9',
   EN_COURS: '#e67e22',
@@ -33,21 +30,20 @@ const FILTRE_COLORS = {
 const RdvList = () => {
   const location = useLocation();
 
-  const [rdvs, setRdvs]                     = useState([]);
-  const [filtered, setFiltered]             = useState([]);
-  const [loading, setLoading]               = useState(true);
-  const [error, setError]                   = useState(null);
-  const [searchQuery, setSearchQuery]       = useState('');
-  const [activeStatut, setActiveStatut]     = useState('ALL');
-  const [consultRdv, setConsultRdv]         = useState(null);
+  const [rdvs, setRdvs]               = useState([]);
+  const [filtered, setFiltered]       = useState([]);
+  const [loading, setLoading]         = useState(true);
+  const [error, setError]             = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeStatut, setActiveStatut] = useState('ALL');
+  const [consultRdv, setConsultRdv]   = useState(null);
 
-  // ── Chargement ──────────────────────────────────────────────────
+  // ── Chargement ──────────────────────────────────────────────
   const loadRdvs = async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await fetchInterventions();
-      // Du plus récent au plus ancien
+      const data = await getAllRdvs();
       const sorted = [...data].sort(
         (a, b) => new Date(b.date_debut) - new Date(a.date_debut)
       );
@@ -62,47 +58,29 @@ const RdvList = () => {
 
   useEffect(() => { loadRdvs(); }, []);
 
-  // ── Ouvre automatiquement la fiche d'un RDV précis ──────────────
-  // Utilisé quand on clique un résultat dans la recherche globale
+  // ── Ouvre automatiquement un RDV depuis la recherche globale ─
   useEffect(() => {
     const openRdvId = location.state?.openRdvId;
     if (openRdvId && rdvs.length > 0) {
       const rdv = rdvs.find(r => r.id === openRdvId);
       if (rdv) setConsultRdv(rdv);
-      // Nettoie le state pour éviter de réouvrir au retour
       window.history.replaceState({}, '');
     }
   }, [location.state, rdvs]);
 
-  // ── Filtrage (statut + recherche texte) ─────────────────────────
+  // ── Filtrage (statut + recherche texte) ──────────────────────
   useEffect(() => {
     let result = rdvs;
-
-    // Filtre statut
     if (activeStatut !== 'ALL') {
       result = result.filter(r => r.statut === activeStatut);
     }
-
-    // Recherche texte (description, client, type_rdv)
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(r =>
-        (r.description     && r.description.toLowerCase().includes(q))     ||
-        (r.client_nom      && r.client_nom.toLowerCase().includes(q))      ||
-        (r.client_prenom   && r.client_prenom.toLowerCase().includes(q))   ||
-        (r.type_rdv        && r.type_rdv.toLowerCase().includes(q))        ||
-        (r.type_intervention && r.type_intervention.toLowerCase().includes(q)) ||
-        (r.vehicule_immatriculation && r.vehicule_immatriculation.toLowerCase().includes(q))
-      );
-    }
-
-    setFiltered(result);
+    setFiltered(searchRdvs(result, searchQuery));
   }, [searchQuery, activeStatut, rdvs]);
 
-  // ── Changement de statut depuis la modale consultation ──────────
+  // ── Changement de statut ─────────────────────────────────────
   const handleStatusChange = async (id, newStatut) => {
     try {
-      await patchIntervention(id, { statut: newStatut });
+      await patchRdv(id, { statut: newStatut });
       setRdvs(prev => prev.map(r => r.id === id ? { ...r, statut: newStatut } : r));
       setConsultRdv(prev => ({ ...prev, statut: newStatut }));
     } catch (err) {
@@ -111,10 +89,10 @@ const RdvList = () => {
     }
   };
 
-  // ── Suppression depuis la modale consultation ────────────────────
+  // ── Suppression ──────────────────────────────────────────────
   const handleDelete = async (id) => {
     try {
-      await deleteIntervention(id);
+      await removeRdv(id);
       setConsultRdv(null);
       await loadRdvs();
     } catch {
@@ -122,22 +100,24 @@ const RdvList = () => {
     }
   };
 
-  // ── États de chargement / erreur ─────────────────────────────────
   if (loading) return <LoadingState message="Chargement des rendez-vous..." />;
   if (error)   return <ErrorState message={error} onRetry={loadRdvs} />;
 
-  // ── Rendu ────────────────────────────────────────────────────────
+  // Filtres statut construits dynamiquement depuis STATUTS_RDV
+  const filtresStatut = [
+    { value: 'ALL', label: 'Tous' },
+    ...Object.values(STATUTS_RDV).map(s => ({ value: s.value, label: s.label })),
+  ];
+
   return (
     <div className="rdv-page">
 
-      {/* EN-TÊTE */}
       <PageHeader
         title={<><CalendarClock size={18} /> Rendez-vous</>}
         count={filtered.length}
         countLabel="rendez-vous"
       />
 
-      {/* BARRE DE RECHERCHE */}
       <SearchBar
         value={searchQuery}
         onChange={setSearchQuery}
@@ -146,7 +126,7 @@ const RdvList = () => {
 
       {/* FILTRES STATUT */}
       <div className="rdv-filters">
-        {FILTRES_STATUT.map(f => (
+        {filtresStatut.map(f => (
           <button
             key={f.value}
             className={`rdv-filter-btn ${activeStatut === f.value ? 'rdv-filter-btn--active' : ''}`}
@@ -157,7 +137,6 @@ const RdvList = () => {
             onClick={() => setActiveStatut(f.value)}
           >
             {f.label}
-            {/* Compteur par statut */}
             <span className="rdv-filter-btn__count">
               {f.value === 'ALL'
                 ? rdvs.length
@@ -182,23 +161,14 @@ const RdvList = () => {
       ) : (
         <div className="rdv-list">
           {filtered.map(rdv => (
-            <div
-              key={rdv.id}
-              className="rdv-row"
-              onClick={() => setConsultRdv(rdv)}
-            >
-              {/* DATE + HEURE */}
+            <div key={rdv.id} className="rdv-row" onClick={() => setConsultRdv(rdv)}>
               <div className="rdv-row__date">
                 <span className="rdv-row__date-day">{formatDateCourt(rdv.date_debut)}</span>
                 <span className="rdv-row__date-hour">{formatHeure(rdv.date_debut)}</span>
               </div>
-
-              {/* STATUT */}
               <div className="rdv-row__statut">
                 <StatutBadge statut={rdv.statut} />
               </div>
-
-              {/* TYPE + DESCRIPTION */}
               <div className="rdv-row__info">
                 <span className="rdv-row__type">
                   <CalendarClock size={11} /> {rdv.type_rdv}
@@ -211,16 +181,12 @@ const RdvList = () => {
                   </span>
                 )}
               </div>
-
-              {/* CLIENT */}
               {rdv.client_nom && (
                 <div className="rdv-row__client">
                   <User size={11} />
                   {rdv.client_nom} {rdv.client_prenom || ''}
                 </div>
               )}
-
-              {/* PLAQUE (si ATELIER) */}
               {rdv.vehicule_immatriculation && (
                 <div className="rdv-row__plate">
                   <FrenchPlateInput value={rdv.vehicule_immatriculation} size="sm" readOnly />
@@ -231,7 +197,6 @@ const RdvList = () => {
         </div>
       )}
 
-      {/* MODALE CONSULTATION */}
       {consultRdv && (
         <ModalRdvConsultation
           event={consultRdv}

@@ -4,7 +4,7 @@
 // RÔLE DE CE FICHIER :
 // Couche intermédiaire entre les composants React et api.js
 //
-// 3 responsabilités :
+// 2 responsabilités :
 //
 // 1. RÉCUPÉRATION :
 //  - getAllVehicules() appelle api.js une seule fois,
@@ -13,11 +13,6 @@
 //
 // 2. CRUD — addVehicule / editVehicule / removeVehicule
 //    Appellent api.js avec des logs propres pour déboguer
-//
-// 3. HELPERS — getVehiculeIcon / getVehiculeTypeLabel
-//    Fonctions pures, aucun appel API
-//    Convertissent les codes Django en emoji/texte lisible
-//    ex: 'VOITURE' → 🚗 ou 'Voiture'
 //=========================================================================
 
 import { fetchVehicules, createVehicule, updateVehicule, deleteVehicule } from '../../services/api';
@@ -51,7 +46,7 @@ export const searchVehicules = (vehicules, query) => {
 };
 
 // =========================================================================
-// CRUD
+// CRUD = CRÉATION / MODIFICATION / SUPPRESSION
 // =========================================================================
 
 export const addVehicule = async (formData) => {
@@ -84,40 +79,4 @@ export const removeVehicule = async (id) => {
     logger.error(`Erreur suppression véhicule ${id}`, error);
     throw error;
   }
-};
-
-// =========================================================================
-// HELPERS
-// =========================================================================
-
-// Icône selon le type
-export const getVehiculeIcon = (type) => {
-  const icons = {
-    VOITURE:     '🚗',
-    MOTO:        '🏍️',
-    MOTOCULTURE: '🚜',
-    BATEAU:      '🚤',
-  };
-  return icons[type] || '🚗';
-};
-
-// Label selon le type
-export const getVehiculeTypeLabel = (type) => {
-  const labels = {
-    VOITURE:     'Voiture',
-    MOTO:        'Moto',
-    MOTOCULTURE: 'Motoculture',
-    BATEAU:      'Bateau',
-  };
-  return labels[type] || type;
-};
-
-export default {
-  getAllVehicules,
-  searchVehicules,
-  addVehicule,
-  editVehicule,
-  removeVehicule,
-  getVehiculeIcon,
-  getVehiculeTypeLabel,
 };

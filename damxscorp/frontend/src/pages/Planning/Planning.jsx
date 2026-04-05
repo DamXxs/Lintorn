@@ -1,56 +1,23 @@
 // /frontend/src/pages/Planning/Planning.jsx
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import {
+  getAllRdvs,
+  addRdv,
+  editRdv,
+  patchRdv,
+  removeRdv,
+  formatEventsForCalendar,
+} from '../RendezVous/rdvService';
+import { fetchCollaborateurs } from '../../services/api';
+import { formatInterventionForDjango, formatInterventionForReact } from '../../utils/dataFormatters';
 import Calendar from './components/Calendar';
 import CollaborateurFilter from './components/CollaborateurFilter';
 import ModalRdvConsultation from '../../components/shared/Modals/ModalRdvConsultation';
 import ModalForm from './components/ModalForm';
 import logger from '../../utils/logger';
-import { formatInterventionForDjango, formatInterventionForReact } from '../../utils/dataFormatters';
-import {
-  fetchInterventions,
-  fetchCollaborateurs,
-  saveIntervention,
-  updateIntervention,
-  patchIntervention,
-  deleteIntervention
-} from '../../services/api';
 import './Planning.css';
-import { useLocation } from 'react-router-dom';
 
-// =========================================================================
-// COULEURS DES ÉVÉNEMENTS selon statut + couleur du département
-// =========================================================================
-const getEventColors = (intervention) => {
-  const { statut, departement } = intervention;
-  if (statut === 'ANNULE')   return { backgroundColor: '#7f8c8d', borderColor: '#95a5a6' };
-  if (statut === 'TERMINE')  return { backgroundColor: '#27ae60', borderColor: '#2ecc71' };
-  if (statut === 'EN_COURS') return { backgroundColor: '#e67e22', borderColor: '#f39c12' };
-  const color = departement?.couleur || '#2980b9';
-  return { backgroundColor: color, borderColor: color };
-};
-
-// =========================================================================
-// TRANSFORMATION POUR FULLCALENDAR
-// =========================================================================
-const formatEventsForCalendar = (interventions) => {
-  return interventions.map(intervention => {
-    const colors = getEventColors(intervention);
-    return {
-      id:              intervention.id,
-      title:           intervention.title || `${intervention.client_nom} - ${intervention.type_rdv}`,
-      start:           intervention.start || intervention.date_debut,
-      end:             intervention.end   || intervention.date_fin,
-      backgroundColor: colors.backgroundColor,
-      borderColor:     colors.borderColor,
-      textColor:       'white',
-      extendedProps:   intervention,
-    };
-  });
-};
-
-// =========================================================================
-// COMPOSANT
-// =========================================================================
 const Planning = ({ isSidebarExpanded }) => {
 
   const [events, setEvents]               = useState([]);
@@ -61,14 +28,12 @@ const Planning = ({ isSidebarExpanded }) => {
   const [prefilledDate, setPrefilledDate] = useState(null);
   const [clientPrefill, setClientPrefill] = useState(null);
 
-  // ── COLLABORATEURS & FILTRE ──────────────────────────────────────
-  const [collaborateurs, setCollaborateurs] = useState([]);
-  // selectedCollabIds = [] → tout afficher / [1, 3] → filtrer sur ces IDs
+  const [collaborateurs, setCollaborateurs]   = useState([]);
   const [selectedCollabIds, setSelectedCollabIds] = useState([]);
 
   const location = useLocation();
 
-  // ── PRÉ-REMPLISSAGE DEPUIS FICHE CLIENT ─────────────────────────
+  // ── Pré-remplissage depuis fiche client ──────────────────────
   useEffect(() => {
     if (location.state?.clientPrefill) {
       setEditingEvent(null);
@@ -79,30 +44,27 @@ const Planning = ({ isSidebarExpanded }) => {
     }
   }, [location.state]);
 
-  // ── CHARGEMENT DES DONNÉES ───────────────────────────────────────
+  // ── Chargement ───────────────────────────────────────────────
   const loadData = async () => {
     try {
       setLoading(true);
-      const data = await fetchInterventions();
+      const data = await getAllRdvs();
       setEvents(formatEventsForCalendar(data));
     } catch (err) {
-      console.error('Erreur chargement:', err);
+      logger.error('Erreur chargement planning', err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Charge les interventions ET les collaborateurs au montage
   useEffect(() => {
     loadData();
     fetchCollaborateurs()
       .then(setCollaborateurs)
-      .catch(() => {}); // Si erreur, la barre ne s'affiche simplement pas
+      .catch(() => {});
   }, []);
 
-  // ── FILTRAGE DES ÉVÉNEMENTS ──────────────────────────────────────
-  // Si aucun filtre actif → on montre tout
-  // Sinon → on ne garde que les events qui ont AU MOINS UN des collabs sélectionnés
+  // ── Filtrage par collaborateur ────────────────────────────────
   const filteredEvents = selectedCollabIds.length === 0
     ? events
     : events.filter(event => {
@@ -110,47 +72,29 @@ const Planning = ({ isSidebarExpanded }) => {
         return collabs.some(c => selectedCollabIds.includes(c.id));
       });
 
-  // ── TOGGLE COLLABORATEUR ─────────────────────────────────────────
   const handleCollabToggle = (id) => {
     setSelectedCollabIds(prev =>
-      prev.includes(id)
-        ? prev.filter(x => x !== id)  // Déjà actif → on retire
-        : [...prev, id]                // Pas encore actif → on ajoute
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
     );
   };
 
-  // ── CLIC SUR UN ÉVÉNEMENT ────────────────────────────────────────
-  const handleEventClick = (event) => {
-    setConsultEvent(event);
-  };
+  // ── Actions calendrier ───────────────────────────────────────
+  const handleEventClick    = (event) => setConsultEvent(event);
+  const handleDateClick     = (date)  => { setPrefilledDate(date); setEditingEvent(null); setIsFormOpen(true); };
+  const handleNewRdvClick   = ()      => { setPrefilledDate(null); setEditingEvent(null); setIsFormOpen(true); };
 
-  // ── CLIC SUR UNE CASE VIDE ───────────────────────────────────────
-  const handleDateClick = (date) => {
-    setPrefilledDate(date);
-    setEditingEvent(null);
-    setIsFormOpen(true);
-  };
-
-  // ── NOUVEAU RDV ──────────────────────────────────────────────────
-  const handleNewRdvClick = () => {
-    setPrefilledDate(null);
-    setEditingEvent(null);
-    setIsFormOpen(true);
-  };
-
-  // ── MODIFIER DEPUIS LA CONSULTATION ─────────────────────────────
   const handleEditFromConsult = (event) => {
     setEditingEvent({ ...formatInterventionForReact(event), id: event.id });
     setConsultEvent(null);
     setIsFormOpen(true);
   };
 
-  // ── CHANGEMENT DE STATUT ─────────────────────────────────────────
+  // ── Changement de statut ─────────────────────────────────────
   const handleStatusChange = async (id, newStatut) => {
     try {
-      await patchIntervention(id, { statut: newStatut });
+      await patchRdv(id, { statut: newStatut });
       logger.success(`Statut → ${newStatut}`);
-      const data = await fetchInterventions();
+      const data = await getAllRdvs();
       setEvents(formatEventsForCalendar(data));
       const updated = data.find(e => String(e.id) === String(id));
       if (updated) setConsultEvent({ ...updated });
@@ -160,26 +104,26 @@ const Planning = ({ isSidebarExpanded }) => {
     }
   };
 
-  // ── SUPPRESSION ──────────────────────────────────────────────────
+  // ── Suppression ──────────────────────────────────────────────
   const handleDelete = async (id) => {
     try {
-      await deleteIntervention(id);
+      await removeRdv(id);
       setConsultEvent(null);
       await loadData();
-    } catch (err) {
+    } catch {
       alert('❌ Erreur lors de la suppression');
     }
   };
 
-  // ── SOUMISSION FORMULAIRE ────────────────────────────────────────
+  // ── Soumission formulaire ────────────────────────────────────
   const handleFormSubmit = async (formData) => {
     try {
       const djangoData = formatInterventionForDjango(formData);
       if (editingEvent?.id) {
-        await updateIntervention(editingEvent.id, djangoData);
+        await editRdv(editingEvent.id, djangoData);
         alert('✅ Rendez-vous modifié !');
       } else {
-        await saveIntervention(djangoData);
+        await addRdv(djangoData);
         alert('✅ Rendez-vous créé !');
       }
       setIsFormOpen(false);
@@ -201,7 +145,7 @@ const Planning = ({ isSidebarExpanded }) => {
   if (loading && events.length === 0) {
     return (
       <div className="planning-loading">
-        <div className="spinner"></div>
+        <div className="spinner" />
         <p>⏳ Chargement...</p>
       </div>
     );
@@ -210,7 +154,6 @@ const Planning = ({ isSidebarExpanded }) => {
   return (
     <div className="planning-page">
 
-      {/* BARRE DE FILTRE (chips en haut) */}
       <CollaborateurFilter
         collaborateurs={collaborateurs}
         selectedIds={selectedCollabIds}
@@ -218,7 +161,6 @@ const Planning = ({ isSidebarExpanded }) => {
         onSelectAll={() => setSelectedCollabIds([])}
       />
 
-      {/* ZONE PRINCIPALE */}
       <div className="planning-body">
         <Calendar
           events={filteredEvents}

@@ -1,11 +1,10 @@
 // /frontend/src/pages/Vehicles/VehicleDetail.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getVehiculeIcon, getVehiculeTypeLabel } from './vehicleService';
+import useVehiculeHelpers from '../../hooks/useVehiculeHelpers'; // ← hook dynamique
 import { fetchInterventionsByVehicule, patchIntervention } from '../../services/api';
 import { formatDateLong, formatDateCourt } from '../../utils/dataFormatters';
 import ModalRdvConsultation from '../../components/shared/Modals/ModalRdvConsultation';
-
 import Modal from '../../components/shared/Modals/Modal';
 import FrenchPlateInput from '../../components/shared/Frenchplate/FrenchPlateInput';
 import StatutBadge from '../../components/shared/StatutBadge';
@@ -18,12 +17,12 @@ import './VehicleDetail.css';
 
 const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
   const navigate = useNavigate();
+  const { getVehiculeIcon, getVehiculeTypeLabel } = useVehiculeHelpers(); // ← hook dynamique
 
   const [interventions, setInterventions]             = useState([]);
   const [loadingHistory, setLoadingHistory]           = useState(true);
   const [consultIntervention, setConsultIntervention] = useState(null);
 
-  // ── CHARGEMENT HISTORIQUE ─────────────────────────────────────
   const loadHistory = useCallback(async () => {
     if (!vehicule?.id) return;
     try {
@@ -59,7 +58,6 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
     });
   };
 
-  // ── CHANGEMENT STATUT depuis la modal consultation ────────────
   const handleStatusChange = async (id, newStatut) => {
     try {
       await patchIntervention(id, { statut: newStatut });
@@ -71,7 +69,6 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
     }
   };
 
-  // ── TITRE MODAL ───────────────────────────────────────────────
   const titleText = [vehicule.marque, vehicule.modele, vehicule.annee && `(${vehicule.annee})`]
     .filter(Boolean).join(' ');
 
@@ -82,7 +79,6 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
         titleIcon={getVehiculeIcon(vehicule.type_vehicule)}
         onClose={onClose}
         footer={
-          /* Deux rangées : Nouveau RDV (pleine largeur) puis Modifier + Supprimer */
           <div className="vd-footer-wrap">
             <button className="vd-btn vd-btn--rdv" onClick={handleNewRdv}>
               <IconChip icon={CalendarPlus} color={CHIP_COLORS.calendar} size="sm" />
@@ -101,7 +97,6 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
       >
         <div className="vehicle-detail__body">
 
-          {/* ── PLAQUE EN VEDETTE ──────────────────────────────── */}
           <div className="vd-plate-hero">
             <FrenchPlateInput value={vehicule.immatriculation} size="lg" readOnly />
             <span className="vd-type-label">
@@ -109,7 +104,6 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
             </span>
           </div>
 
-          {/* ── PROPRIÉTAIRE ──────────────────────────────────── */}
           <div className="vd-section">
             <h3 className="vd-section__title"><User size={14} /> Propriétaire</h3>
             {vehicule.proprietaire_nom ? (
@@ -127,7 +121,7 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
                     });
                   }}
                 >
-                  <Pencil size={11} style={{ transform: 'rotate(0deg)' }} />
+                  <Pencil size={11} />
                   Voir la fiche client
                 </button>
               </div>
@@ -136,7 +130,6 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
             )}
           </div>
 
-          {/* ── INFORMATIONS VÉHICULE ──────────────────────────── */}
           <div className="vd-section">
             <h3 className="vd-section__title"><Wrench size={14} /> Informations</h3>
             <div className="vd-grid">
@@ -159,7 +152,6 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
             </div>
           </div>
 
-          {/* ── NOTES ────────────────────────────────────────────── */}
           {vehicule.notes && (
             <div className="vd-section">
               <h3 className="vd-section__title"><FileText size={14} /> Notes</h3>
@@ -167,7 +159,6 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
             </div>
           )}
 
-          {/* ── HISTORIQUE INTERVENTIONS ──────────────────────── */}
           <div className="vd-section">
             <h3 className="vd-section__title">
               <CalendarDays size={14} /> Historique interventions
@@ -178,13 +169,9 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
               )}
             </h3>
             {loadingHistory ? (
-              <div className="vd-history-loading">
-                <div className="vd-spinner"></div>
-              </div>
+              <div className="vd-history-loading"><div className="vd-spinner" /></div>
             ) : interventions.length === 0 ? (
-              <div className="vd-placeholder">
-                Aucune intervention enregistrée pour ce véhicule
-              </div>
+              <div className="vd-placeholder">Aucune intervention enregistrée pour ce véhicule</div>
             ) : (
               <div className="vd-history-list">
                 {interventions.map(intervention => (
@@ -208,15 +195,12 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
             )}
           </div>
 
-          {/* ── FACTURES (placeholder) ─────────────────────────── */}
           <div className="vd-section">
             <h3 className="vd-section__title">
               <Receipt size={14} /> Factures & Devis
               <span className="vd-badge">Bientôt</span>
             </h3>
-            <div className="vd-placeholder">
-              Les factures liées à ce véhicule apparaîtront ici
-            </div>
+            <div className="vd-placeholder">Les factures liées à ce véhicule apparaîtront ici</div>
           </div>
 
           <div className="vd-section">
@@ -226,7 +210,6 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
         </div>
       </Modal>
 
-      {/* MODAL CONSULTATION (par-dessus la fiche véhicule) */}
       {consultIntervention && (
         <ModalRdvConsultation
           event={consultIntervention}

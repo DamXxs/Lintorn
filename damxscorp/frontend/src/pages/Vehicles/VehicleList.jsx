@@ -1,7 +1,8 @@
 // /frontend/src/pages/Vehicles/VehicleList.jsx
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { getAllVehicules, searchVehicules, removeVehicule, getVehiculeIcon } from './vehicleService';
+import { getAllVehicules, searchVehicules, removeVehicule } from './vehicleService';
+import useVehiculeHelpers from '../../hooks/useVehiculeHelpers';
 import VehicleDetail from './VehicleDetail';
 import VehicleForm from './VehicleForm';
 import { Plus, Car, CalendarDays, User } from '../../utils/icons';
@@ -15,6 +16,7 @@ import './VehicleList.css';
 
 const VehicleList = () => {
   const location = useLocation();
+  const { getVehiculeIcon } = useVehiculeHelpers(); // ← hook dynamique
 
   const [vehicules, setVehicules]               = useState([]);
   const [filtered, setFiltered]                 = useState([]);
@@ -25,7 +27,6 @@ const VehicleList = () => {
   const [isFormOpen, setIsFormOpen]             = useState(false);
   const [editingVehicule, setEditingVehicule]   = useState(null);
 
-  // ── Chargement ───────────────────────────────────────────────────
   const loadVehicules = async () => {
     try {
       setLoading(true);
@@ -42,24 +43,19 @@ const VehicleList = () => {
 
   useEffect(() => { loadVehicules(); }, []);
 
-  // ── Recherche ────────────────────────────────────────────────────
   useEffect(() => {
     setFiltered(searchVehicules(vehicules, searchQuery));
   }, [searchQuery, vehicules]);
 
-  // ── Ouvre automatiquement la fiche d'un véhicule précis ─────────
-  // Utilisé quand on clique un résultat dans la recherche globale
   useEffect(() => {
     const openVehiculeId = location.state?.openVehiculeId;
     if (openVehiculeId && vehicules.length > 0) {
       const vehicule = vehicules.find(v => v.id === openVehiculeId);
       if (vehicule) setSelectedVehicule(vehicule);
-      // Nettoie le state pour éviter de réouvrir au retour
       window.history.replaceState({}, '');
     }
   }, [location.state, vehicules]);
 
-  // ── Suppression via le hook centralisé ──────────────────────────
   const { handleDelete } = useDelete({
     deleteService: removeVehicule,
     onSuccess: async () => {
@@ -69,15 +65,12 @@ const VehicleList = () => {
     confirmMessage: (v) => `Supprimer "${v.marque} ${v.modele} (${v.immatriculation})" ?`,
   });
 
-  // ── États ────────────────────────────────────────────────────────
   if (loading) return <LoadingState message="Chargement des véhicules..." />;
   if (error)   return <ErrorState message={error} onRetry={loadVehicules} />;
 
-  // ── Rendu ────────────────────────────────────────────────────────
   return (
     <div className="vehicles-page">
 
-      {/* EN-TÊTE */}
       <PageHeader
         title={<><Car size={18} /> Véhicules</>}
         count={filtered.length}
@@ -87,14 +80,12 @@ const VehicleList = () => {
         addIcon={<Plus size={16} />}
       />
 
-      {/* BARRE DE RECHERCHE */}
       <SearchBar
         value={searchQuery}
         onChange={setSearchQuery}
         placeholder="Rechercher par plaque, marque, modèle, propriétaire..."
       />
 
-      {/* GRILLE */}
       {filtered.length === 0 ? (
         <div className="vehicles-empty">
           <p>Aucun véhicule trouvé</p>

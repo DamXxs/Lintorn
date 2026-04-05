@@ -1,6 +1,6 @@
 // /frontend/src/components/shared/ModalRdvConsultation.jsx
 import React, { useState } from 'react';
-import { getDepartementLabel, getStatutClass, STATUTS_RDV } from '../../../utils/constants';
+import { getDepartementLabel, getStatutClass, STATUTS_RDV } from '../../../pages/RendezVous/rdvService';
 import { formatDateFull, formatHeure } from '../../../utils/dataFormatters';
 import './ModalRdvConsultation.css';
 import Modal from './Modal';
