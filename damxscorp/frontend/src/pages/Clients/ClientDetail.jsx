@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getInitiales, formatDateLong, formatDateCourt } from '../../utils/dataFormatters';
 import { fetchInterventionsByClient, fetchVehiculesByClient, patchIntervention } from '../../services/api';
-import { getVehiculeIcon, removeVehicule } from '../../utils/vehicleService';
+import { getVehiculeIcon, removeVehicule } from '../Vehicles/vehicleService';
 import VehicleForm from '../Vehicles/VehicleForm';
 import FrenchPlateInput from '../../components/shared/Frenchplate/FrenchPlateInput';
 import StatutBadge from '../../components/shared/StatutBadge';

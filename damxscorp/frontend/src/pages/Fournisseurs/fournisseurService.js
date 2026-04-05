@@ -1,4 +1,4 @@
-// /frontend/src/services/fournisseurService.js
+// /frontend/src/pages/Fournisseurs/fournisseurService.js
 // Toutes les fonctions qui parlent à l'API Django pour les fournisseurs
 import axios from 'axios';
 

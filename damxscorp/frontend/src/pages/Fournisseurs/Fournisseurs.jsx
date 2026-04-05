@@ -11,7 +11,7 @@ import {
   patchFournisseur,
   deleteFournisseur,
   fetchPiecesEnAlerte,
-} from '../../services/fournisseurService';
+} from './fournisseurService';
 import { useReferentiels } from '../../context/ReferentielsContext';
 import CardFournisseur from './CardFournisseur';
 import ModalFournisseur from './ModalFournisseur';

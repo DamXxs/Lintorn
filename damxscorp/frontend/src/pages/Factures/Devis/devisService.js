@@ -1,4 +1,4 @@
-// /frontend/src/services/devisService.js
+// /frontend/src/pages/Factures/Devis/devisService.js
 import axios from 'axios';
 
 const api = axios.create({

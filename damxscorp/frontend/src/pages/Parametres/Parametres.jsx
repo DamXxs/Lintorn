@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { useReferentiels } from '../../context/ReferentielsContext';
-import ReferentielEditor from './ReferentielEditor';
+import ReferentielEditor from './Referentiels/ReferentielEditor';
 import DepartementEditor from './DepartementEditor';
 import CollaborateurEditor from './CollaborateurEditor';
 import ParametresFacturation from '../Factures/Factures/ParametresFacturation';

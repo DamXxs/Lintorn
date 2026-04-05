@@ -1,7 +1,7 @@
 // /frontend/src/pages/Fournisseurs/ModalEmailPreRempli.jsx
 import React, { useState, useEffect } from 'react';
 import Modal from '../../components/shared/Modals/Modal';
-import { fetchEmailCommande } from '../../services/fournisseurService';
+import { fetchEmailCommande } from './fournisseurService';
 import './ModalEmailPreRempli.css';
 
 /**

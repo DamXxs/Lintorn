@@ -1,7 +1,7 @@
 // /frontend/src/pages/Stock/StockForm.jsx
 // Modal pour créer ou modifier une pièce de stock.
 import React, { useState, useEffect } from 'react';
-import { fetchFournisseurs } from '../../services/fournisseurService';
+import { fetchFournisseurs } from '../Fournisseurs/fournisseurService';
 import './StockForm.css';
 
 // ── Catégories de pièces (synchronisées avec stock/models.py) ────────────────

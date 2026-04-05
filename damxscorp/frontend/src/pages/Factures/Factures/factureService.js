@@ -1,4 +1,4 @@
-// /frontend/src/services/factureService.js
+// /frontend/src/pages/Factures/Factures/factureService.js
 import axios from 'axios';
 
 const api = axios.create({

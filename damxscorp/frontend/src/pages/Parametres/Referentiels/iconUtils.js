@@ -1,4 +1,4 @@
-// /frontend/src/utils/iconUtils.js
+// /frontend/src/pages/Parametres/Referentiels/iconUtils.js
 //
 // ══════════════════════════════════════════════════════════════════
 //  UTILITAIRE ICÔNES RÉFÉRENTIELS — À NE PAS CONFONDRE AVEC icons.js

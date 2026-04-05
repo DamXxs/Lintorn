@@ -12,7 +12,7 @@ import {
   createForfait,
   updateForfait,
   deleteForfait,
-} from '../../../services/parametresService';
+} from '../../Parametres/parametresService';
 import LoadingState from '../../../components/shared/LoadingState';
 import ErrorState from '../../../components/shared/ErrorState';
 import './ParametresFacturation.css';

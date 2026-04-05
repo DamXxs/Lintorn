@@ -1,7 +1,7 @@
 // /frontend/src/pages/Clients/ClientList.jsx
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { getAllClients, searchClients, removeClient } from '../../utils/clientService';
+import { getAllClients, searchClients, removeClient } from './clientService';
 import { getInitiales, formatDateCourt } from '../../utils/dataFormatters';
 import { Phone, Mail, UserPlus } from '../../utils/icons';
 import './ClientList.css';

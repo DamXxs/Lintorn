@@ -1,9 +1,9 @@
-// /frontend/src/pages/Parametres/ReferentielEditor.jsx
+// /frontend/src/pages/Parametres/Referentiels/ReferentielEditor.jsx
 import React, { useState } from 'react';
-import { createReferentiel, updateReferentiel, deleteReferentiel } from '../../services/api';
-import { ICONES_CATALOGUE, renderIcone, suggererIcone } from '../../utils/iconUtils';
-import { COULEURS_PALETTE } from '../../utils/colorUtils';
-import { CheckCircle, Circle, Pencil, Trash2, Plus, Save, Loader, CircleAlert } from '../../utils/icons';
+import { createReferentiel, updateReferentiel, deleteReferentiel } from '../../../services/api';
+import { ICONES_CATALOGUE, renderIcone, suggererIcone } from './iconUtils';
+import { COULEURS_PALETTE } from '../../../utils/colorUtils';
+import { CheckCircle, Circle, Pencil, Trash2, Plus, Save, Loader, CircleAlert } from '../../../utils/icons';
 import './ReferentielEditor.css';
 
 // ── GÉNÈRE LA CLÉ INTERNE depuis le label ────────────────────────

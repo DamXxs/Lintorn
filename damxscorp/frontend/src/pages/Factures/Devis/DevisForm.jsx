@@ -19,8 +19,8 @@ import {
   updateDevis,
   addLigneDevis,
   deleteLigneDevis,
-} from '@/services/devisService';
-import { fetchForfaits } from '@/services/parametresService';
+} from '@/pages/Factures/Devis/devisService';
+import { fetchForfaits } from '@/pages/Parametres/parametresService';
 import LoadingState from '@/components/shared/LoadingState';
 import ErrorState from '@/components/shared/ErrorState';
 import './DevisForm.css';

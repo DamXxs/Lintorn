@@ -1,6 +1,6 @@
 // /frontend/src/components/Devis/DevisList.jsx
 import React, { useState, useEffect, useCallback } from 'react';
-import { fetchDevis, validerDevis, refuserDevis } from '../../../services/devisService';
+import { fetchDevis, validerDevis, refuserDevis } from './devisService';
 import LoadingState from '../../../components/shared/LoadingState';
 import ErrorState from '../../../components/shared/ErrorState';
 import './DevisList.css';

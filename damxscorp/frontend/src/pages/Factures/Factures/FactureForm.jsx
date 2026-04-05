@@ -1,8 +1,8 @@
 // /frontend/src/components/Factures/FactureForm.jsx
 import React, { useState, useEffect } from 'react';
 import { fetchClients, fetchPieces } from '@/services/api';
-import { fetchParametres } from '@/services/parametresService';
-import { createFacture } from '@/services/factureService';
+import { fetchParametres } from '@/pages/Parametres/parametresService';
+import { createFacture } from '@/pages/Factures/Factures/factureService';
 import LoadingState from '@/components/shared/LoadingState';
 import ErrorState from '@/components/shared/ErrorState';
 import './FactureForm.css';

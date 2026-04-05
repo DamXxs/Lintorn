@@ -12,7 +12,7 @@ import ClientList from './pages/Clients/ClientList';
 import VehicleList from './pages/Vehicles/VehicleList';
 import Parametres from './pages/Parametres/Parametres';
 import Fournisseurs from './pages/Fournisseurs/Fournisseurs';
-import Factures from './pages/Factures/Factures';
+import Factures from './pages/Factures/Factures/Factures';
 import './App.css';
 
 const App = () => {

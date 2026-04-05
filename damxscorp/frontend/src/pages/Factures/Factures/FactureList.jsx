@@ -1,6 +1,6 @@
 // /frontend/src/components/Factures/FactureList.jsx
 import React, { useState, useEffect, useCallback } from 'react';
-import { fetchFactures } from '@/services/factureService';
+import { fetchFactures } from '@/pages/Factures/Factures/factureService';
 import LoadingState from '@/components/shared/LoadingState';
 import ErrorState from '@/components/shared/ErrorState';
 import './FactureList.css';

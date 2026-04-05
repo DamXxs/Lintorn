@@ -1,16 +1,16 @@
-// /frontend/src/pages/Factures/Factures.jsx
+// /frontend/src/pages/Factures/Factures/Factures.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // Composants Devis
-import DevisList      from '../../pages/Factures/Devis/DevisList';
-import DevisForm      from '../../pages/Factures/Devis/DevisForm';
-import DevisDetail    from '../../pages/Factures/Devis/DevisDetail';
+import DevisList      from '../Devis/DevisList';
+import DevisForm      from '../Devis/DevisForm';
+import DevisDetail    from '../Devis/DevisDetail';
 
 // Composants Factures
-import FactureList    from '../../pages/Factures/Factures/FactureList';
-import FactureForm    from '../../pages/Factures/Factures/FactureForm';
-import FactureDetail  from '../../pages/Factures/Factures/FactureDetail';
+import FactureList    from './FactureList';
+import FactureForm    from './FactureForm';
+import FactureDetail  from './FactureDetail';
 
 import './Factures.css';
 

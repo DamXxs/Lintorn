@@ -1,6 +1,6 @@
 // /frontend/src/pages/Clients/ClientForm.jsx
 import React from 'react';
-import { addClient, editClient } from '../../utils/clientService';
+import { addClient, editClient } from './clientService';
 import { validateNom, validatePhone, validateEmail, formatNom, formatPrenom, formatPhone } from '../../utils/validators';
 import useForm from '../../hooks/useForm';
 import { User, Phone, FileText, Pencil, UserPlus, Save, Loader, CircleAlert } from '../../utils/icons';

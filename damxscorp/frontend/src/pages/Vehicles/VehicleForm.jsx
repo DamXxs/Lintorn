@@ -1,6 +1,6 @@
 // /frontend/src/pages/Vehicles/VehicleForm.jsx
 import React, { useState, useEffect } from 'react';
-import { addVehicule, editVehicule } from '../../utils/vehicleService';
+import { addVehicule, editVehicule } from './vehicleService';
 import { useReferentiels } from '../../context/ReferentielsContext';
 import { fetchClients } from '../../services/api';
 // ✅ Validators centralisés (comme dans ClientForm)

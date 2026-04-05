@@ -1,7 +1,7 @@
 // /frontend/src/pages/Vehicles/VehicleDetail.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getVehiculeIcon, getVehiculeTypeLabel } from '../../utils/vehicleService';
+import { getVehiculeIcon, getVehiculeTypeLabel } from './vehicleService';
 import { fetchInterventionsByVehicule, patchIntervention } from '../../services/api';
 import { formatDateLong, formatDateCourt } from '../../utils/dataFormatters';
 import ModalRdvConsultation from '../../components/shared/Modals/ModalRdvConsultation';

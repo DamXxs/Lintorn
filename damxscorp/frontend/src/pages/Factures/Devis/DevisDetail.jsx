@@ -5,7 +5,7 @@ import {
   validerDevis,
   refuserDevis,
   creerFactureDepuisDevis,
-} from '@/services/devisService';
+} from '@/pages/Factures/Devis/devisService';
 import LoadingState from '@/components/shared/LoadingState';
 import ErrorState from '@/components/shared/ErrorState';
 import Modal from '@/components/shared/Modals/Modal';

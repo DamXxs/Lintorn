@@ -1,7 +1,7 @@
 // /frontend/src/pages/Vehicles/VehicleList.jsx
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { getAllVehicules, searchVehicules, removeVehicule, getVehiculeIcon } from '../../utils/vehicleService';
+import { getAllVehicules, searchVehicules, removeVehicule, getVehiculeIcon } from './vehicleService';
 import VehicleDetail from './VehicleDetail';
 import VehicleForm from './VehicleForm';
 import { Plus, Car, CalendarDays, User } from '../../utils/icons';
