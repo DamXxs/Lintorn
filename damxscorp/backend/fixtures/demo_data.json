@@ -1,0 +1,1279 @@
+[
+  {
+    "model": "referentiels.referentiel",
+    "pk": 1,
+    "fields": {
+      "categorie": "TYPE_VEHICULE",
+      "valeur": "VOITURE",
+      "label": "Voiture",
+      "icone": "🚗",
+      "couleur": "",
+      "ordre": 1,
+      "actif": true
+    }
+  },
+  {
+    "model": "referentiels.referentiel",
+    "pk": 2,
+    "fields": {
+      "categorie": "TYPE_VEHICULE",
+      "valeur": "MOTO",
+      "label": "Moto",
+      "icone": "🏍️",
+      "couleur": "",
+      "ordre": 2,
+      "actif": true
+    }
+  },
+  {
+    "model": "referentiels.referentiel",
+    "pk": 3,
+    "fields": {
+      "categorie": "TYPE_VEHICULE",
+      "valeur": "MOTOCULTURE",
+      "label": "Motoculture",
+      "icone": "🚜",
+      "couleur": "",
+      "ordre": 3,
+      "actif": true
+    }
+  },
+  {
+    "model": "referentiels.referentiel",
+    "pk": 4,
+    "fields": {
+      "categorie": "TYPE_VEHICULE",
+      "valeur": "BATEAU",
+      "label": "Bateau",
+      "icone": "🚤",
+      "couleur": "",
+      "ordre": 4,
+      "actif": true
+    }
+  },
+  {
+    "model": "referentiels.referentiel",
+    "pk": 5,
+    "fields": {
+      "categorie": "TYPE_INTERVENTION",
+      "valeur": "ENTRETIEN_VP2",
+      "label": "Entretien VP2 (Petite vidange)",
+      "icone": "🔧",
+      "couleur": "",
+      "ordre": 1,
+      "actif": true
+    }
+  },
+  {
+    "model": "referentiels.referentiel",
+    "pk": 6,
+    "fields": {
+      "categorie": "TYPE_INTERVENTION",
+      "valeur": "ENTRETIEN_VP4",
+      "label": "Entretien VP4 (Grosse vidange)",
+      "icone": "🔧",
+      "couleur": "",
+      "ordre": 2,
+      "actif": true
+    }
+  },
+  {
+    "model": "referentiels.referentiel",
+    "pk": 7,
+    "fields": {
+      "categorie": "TYPE_INTERVENTION",
+      "valeur": "DIAGNOSTIQUE",
+      "label": "Diagnostique",
+      "icone": "🔍",
+      "couleur": "",
+      "ordre": 3,
+      "actif": true
+    }
+  },
+  {
+    "model": "referentiels.referentiel",
+    "pk": 8,
+    "fields": {
+      "categorie": "TYPE_INTERVENTION",
+      "valeur": "PNEUMATIQUES",
+      "label": "Pneumatiques",
+      "icone": "⚫",
+      "couleur": "",
+      "ordre": 4,
+      "actif": true
+    }
+  },
+  {
+    "model": "referentiels.referentiel",
+    "pk": 9,
+    "fields": {
+      "categorie": "TYPE_INTERVENTION",
+      "valeur": "REVISION_COMPLETE",
+      "label": "Révision complète",
+      "icone": "📋",
+      "couleur": "",
+      "ordre": 5,
+      "actif": true
+    }
+  },
+  {
+    "model": "referentiels.referentiel",
+    "pk": 10,
+    "fields": {
+      "categorie": "TYPE_INTERVENTION",
+      "valeur": "AUTRE",
+      "label": "Autre",
+      "icone": "❓",
+      "couleur": "",
+      "ordre": 6,
+      "actif": true
+    }
+  },
+  {
+    "model": "referentiels.referentiel",
+    "pk": 11,
+    "fields": {
+      "categorie": "CATEGORIE_STOCK",
+      "valeur": "FILTRATION",
+      "label": "Filtration",
+      "icone": "🔵",
+      "couleur": "",
+      "ordre": 1,
+      "actif": true
+    }
+  },
+  {
+    "model": "referentiels.referentiel",
+    "pk": 12,
+    "fields": {
+      "categorie": "CATEGORIE_STOCK",
+      "valeur": "HUILES",
+      "label": "Huiles & Liquides",
+      "icone": "🟡",
+      "couleur": "",
+      "ordre": 2,
+      "actif": true
+    }
+  },
+  {
+    "model": "referentiels.referentiel",
+    "pk": 13,
+    "fields": {
+      "categorie": "CATEGORIE_STOCK",
+      "valeur": "FREINAGE",
+      "label": "Freinage",
+      "icone": "🔴",
+      "couleur": "",
+      "ordre": 3,
+      "actif": true
+    }
+  },
+  {
+    "model": "referentiels.referentiel",
+    "pk": 14,
+    "fields": {
+      "categorie": "CATEGORIE_STOCK",
+      "valeur": "PNEUMATIQUE",
+      "label": "Pneumatiques",
+      "icone": "⚫",
+      "couleur": "",
+      "ordre": 4,
+      "actif": true
+    }
+  },
+  {
+    "model": "referentiels.referentiel",
+    "pk": 15,
+    "fields": {
+      "categorie": "CATEGORIE_STOCK",
+      "valeur": "ELECTRICITE",
+      "label": "Électricité",
+      "icone": "⚡",
+      "couleur": "",
+      "ordre": 5,
+      "actif": true
+    }
+  },
+  {
+    "model": "referentiels.referentiel",
+    "pk": 16,
+    "fields": {
+      "categorie": "CATEGORIE_STOCK",
+      "valeur": "MECANIQUE",
+      "label": "Mécanique",
+      "icone": "⚙️",
+      "couleur": "",
+      "ordre": 6,
+      "actif": true
+    }
+  },
+  {
+    "model": "referentiels.referentiel",
+    "pk": 17,
+    "fields": {
+      "categorie": "CATEGORIE_STOCK",
+      "valeur": "CARROSSERIE",
+      "label": "Carrosserie",
+      "icone": "🚘",
+      "couleur": "",
+      "ordre": 7,
+      "actif": true
+    }
+  },
+  {
+    "model": "referentiels.referentiel",
+    "pk": 18,
+    "fields": {
+      "categorie": "CATEGORIE_STOCK",
+      "valeur": "AUTRE",
+      "label": "Autre",
+      "icone": "📦",
+      "couleur": "",
+      "ordre": 8,
+      "actif": true
+    }
+  },
+  {
+    "model": "referentiels.referentiel",
+    "pk": 19,
+    "fields": {
+      "categorie": "CATEGORIE_FOURNISSEUR",
+      "valeur": "PIECES_COMMUNES",
+      "label": "Pièces communes",
+      "icone": "🔩",
+      "couleur": "",
+      "ordre": 1,
+      "actif": true
+    }
+  },
+  {
+    "model": "referentiels.referentiel",
+    "pk": 20,
+    "fields": {
+      "categorie": "CATEGORIE_FOURNISSEUR",
+      "valeur": "PNEUS",
+      "label": "Pneumatiques",
+      "icone": "⚫",
+      "couleur": "",
+      "ordre": 2,
+      "actif": true
+    }
+  },
+  {
+    "model": "referentiels.referentiel",
+    "pk": 21,
+    "fields": {
+      "categorie": "CATEGORIE_FOURNISSEUR",
+      "valeur": "HUILES",
+      "label": "Huiles & Liquides",
+      "icone": "🟡",
+      "couleur": "",
+      "ordre": 3,
+      "actif": true
+    }
+  },
+  {
+    "model": "clients.client",
+    "pk": 1,
+    "fields": {
+      "nom": "Dupont",
+      "prenom": "Jean",
+      "telephone": "06 12 34 56 78",
+      "email": "jean.dupont@email.fr",
+      "adresse": "12 rue des Acacias, 90000 Belfort",
+      "notes": "Client fidèle depuis 2020, préfère être appelé le matin.",
+      "date_creation": "2026-01-10T08:30:00Z"
+    }
+  },
+  {
+    "model": "clients.client",
+    "pk": 2,
+    "fields": {
+      "nom": "Martin",
+      "prenom": "Sophie",
+      "telephone": "07 23 45 67 89",
+      "email": "sophie.martin@gmail.com",
+      "adresse": "5 avenue Jean Jaurès, 25000 Besançon",
+      "notes": "Véhicule souvent chargé, attention aux suspensions.",
+      "date_creation": "2026-01-15T10:00:00Z"
+    }
+  },
+  {
+    "model": "clients.client",
+    "pk": 3,
+    "fields": {
+      "nom": "Bernard",
+      "prenom": "Michel",
+      "telephone": "06 34 56 78 90",
+      "email": "m.bernard@orange.fr",
+      "adresse": "8 rue de la Paix, 68100 Mulhouse",
+      "notes": "",
+      "date_creation": "2026-02-01T09:00:00Z"
+    }
+  },
+  {
+    "model": "clients.client",
+    "pk": 4,
+    "fields": {
+      "nom": "Leroy",
+      "prenom": "Isabelle",
+      "telephone": "06 45 67 89 01",
+      "email": "isa.leroy@yahoo.fr",
+      "adresse": "22 impasse des Lilas, 70000 Vesoul",
+      "notes": "Réduction fidélité 5%.",
+      "date_creation": "2026-02-14T14:30:00Z"
+    }
+  },
+  {
+    "model": "clients.client",
+    "pk": 5,
+    "fields": {
+      "nom": "Garage Moreau",
+      "prenom": "",
+      "telephone": "03 84 12 34 56",
+      "email": "contact@garagemoreau.fr",
+      "adresse": "Zone Artisanale, 39000 Lons-le-Saunier",
+      "notes": "Client professionnel, facturation mensuelle.",
+      "date_creation": "2026-03-01T08:00:00Z"
+    }
+  },
+  {
+    "model": "vehicules.vehicule",
+    "pk": 1,
+    "fields": {
+      "immatriculation": "AB-123-CD",
+      "marque": "Peugeot",
+      "modele": "308",
+      "annee": 2019,
+      "type_vehicule": "VOITURE",
+      "proprietaire": 1,
+      "notes": "Entretien régulier, huile 5W30.",
+      "date_creation": "2026-01-10T08:35:00Z"
+    }
+  },
+  {
+    "model": "vehicules.vehicule",
+    "pk": 2,
+    "fields": {
+      "immatriculation": "EF-456-GH",
+      "marque": "Renault",
+      "modele": "Clio",
+      "annee": 2021,
+      "type_vehicule": "VOITURE",
+      "proprietaire": 2,
+      "notes": "Boîte automatique.",
+      "date_creation": "2026-01-15T10:05:00Z"
+    }
+  },
+  {
+    "model": "vehicules.vehicule",
+    "pk": 3,
+    "fields": {
+      "immatriculation": "IJ-789-KL",
+      "marque": "Yamaha",
+      "modele": "MT-07",
+      "annee": 2020,
+      "type_vehicule": "MOTO",
+      "proprietaire": 3,
+      "notes": "Révision tous les 6000 km.",
+      "date_creation": "2026-02-01T09:10:00Z"
+    }
+  },
+  {
+    "model": "vehicules.vehicule",
+    "pk": 4,
+    "fields": {
+      "immatriculation": "MN-321-OP",
+      "marque": "Citroën",
+      "modele": "C3",
+      "annee": 2018,
+      "type_vehicule": "VOITURE",
+      "proprietaire": 4,
+      "notes": "",
+      "date_creation": "2026-02-14T14:35:00Z"
+    }
+  },
+  {
+    "model": "vehicules.vehicule",
+    "pk": 5,
+    "fields": {
+      "immatriculation": "QR-654-ST",
+      "marque": "Ford",
+      "modele": "Transit",
+      "annee": 2022,
+      "type_vehicule": "VOITURE",
+      "proprietaire": 5,
+      "notes": "Utilitaire, révision annuelle obligatoire.",
+      "date_creation": "2026-03-01T08:10:00Z"
+    }
+  },
+  {
+    "model": "vehicules.vehicule",
+    "pk": 6,
+    "fields": {
+      "immatriculation": "UV-987-WX",
+      "marque": "Peugeot",
+      "modele": "Expert",
+      "annee": 2017,
+      "type_vehicule": "VOITURE",
+      "proprietaire": 1,
+      "notes": "Second véhicule de Jean Dupont, utilitaire.",
+      "date_creation": "2026-03-10T11:00:00Z"
+    }
+  },
+  {
+    "model": "fournisseurs.fournisseur",
+    "pk": 1,
+    "fields": {
+      "nom": "Autodis France",
+      "email": "commandes@autodis.fr",
+      "telephone": "01 23 45 67 89",
+      "contact_nom": "Pierre Durand",
+      "adresse": "Zone Industrielle Nord, 93000 Bobigny",
+      "categorie": "PIECES_COMMUNES",
+      "est_favori": true,
+      "actif": true,
+      "notes": "Délai 24h, remise 8% sur commandes > 500€.",
+      "date_creation": "2026-01-05T08:00:00Z",
+      "date_modification": "2026-01-05T08:00:00Z"
+    }
+  },
+  {
+    "model": "fournisseurs.fournisseur",
+    "pk": 2,
+    "fields": {
+      "nom": "Euromaster Pro",
+      "email": "pro@euromaster.fr",
+      "telephone": "01 34 56 78 90",
+      "contact_nom": "Marie Leconte",
+      "adresse": "15 rue des Pneumatiques, 69000 Lyon",
+      "categorie": "PNEUS",
+      "est_favori": false,
+      "actif": true,
+      "notes": "Spécialiste pneumatiques, livraison J+2.",
+      "date_creation": "2026-01-06T09:00:00Z",
+      "date_modification": "2026-01-06T09:00:00Z"
+    }
+  },
+  {
+    "model": "fournisseurs.fournisseur",
+    "pk": 3,
+    "fields": {
+      "nom": "TotalEnergies Lubrifiants",
+      "email": "lubrifiants@totalenergies.fr",
+      "telephone": "01 45 67 89 01",
+      "contact_nom": "Laurent Petit",
+      "adresse": "Tour Coupole, 92400 Courbevoie",
+      "categorie": "HUILES",
+      "est_favori": false,
+      "actif": true,
+      "notes": "Fournisseur officiel huiles moteur et liquides.",
+      "date_creation": "2026-01-07T10:00:00Z",
+      "date_modification": "2026-01-07T10:00:00Z"
+    }
+  },
+  {
+    "model": "stock.piece",
+    "pk": 1,
+    "fields": {
+      "reference": "FLT-OIL-001",
+      "nom": "Filtre à huile universel",
+      "description": "Compatible VP essence et diesel, filetage M20x1.5",
+      "categorie": "FILTRATION",
+      "prix_achat": "3.50",
+      "prix_vente": "8.90",
+      "stock_actuel": 24,
+      "stock_minimum": 10,
+      "stock_suspendu": 0,
+      "fournisseur_ref": 1,
+      "delai_livraison": 1,
+      "date_creation": "2026-01-08T08:00:00Z",
+      "date_modification": "2026-01-08T08:00:00Z"
+    }
+  },
+  {
+    "model": "stock.piece",
+    "pk": 2,
+    "fields": {
+      "reference": "FLT-AIR-002",
+      "nom": "Filtre à air Peugeot 308",
+      "description": "Compatible 308 phase 1 et 2, moteurs 1.2 et 1.6",
+      "categorie": "FILTRATION",
+      "prix_achat": "8.00",
+      "prix_vente": "18.00",
+      "stock_actuel": 8,
+      "stock_minimum": 5,
+      "stock_suspendu": 0,
+      "fournisseur_ref": 1,
+      "delai_livraison": 1,
+      "date_creation": "2026-01-08T08:05:00Z",
+      "date_modification": "2026-01-08T08:05:00Z"
+    }
+  },
+  {
+    "model": "stock.piece",
+    "pk": 3,
+    "fields": {
+      "reference": "HUI-5W30-001",
+      "nom": "Huile moteur 5W30 (5L)",
+      "description": "Synthèse totale, norme ACEA C3, compatible BMW, PSA, VAG",
+      "categorie": "HUILES",
+      "prix_achat": "22.00",
+      "prix_vente": "42.00",
+      "stock_actuel": 3,
+      "stock_minimum": 8,
+      "stock_suspendu": 0,
+      "fournisseur_ref": 3,
+      "delai_livraison": 2,
+      "date_creation": "2026-01-08T08:10:00Z",
+      "date_modification": "2026-01-08T08:10:00Z"
+    }
+  },
+  {
+    "model": "stock.piece",
+    "pk": 4,
+    "fields": {
+      "reference": "HUI-10W40-002",
+      "nom": "Huile moteur 10W40 (5L)",
+      "description": "Semi-synthèse, toutes marques, bonne résistance thermique",
+      "categorie": "HUILES",
+      "prix_achat": "16.00",
+      "prix_vente": "32.00",
+      "stock_actuel": 15,
+      "stock_minimum": 8,
+      "stock_suspendu": 0,
+      "fournisseur_ref": 3,
+      "delai_livraison": 2,
+      "date_creation": "2026-01-08T08:15:00Z",
+      "date_modification": "2026-01-08T08:15:00Z"
+    }
+  },
+  {
+    "model": "stock.piece",
+    "pk": 5,
+    "fields": {
+      "reference": "FRN-PLQ-001",
+      "nom": "Plaquettes de frein avant (jeu)",
+      "description": "Axe avant, compatible Peugeot 308, Citroën C3, C4",
+      "categorie": "FREINAGE",
+      "prix_achat": "18.00",
+      "prix_vente": "38.00",
+      "stock_actuel": 6,
+      "stock_minimum": 4,
+      "stock_suspendu": 0,
+      "fournisseur_ref": 1,
+      "delai_livraison": 1,
+      "date_creation": "2026-01-08T08:20:00Z",
+      "date_modification": "2026-01-08T08:20:00Z"
+    }
+  },
+  {
+    "model": "stock.piece",
+    "pk": 6,
+    "fields": {
+      "reference": "FRN-DIS-002",
+      "nom": "Disque de frein avant (unité)",
+      "description": "Ø280mm, compatible VP compactes françaises",
+      "categorie": "FREINAGE",
+      "prix_achat": "25.00",
+      "prix_vente": "55.00",
+      "stock_actuel": 2,
+      "stock_minimum": 4,
+      "stock_suspendu": 0,
+      "fournisseur_ref": 1,
+      "delai_livraison": 2,
+      "date_creation": "2026-01-08T08:25:00Z",
+      "date_modification": "2026-01-08T08:25:00Z"
+    }
+  },
+  {
+    "model": "stock.piece",
+    "pk": 7,
+    "fields": {
+      "reference": "PNE-205-55-001",
+      "nom": "Pneu 205/55 R16 (unité)",
+      "description": "Toutes saisons, indice de charge 91V",
+      "categorie": "PNEUMATIQUE",
+      "prix_achat": "55.00",
+      "prix_vente": "95.00",
+      "stock_actuel": 0,
+      "stock_minimum": 4,
+      "stock_suspendu": 0,
+      "fournisseur_ref": 2,
+      "delai_livraison": 3,
+      "date_creation": "2026-01-08T08:30:00Z",
+      "date_modification": "2026-01-08T08:30:00Z"
+    }
+  },
+  {
+    "model": "stock.piece",
+    "pk": 8,
+    "fields": {
+      "reference": "ELC-BAT-001",
+      "nom": "Batterie 12V 60Ah",
+      "description": "Batterie démarrage, borne + droite, garantie 2 ans",
+      "categorie": "ELECTRICITE",
+      "prix_achat": "45.00",
+      "prix_vente": "89.00",
+      "stock_actuel": 3,
+      "stock_minimum": 2,
+      "stock_suspendu": 0,
+      "fournisseur_ref": 1,
+      "delai_livraison": 1,
+      "date_creation": "2026-01-08T08:35:00Z",
+      "date_modification": "2026-01-08T08:35:00Z"
+    }
+  },
+  {
+    "model": "stock.piece",
+    "pk": 9,
+    "fields": {
+      "reference": "MEC-COU-001",
+      "nom": "Courroie de distribution",
+      "description": "Kit complet avec tendeur et galet, compatible Renault 1.5 dCi",
+      "categorie": "MECANIQUE",
+      "prix_achat": "65.00",
+      "prix_vente": "130.00",
+      "stock_actuel": 2,
+      "stock_minimum": 2,
+      "stock_suspendu": 0,
+      "fournisseur_ref": 1,
+      "delai_livraison": 2,
+      "date_creation": "2026-01-08T08:40:00Z",
+      "date_modification": "2026-01-08T08:40:00Z"
+    }
+  },
+  {
+    "model": "stock.piece",
+    "pk": 10,
+    "fields": {
+      "reference": "FLT-HAB-003",
+      "nom": "Filtre habitacle (pollen)",
+      "description": "Filtre à charbon actif anti-pollen, universel",
+      "categorie": "FILTRATION",
+      "prix_achat": "6.00",
+      "prix_vente": "14.00",
+      "stock_actuel": 12,
+      "stock_minimum": 6,
+      "stock_suspendu": 0,
+      "fournisseur_ref": 1,
+      "delai_livraison": 1,
+      "date_creation": "2026-01-08T08:45:00Z",
+      "date_modification": "2026-01-08T08:45:00Z"
+    }
+  },
+  {
+    "model": "planning.departement",
+    "pk": 1,
+    "fields": {
+      "code": "ATELIER",
+      "nom": "Atelier",
+      "couleur": "#2980b9",
+      "actif": true,
+      "ordre": 0,
+      "requiert_vehicule": true
+    }
+  },
+  {
+    "model": "planning.departement",
+    "pk": 2,
+    "fields": {
+      "code": "ACADEMIE",
+      "nom": "Académie",
+      "couleur": "#8e44ad",
+      "actif": true,
+      "ordre": 1,
+      "requiert_vehicule": false
+    }
+  },
+  {
+    "model": "planning.collaborateur",
+    "pk": 1,
+    "fields": {
+      "nom": "Thomas Dupont",
+      "couleur": "#27ae60",
+      "role": "Chef mécanicien",
+      "actif": true
+    }
+  },
+  {
+    "model": "planning.collaborateur",
+    "pk": 2,
+    "fields": {
+      "nom": "Lucas Martin",
+      "couleur": "#e67e22",
+      "role": "Mécanicien",
+      "actif": true
+    }
+  },
+  {
+    "model": "planning.intervention",
+    "pk": 1,
+    "fields": {
+      "departement": 1,
+      "collaborateurs": [
+        1
+      ],
+      "client": 1,
+      "vehicule": 1,
+      "date_debut": "2026-04-07T08:00:00Z",
+      "date_fin": "2026-04-07T09:30:00Z",
+      "description": "Vidange + filtre à huile + filtre habitacle",
+      "statut": "PLANIFIE",
+      "rappel_envoye": false,
+      "date_creation": "2026-04-01T10:00:00Z",
+      "date_modification": "2026-04-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "planning.intervention",
+    "pk": 2,
+    "fields": {
+      "departement": 1,
+      "collaborateurs": [
+        2
+      ],
+      "client": 2,
+      "vehicule": 2,
+      "date_debut": "2026-04-07T10:00:00Z",
+      "date_fin": "2026-04-07T12:00:00Z",
+      "description": "Remplacement plaquettes et disques avant",
+      "statut": "PLANIFIE",
+      "rappel_envoye": false,
+      "date_creation": "2026-04-01T11:00:00Z",
+      "date_modification": "2026-04-01T11:00:00Z"
+    }
+  },
+  {
+    "model": "planning.intervention",
+    "pk": 3,
+    "fields": {
+      "departement": 1,
+      "collaborateurs": [
+        1,
+        2
+      ],
+      "client": 3,
+      "vehicule": 3,
+      "date_debut": "2026-04-08T09:00:00Z",
+      "date_fin": "2026-04-08T11:00:00Z",
+      "description": "Révision annuelle moto — huile + filtres + bougies",
+      "statut": "PLANIFIE",
+      "rappel_envoye": false,
+      "date_creation": "2026-04-02T08:30:00Z",
+      "date_modification": "2026-04-02T08:30:00Z"
+    }
+  },
+  {
+    "model": "planning.intervention",
+    "pk": 4,
+    "fields": {
+      "departement": 1,
+      "collaborateurs": [
+        1
+      ],
+      "client": 4,
+      "vehicule": 4,
+      "date_debut": "2026-04-05T14:00:00Z",
+      "date_fin": "2026-04-05T15:00:00Z",
+      "description": "Diagnostic électronique — voyant moteur allumé",
+      "statut": "EN_COURS",
+      "rappel_envoye": true,
+      "date_creation": "2026-04-03T09:00:00Z",
+      "date_modification": "2026-04-05T14:05:00Z"
+    }
+  },
+  {
+    "model": "planning.intervention",
+    "pk": 5,
+    "fields": {
+      "departement": 1,
+      "collaborateurs": [
+        2
+      ],
+      "client": 5,
+      "vehicule": 5,
+      "date_debut": "2026-04-03T08:00:00Z",
+      "date_fin": "2026-04-03T10:00:00Z",
+      "description": "Révision complète Transit — huile + filtres + courroie",
+      "statut": "TERMINE",
+      "rappel_envoye": true,
+      "date_creation": "2026-03-28T10:00:00Z",
+      "date_modification": "2026-04-03T10:05:00Z"
+    }
+  },
+  {
+    "model": "factures.parametresfacturation",
+    "pk": 1,
+    "fields": {
+      "tva_pourcentage": "20.00",
+      "numero_devis_actuel": 6,
+      "numero_facture_actuel": 6,
+      "created_at": "2026-01-01T08:00:00Z",
+      "updated_at": "2026-04-01T08:00:00Z"
+    }
+  },
+  {
+    "model": "factures.devis",
+    "pk": 1,
+    "fields": {
+      "numero": "DEV-26-00001",
+      "client": 1,
+      "intervention": 1,
+      "date_creation": "2026-04-01",
+      "date_validite": "2026-04-30",
+      "montant_ht": "71.50",
+      "tva": "14.30",
+      "montant_ttc": "85.80",
+      "statut": "VALIDE",
+      "notes": "Devis accepté par email.",
+      "created_at": "2026-04-01T10:05:00Z",
+      "updated_at": "2026-04-02T09:00:00Z"
+    }
+  },
+  {
+    "model": "factures.devis",
+    "pk": 2,
+    "fields": {
+      "numero": "DEV-26-00002",
+      "client": 2,
+      "intervention": 2,
+      "date_creation": "2026-04-01",
+      "date_validite": "2026-04-20",
+      "montant_ht": "148.00",
+      "tva": "29.60",
+      "montant_ttc": "177.60",
+      "statut": "CREE",
+      "notes": "",
+      "created_at": "2026-04-01T11:05:00Z",
+      "updated_at": "2026-04-01T11:05:00Z"
+    }
+  },
+  {
+    "model": "factures.devis",
+    "pk": 3,
+    "fields": {
+      "numero": "DEV-26-00003",
+      "client": 5,
+      "intervention": 5,
+      "date_creation": "2026-03-28",
+      "date_validite": "2026-04-10",
+      "montant_ht": "292.00",
+      "tva": "58.40",
+      "montant_ttc": "350.40",
+      "statut": "FACTURE",
+      "notes": "Devis converti en facture FAC-26-00001.",
+      "created_at": "2026-03-28T10:05:00Z",
+      "updated_at": "2026-04-03T10:10:00Z"
+    }
+  },
+  {
+    "model": "factures.devis",
+    "pk": 4,
+    "fields": {
+      "numero": "DEV-26-00004",
+      "client": 3,
+      "intervention": null,
+      "date_creation": "2026-03-20",
+      "date_validite": "2026-04-05",
+      "montant_ht": "95.00",
+      "tva": "19.00",
+      "montant_ttc": "114.00",
+      "statut": "EXPIRE",
+      "notes": "Client n'a pas donné suite.",
+      "created_at": "2026-03-20T14:00:00Z",
+      "updated_at": "2026-03-20T14:00:00Z"
+    }
+  },
+  {
+    "model": "factures.devis",
+    "pk": 5,
+    "fields": {
+      "numero": "DEV-26-00005",
+      "client": 4,
+      "intervention": 4,
+      "date_creation": "2026-04-03",
+      "date_validite": "2026-04-25",
+      "montant_ht": "0.00",
+      "tva": "0.00",
+      "montant_ttc": "0.00",
+      "statut": "CREE",
+      "notes": "Devis en attente de diagnostic.",
+      "created_at": "2026-04-03T09:05:00Z",
+      "updated_at": "2026-04-03T09:05:00Z"
+    }
+  },
+  {
+    "model": "factures.lignedevis",
+    "pk": 1,
+    "fields": {
+      "devis": 1,
+      "piece": 3,
+      "description": "Huile moteur 5W30 (5L)",
+      "quantite": 1,
+      "prix_unitaire": "42.00",
+      "created_at": "2026-04-01T10:06:00Z",
+      "updated_at": "2026-04-01T10:06:00Z"
+    }
+  },
+  {
+    "model": "factures.lignedevis",
+    "pk": 2,
+    "fields": {
+      "devis": 1,
+      "piece": 1,
+      "description": "Filtre à huile universel",
+      "quantite": 1,
+      "prix_unitaire": "8.90",
+      "created_at": "2026-04-01T10:07:00Z",
+      "updated_at": "2026-04-01T10:07:00Z"
+    }
+  },
+  {
+    "model": "factures.lignedevis",
+    "pk": 3,
+    "fields": {
+      "devis": 1,
+      "piece": null,
+      "description": "Main d'œuvre vidange",
+      "quantite": 1,
+      "prix_unitaire": "20.60",
+      "created_at": "2026-04-01T10:08:00Z",
+      "updated_at": "2026-04-01T10:08:00Z"
+    }
+  },
+  {
+    "model": "factures.lignedevis",
+    "pk": 4,
+    "fields": {
+      "devis": 2,
+      "piece": 5,
+      "description": "Plaquettes de frein avant (jeu)",
+      "quantite": 1,
+      "prix_unitaire": "38.00",
+      "created_at": "2026-04-01T11:06:00Z",
+      "updated_at": "2026-04-01T11:06:00Z"
+    }
+  },
+  {
+    "model": "factures.lignedevis",
+    "pk": 5,
+    "fields": {
+      "devis": 2,
+      "piece": 6,
+      "description": "Disque de frein avant (x2)",
+      "quantite": 2,
+      "prix_unitaire": "55.00",
+      "created_at": "2026-04-01T11:07:00Z",
+      "updated_at": "2026-04-01T11:07:00Z"
+    }
+  },
+  {
+    "model": "factures.lignedevis",
+    "pk": 6,
+    "fields": {
+      "devis": 3,
+      "piece": 4,
+      "description": "Huile moteur 10W40 (5L)",
+      "quantite": 2,
+      "prix_unitaire": "32.00",
+      "created_at": "2026-03-28T10:06:00Z",
+      "updated_at": "2026-03-28T10:06:00Z"
+    }
+  },
+  {
+    "model": "factures.lignedevis",
+    "pk": 7,
+    "fields": {
+      "devis": 3,
+      "piece": 1,
+      "description": "Filtre à huile universel",
+      "quantite": 1,
+      "prix_unitaire": "8.90",
+      "created_at": "2026-03-28T10:07:00Z",
+      "updated_at": "2026-03-28T10:07:00Z"
+    }
+  },
+  {
+    "model": "factures.lignedevis",
+    "pk": 8,
+    "fields": {
+      "devis": 3,
+      "piece": 9,
+      "description": "Courroie de distribution kit complet",
+      "quantite": 1,
+      "prix_unitaire": "130.00",
+      "created_at": "2026-03-28T10:08:00Z",
+      "updated_at": "2026-03-28T10:08:00Z"
+    }
+  },
+  {
+    "model": "factures.lignedevis",
+    "pk": 9,
+    "fields": {
+      "devis": 3,
+      "piece": null,
+      "description": "Main d'œuvre révision Transit",
+      "quantite": 2,
+      "prix_unitaire": "55.00",
+      "created_at": "2026-03-28T10:09:00Z",
+      "updated_at": "2026-03-28T10:09:00Z"
+    }
+  },
+  {
+    "model": "factures.facture",
+    "pk": 1,
+    "fields": {
+      "numero": "FAC-26-00001",
+      "client": 5,
+      "devis": 3,
+      "intervention": 5,
+      "date_emission": "2026-04-03",
+      "date_echeance": "2026-05-03",
+      "montant_ht": "350.90",
+      "tva": "70.18",
+      "montant_ttc": "421.08",
+      "montant_paye": "421.08",
+      "statut": "PAYEE",
+      "notes": "Règlement CB en boutique.",
+      "created_at": "2026-04-03T10:15:00Z",
+      "updated_at": "2026-04-03T10:20:00Z"
+    }
+  },
+  {
+    "model": "factures.facture",
+    "pk": 2,
+    "fields": {
+      "numero": "FAC-26-00002",
+      "client": 1,
+      "devis": null,
+      "intervention": null,
+      "date_emission": "2026-03-15",
+      "date_echeance": "2026-04-15",
+      "montant_ht": "108.00",
+      "tva": "21.60",
+      "montant_ttc": "129.60",
+      "montant_paye": "0.00",
+      "statut": "IMPAYEE",
+      "notes": "Relance envoyée le 01/04.",
+      "created_at": "2026-03-15T11:00:00Z",
+      "updated_at": "2026-04-01T09:00:00Z"
+    }
+  },
+  {
+    "model": "factures.facture",
+    "pk": 3,
+    "fields": {
+      "numero": "FAC-26-00003",
+      "client": 2,
+      "devis": null,
+      "intervention": null,
+      "date_emission": "2026-03-20",
+      "date_echeance": "2026-04-20",
+      "montant_ht": "75.00",
+      "tva": "15.00",
+      "montant_ttc": "90.00",
+      "montant_paye": "50.00",
+      "statut": "PARTIELLEMENT_PAYEE",
+      "notes": "Acompte 50€ reçu.",
+      "created_at": "2026-03-20T14:00:00Z",
+      "updated_at": "2026-03-25T09:00:00Z"
+    }
+  },
+  {
+    "model": "factures.facture",
+    "pk": 4,
+    "fields": {
+      "numero": "FAC-26-00004",
+      "client": 3,
+      "devis": null,
+      "intervention": null,
+      "date_emission": "2026-04-01",
+      "date_echeance": "2026-05-01",
+      "montant_ht": "65.00",
+      "tva": "13.00",
+      "montant_ttc": "78.00",
+      "montant_paye": "0.00",
+      "statut": "EMISE",
+      "notes": "",
+      "created_at": "2026-04-01T16:00:00Z",
+      "updated_at": "2026-04-01T16:00:00Z"
+    }
+  },
+  {
+    "model": "factures.facture",
+    "pk": 5,
+    "fields": {
+      "numero": "FAC-26-00005",
+      "client": 4,
+      "devis": null,
+      "intervention": null,
+      "date_emission": "2026-03-10",
+      "date_echeance": "2026-04-10",
+      "montant_ht": "120.00",
+      "tva": "24.00",
+      "montant_ttc": "144.00",
+      "montant_paye": "144.00",
+      "statut": "PAYEE",
+      "notes": "Virement reçu.",
+      "created_at": "2026-03-10T10:00:00Z",
+      "updated_at": "2026-03-15T08:00:00Z"
+    }
+  },
+  {
+    "model": "factures.lignefacture",
+    "pk": 1,
+    "fields": {
+      "facture": 1,
+      "piece": 4,
+      "description": "Huile moteur 10W40 (5L)",
+      "quantite": 2,
+      "prix_unitaire": "32.00",
+      "created_at": "2026-04-03T10:16:00Z",
+      "updated_at": "2026-04-03T10:16:00Z"
+    }
+  },
+  {
+    "model": "factures.lignefacture",
+    "pk": 2,
+    "fields": {
+      "facture": 1,
+      "piece": 1,
+      "description": "Filtre à huile universel",
+      "quantite": 1,
+      "prix_unitaire": "8.90",
+      "created_at": "2026-04-03T10:17:00Z",
+      "updated_at": "2026-04-03T10:17:00Z"
+    }
+  },
+  {
+    "model": "factures.lignefacture",
+    "pk": 3,
+    "fields": {
+      "facture": 1,
+      "piece": 9,
+      "description": "Courroie de distribution kit complet",
+      "quantite": 1,
+      "prix_unitaire": "130.00",
+      "created_at": "2026-04-03T10:18:00Z",
+      "updated_at": "2026-04-03T10:18:00Z"
+    }
+  },
+  {
+    "model": "factures.lignefacture",
+    "pk": 4,
+    "fields": {
+      "facture": 1,
+      "piece": null,
+      "description": "Main d'œuvre révision Transit",
+      "quantite": 2,
+      "prix_unitaire": "55.00",
+      "created_at": "2026-04-03T10:19:00Z",
+      "updated_at": "2026-04-03T10:19:00Z"
+    }
+  },
+  {
+    "model": "factures.lignefacture",
+    "pk": 5,
+    "fields": {
+      "facture": 2,
+      "piece": 7,
+      "description": "Pneu 205/55 R16 (x4)",
+      "quantite": 4,
+      "prix_unitaire": "95.00",
+      "created_at": "2026-03-15T11:05:00Z",
+      "updated_at": "2026-03-15T11:05:00Z"
+    }
+  },
+  {
+    "model": "factures.lignefacture",
+    "pk": 6,
+    "fields": {
+      "facture": 2,
+      "piece": null,
+      "description": "Main d'œuvre montage pneus",
+      "quantite": 1,
+      "prix_unitaire": "28.00",
+      "created_at": "2026-03-15T11:06:00Z",
+      "updated_at": "2026-03-15T11:06:00Z"
+    }
+  },
+  {
+    "model": "factures.lignefacture",
+    "pk": 7,
+    "fields": {
+      "facture": 3,
+      "piece": null,
+      "description": "Diagnostic électronique",
+      "quantite": 1,
+      "prix_unitaire": "75.00",
+      "created_at": "2026-03-20T14:05:00Z",
+      "updated_at": "2026-03-20T14:05:00Z"
+    }
+  },
+  {
+    "model": "factures.lignefacture",
+    "pk": 8,
+    "fields": {
+      "facture": 4,
+      "piece": 3,
+      "description": "Huile moteur 5W30 (5L)",
+      "quantite": 1,
+      "prix_unitaire": "42.00",
+      "created_at": "2026-04-01T16:05:00Z",
+      "updated_at": "2026-04-01T16:05:00Z"
+    }
+  },
+  {
+    "model": "factures.lignefacture",
+    "pk": 9,
+    "fields": {
+      "facture": 4,
+      "piece": null,
+      "description": "Main d'œuvre vidange",
+      "quantite": 1,
+      "prix_unitaire": "23.00",
+      "created_at": "2026-04-01T16:06:00Z",
+      "updated_at": "2026-04-01T16:06:00Z"
+    }
+  },
+  {
+    "model": "factures.lignefacture",
+    "pk": 10,
+    "fields": {
+      "facture": 5,
+      "piece": 2,
+      "description": "Filtre à air Peugeot 308",
+      "quantite": 1,
+      "prix_unitaire": "18.00",
+      "created_at": "2026-03-10T10:05:00Z",
+      "updated_at": "2026-03-10T10:05:00Z"
+    }
+  },
+  {
+    "model": "factures.lignefacture",
+    "pk": 11,
+    "fields": {
+      "facture": 5,
+      "piece": 8,
+      "description": "Batterie 12V 60Ah",
+      "quantite": 1,
+      "prix_unitaire": "89.00",
+      "created_at": "2026-03-10T10:06:00Z",
+      "updated_at": "2026-03-10T10:06:00Z"
+    }
+  },
+  {
+    "model": "factures.lignefacture",
+    "pk": 12,
+    "fields": {
+      "facture": 5,
+      "piece": null,
+      "description": "Main d'œuvre remplacement batterie",
+      "quantite": 1,
+      "prix_unitaire": "13.00",
+      "created_at": "2026-03-10T10:07:00Z",
+      "updated_at": "2026-03-10T10:07:00Z"
+    }
+  }
+]

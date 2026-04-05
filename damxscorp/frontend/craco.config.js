@@ -17,12 +17,12 @@ module.exports = {
   devServer: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8000',
+        target: 'http://backend:8000',
         changeOrigin: true,   // obligatoire pour Codespaces / environnement distant
         secure: false,        // autorise le HTTP en dev
       },
       '/admin': {
-        target: 'http://localhost:8000',
+        target: 'http://backend:8000',
         changeOrigin: true,
         secure: false,
       },
