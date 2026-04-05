@@ -1,164 +1,55 @@
 // /frontend/src/utils/icons.js
-//
 // ══════════════════════════════════════════════════════════════════
 //  CATALOGUE D'ICÔNES UI — point d'entrée unique pour toute l'app
-//  Bibliothèque : Phosphor Icons (@phosphor-icons/react)
-// ══════════════════════════════════════════════════════════════════
-//
-//  POURQUOI CE FICHIER ?
-//  Tous les composants importent leurs icônes ICI plutôt que
-//  directement depuis '@phosphor-icons/react'. Résultat :
-//    → Tu veux changer une icône dans toute l'app ?
-//      Tu changes UNE ligne ici. C'est tout.
-//    → Tu veux essayer un autre style (fill, bold...) partout ?
-//      Tu changes 'duotone' en bas en 'fill'. Les composants ne bougent pas.
-//
-//  COMMENT ÇA MARCHE ?
-//  Chaque icône est enveloppée dans un petit wrapper qui applique
-//  weight="duotone" par défaut. Tu peux toujours passer weight="fill"
-//  ou weight="regular" sur un composant précis pour l'exception.
-//
-//  UTILISATION dans un composant :
-//    import { Phone, Pencil, Trash2 } from '../../utils/icons';
-//    <Phone size={20} color="#e74c3c" />           ← duotone automatique
-//    <Phone size={20} color="#e74c3c" weight="fill" /> ← override possible
-//
+//  Bibliothèque : react-icons/pi (Phosphor Icons — style Fill)
 // ══════════════════════════════════════════════════════════════════
 
-import React from 'react';
+export { PiPlusFill          as Plus }          from 'react-icons/pi';
+export { PiUserPlusFill      as UserPlus }      from 'react-icons/pi';
+export { PiPencilSimpleFill  as Pencil }        from 'react-icons/pi';
+export { PiTrashFill         as Trash2 }        from 'react-icons/pi';
+export { PiFloppyDiskFill    as Save }          from 'react-icons/pi';
+export { PiCheckCircleFill   as Check }         from 'react-icons/pi';
+export { PiCheckCircleFill   as CheckCircle }   from 'react-icons/pi';
+export { PiCheckCircleFill   as CircleCheck }   from 'react-icons/pi';
+export { PiCircleFill        as Circle }        from 'react-icons/pi';
 
-// ── Imports Phosphor (noms originaux, avec alias pour rester compatibles) ──
-import {
-  // CRUD & Actions
-  Plus              as _Plus,
-  UserPlus          as _UserPlus,
-  PencilSimple      as _Pencil,
-  Trash             as _Trash2,
-  FloppyDisk        as _Save,
-  Check             as _Check,
-  CheckCircle       as _CheckCircle,
-  Circle            as _Circle,
+export { PiXFill             as X }             from 'react-icons/pi';
+export { PiMagnifyingGlassFill as Search }      from 'react-icons/pi';
+export { PiListFill          as Menu }          from 'react-icons/pi';
+export { PiCaretDownFill     as ChevronDown }   from 'react-icons/pi';
+export { PiCaretRightFill    as ChevronRight }  from 'react-icons/pi';
+export { PiArrowLeftFill     as ArrowLeft }     from 'react-icons/pi';
 
-  // Navigation & Interface
-  X                 as _X,
-  MagnifyingGlass   as _Search,
-  List              as _Menu,
-  CaretDown         as _ChevronDown,
-  CaretRight        as _ChevronRight,
-  ArrowLeft         as _ArrowLeft,
+export { PiCalendarDotsFill  as CalendarDays }  from 'react-icons/pi';
+export { PiUsersFill         as Users }         from 'react-icons/pi';
+export { PiCarFill           as Car }           from 'react-icons/pi';
+export { PiPackageFill       as Package }       from 'react-icons/pi';
+export { PiFactoryFill       as Factory }       from 'react-icons/pi';
+export { PiReceiptFill       as Receipt }       from 'react-icons/pi';
+export { PiGearSixFill       as Settings }      from 'react-icons/pi';
 
-  // Sidebar principale
-  CalendarDots      as _CalendarDays,
-  Users             as _Users,
-  Car               as _Car,
-  Package           as _Package,
-  Factory           as _Factory,
-  Receipt           as _Receipt,
-  Gear              as _Settings,
+export { PiClockClockwiseFill as CalendarClock } from 'react-icons/pi';
+export { PiCalendarPlusFill  as CalendarPlus }  from 'react-icons/pi';
+export { PiPlayCircleFill    as CirclePlay }    from 'react-icons/pi';
+export { PiXCircleFill       as CircleX }       from 'react-icons/pi';
 
-  // RDV & Planning
-  ClockClockwise    as _CalendarClock,
-  CalendarPlus      as _CalendarPlus,
-  PlayCircle        as _CirclePlay,
-  XCircle           as _CircleX,
+export { PiPhoneFill         as Phone }         from 'react-icons/pi';
+export { PiEnvelopeFill      as Mail }          from 'react-icons/pi';
+export { PiMapPinFill        as MapPin }        from 'react-icons/pi';
+export { PiUserFill          as User }          from 'react-icons/pi';
+export { PiFileTextFill      as FileText }      from 'react-icons/pi';
 
-  // Contact Client
-  Phone             as _Phone,
-  Envelope          as _Mail,
-  MapPin            as _MapPin,
-  User              as _User,
-  FileText          as _FileText,
+export { PiInfoFill          as Info }          from 'react-icons/pi';
+export { PiWarningCircleFill as CircleAlert }   from 'react-icons/pi';
+export { PiCircleNotch       as Loader }        from 'react-icons/pi';
+export { PiKeyFill           as Key }           from 'react-icons/pi';
+export { PiWrenchFill        as Wrench }        from 'react-icons/pi';
+export { PiTagFill           as Tag }           from 'react-icons/pi';
+export { PiMoneyFill         as Banknote }      from 'react-icons/pi';
+export { PiGraduationCapFill as GraduationCap } from 'react-icons/pi';
+export { PiCurrencyDollarFill as DollarSign }   from 'react-icons/pi';
 
-  // Informations & États
-  Info              as _Info,
-  WarningCircle     as _CircleAlert,
-  CircleNotch       as _Loader,
-  Key               as _Key,
-  Wrench            as _Wrench,
-  Tag               as _Tag,
-  Money             as _Banknote,
-  GraduationCap     as _GraduationCap,
-  CurrencyDollar    as _DollarSign,
-
-  // Paramètres
-  Palette           as _Palette,
-  Bell              as _Bell,
-  Robot             as _Bot,
-
-} from '@phosphor-icons/react';
-
-
-// ══════════════════════════════════════════════════════════════════
-//  HELPER — applique weight="duotone" par défaut sur n'importe quelle icône
-//
-//  Exemple d'utilisation :
-//    const Phone = ph(_Phone);
-//    → <Phone size={20} />             ← rendu en duotone
-//    → <Phone size={20} weight="fill" /> ← override possible
-// ══════════════════════════════════════════════════════════════════
-const ph = (Icon) => {
-  const Wrapped = ({ weight = 'duotone', ...props }) =>
-    React.createElement(Icon, { weight, ...props });
-  Wrapped.displayName = Icon.displayName || Icon.name;
-  return Wrapped;
-};
-
-
-// ── EXPORTS — mêmes noms qu'avant, compatibles avec tout le code existant ──
-
-// Actions CRUD
-export const Plus         = ph(_Plus);
-export const UserPlus     = ph(_UserPlus);
-export const Pencil       = ph(_Pencil);
-export const Trash2       = ph(_Trash2);
-export const Save         = ph(_Save);
-export const Check        = ph(_Check);
-export const CheckCircle  = ph(_CheckCircle);
-export const CircleCheck  = ph(_CheckCircle);  // alias (même icône)
-export const Circle       = ph(_Circle);
-
-// Navigation & Interface
-export const X            = ph(_X);
-export const Search       = ph(_Search);
-export const Menu         = ph(_Menu);
-export const ChevronDown  = ph(_ChevronDown);
-export const ChevronRight = ph(_ChevronRight);
-export const ArrowLeft    = ph(_ArrowLeft);
-
-// Sidebar principale
-export const CalendarDays = ph(_CalendarDays);
-export const Users        = ph(_Users);
-export const Car          = ph(_Car);
-export const Package      = ph(_Package);
-export const Factory      = ph(_Factory);
-export const Receipt      = ph(_Receipt);
-export const Settings     = ph(_Settings);
-
-// RDV & Planning
-export const CalendarClock = ph(_CalendarClock);
-export const CalendarPlus  = ph(_CalendarPlus);
-export const CirclePlay    = ph(_CirclePlay);
-export const CircleX       = ph(_CircleX);
-
-// Contact Client
-export const Phone    = ph(_Phone);
-export const Mail     = ph(_Mail);
-export const MapPin   = ph(_MapPin);
-export const User     = ph(_User);
-export const FileText = ph(_FileText);
-
-// Informations & États
-export const Info          = ph(_Info);
-export const CircleAlert   = ph(_CircleAlert);
-export const Loader        = ph(_Loader);
-export const Key           = ph(_Key);
-export const Wrench        = ph(_Wrench);
-export const Tag           = ph(_Tag);
-export const Banknote      = ph(_Banknote);
-export const GraduationCap = ph(_GraduationCap);
-export const DollarSign    = ph(_DollarSign);
-
-// Paramètres
-export const Palette = ph(_Palette);
-export const Bell    = ph(_Bell);
-export const Bot     = ph(_Bot);
+export { PiPaletteFill       as Palette }       from 'react-icons/pi';
+export { PiBellFill          as Bell }          from 'react-icons/pi';
+export { PiRobotFill         as Bot }           from 'react-icons/pi';
