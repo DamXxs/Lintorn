@@ -1,8 +1,8 @@
 // /frontend/src/components/Factures/FactureDetail.jsx
 import React, { useState, useEffect } from 'react';
-import { fetchFactureById, enregistrerPaiement } from '@/pages/Factures/Factures/factureService';
-import LoadingState from '@/components/shared/LoadingState';
-import ErrorState from '@/components/shared/ErrorState';
+import { fetchFactureById, enregistrerPaiement } from '../../../pages/Factures/Factures/factureService';
+import LoadingState from '../../../components/shared/LoadingState';
+import ErrorState from '../../../components/shared/ErrorState';
 import './FactureDetail.css';
 
 const FactureDetail = ({ factureId, onBack }) => {
