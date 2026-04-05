@@ -46,6 +46,7 @@ const Modal = ({ title, titleIcon, onClose, children, footer, customHeader, boxC
           customHeader
         ) : (
           <div className="modal-header">
+            <div className="modal-header__spacer" /> {/* Spacer invisible pour centrer le titre */}
             <h2 className="modal-title">
               {titleIcon && <span className="modal-title__icon">{titleIcon}</span>}
               {title}

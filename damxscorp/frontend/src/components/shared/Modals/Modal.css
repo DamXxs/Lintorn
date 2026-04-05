@@ -41,9 +41,13 @@
   background: linear-gradient(135deg, #1a1a1a 0%, #252525 100%);
   border-bottom: 2px solid var(--accent);
   flex-shrink: 0;
+  position: relative;
 }
 
 .modal-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -51,6 +55,12 @@
   font-weight: 600;
   color: var(--accent);
   margin: 0;
+}
+
+/* Spacer invisible pour centrer le titre même avec le bouton fermer à droite */
+.modal-header__spacer {
+  width: 32px; /* ← même largeur que le bouton fermer pour équilibrer */
+  flex-shrink: 0;
 }
 
 .modal-title__icon {
