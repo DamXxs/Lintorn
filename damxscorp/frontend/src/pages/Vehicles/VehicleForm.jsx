@@ -118,7 +118,7 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
   return (
     <Modal
       title={editingVehicule ? 'Modifier le véhicule' : 'Nouveau véhicule'}
-      titleIcon={editingVehicule ? <Pencil size={15} /> : <Plus size={15} />}
+      titleIcon={editingVehicule ? <Pencil size={15} /> : <Car size={15} />}
       onClose={onClose}
       footer={
         <>
