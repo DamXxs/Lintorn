@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import useVehiculeHelpers from '../../hooks/useVehiculeHelpers'; // ← hook dynamique
 import { fetchInterventionsByVehicule, patchIntervention } from '../../services/api';
 import { formatDateLong, formatDateCourt } from '../../utils/dataFormatters';
-import ModalRdvConsultation from '../../components/shared/Modals/ModalRdvConsultation';
+import ModalRdvConsultation from '../RendezVous/ModalRdvConsultation';
 import Modal from '../../components/shared/Modals/Modal';
 import FrenchPlateInput from '../../components/shared/Frenchplate/FrenchPlateInput';
 import StatutBadge from '../../components/shared/StatutBadge';
@@ -198,7 +198,7 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
           <div className="vd-section">
             <h3 className="vd-section__title">
               <Receipt size={14} /> Factures & Devis
-              <span className="vd-badge">Bientôt</span>
+              <span className="vd-badge">Disponible(s)</span>
             </h3>
             <div className="vd-placeholder">Les factures liées à ce véhicule apparaîtront ici</div>
           </div>

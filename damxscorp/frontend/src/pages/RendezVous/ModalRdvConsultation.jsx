@@ -1,15 +1,15 @@
 // /frontend/src/components/shared/ModalRdvConsultation.jsx
 import React, { useState } from 'react';
-import { getDepartementLabel, getStatutClass, STATUTS_RDV } from '../../../pages/RendezVous/rdvService';
-import { formatDateFull, formatHeure } from '../../../utils/dataFormatters';
+import { getDepartementLabel, getStatutClass, STATUTS_RDV } from './rdvService';
+import { formatDateFull, formatHeure } from '../../utils/dataFormatters';
 import './ModalRdvConsultation.css';
-import Modal from './Modal';
-import FrenchPlateInput from '../Frenchplate/FrenchPlateInput';
-import IconChip, { CHIP_COLORS } from '../IconChip/IconChip';
+import Modal from '../../components/shared/Modals/Modal';
+import FrenchPlateInput from '../../components/shared/Frenchplate/FrenchPlateInput';
+import IconChip, { CHIP_COLORS } from '../../components/shared/IconChip/IconChip';
 import {
   CalendarClock, Pencil, Trash2,
   Car, User, Phone, Mail, FileText, Tag,
-} from '../../../utils/icons';
+} from '../../utils/icons';
 
 /**
  * 📋 MODAL DE CONSULTATION D'UN RDV

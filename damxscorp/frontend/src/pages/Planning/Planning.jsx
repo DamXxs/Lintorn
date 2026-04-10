@@ -13,7 +13,7 @@ import { fetchCollaborateurs } from '../../services/api';
 import { formatInterventionForDjango, formatInterventionForReact } from '../../utils/dataFormatters';
 import Calendar from './components/Calendar';
 import CollaborateurFilter from './components/CollaborateurFilter';
-import ModalRdvConsultation from '../../components/shared/Modals/ModalRdvConsultation';
+import ModalRdvConsultation from '../RendezVous/ModalRdvConsultation';
 import ModalForm from './components/ModalForm';
 import logger from '../../utils/logger';
 import './Planning.css';

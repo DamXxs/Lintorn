@@ -11,7 +11,7 @@ import {
 import { formatDateCourt, formatHeure } from '../../utils/dataFormatters';
 import StatutBadge from '../../components/shared/StatutBadge';
 import FrenchPlateInput from '../../components/shared/Frenchplate/FrenchPlateInput';
-import ModalRdvConsultation from '../../components/shared/Modals/ModalRdvConsultation';
+import ModalRdvConsultation from './ModalRdvConsultation';
 import PageHeader from '../../components/shared/PageHeader';
 import SearchBar from '../../components/shared/SearchBar/SearchBar';
 import LoadingState from '../../components/shared/LoadingState';

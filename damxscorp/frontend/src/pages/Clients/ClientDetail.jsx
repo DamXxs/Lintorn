@@ -8,7 +8,7 @@ import useVehiculeHelpers from '../../hooks/useVehiculeHelpers'; // ← hook dyn
 import VehicleForm from '../Vehicles/VehicleForm';
 import FrenchPlateInput from '../../components/shared/Frenchplate/FrenchPlateInput';
 import StatutBadge from '../../components/shared/StatutBadge';
-import ModalRdvConsultation from '../../components/shared/Modals/ModalRdvConsultation';
+import ModalRdvConsultation from '../RendezVous/ModalRdvConsultation';
 import VehicleDetail from '../Vehicles/VehicleDetail';
 import Modal from '../../components/shared/Modals/Modal';
 import {
