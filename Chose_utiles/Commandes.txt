@@ -70,3 +70,6 @@
     ** docker-compose down **
 
 ------------------------------------------------------------------
+
+## DATA TEST ##
+    ** python manage.py loaddata fixtures/demo_data.json ** (importe les data de démo) 

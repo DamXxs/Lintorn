@@ -92,6 +92,25 @@ export const validatePhone = (value) => {
 };
 
 /**
+ * Valide une référence interne
+ */
+export const validateReference = (value) => {
+  if (!value || value.trim().length === 0) return 'La référence est obligatoire';
+  if (value.trim().length < 3) return 'La référence doit faire au moins 3 caractères';
+  return null;
+};
+
+/**
+ * Valide un prix positif obligatoire
+ */
+export const validatePrix = (value, label) => {
+  if (value === '' || value === null || value === undefined) return `${label} est obligatoire`;
+  if (isNaN(Number(value))) return `${label} doit être un nombre valide`;
+  if (Number(value) < 0) return `${label} doit être positif ou nul`;
+  return null;
+};
+
+/**
  * Valide un email
  */
 export const validateEmail = (value) => {

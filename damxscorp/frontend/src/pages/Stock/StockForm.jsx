@@ -2,6 +2,7 @@
 // Modal pour créer ou modifier une pièce de stock.
 import React, { useState, useEffect } from 'react';
 import { fetchFournisseurs } from '../Fournisseurs/fournisseurService';
+import { validateReference, validateNom, validatePrix } from '../../utils/validators';
 import './StockForm.css';
 
 // ── Catégories de pièces (synchronisées avec stock/models.py) ────────────────
@@ -41,6 +42,7 @@ const PIECE_VIDE = {
  */
 const StockForm = ({ piece, onSave, onClose }) => {
   const [form,         setForm]         = useState(piece || PIECE_VIDE);
+  const [errors,       setErrors]       = useState({});
   const [fournisseurs, setFournisseurs] = useState([]);
   const [saving,       setSaving]       = useState(false);
   const [erreur,       setErreur]       = useState(null);
@@ -59,12 +61,42 @@ const StockForm = ({ piece, onSave, onClose }) => {
       // Les champs numériques sont convertis en nombre
       [name]: type === 'number' ? (value === '' ? '' : Number(value)) : value,
     }));
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: null }));
+    }
+  };
+
+  const validate = () => {
+    const newErrors = {};
+    const referenceError = validateReference(form.reference);
+    const nomError = validateNom(form.nom);
+    const prixAchatError = validatePrix(form.prix_achat, 'Le prix d\'achat');
+    const prixVenteError = validatePrix(form.prix_vente, 'Le prix de vente');
+
+    if (referenceError) newErrors.reference = referenceError;
+    if (nomError) newErrors.nom = nomError;
+    if (prixAchatError) newErrors.prix_achat = prixAchatError;
+    if (prixVenteError) newErrors.prix_vente = prixVenteError;
+    if (!prixAchatError && !prixVenteError && Number(form.prix_vente) < Number(form.prix_achat)) {
+      newErrors.prix_vente = 'Le prix de vente doit être supérieur ou égal au prix d\'achat';
+    }
+
+    return newErrors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     setErreur(null);
+
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      setSaving(false);
+      return;
+    }
+
+    setErrors({});
 
     // Nettoyage : si fournisseur_ref est vide, on envoie null
     const payload = {
@@ -94,7 +126,7 @@ const StockForm = ({ piece, onSave, onClose }) => {
           <button className="stockform-close" onClick={onClose} title="Fermer">✕</button>
         </div>
 
-        <form onSubmit={handleSubmit} className="stockform-form">
+        <form onSubmit={handleSubmit} className="stockform-form" noValidate>
 
           {erreur && <div className="stockform-error">{erreur}</div>}
 
@@ -112,6 +144,7 @@ const StockForm = ({ piece, onSave, onClose }) => {
                   placeholder="Ex : FLT-OIL-001"
                   required
                 />
+                {errors.reference && <span className="form-error">{errors.reference}</span>}
               </div>
               <div className="sf-group sf-group--large">
                 <label>Nom de la pièce *</label>
@@ -122,6 +155,7 @@ const StockForm = ({ piece, onSave, onClose }) => {
                   placeholder="Ex : Filtre à huile"
                   required
                 />
+                {errors.nom && <span className="form-error">{errors.nom}</span>}
               </div>
             </div>
 
@@ -174,6 +208,7 @@ const StockForm = ({ piece, onSave, onClose }) => {
                   placeholder="0.00"
                   required
                 />
+                {errors.prix_achat && <span className="form-error">{errors.prix_achat}</span>}
               </div>
               <div className="sf-group">
                 <label>Prix de vente TTC (€) *</label>
@@ -187,6 +222,7 @@ const StockForm = ({ piece, onSave, onClose }) => {
                   placeholder="0.00"
                   required
                 />
+                {errors.prix_vente && <span className="form-error">{errors.prix_vente}</span>}
               </div>
               {/* Affichage de la marge en temps réel */}
               {form.prix_achat > 0 && form.prix_vente > 0 && (

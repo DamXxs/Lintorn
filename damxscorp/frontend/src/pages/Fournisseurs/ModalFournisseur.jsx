@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import Modal from '../../components/shared/Modals/Modal';
 import { useReferentiels } from '../../context/ReferentielsContext';
+import { validateNom, validateEmail, validatePhone } from '../../utils/validators';
 import '../../components/shared/Modals/forms.css';
 import './ModalFournisseur.css';
 
@@ -33,6 +34,7 @@ const ModalFournisseur = ({ fournisseur, onSave, onClose }) => {
   const categories = getCategoriesFournisseur();
 
   const [form,   setForm]   = useState(fournisseur || FORMULAIRE_VIDE);
+  const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
   const [erreur, setErreur] = useState(null);
 
@@ -45,12 +47,38 @@ const ModalFournisseur = ({ fournisseur, onSave, onClose }) => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: null }));
+    }
+  };
+
+  const validate = () => {
+    const newErrors = {};
+    const nomError = validateNom(form.nom);
+    const emailError = !form.email?.trim() ? 'L\'email est obligatoire' : validateEmail(form.email);
+    const phoneError = validatePhone(form.telephone);
+
+    if (nomError) newErrors.nom = nomError;
+    if (emailError) newErrors.email = emailError;
+    if (phoneError) newErrors.telephone = phoneError;
+
+    return newErrors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     setErreur(null);
+
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      setSaving(false);
+      return;
+    }
+
+    setErrors({});
+
     try {
       await onSave(form);
       onClose();
@@ -85,7 +113,7 @@ const ModalFournisseur = ({ fournisseur, onSave, onClose }) => {
       onClose={onClose}
       footer={footer}
     >
-      <form id="form-fournisseur" onSubmit={handleSubmit}>
+      <form id="form-fournisseur" onSubmit={handleSubmit} noValidate>
 
         {/* Erreur globale */}
         {erreur && <div className="form-error-global">⚠️ {erreur}</div>}
@@ -104,6 +132,7 @@ const ModalFournisseur = ({ fournisseur, onSave, onClose }) => {
               placeholder="Ex : Utiligroup, Norauto, Autorectif…"
               required
             />
+            {errors.nom && <span className="form-error">{errors.nom}</span>}
           </div>
 
           <div className="form-group">
@@ -134,6 +163,7 @@ const ModalFournisseur = ({ fournisseur, onSave, onClose }) => {
                 placeholder="commandes@fournisseur.fr"
                 required
               />
+              {errors.email && <span className="form-error">{errors.email}</span>}
             </div>
             <div className="form-group">
               <label className="form-label">Téléphone</label>
@@ -144,6 +174,7 @@ const ModalFournisseur = ({ fournisseur, onSave, onClose }) => {
                 onChange={handleChange}
                 placeholder="01 23 45 67 89"
               />
+              {errors.telephone && <span className="form-error">{errors.telephone}</span>}
             </div>
           </div>
 

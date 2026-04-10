@@ -3,7 +3,6 @@ import axios from 'axios';
 import logger from '../utils/logger';
 
 // Si REACT_APP_API_URL est vide → URLs relatives (/api/...)
-// Le proxy craco redirige /api → http://localhost:8000
 // Fonctionne en local ET sur GitHub Codespaces.
 const API_BASE_URL = process.env.REACT_APP_API_URL || '/api';
 
