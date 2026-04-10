@@ -34,7 +34,7 @@ DEBUG = True
 # =============================================================================
 # HÔTES AUTORISÉS (localhost uniquement)
 # =============================================================================
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'backend', '0.0.0.0']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'backend', '0.0.0.0', ' curly-space-funicular-56p6gpv5qxfp76v-8000.app.github.dev']
 
 # =============================================================================
 # APPLICATIONS INSTALLÉES
@@ -129,6 +129,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
+    'https://curly-space-funicular-56p6gpv5qxfp76v-3000.app.github.dev',
 ]
 CORS_ALLOW_CREDENTIALS = True
 
@@ -161,6 +162,7 @@ CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1:3000',
     'http://localhost:8000',
     'http://127.0.0.1:8000',
+    'https://curly-space-funicular-56p6gpv5qxfp76v-3000.app.github.dev',
 ]
 
 CSRF_COOKIE_SECURE = False       # False en HTTP local (True uniquement en HTTPS)
