@@ -279,7 +279,7 @@
   <span class="subtitle">Fiche de suivi — Projet garage management</span>
 </div>
 <div class="meta">
-  Dernière mise à jour : <span>16 Avril 2026</span>
+  Dernière mise à jour : <span>16 Avril 2026 — Modales centralisées + StockForm redesigné + fix CSS</span>
   &nbsp;·&nbsp; Stack : <span>Django REST + React</span>
   &nbsp;·&nbsp; Env : <span>Docker + Codespaces</span>
   &nbsp;·&nbsp; API Codespaces : <span style="color:var(--green)">✓ OK (URLs relatives)</span>
@@ -298,6 +298,10 @@
   <div class="stat-card">
     <div class="stat-card__num" style="color:var(--yellow)">3</div>
     <div class="stat-card__label">Hooks custom</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card__num" style="color:var(--green)">10</div>
+    <div class="stat-card__label">Modales centralisées</div>
   </div>
   <div class="stat-card">
     <div class="stat-card__num" style="color:var(--purple)">2</div>
@@ -400,6 +404,30 @@
       <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">searchService.js — service de recherche centralisé</div></div>
       <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Hooks custom : useDelete, useForm, useVehiculeHelpers</div></div>
       <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Composants partagés : PageHeader, StatutBadge, HistoriqueList, LoadingState, ErrorState, IconChip, ComingSoon</div></div>
+      <div class="item">
+        <div class="item__dot item__dot--done"></div>
+        <div class="item__label item__label--done">
+          Modal.jsx + Modal.css — coquille centralisée pour 10 modales
+          <div class="item__sub">Overlay, header (X 22px fixe), contenu scrollable, footer sticky. Props : title, titleIcon, footer, customHeader, boxClassName</div>
+        </div>
+        <span class="badge badge--done">fait</span>
+      </div>
+      <div class="item">
+        <div class="item__dot item__dot--done"></div>
+        <div class="item__label item__label--done">
+          forms.css — styles partagés pour tous les formulaires en modal
+          <div class="item__sub">form-error-global, form-section, form-field — cohérence visuelle garantie</div>
+        </div>
+        <span class="badge badge--done">fait</span>
+      </div>
+      <div class="item">
+        <div class="item__dot item__dot--done"></div>
+        <div class="item__label item__label--done">
+          Boutons modal normalisés (modal-btn--primary / danger / success / cancel / ghost)
+          <div class="item__sub">Classes réutilisables dans tous les composants, layout --row et --col</div>
+        </div>
+        <span class="badge badge--done">fait</span>
+      </div>
       <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">validators.js — formatPhone, formatNom, formatPrenom, validateEmail</div></div>
       <div class="item">
         <div class="item__dot item__dot--done"></div>
@@ -527,7 +555,7 @@
     <div class="stack">
       <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Vue d'ensemble stock (StockVueEnsemble)</div></div>
       <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Alertes de stock bas</div></div>
-      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Ajout / modif pièces (StockForm)</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">StockForm redesigné au goût de l'app (utilise Modal.jsx + forms.css)</div></div>
       <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">stock_suspendu — pièces réservées par devis en cours</div></div>
       <div class="item">
         <div class="item__dot item__dot--todo"></div>
@@ -821,6 +849,58 @@
   </div>
 </div>
 
+<!-- ARCHITECTURE MODALES -->
+<div class="section-title">🪟 Architecture des modales</div>
+<div class="note">
+  <strong>Règle :</strong> Toute modale utilise <strong>Modal.jsx</strong> comme coquille (overlay + header + X + footer). Le composant fils ne gère que son propre contenu.<br>
+  Les modales "spéciales" ont leur propre JSX+CSS <em>en plus</em> de Modal.jsx (elles ne le remplacent pas).<br>
+  <strong>forms.css</strong> → à importer dans chaque formulaire pour la cohérence visuelle globale.
+</div>
+<div class="grid">
+  <div class="card card--green">
+    <div class="card__title">✅ Modales utilisant Modal.jsx (10)</div>
+    <div class="stack">
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">ClientDetail.jsx — fiche client + customHeader avatar</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">ClientForm.jsx — création / modification client</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">VehicleDetail.jsx — fiche véhicule</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">VehicleForm.jsx — création / modification véhicule</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">StockForm.jsx — création / modification pièce (redesigné)</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">ModalFournisseur.jsx — création / modification fournisseur</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">ModalEmailPreRempli.jsx — mail commande pièces</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">ModalForm.jsx (Planning) — création / modification RDV</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">ModalRdvConsultation.jsx — consultation RDV</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">DevisDetail.jsx — fiche détail devis</div></div>
+    </div>
+  </div>
+  <div class="card card--yellow">
+    <div class="card__title">⚙️ Modales spéciales (JSX+CSS propres)</div>
+    <div class="stack">
+      <div class="item">
+        <div class="item__dot item__dot--done"></div>
+        <div class="item__label item__label--done">
+          DevisPDFModal.jsx — aperçu + export PDF
+          <div class="item__sub">Layout full-screen spécifique — rendu document jsPDF</div>
+        </div>
+      </div>
+      <div class="item">
+        <div class="item__dot item__dot--done"></div>
+        <div class="item__label item__label--done">
+          ModalForm.jsx (Planning) — CSS spécifique calendrier
+          <div class="item__sub">Utilise Modal.jsx mais a des styles planning propres</div>
+        </div>
+      </div>
+      <div class="item">
+        <div class="item__dot item__dot--done"></div>
+        <div class="item__label item__label--done">
+          ModalRdvConsultation.jsx — CSS spécifique consultation
+          <div class="item__sub">Utilise Modal.jsx mais affichage RDV read-only stylé</div>
+        </div>
+      </div>
+      <div class="item"><div class="item__dot item__dot--todo"></div><div class="item__label">Modales Factures/FactureForm à connecter à Modal.jsx</div></div>
+    </div>
+  </div>
+</div>
+
 <!-- CONVENTIONS & RÈGLES -->
 <div class="section-title">📐 Conventions &amp; règles du projet</div>
 <div class="grid-3">
@@ -833,6 +913,8 @@
       <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label">Colocation : service files dans leur feature folder</div></div>
       <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label">Hooks custom dans /hooks pour la logique réutilisable</div></div>
       <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label">Contextes React pour les données globales (référentiels, thème)</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label">Toute modale passe par Modal.jsx — jamais d'overlay maison dans un composant</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label">Tout formulaire en modal importe forms.css pour la cohérence visuelle</div></div>
     </div>
   </div>
   <div class="card">
