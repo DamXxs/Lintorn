@@ -6,14 +6,15 @@ import sys
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'damxscorp.settings')  # ← ICI
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'damxscorp.settings')
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
         raise ImportError(
-            "Couldn't import Django. Are you sure it's installed and "
-            "available on your PYTHONPATH environment variable? Did you "
-            "forget to activate a virtual environment?"
+            "Impossible d'importer Django !\n"
+            "T'as activé ton environnement virtuel FDP 😂!?\n"
+            "Vérifie que tu l'as bien activé et réessaie.😉\n"
+            "Si ça marche toujours pas, vérifie que Django est bien installé dans ton environnement virtuel.😎"
         ) from exc
     execute_from_command_line(sys.argv)
 

@@ -52,7 +52,7 @@ const Modal = ({ title, titleIcon, onClose, children, footer, customHeader, boxC
               {title}
             </h2>
             <button className="modal-close" onClick={onClose} type="button">
-              <X size={16} />
+              <X size={22} />
             </button>
           </div>
         )}

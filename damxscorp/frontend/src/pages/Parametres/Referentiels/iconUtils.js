@@ -29,7 +29,7 @@ import {
   PiGearSixFill, PiFlameFill, PiShieldFill, PiLightningFill,
   PiBatteryFullFill, PiCircleFill, PiPackageFill, PiTagFill,
   PiStarFill, PiWarningCircleFill, PiClockClockwiseFill,
-  PiLeafFill, PiSnowflake, PiWindFill,
+  PiLeafFill, PiSnowflakeFill, PiWindFill,
 } from 'react-icons/pi';
 
 export const ICONES_CATALOGUE = {
@@ -62,7 +62,7 @@ export const ICONES_CATALOGUE = {
     { nom: 'AlertTriangle', label: 'Alerte',     Composant: PiWarningCircleFill },
     { nom: 'Clock',         label: 'Temps',      Composant: PiClockClockwiseFill },
     { nom: 'Leaf',          label: 'Écologie',   Composant: PiLeafFill },
-    { nom: 'Snowflake',     label: 'Froid',      Composant: PiSnowflake },
+    { nom: 'Snowflake',     label: 'Froid',      Composant: PiSnowflakeFill },
     { nom: 'Wind',          label: 'Air',        Composant: PiWindFill },
   ],
 };
@@ -76,11 +76,15 @@ Object.values(ICONES_CATALOGUE).forEach(groupe => {
 });
 
 export const renderIcone = (nom, props = {}) => {
+  // Si pas de nom, ou nom vide → icône par défaut selon le contexte
+  if (!nom || nom === 'null') {
+    return <PiPackageFill size={props.size || 20} {...props} />;
+  }
   const Composant = ICONES_MAP[nom];
-  if (!Composant) return <PiPackageFill size={props.size || 20} {...props} />;
-  // Fallback visible : Package avec couleur d'alerte pour repérer
-    // les icônes manquantes en dev// Fallback visible : Package avec couleur d'alerte pour repérer les icônes manquantes en dev
-  return <Composant size={props.size || 20} {...props} />;
+  // Si le nom existe en map → on affiche le bon composant
+  if (Composant) return <Composant size={props.size || 20} {...props} />;
+  // Fallback si nom inconnu → Package
+  return <PiPackageFill size={props.size || 20} {...props} />;
 };
 /**
  * Suggère automatiquement une icône selon les mots-clés du label

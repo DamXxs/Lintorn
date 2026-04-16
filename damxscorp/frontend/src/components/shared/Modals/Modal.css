@@ -74,11 +74,12 @@
   border: none;
   color: #888;
   cursor: pointer;
-  padding: 0.25rem;  /* 4px */
+  padding: 0.50rem; 
   display: flex;
   align-items: center;
-  border-radius: 0.25rem; /* 4px */
+  border-radius: 0.375rem; /* 6px */
   transition: color 0.2s, background 0.2s;
+  font-size: 1.25rem; /* ≈ 20px */
 }
 
 .modal-close:hover {

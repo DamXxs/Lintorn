@@ -111,18 +111,22 @@
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 16px;
-  padding: 2px;
-  transition: transform 0.15s;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  transition: opacity 0.2s;
 }
 
-.ref-editor__toggle:hover { transform: scale(1.15); }
+.ref-editor__toggle--on { color: #27ae60; }
+.ref-editor__toggle--off { color: #555; }
+.ref-editor__toggle:hover { opacity: 0.75; }
 
 .ref-editor__btn {
   width: 30px;
   height: 30px;
-  background: var(--border);
-  border: none;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
@@ -130,11 +134,12 @@
   align-items: center;
   justify-content: center;
   transition: all 0.15s;
+  color: #aaa
 }
 
 .ref-editor__btn:hover { transform: translateY(-1px); }
-.ref-editor__btn--edit:hover   { background: rgba(41, 128, 185, 0.3); }
-.ref-editor__btn--delete:hover { background: rgba(192, 57, 43, 0.3); }
+.ref-editor__btn--edit:hover   { color: var(--accent); border-color: var(--accent); background: rgba(41, 128, 185, 0.15); }
+.ref-editor__btn--delete:hover { color: #e74c3c; border-color: #e74c3c; background: rgba(231, 76, 60, 0.15); }
 
 /* ── FORMULAIRE ──────────────────────────────────────────────── */
 .ref-editor__form {
