@@ -44,3 +44,5 @@ damxscorp/frontend/.pnp.js
 # ← AJOUT 2 : logs système qui peuvent traîner
 *.log
 logs/
+
+Audit_Projet_Garage.docx

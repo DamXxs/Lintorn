@@ -5,7 +5,7 @@ import { useReferentiels } from '../../context/ReferentielsContext';
 import ReferentielEditor from './Referentiels/ReferentielEditor';
 import DepartementEditor from './DepartementEditor';
 import CollaborateurEditor from './CollaborateurEditor';
-import ParametresFacturation from '../Factures/Factures/ParametresFacturation';
+import ParametresFacturation from './ParametresFacturation';
 import { fetchDepartements, fetchCollaborateurs } from '../../services/api';
 import {
   Palette, Bell, Bot, Settings, Loader,

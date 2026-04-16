@@ -12,9 +12,9 @@ import {
   createForfait,
   updateForfait,
   deleteForfait,
-} from '../../Parametres/parametresService';
-import LoadingState from '../../../components/shared/LoadingState';
-import ErrorState from '../../../components/shared/ErrorState';
+} from './parametresService';
+import LoadingState from '../../components/shared/LoadingState';
+import ErrorState from '../../components/shared/ErrorState';
 import './ParametresFacturation.css';
 
 // ── Formulaire vierge pour un nouveau forfait ──────────────────────────────

@@ -1,155 +1,196 @@
-// /frontend/src/components/Factures/FactureList.jsx
+// /frontend/src/pages/Factures/Factures/FactureList.jsx
 import React, { useState, useEffect, useCallback } from 'react';
-import { fetchFactures } from '../../../pages/Factures/Factures/factureService';
+import { fetchFactures } from './factureService';
+import PageHeader from '../../../components/shared/PageHeader';
+import SearchBar from '../../../components/shared/SearchBar/SearchBar';
 import LoadingState from '../../../components/shared/LoadingState';
 import ErrorState from '../../../components/shared/ErrorState';
 import './FactureList.css';
 
+// ── Constantes statut ────────────────────────────────────────
+const STATUTS = [
+  { value: 'EMISE',               label: 'Émise',               color: '#3498db' },
+  { value: 'PAYEE',               label: 'Payée',               color: '#27ae60' },
+  { value: 'PARTIELLEMENT_PAYEE', label: 'Partiellement payée', color: '#f39c12' },
+  { value: 'IMPAYEE',             label: 'Impayée',             color: '#e74c3c' },
+];
+
+const getBadgeClass = (statut) => {
+  const map = {
+    EMISE:               'facture-list__badge--emise',
+    PAYEE:               'facture-list__badge--payee',
+    IMPAYEE:             'facture-list__badge--impayee',
+    PARTIELLEMENT_PAYEE: 'facture-list__badge--partiellement-payee',
+  };
+  return map[statut] || '';
+};
+
+const getStatutLabel = (statut) => {
+  return STATUTS.find(s => s.value === statut)?.label || statut;
+};
+
+const formatDate = (dateString) => {
+  if (!dateString) return '—';
+  return new Date(dateString).toLocaleDateString('fr-FR');
+};
+
+const formatMontant = (montant) => {
+  if (!montant && montant !== 0) return '0,00 €';
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'EUR',
+  }).format(parseFloat(montant));
+};
+
+// ── Composant ────────────────────────────────────────────────
 const FactureList = ({ onSelectFacture, onCreateFacture }) => {
-  const [factures, setFactures] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [filtreStatut, setFiltreStatut] = useState('');
+  const [factures,     setFactures]     = useState([]);
+  const [loading,      setLoading]      = useState(true);
+  const [error,        setError]        = useState(null);
+  const [searchQuery,  setSearchQuery]  = useState('');
+  const [filtreStatut, setFiltreStatut] = useState('ALL');
 
   const loadFactures = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const filtres = filtreStatut ? { statut: filtreStatut } : {};
-      const data = await fetchFactures(filtres);
+      const data = await fetchFactures();
       setFactures(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, [filtreStatut]);
+  }, []);
 
-  useEffect(() => {
-    loadFactures();
-  }, [loadFactures]);
+  useEffect(() => { loadFactures(); }, [loadFactures]);
 
-  const getStatutBadgeClass = (statut) => {
-    const classMap = {
-      EMISE: 'badge-emise',
-      PAYEE: 'badge-payee',
-      IMPAYEE: 'badge-impayee',
-      PARTIELLEMENT_PAYEE: 'badge-partiellement-payee',
-    };
-    return classMap[statut] || 'badge-default';
-  };
+  // ── Filtrage local ────────────────────────────────────────
+  const filtered = factures
+    .filter(f => filtreStatut === 'ALL' || f.statut === filtreStatut)
+    .filter(f => {
+      if (!searchQuery.trim()) return true;
+      const q = searchQuery.toLowerCase();
+      return (
+        f.numero?.toLowerCase().includes(q)      ||
+        f.client_nom?.toLowerCase().includes(q)  ||
+        f.client_prenom?.toLowerCase().includes(q)
+      );
+    });
 
-  const getStatutLabel = (statutDisplay) => {
-    return statutDisplay || 'Inconnu';
-  };
+  if (loading) return <LoadingState message="Chargement des factures..." />;
+  if (error)   return <ErrorState message={error} onRetry={loadFactures} />;
 
-  const formatDate = (dateString) => {
-    if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString('fr-FR');
-  };
-
-  const formatMontant = (montant) => {
-    if (!montant && montant !== 0) return '0,00 €';
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'EUR',
-    }).format(parseFloat(montant));
-  };
-
-  const getClientDisplayName = (facture) => {
-    const nom = facture.client_nom || 'Client';
-    const prenom = facture.client_prenom ? `${facture.client_prenom} ` : '';
-    return `${prenom}${nom}`;
-  };
-
-  if (loading) return <LoadingState />;
-  if (error) return <ErrorState error={error} />;
+  const filtresBtns = [
+    { value: 'ALL', label: 'Toutes' },
+    ...STATUTS,
+  ];
 
   return (
     <div className="facture-list">
-      <div className="facture-list__header">
-        <h1 className="facture-list__title">Factures</h1>
-        <button className="facture-list__btn-new" onClick={onCreateFacture}>
-          + Nouvelle facture
-        </button>
-      </div>
 
+      <PageHeader
+        title="Factures"
+        count={filtered.length}
+        countLabel="factures"
+        action={
+          <button className="page-header__btn" onClick={onCreateFacture}>
+            + Nouvelle facture
+          </button>
+        }
+      />
+
+      <SearchBar
+        value={searchQuery}
+        onChange={setSearchQuery}
+        placeholder="Rechercher par numéro, client..."
+      />
+
+      {/* FILTRES STATUT */}
       <div className="facture-list__filters">
-        <select
-          className="facture-list__filter-select"
-          value={filtreStatut}
-          onChange={(e) => setFiltreStatut(e.target.value)}
-        >
-          <option value="">Tous les statuts</option>
-          <option value="EMISE">Émise</option>
-          <option value="PAYEE">Payée</option>
-          <option value="PARTIELLEMENT_PAYEE">Partiellement payée</option>
-          <option value="IMPAYEE">Impayée</option>
-        </select>
+        {filtresBtns.map(f => (
+          <button
+            key={f.value}
+            className={`facture-list__filter-btn ${filtreStatut === f.value ? 'facture-list__filter-btn--active' : ''}`}
+            style={filtreStatut === f.value && f.value !== 'ALL'
+              ? { background: f.color, borderColor: f.color }
+              : {}
+            }
+            onClick={() => setFiltreStatut(f.value)}
+          >
+            {f.label}
+            <span className="facture-list__filter-btn__count">
+              {f.value === 'ALL'
+                ? factures.length
+                : factures.filter(fa => fa.statut === f.value).length
+              }
+            </span>
+          </button>
+        ))}
       </div>
 
-      {factures.length === 0 ? (
+      {/* TABLEAU */}
+      {filtered.length === 0 ? (
         <div className="facture-list__empty">
-          <p>Aucune facture à afficher</p>
+          <p>Aucune facture trouvée</p>
+          {(searchQuery || filtreStatut !== 'ALL') && (
+            <button onClick={() => { setSearchQuery(''); setFiltreStatut('ALL'); }}>
+              Effacer les filtres
+            </button>
+          )}
         </div>
       ) : (
-        <div className="facture-list__table-container">
+        <div className="facture-list__table-wrap">
           <table className="facture-list__table">
             <thead>
               <tr>
                 <th>Numéro</th>
                 <th>Client</th>
-                <th>Date émission</th>
+                <th>Émise le</th>
                 <th>Échéance</th>
-                <th>Montant TTC</th>
-                <th>Payé</th>
-                <th>Solde</th>
-                <th>Statut</th>
-                <th>Actions</th>
+                <th style={{ textAlign: 'right' }}>Montant TTC</th>
+                <th style={{ textAlign: 'right' }}>Payé</th>
+                <th style={{ textAlign: 'right' }}>Solde</th>
+                <th style={{ textAlign: 'center' }}>Statut</th>
               </tr>
             </thead>
             <tbody>
-              {factures.map((facture) => (
-                <tr key={facture.id} className="facture-list__row">
-                  <td className="facture-list__numero">{facture.numero}</td>
-                  <td className="facture-list__client">
-                    {getClientDisplayName(facture)}
-                  </td>
-                  <td className="facture-list__date">
-                    {formatDate(facture.date_emission)}
-                  </td>
-                  <td className="facture-list__date">
-                    {formatDate(facture.date_echeance)}
-                  </td>
-                  <td className="facture-list__montant">
-                    {formatMontant(facture.montant_ttc)}
-                  </td>
-                  <td className="facture-list__paye">
-                    {formatMontant(facture.montant_paye)}
-                  </td>
-                  <td className="facture-list__solde">
-                    {formatMontant(facture.solde_restant)}
-                  </td>
-                  <td className="facture-list__statut">
-                    <span className={`badge ${getStatutBadgeClass(facture.statut)}`}>
-                      {getStatutLabel(facture.statut_display)}
-                    </span>
-                  </td>
-                  <td className="facture-list__actions">
-                    <button
-                      className="facture-list__btn-view"
-                      onClick={() => onSelectFacture(facture)}
-                      title="Voir la facture"
-                    >
-                      👁️
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {filtered.map(f => {
+                const soldeNul = parseFloat(f.solde_restant || 0) === 0;
+                return (
+                  <tr key={f.id} onClick={() => onSelectFacture(f)}>
+                    <td className="facture-list__cell--numero">{f.numero}</td>
+                    <td className="facture-list__cell--client">
+                      {f.client_prenom} {f.client_nom}
+                    </td>
+                    <td className="facture-list__cell--date">
+                      {formatDate(f.date_emission)}
+                    </td>
+                    <td className="facture-list__cell--date">
+                      {formatDate(f.date_echeance)}
+                    </td>
+                    <td className="facture-list__cell--montant">
+                      {formatMontant(f.montant_ttc)}
+                    </td>
+                    <td className="facture-list__cell--paye">
+                      {formatMontant(f.montant_paye)}
+                    </td>
+                    <td className={`facture-list__cell--solde ${soldeNul ? 'facture-list__cell--solde-ok' : ''}`}>
+                      {formatMontant(f.solde_restant)}
+                    </td>
+                    <td className="facture-list__cell--statut">
+                      <span className={`facture-list__badge ${getBadgeClass(f.statut)}`}>
+                        {getStatutLabel(f.statut)}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
       )}
+
     </div>
   );
 };
