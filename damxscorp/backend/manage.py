@@ -13,8 +13,9 @@ def main():
         raise ImportError(
             "Impossible d'importer Django !\n"
             "T'as activé ton environnement virtuel FDP 😂!?\n"
-            "Vérifie que tu l'as bien activé et réessaie.😉\n"
-            "Si ça marche toujours pas, vérifie que Django est bien installé dans ton environnement virtuel.😎"
+            "Vérifie que tu l'as pas déjà en train de tourner quelque part.😉\n"
+            "Si ça marche toujours pas, vérifie que Django est bien installé dans ton venv.😎\n"
+            "Trou du cul.👏💔"
         ) from exc
     execute_from_command_line(sys.argv)
 

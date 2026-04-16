@@ -7,7 +7,7 @@ import Sidebar from './components/layout/Sidebar';
 import Header from './components/layout/Header';
 import Planning from './pages/Planning/Planning';
 import RdvList from './pages/RendezVous/RdvList';
-import StockVueEnsemble from './pages/Stock/StockVueEnsemble';
+import StockList from './pages/Stock/StockList';
 import ClientList from './pages/Clients/ClientList';
 import VehicleList from './pages/Vehicles/VehicleList';
 import Parametres from './pages/Parametres/Parametres';
@@ -43,7 +43,7 @@ const App = () => {
                   <Route path="/" element={<Navigate to="/planning" replace />} />
                   <Route path="/planning" element={<Planning isSidebarExpanded={isSidebarExpanded} />} />
                   <Route path="/rdv" element={<RdvList />} />
-                  <Route path="/stock" element={<StockVueEnsemble />} />
+                  <Route path="/stock" element={<StockList />} />
                   <Route path="/clients" element={<ClientList />} />
                   <Route path="/vehicles" element={<VehicleList />} />
                   <Route path="/fournisseurs" element={<Fournisseurs />} />

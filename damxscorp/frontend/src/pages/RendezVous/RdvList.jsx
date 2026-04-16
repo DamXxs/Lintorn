@@ -6,12 +6,14 @@ import {
   searchRdvs,
   patchRdv,
   removeRdv,
+  editRdv,
   STATUTS_RDV,
 } from './rdvService';
 import { formatDateCourt, formatHeure } from '../../utils/dataFormatters';
 import StatutBadge from '../../components/shared/StatutBadge';
 import FrenchPlateInput from '../../components/shared/Frenchplate/FrenchPlateInput';
 import ModalRdvConsultation from './ModalRdvConsultation';
+import ModalForm from '../Planning/components/ModalForm';
 import PageHeader from '../../components/shared/PageHeader';
 import SearchBar from '../../components/shared/SearchBar/SearchBar';
 import LoadingState from '../../components/shared/LoadingState';
@@ -27,6 +29,48 @@ const FILTRE_COLORS = {
   ANNULE:   '#7f8c8d',
 };
 
+/**
+ * Convertit un RDV au format Django → format attendu par ModalForm.
+ * Les deux formats utilisent des noms de champs différents, donc on
+ * doit "traduire" avant de passer les données au formulaire.
+ */
+const rdvToFormData = (rdv) => {
+  // Extraire date et heure depuis une chaîne ISO "2024-05-20T08:30:00"
+  const splitDateTime = (isoString) => {
+    if (!isoString) return { date: '', time: '08:00' };
+    const d = new Date(isoString);
+    const date = d.toISOString().split('T')[0];          // "2024-05-20"
+    const time = d.toTimeString().slice(0, 5);           // "08:30"
+    return { date, time };
+  };
+
+  const debut = splitDateTime(rdv.date_debut || rdv.start);
+  const fin   = splitDateTime(rdv.date_fin   || rdv.end);
+
+  return {
+    id:                rdv.id,                            // important pour savoir qu'on est en édition
+    departement:       rdv.type_rdv         || 'ATELIER',
+    typeIntervention:  rdv.type_intervention || '',
+    clientName:        rdv.client_nom       || '',
+    clientFirstName:   rdv.client_prenom    || '',
+    clientPhone:       rdv.client_phone     || '',
+    clientEmail:       rdv.client_email     || '',
+    clientAddress:     rdv.client_adresse   || '',
+    vehicleType:       rdv.vehicule_type    || 'VOITURE',
+    plate:             rdv.vehicule_immatriculation || '',
+    vehicleBrand:      rdv.vehicule_marque  || '',
+    vehicleModel:      rdv.vehicule_modele  || '',
+    vehicleYear:       rdv.vehicule_annee   || '',
+    vin:               rdv.vin              || '',
+    dateStart:         debut.date,
+    timeStart:         debut.time,
+    dateEnd:           fin.date,
+    timeEnd:           fin.time,
+    description:       rdv.description      || '',
+    collaborateursIds: rdv.collaborateurs   || [],
+  };
+};
+
 const RdvList = () => {
   const location = useLocation();
 
@@ -37,6 +81,7 @@ const RdvList = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeStatut, setActiveStatut] = useState('ALL');
   const [consultRdv, setConsultRdv]   = useState(null);
+  const [editRdvData, setEditRdvData] = useState(null); // 👈 nouvel état pour l'édition
 
   // ── Chargement ──────────────────────────────────────────────
   const loadRdvs = async () => {
@@ -97,6 +142,23 @@ const RdvList = () => {
       await loadRdvs();
     } catch {
       alert('Erreur lors de la suppression');
+    }
+  };
+
+  // ── Ouverture de l'édition ───────────────────────────────────
+  const handleEdit = (rdv) => {
+    setConsultRdv(null);              // ferme la consultation
+    setEditRdvData(rdvToFormData(rdv)); // ouvre le formulaire avec les données converties
+  };
+
+  // ── Sauvegarde après édition ─────────────────────────────────
+  const handleEditSubmit = async (formData) => {
+    try {
+      await editRdv(editRdvData.id, formData);
+      setEditRdvData(null);
+      await loadRdvs();
+    } catch {
+      alert('Erreur lors de la modification du rendez-vous');
     }
   };
 
@@ -197,13 +259,24 @@ const RdvList = () => {
         </div>
       )}
 
+      {/* MODAL CONSULTATION */}
       {consultRdv && (
         <ModalRdvConsultation
           event={consultRdv}
           onClose={() => setConsultRdv(null)}
-          onEdit={() => setConsultRdv(null)}
+          onEdit={handleEdit}           // 👈 maintenant branché correctement
           onDelete={(id) => handleDelete(id)}
           onStatusChange={handleStatusChange}
+        />
+      )}
+
+      {/* MODAL ÉDITION */}
+      {editRdvData && (
+        <ModalForm
+          isOpen={true}
+          initialData={editRdvData}
+          onClose={() => setEditRdvData(null)}
+          onSubmit={handleEditSubmit}
         />
       )}
 
