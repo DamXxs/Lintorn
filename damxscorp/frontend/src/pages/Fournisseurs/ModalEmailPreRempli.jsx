@@ -54,13 +54,13 @@ const ModalEmailPreRempli = ({ fournisseur, onClose }) => {
   // Footer : boutons d'action (uniquement quand les données sont chargées)
   const footer = emailData?.pieces ? (
     <>
-      <button className="email-btn email-btn--copier" onClick={handleCopier}>
+      <button className="modal-btn modal-btn--ghost" onClick={handleCopier}>
         {copie ? '✅ Copié !' : '📋 Copier tout'}
       </button>
-      <button className="email-btn email-btn--ouvrir" onClick={handleOuvrirMail}>
+      <button className="modal-btn modal-btn--primary" onClick={handleOuvrirMail}>
         📧 Ouvrir dans le client mail
       </button>
-      <button className="email-btn email-btn--fermer" onClick={onClose}>
+      <button className="modal-btn modal-btn--cancel" onClick={onClose}>
         Fermer
       </button>
     </>

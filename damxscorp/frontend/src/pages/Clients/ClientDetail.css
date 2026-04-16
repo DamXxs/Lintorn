@@ -175,60 +175,6 @@
   padding: 0;
 }
 
-/* ── FOOTER — deux rangées (Nouveau RDV + Modifier/Supprimer) ── */
-.cd-footer-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  width: 100%;
-}
-
-.cd-footer-actions {
-  display: flex;
-  gap: 8px;
-}
-
-/* ── BOUTONS FOOTER ──────────────────────────────────────────── */
-.detail-btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 11px 16px;
-  border: none;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  min-height: 42px;
-  transition: all 0.2s ease;
-}
-
-.detail-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
-}
-
-/* Bouton RDV — pleine largeur, mis en avant */
-.detail-btn--rdv {
-  flex: none;
-  width: 100%;
-  background: linear-gradient(135deg, #27ae60, #2ecc71);
-  color: white;
-  font-size: 14px;
-}
-
-.detail-btn--primary {
-  background: linear-gradient(135deg, #2980b9, #3498db);
-  color: white;
-}
-
-.detail-btn--danger {
-  background: linear-gradient(135deg, #c0392b, #e74c3c);
-  color: white;
-}
-
 /* ── BOUTON AJOUT VÉHICULE (dans le titre de section) ─────────── */
 .cd-add-vehicle-btn {
   margin-left: auto;

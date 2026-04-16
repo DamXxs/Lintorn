@@ -1,9 +1,38 @@
-/* =============================================================================
-   MODAL.CSS — Styles du composant générique Modal (overlay + boîte + header)
-   Les styles des formulaires internes sont dans forms.css
-   ============================================================================= */
+/* /frontend/src/components/shared/Modals/Modal.css */
 
-/* === OVERLAY (fond flou derrière la modale) === */
+/* ══════════════════════════════════════════════════════════════════
+   MODAL.CSS — Styles de la coquille partagée par TOUTES les modales
+   ══════════════════════════════════════════════════════════════════
+
+   CONTENU DE CE FICHIER :
+   1. OVERLAY          → fond flou derrière la modale
+   2. BOÎTE            → conteneur principal (modal-box)
+   3. HEADER           → titre + icône + bouton X
+   4. CONTENU          → zone scrollable (modal-inner)
+   5. FOOTER           → zone sticky des boutons + mises en page
+   6. BOUTONS FOOTER   → classes réutilisables pour tous les boutons
+   7. VARIANTES TAILLE → modal-box--wide
+   8. RESPONSIVE       → mobile
+
+   BOUTONS FOOTER disponibles (à utiliser dans tous les composants) :
+   .modal-btn                 → base obligatoire sur chaque bouton
+   .modal-btn--primary        → bleu  — Modifier, Enregistrer, Ouvrir...
+   .modal-btn--danger         → rouge — Supprimer
+   .modal-btn--success        → vert  — Valider, Créer, Nouveau RDV...
+   .modal-btn--cancel         → gris  — Annuler, Fermer
+   .modal-btn--ghost          → transparent + bordure — Copier, Aperçu...
+
+   MISE EN PAGE DU FOOTER (sur la div qui wrappe les boutons) :
+   .modal-footer--row         → boutons côte à côte (usage standard)
+   .modal-footer--col         → 2 rangées empilées
+                                (ex: RDV pleine largeur + Modifier/Supprimer)
+   ══════════════════════════════════════════════════════════════════ */
+
+
+/* ── 1. OVERLAY ──────────────────────────────────────────────────
+   Fond semi-transparent + flou derrière la modale
+   z-index 9999 pour passer au-dessus de tout le reste
+────────────────────────────────────────────────────────────────── */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -13,16 +42,20 @@
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  padding: 1.25rem; /* 20px */
+  padding: 1.25rem;
 }
 
-/* === BOÎTE DE LA MODALE === */
+
+/* ── 2. BOÎTE ────────────────────────────────────────────────────
+   Conteneur principal de la modale
+   Flex colonne : header (fixe) + inner (scroll) + footer (fixe)
+────────────────────────────────────────────────────────────────── */
 .modal-box {
   background: var(--panel);
   color: white;
-  border-radius: 1.125rem; /* 18px */
+  border-radius: 1.125rem;
   width: 90%;
-  max-width: 35rem;        /* 560px */
+  max-width: 35rem;
   max-height: 88vh;
   border: 1px solid var(--border);
   box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.6);
@@ -31,85 +64,202 @@
   overflow: hidden;
 }
 
-/* === HEADER (titre + bouton fermer) === */
+
+/* ── 3. HEADER ───────────────────────────────────────────────────
+   Titre centré + spacer invisible (contrepoids du X) + bouton X
+   Le customHeader (ex: ClientDetail) remplace ce bloc entièrement
+────────────────────────────────────────────────────────────────── */
 .modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.25rem 1.5rem;  /* 20px 24px */
+  padding: 1.25rem 1.5rem;
   background: linear-gradient(135deg, #1a1a1a 0%, #252525 100%);
   border-bottom: 2px solid var(--accent);
   flex-shrink: 0;
   position: relative;
 }
 
-/* Spacer invisible — contrepoids du bouton ✕ pour centrer le titre */
+/* Spacer invisible — même largeur que le X pour centrer le titre */
 .modal-header__spacer {
-  width: 1.75rem; /* ≈ 28px, même largeur que le bouton fermer */
+  width: 1.75rem;
   flex-shrink: 0;
 }
 
+/* Titre centré en absolu pour rester parfaitement au milieu */
 .modal-title {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: 0.5rem;       /* 8px */
-  font-size: 1.05rem; /* ≈ 17px */
+  gap: 0.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: var(--accent);
   margin: 0;
-  white-space: nowrap; /* évite le retour à la ligne sur mobile */
+  white-space: nowrap;
 }
 
 .modal-title__icon {
   display: flex;
   align-items: center;
-  font-size: 1.50em; /* suit la taille du texte parent */
+  font-size: 1.5em;
 }
 
+/* Bouton X — taille fixée à 22px dans Modal.jsx, ne pas modifier ici */
 .modal-close {
   background: none;
   border: none;
   color: #888;
   cursor: pointer;
-  padding: 0.50rem; 
+  padding: 0.5rem;
   display: flex;
   align-items: center;
-  border-radius: 0.375rem; /* 6px */
+  border-radius: 0.375rem;
   transition: color 0.2s, background 0.2s;
-  font-size: 1.25rem; /* ≈ 20px */
 }
-
 .modal-close:hover {
   color: white;
   background: rgba(255, 255, 255, 0.08);
 }
 
-/* === ZONE DE CONTENU (scrollable) === */
+
+/* ── 4. CONTENU ──────────────────────────────────────────────────
+   Zone scrollable entre le header et le footer
+   Padding géré ici — les composants enfants n'ont pas à s'en soucier
+────────────────────────────────────────────────────────────────── */
 .modal-inner {
   flex: 1;
   overflow-y: auto;
-  padding: 1.25rem 1.5rem; /* 20px 24px */
+  padding: 1.25rem 1.5rem;
 }
 
-/* === FOOTER STICKY (boutons Cancel / Save) === */
+
+/* ── 5. FOOTER ───────────────────────────────────────────────────
+   Zone sticky en bas pour les boutons d'action
+   Deux mises en page disponibles : --row et --col (voir ci-dessous)
+────────────────────────────────────────────────────────────────── */
 .modal-footer {
   display: flex;
-  gap: 0.5rem;          /* 8px */
-  padding: 1rem 1.5rem; /* 16px 24px */
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
   border-top: 1px solid var(--border);
   background: rgba(0, 0, 0, 0.2);
   flex-shrink: 0;
 }
 
-/* === VARIANTES DE TAILLE === */
+/* Boutons côte à côte — comportement par défaut du footer */
+.modal-footer--row {
+  flex-direction: row;
+}
+
+/* 2 rangées empilées :
+   ex: [  Nouveau RDV (pleine largeur)  ]
+       [ Modifier ]  [ Supprimer ]
+   Utiliser avec une div interne .modal-footer__actions pour la 2e rangée */
+.modal-footer--col {
+  flex-direction: column;
+}
+
+/* Rangée interne dans un footer --col (ex: Modifier + Supprimer) */
+.modal-footer__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+
+/* ── 6. BOUTONS FOOTER ───────────────────────────────────────────
+   Classes réutilisables pour TOUS les boutons de footer
+   Toujours utiliser : modal-btn + modal-btn--[variante]
+
+   Exemples d'usage dans un composant :
+     <button className="modal-btn modal-btn--primary">Modifier</button>
+     <button className="modal-btn modal-btn--danger">Supprimer</button>
+     <button className="modal-btn modal-btn--cancel">Annuler</button>
+────────────────────────────────────────────────────────────────── */
+
+/* Base — obligatoire sur chaque bouton */
+.modal-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 0.625rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  min-height: 2.75rem;
+  transition: all 0.2s ease;
+}
+
+.modal-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+.modal-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Bleu — Modifier, Enregistrer, Ouvrir dans le client mail... */
+.modal-btn--primary {
+  background: linear-gradient(135deg, #2980b9, #3498db);
+  color: white;
+}
+
+/* Rouge — Supprimer */
+.modal-btn--danger {
+  background: linear-gradient(135deg, #c0392b, #e74c3c);
+  color: white;
+}
+
+/* Vert — Valider, Créer, Nouveau RDV... */
+.modal-btn--success {
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  color: white;
+}
+
+/* Gris — Annuler, Fermer */
+.modal-btn--cancel {
+  background: var(--input-bg);
+  color: #aaa;
+  border: 1px solid var(--border);
+}
+.modal-btn--cancel:hover:not(:disabled) {
+  color: white;
+  border-color: #555;
+}
+
+/* Transparent + bordure — Copier, Aperçu PDF... */
+.modal-btn--ghost {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--accent);
+  border: 1px solid rgba(41, 128, 185, 0.4);
+}
+.modal-btn--ghost:hover:not(:disabled) {
+  background: rgba(41, 128, 185, 0.15);
+  border-color: var(--accent);
+}
+
+
+/* ── 7. VARIANTES TAILLE ─────────────────────────────────────────
+   Passer boxClassName="modal-box--wide" pour les modales larges
+   ex: ModalEmailPreRempli avec son tableau de pièces
+────────────────────────────────────────────────────────────────── */
 .modal-box--wide {
   max-width: 48.75rem; /* 780px */
 }
 
-/* === RESPONSIVE MOBILE === */
+
+/* ── 8. RESPONSIVE MOBILE ────────────────────────────────────────
+   Sur mobile : la modale remonte depuis le bas (drawer)
+────────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .modal-overlay {
     align-items: flex-end;
@@ -120,10 +270,10 @@
     width: 100%;
     max-width: 100% !important;
     max-height: 92vh;
-    border-radius: 1.125rem 1.125rem 0 0; /* coins ronds seulement en haut */
+    border-radius: 1.125rem 1.125rem 0 0;
   }
 
   .modal-title {
-    font-size: 0.95rem; /* légèrement plus petit sur mobile */
+    font-size: 0.95rem;
   }
 }

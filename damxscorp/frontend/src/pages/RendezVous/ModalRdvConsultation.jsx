@@ -74,14 +74,14 @@ const ModalRdvConsultation = ({ event, onClose, onEdit, onDelete, onStatusChange
   return (
     <Modal
       title={getDepartementLabel(type_rdv)}
-      titleIcon={<CalendarClock size={15} />}
+      titleIcon={<CalendarClock size={20} />}
       onClose={onClose}
       footer={
         <>
-          <button className="consult-btn consult-btn--primary" onClick={() => onEdit(event)}>
+          <button className="modal-btn modal-btn--primary" onClick={() => onEdit(event)}>
             <Pencil size={14} /> Modifier
           </button>
-          <button className="consult-btn consult-btn--danger" onClick={handleDelete}>
+          <button className="modal-btn modal-btn--danger" onClick={handleDelete}>
             <Trash2 size={14} /> Supprimer
           </button>
         </>

@@ -79,21 +79,20 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
         titleIcon={getVehiculeIcon(vehicule.type_vehicule)}
         onClose={onClose}
         footer={
-          <div className="vd-footer-wrap">
-            <button className="vd-btn vd-btn--rdv" onClick={handleNewRdv}>
-              <IconChip icon={CalendarPlus} color={CHIP_COLORS.calendar} size="sm" />
-              Nouveau RDV
+          <div className="modal-footer--col" style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <button className="modal-btn modal-btn--success" onClick={handleNewRdv}>
+              <IconChip icon={CalendarPlus} color={CHIP_COLORS.calendar} size="sm" /> Nouveau RDV
             </button>
-            <div className="vd-footer-actions">
-              <button className="vd-btn vd-btn--primary" onClick={() => onEdit(vehicule)}>
-                <Pencil size={14} /> Modifier
-              </button>
-              <button className="vd-btn vd-btn--danger" onClick={() => onDelete(vehicule)}>
-                <Trash2 size={14} /> Supprimer
-              </button>
+              <div className="modal-footer__actions">
+                <button className="modal-btn modal-btn--primary" onClick={() => onEdit(vehicule)}>
+                  <Pencil size={14} /> Modifier
+                </button>
+                <button className="modal-btn modal-btn--danger" onClick={() => onDelete(vehicule)}>
+                  <Trash2 size={14} /> Supprimer
+                </button>
+              </div>
             </div>
-          </div>
-        }
+          }
       >
         <div className="vehicle-detail__body">
 

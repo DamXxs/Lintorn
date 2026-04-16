@@ -169,47 +169,6 @@
   text-align: right;
 }
 
-/* ── FOOTER (boutons d'action, rendu dans Modal footer) ───────── */
-.vd-footer-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex: 1;               /* prend toute la largeur du modal-footer */
-}
-
-.vd-footer-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.vd-btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 11px;
-  border: none;
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  min-height: 42px;
-}
-
-.vd-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,0.4); }
-
-.vd-btn--rdv {
-  width: 100%;
-  background: linear-gradient(135deg, #27ae60, #2ecc71);
-  color: white;
-  font-size: 14px;
-}
-
-.vd-btn--primary { background: linear-gradient(135deg, #2980b9, #3498db); color: white; }
-.vd-btn--danger  { background: linear-gradient(135deg, #c0392b, #e74c3c); color: white; }
-
 /* ── HISTORIQUE INTERVENTIONS ─────────────────────────────────── */
 .vd-history-loading {
   display: flex;

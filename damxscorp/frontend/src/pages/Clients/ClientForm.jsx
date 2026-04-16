@@ -88,7 +88,7 @@ const ClientForm = ({ editingClient, onClose, onSuccess }) => {
   return (
     <Modal
       title={editingClient ? 'Modifier le client' : 'Nouveau client'}
-      titleIcon={editingClient ? <Pencil size={15} /> : <UserPlus size={15} />}
+      titleIcon={editingClient ? <Pencil size={20} /> : <UserPlus size={20} />}
       onClose={onClose}
       footer={
         <>
@@ -107,10 +107,10 @@ const ClientForm = ({ editingClient, onClose, onSuccess }) => {
             disabled={saving}
           >
             {saving
-              ? <><Loader size={14} /> Enregistrement...</>
+              ? <><Loader size={16} /> Enregistrement...</>
               : editingClient
-                ? <><Save size={14} /> Modifier</>
-                : <><Save size={14} /> Créer</>
+                ? <><Save size={16} /> Modifier</>
+                : <><Save size={16} /> Créer</>
             }
           </button>
         </>

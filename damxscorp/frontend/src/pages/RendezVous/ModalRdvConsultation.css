@@ -138,31 +138,6 @@
   white-space: pre-wrap;
 }
 
-/* ── BOUTONS DU FOOTER (rendus via la prop footer de Modal.jsx) ─ */
-.consult-btn {
-  flex: 1;
-  padding: 11px 10px;
-  border: none;
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  min-height: 42px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-
-.consult-btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-}
-
-.consult-btn--primary { background: linear-gradient(135deg, #2980b9, #3498db); color: white; }
-.consult-btn--danger  { background: linear-gradient(135deg, #c0392b, #e74c3c); color: white; }
-
 /* ── RESPONSIVE ───────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .consult-grid-2 {

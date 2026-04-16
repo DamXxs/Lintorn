@@ -174,19 +174,19 @@ const ModalForm = ({ isOpen, onClose, initialData, prefilledDate, onSubmit }) =>
             title={isEditing ? 'Modifier le rendez-vous' : 'Nouveau rendez-vous'}
             titleIcon={<CalendarClock size={15} />}
             onClose={onClose}
-            footer={
-                <>
-                    <button type="button" className="mf-btn mf-btn--cancel" onClick={onClose}>
-                        <X size={14} /> Annuler
-                    </button>
-                    <button type="submit" form="rdv-form" className="mf-btn mf-btn--save">
-                        {isEditing
-                            ? <><Save size={14} /> Modifier</>
-                            : <><Save size={14} /> Enregistrer</>
-                        }
-                    </button>
-                </>
-            }
+          footer={
+            <>
+                <button type="button" className="modal-btn modal-btn--cancel" onClick={onClose}>
+                    <X size={14} /> Annuler
+                </button>
+                <button type="submit" form="rdv-form" className="modal-btn modal-btn--success">
+                    {isEditing
+                        ? <><Save size={14} /> Modifier</>
+                        : <><Save size={14} /> Enregistrer</>
+                    }
+                </button>
+            </>
+          }
         >
             <form id="rdv-form" onSubmit={handleSubmit} noValidate>
 

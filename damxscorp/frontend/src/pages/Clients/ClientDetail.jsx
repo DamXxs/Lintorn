@@ -103,28 +103,27 @@ const ClientDetail = ({ client, onClose, onEdit, onDelete }) => {
         </span>
       </div>
       <button className="modal-close" onClick={onClose} type="button">
-        <X size={18} />
+        <X size={22} />
       </button>
     </div>
   );
 
   // ── Footer avec 2 rangées ──────────────────────────────────────
   const footer = (
-    <div className="cd-footer-wrap">
-      <button className="detail-btn detail-btn--rdv" onClick={handleNewRdv}>
+    <div className="modal-footer--col" style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+      <button className="modal-btn modal-btn--success" onClick={handleNewRdv}>
         <IconChip icon={CalendarPlus} color={CHIP_COLORS.calendar} size="sm" /> Nouveau RDV
       </button>
-      <div className="cd-footer-actions">
-        <button className="detail-btn detail-btn--primary" onClick={() => onEdit(client)}>
+      <div className="modal-footer__actions">
+        <button className="modal-btn modal-btn--primary" onClick={() => onEdit(client)}>
           <Pencil size={14} /> Modifier
         </button>
-        <button className="detail-btn detail-btn--danger" onClick={() => onDelete(client)}>
+        <button className="modal-btn modal-btn--danger" onClick={() => onDelete(client)}>
           <Trash2 size={14} /> Supprimer
         </button>
       </div>
     </div>
   );
-
   return (
     <>
       <Modal onClose={onClose} customHeader={customHeader} footer={footer}>
