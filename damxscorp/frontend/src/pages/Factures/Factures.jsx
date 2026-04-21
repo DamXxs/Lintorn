@@ -1,17 +1,17 @@
 // /frontend/src/pages/Factures/Factures/Factures.jsx
 import React, { useState } from 'react';
 
-import DevisList   from '../Devis/DevisList';
-import DevisForm   from '../Devis/DevisForm';
-import DevisDetail from '../Devis/DevisDetail';
+import DevisList   from './Devis/DevisList';
+import DevisForm   from './Devis/DevisForm';
+import DevisDetail from './Devis/DevisDetail';
 
-import FactureList   from './FactureList';
-import FactureForm   from './FactureForm';
-import FactureDetail from './FactureDetail';
+import FactureList   from './Factures/FactureList';
+import FactureForm   from './Factures/FactureForm';
+import FactureDetail from './Factures/FactureDetail';
 
 // ParametresFacturation est maintenant intégré ici,
 // plus besoin de naviguer vers /parametres
-import ParametresFacturation from './ParametresFacturation';
+import ParametresFacturation from '../Parametres/ParametresFacturation';
 
 import './Factures.css';
 
@@ -26,9 +26,6 @@ const Factures = () => {
   // Vue Factures
   const [vueFacture,            setVueFacture]            = useState('list');
   const [factureSelectionneeId, setFactureSelectionneeId] = useState(null);
-
-  // Pulse actif : true quand on arrive sur l'onglet paramètres
-  const [pulseActif, setPulseActif] = useState(false);
 
   // ── Handlers Devis ──────────────────────────────────────────
   const handleSelectDevis  = (devis) => { setDevisSelectionneId(devis.id); setVueDevis('detail'); };
@@ -57,16 +54,6 @@ const Factures = () => {
     setDevisSelectionneId(null);
     setVueFacture('list');
     setFactureSelectionneeId(null);
-
-    // Si on va sur Paramètres → déclenche le pulse
-    // Il s'arrête automatiquement après 3 secondes (géré dans le CSS)
-    if (nouvelOnglet === 'parametres') {
-      setPulseActif(false);
-      // Petit délai pour reset l'animation si on clique plusieurs fois
-      setTimeout(() => setPulseActif(true), 50);
-    } else {
-      setPulseActif(false);
-    }
   };
 
   // ── Rendu du contenu ─────────────────────────────────────────
@@ -74,7 +61,7 @@ const Factures = () => {
     if (onglet === 'parametres') {
       return (
         // Le wrapper reçoit la classe pulse quand pulseActif = true
-        <div className={`factures-params-wrap ${pulseActif ? 'factures-params-wrap--pulse' : ''}`}>
+        <div className="factures-params-wrap">
           <ParametresFacturation embedded={true} />
         </div>
       );
@@ -120,8 +107,7 @@ const Factures = () => {
           onClick={() => handleOnglet('parametres')}
         >
           ⚙️ Paramètres
-          {/* Point indicateur sur l'onglet */}
-          <span className="factures-page__tab-indicator" />
+          
         </button>
       </div>
 

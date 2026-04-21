@@ -49,28 +49,6 @@
   opacity: 1;
 }
 
-/* ── POINT INDICATEUR SUR L'ONGLET PARAMÈTRES ───────────────── */
-/*
-  Petit cercle orange dans le coin supérieur droit de l'onglet.
-  Signale qu'il y a des paramètres à vérifier.
-*/
-.factures-page__tab-indicator {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #f39c12;
-  /* Pulse discret et permanent sur le point */
-  animation: tab-indicator-pulse 2s ease-in-out infinite;
-}
-
-@keyframes tab-indicator-pulse {
-  0%, 100% { opacity: 1;   transform: scale(1);    }
-  50%       { opacity: 0.5; transform: scale(0.7); }
-}
-
 /* ── CONTENU ─────────────────────────────────────────────────── */
 .factures-page__content {
   flex: 1;
@@ -79,22 +57,13 @@
   background: var(--bg);
 }
 
-/* ── WRAPPER PARAMÈTRES AVEC PULSE ───────────────────────────── */
-/*
-  Quand on clique sur l'onglet Paramètres, le composant reçoit
-  la classe --pulse. Une bordure animée bat autour du bloc
-  pendant 3 secondes, puis s'arrête.
-*/
+/* ── WRAPPER PARAMÈTRES ───────────────────────────── */
+
 .factures-params-wrap {
   border-radius: 12px;
   /* Pas de bordure par défaut */
 }
 
-.factures-params-wrap--pulse {
-  /* On anime box-shadow pour simuler un "heartbeat" autour du bloc */
-  animation: params-heartbeat 0.6s ease-in-out 4;
-  /* 4 battements × 0.6s = 2.4s puis s'arrête */
-}
 
 @keyframes params-heartbeat {
   0%   { box-shadow: 0 0 0 0px rgba(41, 128, 185, 0.6); }
