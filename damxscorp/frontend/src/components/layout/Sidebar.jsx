@@ -92,7 +92,7 @@ const Sidebar = ({ isExpanded, onToggle }) => {
 
         {/* FOOTER (visible seulement quand étendu ou hover) */}
         <div className="sidebar__footer">
-          <p className="sidebar__footer-text">v14.2.0</p>
+          <p className="sidebar__footer-text">v0.0.90</p>
         </div>
 
       </aside>
