@@ -5,11 +5,11 @@ import { useReferentiels } from '../../../context/ReferentielsContext';
 import { formatNom, formatPrenom, formatPhone, formatImmatriculation, validateEmail, validateImmatriculation } from '../../../utils/validators';
 import logger from '../../../utils/logger';
 
-import Modal            from '../../../components/shared/Modals/Modal';
-import FrenchPlateInput from '../../../components/shared/Frenchplate/FrenchPlateInput';
+import Modal              from '../../../components/shared/Modals/Modal';
+// 🆕 Remplacement : FrenchPlateInput → PlateSelector (dans le nouveau dossier plates/)
+import PlateSelector      from '../../../components/shared/plate/PlateSelector';
 import AddressAutocomplete from '../../../components/shared/AdressAutocomplete/AddressAutocomplete';
 import { User, Car, CalendarClock, FileText, Save, Search, Users, X } from '../../../utils/icons';
-
 import './ModalForm.css';
 
 // ── Créneaux horaires 00:00 → 23:30 par pas de 30 minutes ────────
@@ -63,8 +63,6 @@ const ModalForm = ({ isOpen, onClose, initialData, prefilledDate, onSubmit }) =>
     };
 
     // ── État initial du formulaire ─────────────────────────────────
-    // useMemo avec [] : toutes les valeurs sont des constantes, l'objet
-    // ne change jamais → stable pour le useEffect qui en dépend
     const emptyForm = useMemo(() => ({
         departement:      'ATELIER',
         typeIntervention: 'ENTRETIEN_VP2',
@@ -112,13 +110,34 @@ const ModalForm = ({ isOpen, onClose, initialData, prefilledDate, onSubmit }) =>
         if (name === 'clientName')      value = formatNom(value);
         if (name === 'clientFirstName') value = formatPrenom(value);
         if (name === 'clientPhone')     value = formatPhone(value);
-        if (name === 'plate')           value = formatImmatriculation(value);
+
+        // 🆕 Formatage plaque avec prise en compte du type de véhicule
+        if (name === 'plate') {
+            value = formatImmatriculation(value, { vehicleType: formData.vehicleType });
+        }
 
         if (name === 'clientName')  setErrors(prev => ({ ...prev, clientName: value.trim() ? null : prev.clientName }));
         if (name === 'clientEmail') setErrors(prev => ({ ...prev, clientEmail: validateEmail(value) }));
-        if (name === 'plate')       setErrors(prev => ({ ...prev, plate: validateImmatriculation(value) }));
+
+        // 🆕 Validation plaque en temps réel avec le bon vehicleType
+        if (name === 'plate') {
+            setErrors(prev => ({
+                ...prev,
+                plate: validateImmatriculation(value, { vehicleType: formData.vehicleType })
+            }));
+        }
+
         if (name === 'dateStart')   setErrors(prev => ({ ...prev, dateStart: value ? null : prev.dateStart }));
         if (name === 'dateEnd')     setErrors(prev => ({ ...prev, dateEnd: value ? null : prev.dateEnd }));
+
+        // 🆕 Si on change de type de véhicule, on reset la plaque
+        // (parce que le format attendu change : SIV → métal → bois...)
+        if (name === 'vehicleType') {
+            setFormData(prev => ({ ...prev, [name]: value, plate: '' }));
+            setErrors(prev => ({ ...prev, plate: null }));
+            logger.form.change(name, value);
+            return;
+        }
 
         setFormData(prev => ({ ...prev, [name]: value }));
         logger.form.change(name, value);
@@ -141,7 +160,10 @@ const ModalForm = ({ isOpen, onClose, initialData, prefilledDate, onSubmit }) =>
 
         const deptRequiertVehicule = departements.find(d => d.code === formData.departement)?.requiert_vehicule;
         if (deptRequiertVehicule) {
-            const plateError = validateImmatriculation(formData.plate);
+            // 🆕 Validation plaque avec vehicleType
+            const plateError = validateImmatriculation(formData.plate, {
+                vehicleType: formData.vehicleType
+            });
             if (plateError) newErrors.plate = plateError;
         }
 
@@ -167,6 +189,10 @@ const ModalForm = ({ isOpen, onClose, initialData, prefilledDate, onSubmit }) =>
 
     const isEditing = Boolean(initialData?.id);
     const deptRequiertVehicule = departements.find(d => d.code === formData.departement)?.requiert_vehicule;
+
+    // 🆕 Helper : l'API SIV n'a de sens que pour une plaque française (voiture/moto/etc.)
+    const showSivButton = !['BATEAU', 'JETSKI', 'VOILIER', 'MOTOCULTURE', 'ENGIN', 'ENGIN_AGRICOLE', 'TONDEUSE']
+        .includes((formData.vehicleType || '').toUpperCase());
 
     // ── RENDU ──────────────────────────────────────────────────────
     return (
@@ -255,29 +281,8 @@ const ModalForm = ({ isOpen, onClose, initialData, prefilledDate, onSubmit }) =>
                     <div className="mf-section">
                         <div className="mf-section-title"><Car size={14} /> Informations Véhicule</div>
 
-                        {/* Immatriculation + bouton SIV — saisie directe dans la plaque */}
-                        <div className="mf-group">
-                            <label className="mf-label required">Immatriculation</label>
-                            <div className="plate-with-siv">
-                                <FrenchPlateInput
-                                    name="plate"
-                                    value={formData.plate}
-                                    onChange={handleChange}
-                                    size="md"
-                                    hasError={Boolean(errors.plate)}
-                                />
-                                <button
-                                    type="button" className="btn-siv"
-                                    onClick={handleSivSearch}
-                                    disabled={!formData.plate}
-                                    title="API SIV — bientôt disponible"
-                                >
-                                    <Search size={14} /> SIV
-                                </button>
-                            </div>
-                            {errors.plate && <span className="mf-error">{errors.plate}</span>}
-                        </div>
-
+                        {/* 🆕 Type de véhicule remonté AU-DESSUS de la plaque
+                            pour que le changement de type rafraîchisse visuellement la plaque */}
                         <div className="mf-grid-2col">
                             <div className="mf-group">
                                 <label className="mf-label required">Type de véhicule</label>
@@ -297,6 +302,34 @@ const ModalForm = ({ isOpen, onClose, initialData, prefilledDate, onSubmit }) =>
                                     ))}
                                 </select>
                             </div>
+                        </div>
+
+                        {/* 🆕 Plaque adaptative : PlateSelector reçoit vehicleType
+                            et choisit automatiquement le bon composant visuel */}
+                        <div className="mf-group">
+                            <label className="mf-label required">Immatriculation</label>
+                            <div className="plate-with-siv">
+                                <PlateSelector
+                                    vehicleType={formData.vehicleType}
+                                    name="plate"
+                                    value={formData.plate}
+                                    onChange={handleChange}
+                                    size="md"
+                                    hasError={Boolean(errors.plate)}
+                                />
+                                {/* Bouton SIV affiché uniquement pour les véhicules français */}
+                                {showSivButton && (
+                                    <button
+                                        type="button" className="btn-siv"
+                                        onClick={handleSivSearch}
+                                        disabled={!formData.plate}
+                                        title="API SIV — bientôt disponible"
+                                    >
+                                        <Search size={14} /> SIV
+                                    </button>
+                                )}
+                            </div>
+                            {errors.plate && <span className="mf-error">{errors.plate}</span>}
                         </div>
 
                         <div className="mf-grid-3col">
