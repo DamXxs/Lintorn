@@ -3,12 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { addVehicule, editVehicule } from './vehicleService';
 import { useReferentiels } from '../../context/ReferentielsContext';
 import { fetchClients } from '../../services/api';
-// ✅ Validators centralisés (comme dans ClientForm)
 import { validateImmatriculation, validateAnnee, formatImmatriculation } from '../../utils/validators';
 import useForm from '../../hooks/useForm';
-import { Key, Car, User, FileText, Pencil, Plus, Save, Loader, CircleAlert, Search } from '../../utils/icons';
-import Modal            from '../../components/shared/Modals/Modal';
-import FrenchPlateInput from '../../components/shared/Frenchplate/FrenchPlateInput';
+import { Key, Car, User, FileText, Pencil, Save, Loader, CircleAlert, Search } from '../../utils/icons';
+import Modal         from '../../components/shared/Modals/Modal';
+import PlateSelector from '../../components/shared/plates/PlateSelector';
 import '../../components/shared/Modals/forms.css';
 import './VehicleForm.css';
 
@@ -28,17 +27,14 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
   const [clients, setClients] = useState([]);
   const { getTypeVehicules }  = useReferentiels();
 
-  // Charger la liste des clients pour le select propriétaire
   useEffect(() => {
     fetchClients().then(setClients).catch(() => {});
   }, []);
 
-  // ── useForm gère : formData, errors, saving + reset ──────────────
   const { formData, setFormData, errors, setErrors, saving, setSaving }
     = useForm(
         INITIAL_DATA,
         editingVehicule,
-        // Fonction qui pré-remplit le formulaire depuis le véhicule existant
         (v) => ({
           immatriculation: v.immatriculation || '',
           marque:          v.marque          || '',
@@ -53,20 +49,36 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
   // ── handleChange avec formatters automatiques ────────────────────
   const handleChange = (e) => {
     let { name, value } = e.target;
-    if (name === 'immatriculation') value = formatImmatriculation(value);
+
+    // 🆕 Formatage plaque avec prise en compte du type de véhicule
+    if (name === 'immatriculation') {
+      value = formatImmatriculation(value, { vehicleType: formData.type_vehicule });
+    }
+
+    // 🆕 Si on change de type de véhicule, on reset la plaque
+    // (car le format attendu change : SIV → métal → bois)
+    if (name === 'type_vehicule') {
+      setFormData(prev => ({ ...prev, [name]: value, immatriculation: '' }));
+      setErrors(prev => ({ ...prev, immatriculation: null }));
+      return;
+    }
+
     setFormData(prev => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: null }));
   };
 
-  // ── Validation via validators.js ─────────────────────────────────
+  // ── Validation ───────────────────────────────────────────────────
   const validate = () => {
     const newErrors = {};
-    // Champs obligatoires manuels
     if (!formData.marque.trim())  newErrors.marque  = 'Marque obligatoire';
     if (!formData.modele.trim())  newErrors.modele  = 'Modèle obligatoire';
-    // Validation via validators.js (même fichier que ClientForm)
-    const immatError = validateImmatriculation(formData.immatriculation);
+
+    // 🆕 Validation avec le vehicleType pour adapter selon le type
+    const immatError = validateImmatriculation(formData.immatriculation, {
+      vehicleType: formData.type_vehicule
+    });
     if (immatError) newErrors.immatriculation = immatError;
+
     const anneeError = validateAnnee(formData.annee);
     if (anneeError) newErrors.annee = anneeError;
     return newErrors;
@@ -78,7 +90,6 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
-      // Scroll vers le premier champ en erreur
       setTimeout(() => {
         const premier = Object.keys(validationErrors)[0];
         document.querySelector(`.vehicle-form__body [name="${premier}"]`)
@@ -109,10 +120,13 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
     }
   };
 
-  // Recherche SIV (placeholder — sera développé plus tard)
   const handleSivSearch = () => {
     alert('API SIV en cours d\'implémentation — bientôt disponible !');
   };
+
+  // 🆕 Le bouton SIV n'a de sens que pour les véhicules à plaque française
+  const showSivButton = !['BATEAU', 'JETSKI', 'VOILIER', 'MOTOCULTURE', 'ENGIN', 'ENGIN_AGRICOLE', 'TONDEUSE']
+    .includes((formData.type_vehicule || '').toUpperCase());
 
   // ── Rendu ────────────────────────────────────────────────────────
   return (
@@ -160,28 +174,8 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
         <div className="form-section">
           <div className="form-section__title"><Key size={14} /> Identification</div>
 
-          <div className="form-group">
-            <label className="form-label required">Immatriculation</label>
-            <div className="plate-with-siv">
-              <FrenchPlateInput
-                name="immatriculation"
-                value={formData.immatriculation}
-                onChange={handleChange}
-                size="md"
-                hasError={Boolean(errors.immatriculation)}
-              />
-              <button
-                type="button" className="btn-siv"
-                onClick={handleSivSearch}
-                disabled={!formData.immatriculation}
-                title="API SIV — bientôt disponible"
-              >
-                <Search size={14} /> SIV
-              </button>
-            </div>
-            {errors.immatriculation && <span className="form-error">{errors.immatriculation}</span>}
-          </div>
-
+          {/* 🆕 Type de véhicule DÉPLACÉ au-dessus de la plaque
+              pour que la plaque s'adapte visuellement à chaque changement */}
           <div className="form-group">
             <label className="form-label required">Type de véhicule</label>
             <select name="type_vehicule" value={formData.type_vehicule} onChange={handleChange} className="form-input">
@@ -189,6 +183,32 @@ const VehicleForm = ({ editingVehicule, onClose, onSuccess }) => {
                 <option key={t.valeur} value={t.valeur}>{t.label}</option>
               ))}
             </select>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label required">Immatriculation</label>
+            <div className="plate-with-siv">
+              {/* 🆕 PlateSelector choisit automatiquement le visuel selon type_vehicule */}
+              <PlateSelector
+                vehicleType={formData.type_vehicule}
+                name="immatriculation"
+                value={formData.immatriculation}
+                onChange={handleChange}
+                size="md"
+                hasError={Boolean(errors.immatriculation)}
+              />
+              {showSivButton && (
+                <button
+                  type="button" className="btn-siv"
+                  onClick={handleSivSearch}
+                  disabled={!formData.immatriculation}
+                  title="API SIV — bientôt disponible"
+                >
+                  <Search size={14} /> SIV
+                </button>
+              )}
+            </div>
+            {errors.immatriculation && <span className="form-error">{errors.immatriculation}</span>}
           </div>
         </div>
 

@@ -4,7 +4,7 @@ import { getDepartementLabel, getStatutClass, STATUTS_RDV } from './rdvService';
 import { formatDateFull, formatHeure } from '../../utils/dataFormatters';
 import './ModalRdvConsultation.css';
 import Modal from '../../components/shared/Modals/Modal';
-import FrenchPlateInput from '../../components/shared/Frenchplate/FrenchPlateInput';
+import FrenchPlateInput from '../../components/shared/plates/FrenchPlateInput';
 import IconChip, { CHIP_COLORS } from '../../components/shared/IconChip/IconChip';
 import {
   CalendarClock, Pencil, Trash2,

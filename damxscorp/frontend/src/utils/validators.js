@@ -30,13 +30,37 @@ export const formatPrenom = (value) =>
     .join(value.includes('-') ? '-' : ' ');
 
 /**
- * Formate une immatriculation
- * - isOldFormat = false → force le format SIV "AB-123-CD"
- * - isOldFormat = true  → uppercase limitée à 7 caractères (format libre ancienne plaque)
+ * 🆕 Helper : détermine la famille de plaque selon le type de véhicule
+ * Utilisé pour savoir quel format/validation appliquer.
+ * (Logique synchronisée avec PlateSelector.jsx)
  */
-export const formatImmatriculation = (value, isOldFormat = false) => {
+const getPlateFamily = (vehicleType) => {
+  if (!vehicleType) return 'french';
+  const t = vehicleType.toUpperCase();
+  if (['BATEAU', 'JETSKI', 'VOILIER'].includes(t)) return 'wood';
+  if (['MOTOCULTURE', 'ENGIN', 'ENGIN_AGRICOLE', 'TONDEUSE'].includes(t)) return 'metal';
+  return 'french';
+};
+
+/**
+ * Formate une immatriculation
+ * - Pour les plaques métal/bois : uppercase + nettoyage simple
+ * - Pour le format ancien : uppercase limité à 7 caractères
+ * - Pour le format SIV : force "AA-000-AA"
+ */
+export const formatImmatriculation = (value, options = {}) => {
+  const { isOldFormat = false, vehicleType = null } = options;
+  const family = getPlateFamily(vehicleType);
+
+  // 🆕 Motoculture / bateau : format libre, juste uppercase + alphanumérique étendu
+  if (family === 'metal' || family === 'wood') {
+    return value.toUpperCase().replace(/[^A-Z0-9\-\s/]/g, '').slice(0, 20);
+  }
+
+  // Ancienne plaque française : format libre court
   const clean = value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-  if (isOldFormat) return clean.slice(0, 7); // pas de formatage SIV
+  if (isOldFormat) return clean.slice(0, 7);
+
   // Format SIV : AA-000-AA
   if (clean.length <= 2) return clean;
   if (clean.length <= 5) return `${clean.slice(0, 2)}-${clean.slice(2)}`;
@@ -93,13 +117,38 @@ export const validateEmail = (value) => {
 };
 
 /**
- * Valide une immatriculation française
- * - isOldFormat = false → regex stricte SIV "AB-123-CD"
- * - isOldFormat = true  → juste "pas vide" (format libre ancienne plaque)
+ * Valide une immatriculation
+ *
+ * Signature enrichie :
+ *   validateImmatriculation(value, { isOldFormat: false, vehicleType: 'VOITURE' })
+ *
+ * - vehicleType bateau/jetski → validation libre (juste non-vide)
+ * - vehicleType motoculture/engin → validation libre (juste non-vide)
+ * - isOldFormat = true → validation libre (juste non-vide)
+ * - sinon → regex stricte SIV "AB-123-CD"
+ *
+ * 🔙 Rétro-compatibilité : on accepte aussi l'ancienne signature
+ *    validateImmatriculation(value, true) où le 2ᵉ argument est isOldFormat.
  */
-export const validateImmatriculation = (value, isOldFormat = false) => {
+export const validateImmatriculation = (value, options = false) => {
+  // Gestion rétro-compatibilité : si options est un booléen, c'est l'ancien isOldFormat
+  const opts = typeof options === 'boolean'
+    ? { isOldFormat: options, vehicleType: null }
+    : { isOldFormat: false, vehicleType: null, ...options };
+
+  const { isOldFormat, vehicleType } = opts;
+
   if (!value || value.trim().length === 0) return "L'immatriculation est obligatoire";
-  if (isOldFormat) return null; // ancienne plaque : on accepte tout sauf vide
+
+  const family = getPlateFamily(vehicleType);
+
+  // 🆕 Pour motoculture et bateau : format libre (juste non-vide, déjà vérifié)
+  if (family === 'metal' || family === 'wood') return null;
+
+  // Ancienne plaque : format libre
+  if (isOldFormat) return null;
+
+  // Format SIV strict
   const regex = /^[A-Z]{2}-\d{3}-[A-Z]{2}$/;
   if (!regex.test(value)) return 'Format invalide (ex: AB-123-CD)';
   return null;
@@ -133,7 +182,6 @@ export const validateDates = (dateStart, timeStart, dateEnd, timeEnd) => {
 
 // =========================================================================
 // VALIDATION COMPLÈTE D'UN FORMULAIRE RDV
-// Retourne un objet { champ: "message d'erreur" }
 // =========================================================================
 export const validateRdvForm = (formData, isOldFormat = false) => {
   const errors = {};
@@ -153,8 +201,11 @@ export const validateRdvForm = (formData, isOldFormat = false) => {
 
   // Validation immatriculation si département ATELIER
   if (formData.departement === 'ATELIER') {
-    // on passe isOldFormat pour adapter la validation
-    const immatError = validateImmatriculation(formData.plate, isOldFormat);
+    // 🆕 On passe vehicleType pour adapter la validation automatiquement
+    const immatError = validateImmatriculation(formData.plate, {
+      isOldFormat,
+      vehicleType: formData.vehicleType,
+    });
     if (immatError) errors.plate = immatError;
 
     const anneeError = validateAnnee(formData.vehicleYear);

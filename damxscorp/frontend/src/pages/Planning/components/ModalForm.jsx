@@ -7,7 +7,7 @@ import logger from '../../../utils/logger';
 
 import Modal              from '../../../components/shared/Modals/Modal';
 // 🆕 Remplacement : FrenchPlateInput → PlateSelector (dans le nouveau dossier plates/)
-import PlateSelector      from '../../../components/shared/plate/PlateSelector';
+import PlateSelector      from '../../../components/shared/plates/PlateSelector';
 import AddressAutocomplete from '../../../components/shared/AdressAutocomplete/AddressAutocomplete';
 import { User, Car, CalendarClock, FileText, Save, Search, Users, X } from '../../../utils/icons';
 import './ModalForm.css';

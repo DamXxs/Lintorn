@@ -1,6 +1,6 @@
 // /frontend/src/components/shared/FrenchPlateInput.jsx
 import React from 'react';
-import './FrenchPlate.css'; // Réutilise le CSS de FrenchPlate
+import './FrenchPlateInput.css'; // Réutilise le CSS de FrenchPlate
 
 /**
  * 🚗 FrenchPlateInput — Composant unique pour afficher ET saisir une plaque française (SIV)

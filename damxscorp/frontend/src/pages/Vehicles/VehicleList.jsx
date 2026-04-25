@@ -6,7 +6,7 @@ import useVehiculeHelpers from '../../hooks/useVehiculeHelpers';
 import VehicleDetail from './VehicleDetail';
 import VehicleForm from './VehicleForm';
 import { Plus, Car, CalendarDays, User } from '../../utils/icons';
-import FrenchPlateInput from '../../components/shared/Frenchplate/FrenchPlateInput';
+import FrenchPlateInput from '../../components/shared/plates/FrenchPlateInput';
 import LoadingState from '../../components/shared/LoadingState';
 import ErrorState   from '../../components/shared/ErrorState';
 import PageHeader   from '../../components/shared/PageHeader';

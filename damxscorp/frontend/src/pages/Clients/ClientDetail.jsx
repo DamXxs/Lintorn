@@ -6,7 +6,7 @@ import { fetchInterventionsByClient, fetchVehiculesByClient, patchIntervention }
 import { removeVehicule } from '../Vehicles/vehicleService';
 import useVehiculeHelpers from '../../hooks/useVehiculeHelpers'; // ← hook dynamique
 import VehicleForm from '../Vehicles/VehicleForm';
-import FrenchPlateInput from '../../components/shared/Frenchplate/FrenchPlateInput';
+import FrenchPlateInput from '../../components/shared/plates/FrenchPlateInput';
 import StatutBadge from '../../components/shared/StatutBadge';
 import ModalRdvConsultation from '../RendezVous/ModalRdvConsultation';
 import VehicleDetail from '../Vehicles/VehicleDetail';

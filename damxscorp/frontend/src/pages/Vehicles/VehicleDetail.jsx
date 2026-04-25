@@ -6,7 +6,7 @@ import { fetchInterventionsByVehicule, patchIntervention } from '../../services/
 import { formatDateLong, formatDateCourt } from '../../utils/dataFormatters';
 import ModalRdvConsultation from '../RendezVous/ModalRdvConsultation';
 import Modal from '../../components/shared/Modals/Modal';
-import FrenchPlateInput from '../../components/shared/Frenchplate/FrenchPlateInput';
+import PlateSelector from '../../components/shared/plates/PlateSelector';
 import StatutBadge from '../../components/shared/StatutBadge';
 import IconChip, { CHIP_COLORS } from '../../components/shared/IconChip/IconChip';
 import {

@@ -11,7 +11,7 @@ import {
 } from './rdvService';
 import { formatDateCourt, formatHeure } from '../../utils/dataFormatters';
 import StatutBadge from '../../components/shared/StatutBadge';
-import FrenchPlateInput from '../../components/shared/Frenchplate/FrenchPlateInput';
+import FrenchPlateInput from '../../components/shared/plates/FrenchPlateInput';
 import ModalRdvConsultation from './ModalRdvConsultation';
 import ModalForm from '../Planning/components/ModalForm';
 import PageHeader from '../../components/shared/PageHeader';
