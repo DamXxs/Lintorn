@@ -132,16 +132,26 @@
                 <button class="copy-btn" onclick="copyToClipboard(this)">Copier</button>
             </div>
 
+            <!-- Nouvelle version avec sous-catégories -->
             <div class="command">
                 <div class="command-title">Activer l'environnement virtuel</div>
-                <div class="os-specific">
-                    <strong>Windows:</strong> <code>venv\scripts\activate.ps1</code><br>
-                    <strong>Linux/Mac/Codespace:</strong> <code>source venv/bin/activate</code>
-                </div>
                 <div class="command-description">À faire sur chaque nouvelle machine</div>
-                <button class="copy-btn" onclick="copyToClipboard(this)">Copier</button>
             </div>
-        </div>
+
+            <!-- Sous-catégorie Windows -->
+            <div class="command">
+                <div class="command-title">➤ Windows</div>
+                    <code>venv\scripts\activate.ps1</code>
+                        <button class="copy-btn" onclick="copyToClipboard(this)">Copier</button>
+            </div>
+
+            <!-- Sous-catégorie Linux/Mac/Codespace -->
+            <div class="command">
+                <div class="command-title">➤ Linux / Mac / Codespace</div>
+                    <code>source venv/bin/activate</code>
+                    <button class="copy-btn" onclick="copyToClipboard(this)">Copier</button>
+                </div>
+            </div>
 
         <!-- Dépendances -->
         <div class="category">
