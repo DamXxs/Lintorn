@@ -97,7 +97,12 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
         <div className="vehicle-detail__body">
 
           <div className="vd-plate-hero">
-            <FrenchPlateInput value={vehicule.immatriculation} size="lg" readOnly />
+            <PlateSelector
+              vehicleType={vehicule.type_vehicule}
+              value={vehicule.immatriculation}
+              size="lg"
+              readOnly
+            />
             <span className="vd-type-label">
               {getVehiculeTypeLabel(vehicule.type_vehicule)}
             </span>
