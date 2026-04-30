@@ -97,16 +97,14 @@ const StockList = () => {
   return (
     <div className="stock-page">
 
-      <PageHeader
-        title={<><Package size={18} /> Stock</>}
-        count={pieces.length}
-        countLabel="références"
-        action={
-          <button className="page-header__btn" onClick={() => setModalForm({})}>
-            <Plus size={14} /> Nouvelle pièce
-          </button>
-        }
-      />
+        <PageHeader
+          title={<><Package size={18} /> Stock</>}
+          count={pieces.length}
+          countLabel="référence"
+          onAdd={() => setModalForm({})}
+          addLabel="Nouvelle pièce"
+          addIcon={<Plus size={16} />}
+        />
 
       <SearchBar
         value={searchTerm}
