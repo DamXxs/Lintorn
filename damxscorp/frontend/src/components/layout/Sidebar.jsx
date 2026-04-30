@@ -41,7 +41,7 @@ const Sidebar = ({ isExpanded, onToggle }) => {
     { to: '/vehicles',     icon: Car,            label: 'Véhicules' },
     { to: '/stock',        icon: Package,        label: 'Stock' },
     { to: '/fournisseurs', icon: Factory,        label: 'Fournisseurs' },
-    { to: '/factures',     icon: Receipt,        label: 'Factures' },
+    { to: '/factures',     icon: Receipt,        label: 'Devis/Factures' },
   ];
 
   return (

@@ -1,10 +1,10 @@
 /* ══════════════════════════════════════════════════════════════
    METAL PLATE — Plaque d'identification métallique
-   Utilisée pour la motoculture, les tracteurs et engins agricoles
+   Utilisée pour la motoculture, les engins agricoles
    Style : aluminium brossé gris + caractères gravés foncés
+   🆕 Largeur adaptative : grandit avec le contenu jusqu'au bord du parent
    ══════════════════════════════════════════════════════════════ */
 
-/* Police "mécanique" qui évoque la gravure industrielle */
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
 
 /* ── Conteneur principal ─────────────────────────────────────── */
@@ -12,7 +12,6 @@
   display: inline-flex;
   align-items: stretch;
   align-self: flex-start;
-  /* Dégradé qui imite l'aluminium brossé (stries verticales subtiles) */
   background:
     repeating-linear-gradient(
       90deg,
@@ -25,18 +24,21 @@
   border: 2px solid #555;
   border-radius: 4px;
   overflow: hidden;
-  /* Ombre + reflet intérieur pour donner du relief "métal" */
   box-shadow:
     0 2px 6px rgba(0, 0, 0, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(0, 0, 0, 0.2);
   user-select: none;
   white-space: nowrap;
-  flex-shrink: 0;
   position: relative;
+
+  /* 🆕 Largeur adaptative : la plaque s'étend pour englober son contenu,
+     mais ne dépasse jamais la largeur du conteneur parent */
+  max-width: 100%;
+  flex-shrink: 1; /* on autorise la réduction si vraiment trop long */
 }
 
-/* Petits "rivets" aux quatre coins pour le look authentique */
+/* ── Rivets décoratifs ───────────────────────────────────────── */
 .metal-plate__rivet {
   position: absolute;
   width: 5px;
@@ -44,6 +46,7 @@
   background: radial-gradient(circle at 30% 30%, #999, #555);
   border-radius: 50%;
   box-shadow: inset 0 -1px 1px rgba(0, 0, 0, 0.4);
+  z-index: 2; /* 🆕 au-dessus de l'input */
 }
 
 .metal-plate__rivet--tl { top: 3px; left: 3px; }
@@ -51,11 +54,41 @@
 .metal-plate__rivet--bl { bottom: 3px; left: 3px; }
 .metal-plate__rivet--br { bottom: 3px; right: 3px; }
 
-/* ── Zone du numéro (gravure foncée) ─────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   🆕 WRAPPER ADAPTATIF — La technique du "ghost span" via grid
+   ══════════════════════════════════════════════════════════════
+   On utilise un display:inline-grid avec une seule cellule.
+   Le pseudo ::after (invisible) ET l'input occupent la MÊME cellule.
+   Le ::after dimensionne naturellement le wrapper avec son contenu,
+   et l'input se cale dessus en width: 100%.
+   ══════════════════════════════════════════════════════════════ */
+.metal-plate__input-wrapper {
+  display: inline-grid;
+  grid-template-columns: minmax(var(--metal-min-width, 170px), max-content);
+  /* On laisse le grid se centrer vu que la plaque est en flex */
+  align-items: center;
+  /* min-width par défaut = la largeur "vide" de la plaque */
+}
+
+/* Le fantôme qui sert de mètre-ruban */
+.metal-plate__input-wrapper::after {
+  content: attr(data-value);     /* récupère ce qu'on a mis dans data-value */
+  visibility: hidden;            /* invisible mais prend de la place */
+  white-space: pre;              /* préserve espaces et retours */
+  pointer-events: none;          /* ne capture pas la souris */
+  /* Ces propriétés DOIVENT être identiques à celles de .metal-plate__input
+     pour que la mesure soit exacte. On les copie via la cascade
+     en plaçant ce bloc avant les tailles. */
+  grid-area: 1 / 1;
+}
+
+/* L'input se superpose au fantôme */
 .metal-plate__input {
+  grid-area: 1 / 1;              /* même cellule que le ::after */
+  width: 100%;                   /* prend toute la largeur calculée */
+  min-width: 0;                  /* évite que l'input force une largeur min */
   font-family: 'Share Tech Mono', 'Courier New', monospace;
   font-weight: 700;
-  /* Couleur foncée avec ombre interne pour effet "gravé" */
   color: #2a2e33;
   text-shadow:
     0 1px 0 rgba(255, 255, 255, 0.3),
@@ -81,7 +114,6 @@
   user-select: none;
 }
 
-/* ── Mode éditable : curseur texte ───────────────────────────── */
 .metal-plate--editable {
   cursor: text;
 }
@@ -96,27 +128,48 @@
 }
 
 /* ══ TAILLES ══════════════════════════════════════════════════ */
+/* IMPORTANT : on définit les mêmes propriétés sur le wrapper (::after)
+   ET sur l'input pour que la mesure soit identique au rendu réel.
+   Le min-width = la largeur d'une plaque "vide" lisible. */
 
 /* -- sm : listes, badges -------------------------------------- */
+.metal-plate--sm .metal-plate__input-wrapper {
+  --metal-min-width: 130px;
+  padding: 5px 14px;
+}
+.metal-plate--sm .metal-plate__input-wrapper::after,
 .metal-plate--sm .metal-plate__input {
   font-size: 12px;
-  padding: 5px 14px;
+  font-family: 'Share Tech Mono', 'Courier New', monospace;
+  font-weight: 700;
   letter-spacing: 2px;
-  width: 130px;
+  text-transform: uppercase;
 }
 
 /* -- md : modals, fiches (défaut) ----------------------------- */
+.metal-plate--md .metal-plate__input-wrapper {
+  --metal-min-width: 170px;
+  padding: 7px 20px;
+}
+.metal-plate--md .metal-plate__input-wrapper::after,
 .metal-plate--md .metal-plate__input {
   font-size: 15px;
-  padding: 7px 20px;
+  font-family: 'Share Tech Mono', 'Courier New', monospace;
+  font-weight: 700;
   letter-spacing: 2.5px;
-  width: 170px;
+  text-transform: uppercase;
 }
 
 /* -- lg : header de fiche véhicule ---------------------------- */
+.metal-plate--lg .metal-plate__input-wrapper {
+  --metal-min-width: 220px;
+  padding: 10px 26px;
+}
+.metal-plate--lg .metal-plate__input-wrapper::after,
 .metal-plate--lg .metal-plate__input {
   font-size: 20px;
-  padding: 10px 26px;
+  font-family: 'Share Tech Mono', 'Courier New', monospace;
+  font-weight: 700;
   letter-spacing: 3px;
-  width: 220px;
+  text-transform: uppercase;
 }

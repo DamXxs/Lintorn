@@ -5,10 +5,13 @@ import './WoodPlateInput.css';
 /**
  * ⛵ WoodPlateInput — Plaque marine style bois flotté
  *
- * Utilisée pour les bateaux et jetskis.
- * Même API que FrenchPlateInput pour être interchangeable.
+ * Utilisée pour les bateaux, jetskis, voiliers.
  *
- * Props : identiques à FrenchPlateInput
+ * 🆕 Largeur adaptative : la plaque grandit avec le nom du bateau,
+ * jusqu'à atteindre le bord du conteneur parent.
+ * Technique : "ghost span" via display: inline-grid + ::after.
+ *
+ * Props : identiques à MetalPlateInput / FrenchPlateInput
  */
 const WoodPlateInput = ({
   value,
@@ -21,6 +24,11 @@ const WoodPlateInput = ({
 }) => {
   if (readOnly && !value) return null;
 
+  const displayValue = readOnly ? (value ? value.toUpperCase() : '') : (value || '');
+
+  // 🆕 Le fantôme reprend le placeholder si vide pour garder une largeur min cohérente
+  const ghostValue = displayValue || placeholder || ' ';
+
   return (
     <div
       className={[
@@ -31,19 +39,25 @@ const WoodPlateInput = ({
       ].filter(Boolean).join(' ')}
       title={readOnly && value ? `Immatriculation marine : ${value.toUpperCase()}` : undefined}
     >
-      <input
-        type="text"
-        name={name}
-        value={readOnly ? (value ? value.toUpperCase() : '') : (value || '')}
-        onChange={readOnly ? undefined : onChange}
-        placeholder={readOnly ? undefined : placeholder}
-        className="wood-plate__input"
-        maxLength={20}
-        autoComplete="off"
-        spellCheck={false}
-        readOnly={readOnly}
-        tabIndex={readOnly ? -1 : undefined}
-      />
+      {/* 🆕 Wrapper adaptatif via data-value et pseudo ::after */}
+      <div
+        className="wood-plate__input-wrapper"
+        data-value={ghostValue}
+      >
+        <input
+          type="text"
+          name={name}
+          value={displayValue}
+          onChange={readOnly ? undefined : onChange}
+          placeholder={readOnly ? undefined : placeholder}
+          className="wood-plate__input"
+          maxLength={50}            /* 🆕 augmenté pour les noms longs */
+          autoComplete="off"
+          spellCheck={false}
+          readOnly={readOnly}
+          tabIndex={readOnly ? -1 : undefined}
+        />
+      </div>
     </div>
   );
 };
