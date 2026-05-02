@@ -1,14 +1,7 @@
 /* /frontend/src/pages/RendezVous/RdvList.css */
 
 /* ── PAGE ────────────────────────────────────────────────────── */
-.rdv-page {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  max-width: 900px;
-  margin: 0 auto;
-  width: 100%;
-}
+/* Utilise les styles de base de list-page.css qui est dans components/shared/..*/
 
 /* ── FILTRES STATUT ──────────────────────────────────────────── */
 .rdv-filters {

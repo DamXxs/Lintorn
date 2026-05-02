@@ -3,16 +3,7 @@
    ============================================================================= */
 
 /* ── PAGE ────────────────────────────────────────────────────── */
-.stock-page {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  max-width: 900px;
-  margin: 0 auto;
-  width: 100%;
-  margin-top: 24px;
-  padding-top: 10px; ;
-}
+/* Utilise les styles de base de list-page.css qui est dans components/shared/..*/
 
 /* ── STATS ───────────────────────────────────────────────────── */
 .stock-stats {

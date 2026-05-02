@@ -1,13 +1,9 @@
 /* /frontend/src/pages/Clients/ClientList.css */
 
 /* ── PAGE ────────────────────────────────────────────────────── */
-.clients-page {
-  padding: 30px;
-  max-width: 900px;
-  margin: 0 auto;
-  width: 100%;
-}
-
+/* .clients-page est défini avec list-page.css dans src/components//shared/..
+ pour avoir le même style partout */
+ 
 /* ── EN-TÊTE & BARRE DE RECHERCHE ────────────────────────────── */
 /* → Styles dans shared.css via les composants PageHeader et SearchBar */
 

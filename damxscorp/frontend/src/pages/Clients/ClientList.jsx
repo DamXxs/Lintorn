@@ -12,7 +12,7 @@ import ErrorState   from '../../components/shared/ErrorState';
 import PageHeader   from '../../components/shared/PageHeader';
 import SearchBar    from '../../components/shared/SearchBar/SearchBar';
 import useDelete    from '../../hooks/useDelete';
-
+import '../../components/shared/list-page.css';
 
 const ClientList = () => {
   const location = useLocation();
@@ -71,7 +71,7 @@ const ClientList = () => {
   if (error)   return <ErrorState message={error} onRetry={loadClients} />;
 
   return (
-    <div className="clients-page">
+    <div className="list-page">
 
       {/* EN-TÊTE */}
       <PageHeader

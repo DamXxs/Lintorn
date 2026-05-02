@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matorn — Fiche de suivi projet</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+
+  :root {
+    --bg: #0d0d0d;
+    --surface: #141414;
+    --surface2: #1a1a1a;
+    --border: #252525;
+    --accent: #e8a020;
+    --accent2: #3b82f6;
+    --green: #22c55e;
+    --yellow: #eab308;
+    --red: #ef4444;
+    --purple: #a855f7;
+    --cyan: #06b6d4;
+    --text: #e8e8e8;
+    --muted: #666;
+    --muted2: #444;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem;
+  }
+
+  .header { display: flex; align-items: baseline; gap: 1.5rem; margin-bottom: 0.5rem; }
+  .header h1 { font-size: 3rem; font-weight: 800; letter-spacing: -0.04em; color: var(--accent); }
+  .header .subtitle { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+
+  .meta { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--muted2); margin-bottom: 3rem; }
+  .meta span { color: var(--muted); }
+
+  .grid   { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+  .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+  @media (max-width: 900px) { .grid, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; }
+  .card__title { font-size: 0.65rem; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border); }
+  .card--accent  { border-left: 3px solid var(--accent); }
+  .card--green   { border-left: 3px solid var(--green); }
+  .card--blue    { border-left: 3px solid var(--accent2); }
+  .card--purple  { border-left: 3px solid var(--purple); }
+  .card--yellow  { border-left: 3px solid var(--yellow); }
+  .card--red     { border-left: 3px solid var(--red); }
+  .card--cyan    { border-left: 3px solid var(--cyan); }
+
+  .item { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; line-height: 1.5; }
+  .item:last-child { border-bottom: none; }
+  .item__dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 0.45rem; }
+  .item__dot--done   { background: var(--green); }
+  .item__dot--wip    { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); }
+  .item__dot--todo   { background: var(--muted2); }
+  .item__dot--idea   { background: var(--purple); }
+  .item__dot--new    { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+  .item__dot--block  { background: var(--red); box-shadow: 0 0 6px var(--red); }
+  .item__dot--future { background: var(--cyan); box-shadow: 0 0 6px var(--cyan); }
+
+  .item__label { flex: 1; color: var(--text); }
+  .item__label--done { color: var(--muted); text-decoration: line-through; }
+  .item__sub { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--muted); margin-top: 0.2rem; }
+
+  .badge { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; padding: 0.15rem 0.5rem; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.08em; flex-shrink: 0; margin-top: 0.35rem; }
+  .badge--done   { background: #052d0e; color: var(--green);  border: 1px solid #0a4a1a; }
+  .badge--wip    { background: #2d1e00; color: var(--yellow); border: 1px solid #4a3500; }
+  .badge--todo   { background: #1a1a1a; color: var(--muted);  border: 1px solid var(--border); }
+  .badge--new    { background: #2d1800; color: var(--accent); border: 1px solid #4a2a00; }
+  .badge--block  { background: #2d0505; color: var(--red);    border: 1px solid #4a1010; }
+  .badge--idea   { background: #1a0d2d; color: var(--purple); border: 1px solid #2d1a4a; }
+  .badge--future { background: #001a2d; color: var(--cyan);   border: 1px solid #003a5a; }
+
+  .section-title { font-size: 0.6rem; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin: 2.5rem 0 1rem; display: flex; align-items: center; gap: 1rem; }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .stack { display: flex; flex-direction: column; gap: 0; }
+
+  .progress-row { display: flex; align-items: center; gap: 1rem; padding: 0.6rem 0; border-bottom: 1px solid var(--border); }
+  .progress-row:last-child { border-bottom: none; }
+  .progress-row__label { width: 180px; font-size: 0.8rem; flex-shrink: 0; }
+  .progress-bar { flex: 1; height: 4px; background: var(--border); border-radius: 2px; }
+  .progress-bar__fill { height: 100%; border-radius: 2px; }
+  .progress-row__pct { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--muted); width: 35px; text-align: right; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; }
+  .legend__item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.72rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+  .legend__dot { width: 7px; height: 7px; border-radius: 50%; }
+
+  .note { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 6px; padding: 1rem 1.25rem; font-size: 0.8rem; color: var(--muted); margin-bottom: 1.5rem; font-family: 'JetBrains Mono', monospace; line-height: 1.7; }
+  .note strong { color: var(--accent); }
+  .note.note--green { border-left-color: var(--green); }
+  .note.note--green strong { color: var(--green); }
+  .note.note--cyan { border-left-color: var(--cyan); }
+  .note.note--cyan strong { color: var(--cyan); }
+
+  .stat-row { display: flex; gap: 1.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.5rem; flex: 1; min-width: 120px; text-align: center; }
+  .stat-card__num { font-family: 'JetBrains Mono', monospace; font-size: 1.8rem; font-weight: 700; line-height: 1; margin-bottom: 0.3rem; }
+  .stat-card__label { font-size: 0.65rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  /* Vision Hardware */
+  .vision-header { background: linear-gradient(135deg, #001a2d 0%, #0d0d0d 100%); border: 1px solid var(--cyan); border-radius: 8px; padding: 1.5rem 2rem; margin-bottom: 1.5rem; position: relative; overflow: hidden; }
+  .vision-header::before { content: '🥽'; position: absolute; right: 2rem; top: 50%; transform: translateY(-50%); font-size: 5rem; opacity: 0.12; }
+  .vision-header__title { font-size: 1.3rem; font-weight: 800; color: var(--cyan); letter-spacing: -0.02em; margin-bottom: 0.6rem; }
+  .vision-header__sub { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--muted); line-height: 1.7; }
+  .vision-header__sub strong { color: var(--cyan); }
+
+  .step-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; }
+  .step-card__num { font-family: 'JetBrains Mono', monospace; font-size: 2.2rem; font-weight: 700; line-height: 1; margin-bottom: 0.5rem; }
+  .step-card__title { font-size: 0.88rem; font-weight: 600; color: var(--text); margin-bottom: 0.5rem; }
+  .step-card__desc { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--muted); line-height: 1.6; margin-bottom: 0.75rem; }
+  .step-card--1 { border-left: 3px solid var(--green);  } .step-card--1 .step-card__num { color: #0a3d1a; }
+  .step-card--2 { border-left: 3px solid var(--yellow); } .step-card--2 .step-card__num { color: #2d1e00; }
+  .step-card--3 { border-left: 3px solid var(--purple); } .step-card--3 .step-card__num { color: #1a0d2d; }
+  .step-card--4 { border-left: 3px solid var(--cyan);   } .step-card--4 .step-card__num { color: #001a2d; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>MATORN</h1>
+  <span class="subtitle">Fiche de suivi — Projet garage management</span>
+</div>
+<div class="meta">
+  Dernière mise à jour : <span>01 Mai 2026 — Ajout section Vision Hardware (Hey Matorn + Meta glasses)</span>
+  &nbsp;·&nbsp; Stack : <span>Django REST + React</span>
+  &nbsp;·&nbsp; Env : <span>Docker + Codespaces</span>
+  &nbsp;·&nbsp; API Codespaces : <span style="color:var(--green)">✓ OK (URLs relatives)</span>
+</div>
+
+<!-- STATS -->
+<div class="stat-row">
+  <div class="stat-card"><div class="stat-card__num" style="color:var(--green)">8</div><div class="stat-card__label">Apps Django</div></div>
+  <div class="stat-card"><div class="stat-card__num" style="color:var(--accent2)">13</div><div class="stat-card__label">Pages React</div></div>
+  <div class="stat-card"><div class="stat-card__num" style="color:var(--yellow)">3</div><div class="stat-card__label">Hooks custom</div></div>
+  <div class="stat-card"><div class="stat-card__num" style="color:var(--green)">10</div><div class="stat-card__label">Modales centralisées</div></div>
+  <div class="stat-card"><div class="stat-card__num" style="color:var(--purple)">2</div><div class="stat-card__label">Contextes React</div></div>
+  <div class="stat-card"><div class="stat-card__num" style="color:var(--accent)">~65</div><div class="stat-card__label">Fixtures démo</div></div>
+</div>
+
+<!-- LÉGENDE -->
+<div class="legend">
+  <div class="legend__item"><div class="legend__dot" style="background:var(--green)"></div> Fait</div>
+  <div class="legend__item"><div class="legend__dot" style="background:var(--yellow);box-shadow:0 0 5px var(--yellow)"></div> En cours / WIP</div>
+  <div class="legend__item"><div class="legend__dot" style="background:var(--muted2)"></div> À faire</div>
+  <div class="legend__item"><div class="legend__dot" style="background:var(--accent);box-shadow:0 0 5px var(--accent)"></div> Nouvelle idée</div>
+  <div class="legend__item"><div class="legend__dot" style="background:var(--purple)"></div> Idée future</div>
+  <div class="legend__item"><div class="legend__dot" style="background:var(--red);box-shadow:0 0 5px var(--red)"></div> Bloquant</div>
+  <div class="legend__item"><div class="legend__dot" style="background:var(--cyan);box-shadow:0 0 5px var(--cyan)"></div> Vision hardware</div>
+</div>
+
+<!-- AVANCEMENT PAR MODULE -->
+<div class="section-title">Avancement par module</div>
+<div class="card card--blue" style="margin-bottom:1.5rem">
+  <div class="card__title">Progression globale</div>
+  <div class="stack">
+    <div class="progress-row"><div class="progress-row__label">🔧 Infrastructure</div><div class="progress-bar"><div class="progress-bar__fill" style="width:97%;background:var(--green)"></div></div><div class="progress-row__pct">97%</div></div>
+    <div class="progress-row"><div class="progress-row__label">👤 Clients</div><div class="progress-bar"><div class="progress-bar__fill" style="width:85%;background:var(--green)"></div></div><div class="progress-row__pct">85%</div></div>
+    <div class="progress-row"><div class="progress-row__label">🚗 Véhicules</div><div class="progress-bar"><div class="progress-bar__fill" style="width:80%;background:var(--green)"></div></div><div class="progress-row__pct">80%</div></div>
+    <div class="progress-row"><div class="progress-row__label">📅 Planning / RDV</div><div class="progress-bar"><div class="progress-bar__fill" style="width:80%;background:var(--green)"></div></div><div class="progress-row__pct">80%</div></div>
+    <div class="progress-row"><div class="progress-row__label">📦 Stock</div><div class="progress-bar"><div class="progress-bar__fill" style="width:70%;background:var(--yellow)"></div></div><div class="progress-row__pct">70%</div></div>
+    <div class="progress-row"><div class="progress-row__label">🏭 Fournisseurs</div><div class="progress-bar"><div class="progress-bar__fill" style="width:75%;background:var(--yellow)"></div></div><div class="progress-row__pct">75%</div></div>
+    <div class="progress-row"><div class="progress-row__label">📄 Factures / Devis</div><div class="progress-bar"><div class="progress-bar__fill" style="width:75%;background:var(--yellow)"></div></div><div class="progress-row__pct">75%</div></div>
+    <div class="progress-row"><div class="progress-row__label">🔩 Ordres de réparation</div><div class="progress-bar"><div class="progress-bar__fill" style="width:10%;background:var(--red)"></div></div><div class="progress-row__pct">10%</div></div>
+    <div class="progress-row"><div class="progress-row__label">⚙️ Paramètres</div><div class="progress-bar"><div class="progress-bar__fill" style="width:80%;background:var(--green)"></div></div><div class="progress-row__pct">80%</div></div>
+    <div class="progress-row"><div class="progress-row__label">📱 Responsive mobile</div><div class="progress-bar"><div class="progress-bar__fill" style="width:40%;background:var(--red)"></div></div><div class="progress-row__pct">40%</div></div>
+    <div class="progress-row"><div class="progress-row__label">🥽 Vision Hardware</div><div class="progress-bar"><div class="progress-bar__fill" style="width:2%;background:var(--cyan)"></div></div><div class="progress-row__pct" style="color:var(--cyan)">futur</div></div>
+  </div>
+</div>
+
+<!-- INFRASTRUCTURE -->
+<div class="section-title">Infrastructure &amp; socle technique</div>
+<div class="grid">
+  <div class="card card--green">
+    <div class="card__title">✅ Ce qui est en place</div>
+    <div class="stack">
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Django multi-apps (clients, vehicules, planning, stock, fournisseurs, referentiels, factures, ordres_reparation)</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Docker + docker-compose</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">React Router — navigation complète</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Architecture 3 couches (Component → Service → api.js → Django)</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Header fixe (MATORN + recherche globale + statut Django)</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Sidebar burger (3 états : fermée / hover / ouverte)</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Recherche globale universelle (clients, véhicules, RDV, stock)</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Système de thèmes (ThemeContext.jsx + CSS variables)</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">ReferentielsContext — contexte global des référentiels</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Icônes centralisées (icons.js + iconUtils.js)</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">FrenchPlateInput SIV (composant immatriculation principal)</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Fixture de démo (~65 entrées)</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">logger.js — système de debug centralisé</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">colorUtils.js + dataFormatters.js — utilitaires partagés</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">searchService.js — service de recherche centralisé</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Hooks custom : useDelete, useForm, useVehiculeHelpers</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Modal.jsx + Modal.css — coquille centralisée pour 10 modales</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">forms.css — styles partagés pour tous les formulaires en modal</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">validators.js — formatPhone, formatNom, formatPrenom, validateEmail</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">API Django OK en Codespaces (URLs relatives)</div></div>
+    </div>
+  </div>
+  <div class="card card--yellow">
+    <div class="card__title">🚧 Socle — reste à finaliser</div>
+    <div class="stack">
+      <div class="item"><div class="item__dot item__dot--wip"></div><div class="item__label">OldFrenchPlateInput + PlateInput toggle<div class="item__sub">Composants créés — tests d'intégration en attente</div></div><span class="badge badge--wip">wip</span></div>
+      <div class="item"><div class="item__dot item__dot--todo"></div><div class="item__label">Migrations factures à appliquer<div class="item__sub">App factures créée — vérifier makemigrations + migrate</div></div><span class="badge badge--todo">à faire</span></div>
+      <div class="item"><div class="item__dot item__dot--todo"></div><div class="item__label">App ordres_reparation — backend à créer<div class="item__sub">Modèles conçus sur papier uniquement</div></div><span class="badge badge--todo">à faire</span></div>
+      <div class="item"><div class="item__dot item__dot--todo"></div><div class="item__label">Authentification utilisateur (login / logout)<div class="item__sub">À prévoir avant mise en prod</div></div><span class="badge badge--todo">à faire</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODULES MÉTIER -->
+<div class="section-title">Modules métier</div>
+<div class="grid-3">
+  <div class="card card--green">
+    <div class="card__title">👤 Clients</div>
+    <div class="stack">
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Modèle Django + API REST</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Liste clients avec recherche</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Fiche client détaillée</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Ajout / modification / suppression</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Lien client → véhicules</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Autocomplétion adresse (API gouv.fr)</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Onglet Devis depuis fiche client</div></div>
+    </div>
+  </div>
+  <div class="card card--green">
+    <div class="card__title">🚗 Véhicules</div>
+    <div class="stack">
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Modèle Django + API REST</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Liste véhicules avec filtres</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Fiche véhicule détaillée</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Ajout / modif / suppression</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">FrenchPlateInput intégré (format SIV)</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">useVehiculeHelpers (hook logique partagée)</div></div>
+      <div class="item"><div class="item__dot item__dot--todo"></div><div class="item__label">API SIV (pré-remplissage carte grise auto)</div></div>
+    </div>
+  </div>
+  <div class="card card--green">
+    <div class="card__title">📅 Planning / RDV</div>
+    <div class="stack">
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">FullCalendar intégré</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Modal création / consultation / modif RDV</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Statuts + couleurs dynamiques</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">RdvList — page liste des RDV</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">CollaborateurFilter — filtre par technicien</div></div>
+      <div class="item"><div class="item__dot item__dot--wip"></div><div class="item__label">Détection de conflits RDV<div class="item__sub">Design prêt — 2 questions ouvertes</div></div><span class="badge badge--wip">wip</span></div>
+      <div class="item"><div class="item__dot item__dot--todo"></div><div class="item__label">Vue mobile du calendrier</div></div>
+    </div>
+  </div>
+  <div class="card card--yellow">
+    <div class="card__title">📦 Stock de pièces</div>
+    <div class="stack">
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Vue d'ensemble stock (StockVueEnsemble)</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Alertes de stock bas</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">StockForm redesigné (Modal.jsx + forms.css)</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">stock_suspendu — pièces réservées par devis</div></div>
+      <div class="item"><div class="item__dot item__dot--todo"></div><div class="item__label">Modal détail pièce</div></div>
+      <div class="item"><div class="item__dot item__dot--todo"></div><div class="item__label">Pré-remplissage mail commande fournisseur</div></div>
+    </div>
+  </div>
+  <div class="card card--yellow">
+    <div class="card__title">🏭 Fournisseurs</div>
+    <div class="stack">
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Modèle Django + API REST</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Liste fournisseurs (CardFournisseur)</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Ajout / modif / suppression (ModalFournisseur)</div></div>
+      <div class="item"><div class="item__dot item__dot--wip"></div><div class="item__label">ModalEmailPreRempli — mail commande pièces<div class="item__sub">Créé — à connecter au stock et tester</div></div><span class="badge badge--wip">wip</span></div>
+      <div class="item"><div class="item__dot item__dot--todo"></div><div class="item__label">Lien fournisseur → pièces en stock</div></div>
+    </div>
+  </div>
+  <div class="card card--green">
+    <div class="card__title">⚙️ Paramètres / Référentiels</div>
+    <div class="stack">
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Page Paramètres</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Référentiels (types RDV, statuts — ReferentielEditor)</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Couleurs RDV personnalisables</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">CollaborateurEditor + DepartementEditor</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">API Collaborateurs + API Départements</div></div>
+      <div class="item"><div class="item__dot item__dot--wip"></div><div class="item__label">Affichage Paramètres en paysage (mobile)<div class="item__sub">Overflow identifié, non résolu</div></div><span class="badge badge--wip">wip</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- FACTURES / DEVIS -->
+<div class="section-title">📄 Factures &amp; Devis — Module avancé</div>
+<div class="note note--green">
+  <strong>Bien plus avancé que prévu !</strong> — Modèles Django complets, toutes les pages React existent. Il reste principalement à tester le flux bout-en-bout et vérifier les migrations.
+</div>
+<div class="grid">
+  <div class="card card--green">
+    <div class="card__title">✅ Backend Django — app factures complète</div>
+    <div class="stack">
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Modèle ParametresFacturation (singleton TVA + compteurs)</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Modèle ForfaitIntervention (catalogue main-d'œuvre)</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Modèle Devis + LigneDevis (avec stock_suspendu automatique)</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Modèle Facture + LigneFacture</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Numérotation auto DEV-YY-NNNNN / FAC-YY-NNNNN</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Calcul automatique HT / TVA / TTC</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Cycle de vie Devis + Facture complets</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Serializers + Views API REST</div></div>
+      <div class="item"><div class="item__dot item__dot--todo"></div><div class="item__label">Migrations à appliquer<div class="item__sub">python manage.py makemigrations factures &amp;&amp; migrate</div></div><span class="badge badge--todo">à vérifier</span></div>
+    </div>
+  </div>
+  <div class="card card--green">
+    <div class="card__title">✅ Frontend React — toutes les pages créées</div>
+    <div class="stack">
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">DevisList / DevisForm / DevisDetail / DevisDocument</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">DevisPDFModal — modale export PDF</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">DevisManager — orchestrateur du module</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">FactureList, FactureForm, FactureDetail, FactureDocument</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">ParametresFacturation React</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">pdfExport.js — génération PDF client-side via jsPDF</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">devisService.js + factureService.js</div></div>
+      <div class="item"><div class="item__dot item__dot--todo"></div><div class="item__label">Tests fonctionnels bout-en-bout<div class="item__sub">Créer devis → valider → convertir → PDF → paiement</div></div><span class="badge badge--todo">à tester</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ORDRES DE RÉPARATION -->
+<div class="section-title">Modules à venir</div>
+<div class="card card--red" style="margin-bottom:1.5rem">
+  <div class="card__title">🔩 Ordres de réparation — Modèles conçus, code non démarré</div>
+  <div class="stack">
+    <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Modèles conçus sur papier (OrdreReparation, LignePiece, LigneMainOeuvre)</div></div>
+    <div class="item"><div class="item__dot item__dot--todo"></div><div class="item__label">Créer l'app Django ordres_reparation</div></div>
+    <div class="item"><div class="item__dot item__dot--todo"></div><div class="item__label">Implémenter modèles + serializers + views + urls</div></div>
+    <div class="item"><div class="item__dot item__dot--todo"></div><div class="item__label">Déduction stock automatique à la création</div></div>
+    <div class="item"><div class="item__dot item__dot--todo"></div><div class="item__label">Suivi de statut (OUVERT → EN_COURS → TERMINÉ)</div></div>
+    <div class="item"><div class="item__dot item__dot--todo"></div><div class="item__label">Interface React complète</div></div>
+  </div>
+</div>
+
+<!-- NOUVELLES IDÉES -->
+<div class="section-title">🆕 Nouvelles idées — Avril 2026</div>
+<div class="note">
+  <strong>Corbeille temporaire</strong> — 8 jours avant suppression réelle. &nbsp;|&nbsp; <strong>Archive automatique</strong> — Tout ce qui date de plus d'un an est automatiquement archivé.
+</div>
+<div class="grid">
+  <div class="card card--accent">
+    <div class="card__title">🗑️ Corbeille temporaire (8 jours)</div>
+    <div class="stack">
+      <div class="item"><div class="item__dot item__dot--new"></div><div class="item__label">Champ <code>deleted_at</code> + <code>is_deleted</code> sur les modèles Django</div><span class="badge badge--new">à planifier</span></div>
+      <div class="item"><div class="item__dot item__dot--new"></div><div class="item__label">Vue "Corbeille" dans l'app (filtre is_deleted=True)</div><span class="badge badge--new">à planifier</span></div>
+      <div class="item"><div class="item__dot item__dot--new"></div><div class="item__label">Restauration depuis la corbeille</div><span class="badge badge--new">à planifier</span></div>
+      <div class="item"><div class="item__dot item__dot--new"></div><div class="item__label">Purge automatique après 8 jours (management command Django)</div><span class="badge badge--new">à planifier</span></div>
+    </div>
+  </div>
+  <div class="card card--purple">
+    <div class="card__title">📁 Archives automatiques (+1 an)</div>
+    <div class="stack">
+      <div class="item"><div class="item__dot item__dot--new"></div><div class="item__label">Champ <code>archived_at</code> + <code>is_archived</code> sur les modèles</div><span class="badge badge--new">à planifier</span></div>
+      <div class="item"><div class="item__dot item__dot--new"></div><div class="item__label">Archivage auto des RDV / interventions &gt; 1 an</div><span class="badge badge--new">à planifier</span></div>
+      <div class="item"><div class="item__dot item__dot--new"></div><div class="item__label">Vue "Archives" accessible depuis la sidebar</div><span class="badge badge--new">à planifier</span></div>
+      <div class="item"><div class="item__dot item__dot--new"></div><div class="item__label">Désarchivage manuel possible</div><span class="badge badge--new">à planifier</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================================================== -->
+<!--  🥽 VISION HARDWARE — SECTION NOUVELLE                -->
+<!-- ===================================================== -->
+<div class="section-title">🥽 Vision Hardware — Matorn Extended (projet secondaire)</div>
+
+<div class="vision-header">
+  <div class="vision-header__title">🥽 Hey Matorn — Glasses Integration</div>
+  <div class="vision-header__sub">
+    Projet secondaire ambitieux — <strong>ne bloque pas le développement principal de Matorn</strong><br>
+    Architecture cible : <strong>App mobile compagnon (Android/iOS)</strong> → <strong>SDK Meta Wearables</strong> → <strong>Django API smart booking</strong> → <strong>Confirmation vocale + AR display</strong><br>
+    SDK Meta en developer preview depuis déc. 2025 — disponibilité publique générale prévue <strong>2026</strong> — Ray-Ban Meta Gen 1 &amp; Gen 2 supportés
+  </div>
+</div>
+
+<div class="note note--cyan">
+  <strong>Concept :</strong> Le mécanicien porte ses Ray-Ban Meta. Il dit <strong>"Hey Matorn, RDV Mr Dupont vendredi 14h pour vidange"</strong> → l'app mobile capte la commande → envoie à Django → le bot analyse les dispos → propose un créneau → confirmation vocale → RDV créé dans Matorn.<br><br>
+  <strong>Bonus caméra :</strong> Photo / vidéo d'une pièce HS envoyée directement dans la fiche véhicule client depuis les lunettes, mains libres. Preuve visuelle pour le client.<br>
+  <strong>Futur AR :</strong> Avec les Ray-Ban Display (HUD — annoncé 2026), afficher le planning de la journée sous l'œil pendant les interventions.
+</div>
+
+<div class="grid-4" style="margin-bottom:1.5rem">
+  <div class="step-card step-card--1">
+    <div class="step-card__num">01</div>
+    <div class="step-card__title">Endpoint Django "Smart Booking"</div>
+    <div class="step-card__desc">Endpoint API qui reçoit une demande de RDV parsée, analyse les créneaux libres, retourne une proposition. Faisable maintenant dans Matorn — utile même sans lunettes.</div>
+    <span class="badge badge--todo">faisable maintenant</span>
+  </div>
+  <div class="step-card step-card--2">
+    <div class="step-card__num">02</div>
+    <div class="step-card__title">App mobile compagnon</div>
+    <div class="step-card__desc">App Android/iOS qui parle à l'endpoint Django. Intègre le SDK Meta Wearables pour accès caméra et micro des lunettes. Photo/vidéo pièces HS → fiche véhicule.</div>
+    <span class="badge badge--idea">moyen terme</span>
+  </div>
+  <div class="step-card step-card--3">
+    <div class="step-card__num">03</div>
+    <div class="step-card__title">"Hey Matorn" — Commandes vocales</div>
+    <div class="step-card__desc">Déclenchement vocal custom via SDK. Commande transcrite (speech-to-text), parsée et envoyée à Django. Retour audio dans les lunettes pour confirmer le RDV créé.</div>
+    <span class="badge badge--idea">long terme</span>
+  </div>
+  <div class="step-card step-card--4">
+    <div class="step-card__num">04</div>
+    <div class="step-card__title">Planning AR sous l'œil</div>
+    <div class="step-card__desc">Avec les Ray-Ban Display (HUD — annoncés 2026), afficher le planning de la journée en AR. Le mécanicien voit ses RDV sans lâcher ses outils.</div>
+    <span class="badge badge--future">futur / hardware</span>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card card--cyan">
+    <div class="card__title">🔧 Ce que le SDK Meta permet aujourd'hui</div>
+    <div class="stack">
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Accès caméra 12MP ultra-wide des lunettes depuis app mobile</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Accès micro (5 micros) via Bluetooth depuis app mobile</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Capture photo / vidéo en POV mains libres</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Stream caméra en temps réel vers l'app mobile</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Mock Device Kit — tester sans lunettes physiques</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Compatibilité Ray-Ban Meta Gen 1 &amp; Gen 2</div></div>
+      <div class="item"><div class="item__dot item__dot--future"></div><div class="item__label">"Hey Meta" custom API — en exploration chez Meta, pas encore dispo<div class="item__sub">→ Speech-to-text dans l'app mobile comme alternative</div></div><span class="badge badge--future">futur</span></div>
+      <div class="item"><div class="item__dot item__dot--future"></div><div class="item__label">Ray-Ban Display SDK (HUD) — annoncé 2026<div class="item__sub">→ Ouvre la porte à l'affichage AR du planning</div></div><span class="badge badge--future">futur</span></div>
+    </div>
+  </div>
+  <div class="card card--cyan">
+    <div class="card__title">🎯 Cas d'usage concrets pour le garage</div>
+    <div class="stack">
+      <div class="item">
+        <div class="item__dot item__dot--future"></div>
+        <div class="item__label">Prise de RDV vocale mains libres<div class="item__sub">"Hey Matorn, RDV Mr Dupont vendredi 14h pour vidange" → créneau proposé → confirmé</div></div>
+      </div>
+      <div class="item">
+        <div class="item__dot item__dot--future"></div>
+        <div class="item__label">Photo pièce HS → dossier client<div class="item__sub">Le mécano photographie la pièce depuis les lunettes → image dans Django → client valide le remplacement</div></div>
+      </div>
+      <div class="item">
+        <div class="item__dot item__dot--future"></div>
+        <div class="item__label">Vidéo d'intervention comme preuve<div class="item__sub">Enregistrement POV → archivé dans la fiche véhicule</div></div>
+      </div>
+      <div class="item">
+        <div class="item__dot item__dot--future"></div>
+        <div class="item__label">Planning de la journée sous l'œil (AR)<div class="item__sub">Avec Ray-Ban Display — voir ses RDV sans lâcher la clé à molette</div></div>
+      </div>
+      <div class="item">
+        <div class="item__dot item__dot--future"></div>
+        <div class="item__label">Consultation fiche véhicule vocale<div class="item__sub">"Hey Matorn, infos véhicule Dupont" → résumé audio dans les lunettes</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RESPONSIVE MOBILE -->
+<div class="section-title">📱 Responsive mobile</div>
+<div class="card card--red" style="margin-bottom:1.5rem">
+  <div class="card__title">Problèmes identifiés — à résoudre</div>
+  <div class="stack">
+    <div class="item"><div class="item__dot item__dot--block"></div><div class="item__label">Sidebar non visible en mode portrait</div><span class="badge badge--block">bloquant</span></div>
+    <div class="item"><div class="item__dot item__dot--block"></div><div class="item__label">Header invisible en portrait ET paysage</div><span class="badge badge--block">bloquant</span></div>
+    <div class="item"><div class="item__dot item__dot--todo"></div><div class="item__label">Paramètres qui overflow en paysage</div><span class="badge badge--todo">à faire</span></div>
+    <div class="item"><div class="item__dot item__dot--todo"></div><div class="item__label">Vue calendrier FullCalendar sur mobile</div><span class="badge badge--todo">à faire</span></div>
+    <div class="item"><div class="item__dot item__dot--todo"></div><div class="item__label">Tableaux Factures / Devis en responsive</div><span class="badge badge--todo">à faire</span></div>
+    <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label item__label--done">Modales — acceptable en mobile</div></div>
+  </div>
+</div>
+
+<!-- IDÉES FUTURES -->
+<div class="section-title">💡 Idées futures (backlog)</div>
+<div class="grid">
+  <div class="card card--purple">
+    <div class="card__title">🤖 IA + Messagerie (long terme)</div>
+    <div class="stack">
+      <div class="item"><div class="item__dot item__dot--idea"></div><div class="item__label">Intégration Twilio (SMS / email / téléphone)<div class="item__sub">Seule feature avec budget potentiel</div></div><span class="badge badge--idea">futur</span></div>
+      <div class="item"><div class="item__dot item__dot--idea"></div><div class="item__label">IA qui prend des RDV et les propose à valider<div class="item__sub">RDV placé dans le planning, confirmation utilisateur obligatoire</div></div><span class="badge badge--idea">futur</span></div>
+    </div>
+  </div>
+  <div class="card card--purple">
+    <div class="card__title">✨ Autres idées notées</div>
+    <div class="stack">
+      <div class="item"><div class="item__dot item__dot--idea"></div><div class="item__label">API SIV pour pré-remplir les fiches véhicule</div><span class="badge badge--idea">futur</span></div>
+      <div class="item"><div class="item__dot item__dot--idea"></div><div class="item__label">Tableau de bord / KPIs (CA, RDV par mois, stock critique…)</div><span class="badge badge--idea">futur</span></div>
+      <div class="item"><div class="item__dot item__dot--idea"></div><div class="item__label">Multi-utilisateurs / gestion collaborateurs avancée</div><span class="badge badge--idea">futur</span></div>
+      <div class="item"><div class="item__dot item__dot--idea"></div><div class="item__label">Détection conflit : même collaborateur double-booké</div><span class="badge badge--idea">futur</span></div>
+      <div class="item"><div class="item__dot item__dot--idea"></div><div class="item__label">Relances automatiques factures impayées</div><span class="badge badge--idea">futur</span></div>
+      <div class="item"><div class="item__dot item__dot--idea"></div><div class="item__label">Historique modifications (audit log Django)</div><span class="badge badge--idea">futur</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- CONVENTIONS -->
+<div class="section-title">📐 Conventions &amp; règles du projet</div>
+<div class="grid-3">
+  <div class="card">
+    <div class="card__title">Architecture</div>
+    <div class="stack">
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label">3 couches : Component → Service → api.js → Django</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label">Import direct depuis api.js dans un composant = anti-pattern</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label">Django = source de vérité, React = affichage uniquement</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label">Toute modale passe par Modal.jsx</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label">Tout formulaire en modal importe forms.css</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card__title">Style de code</div>
+    <div class="stack">
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label">PascalCase composants, camelCase fonctions/vars</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label">CSS vanilla BEM — pas de framework CSS</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label">rem/em plutôt que px (accessibilité mobile)</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label">Commentaires en français dans le code</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label">Fichiers complets toujours (pas de diffs partiels)</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label">logger.js pour tous les appels API</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card__title">Environnement</div>
+    <div class="stack">
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label">Docker (local PC) = tests réels backend</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label">Codespaces = frontend + backend (API OK via URLs relatives)</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label">REACT_APP_API_URL || '/api' — fonctionne partout</div></div>
+      <div class="item"><div class="item__dot item__dot--done"></div><div class="item__label">Referentiel PKs jamais dans les fixtures</div></div>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top:3rem;text-align:center;font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--muted2);">
+  MATORN — Logiciel de gestion de garage — Open-source, 100% local &nbsp;·&nbsp; Mis à jour 01 Mai 2026
+</div>
+
+</body>
+</html>

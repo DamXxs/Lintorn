@@ -13,6 +13,7 @@ import PageHeader   from '../../components/shared/PageHeader';
 import SearchBar    from '../../components/shared/SearchBar/SearchBar';
 import useDelete    from '../../hooks/useDelete';
 import './VehicleList.css';
+import '../../components/shared/list-page.css';
 
 const VehicleList = () => {
   const location = useLocation();
@@ -69,7 +70,7 @@ const VehicleList = () => {
   if (error)   return <ErrorState message={error} onRetry={loadVehicules} />;
 
   return (
-    <div className="vehicles-page">
+    <div className="list-page">
 
       <PageHeader
         title={<><Car size={18} /> Véhicules</>}

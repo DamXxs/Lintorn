@@ -17,6 +17,7 @@ import CardFournisseur from './CardFournisseur';
 import ModalFournisseur from './ModalFournisseur';
 import ModalEmailPreRempli from './ModalEmailPreRempli';
 import './Fournisseurs.css';
+import '../../components/shared/list-page.css';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PAGE FOURNISSEURS
@@ -132,7 +133,7 @@ const Fournisseurs = () => {
   );
 
   return (
-    <div className="fournisseurs-page">
+    <div className="list-page">
 
       {/* ── MINI DASHBOARD STOCK ──────────────────────────────────────────── */}
       <div className="fournisseurs-stock-header">

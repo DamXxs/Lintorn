@@ -8,6 +8,7 @@ import LoadingState from '../../components/shared/LoadingState';
 import ErrorState from '../../components/shared/ErrorState';
 import StockForm from './StockForm';
 import './StockList.css';
+import '../../components/shared/list-page.css';
 
 /**
  * Retourne la classe CSS du point de statut selon la valeur Django.
@@ -95,18 +96,18 @@ const StockList = () => {
   if (error)   return <ErrorState message={error} onRetry={loadPieces} />;
 
   return (
-    <div className="stock-page">
+    <div className="list-page">
 
       
         <PageHeader
-        title={<><Package size={18} /> Stock</>}
-  count={pieces.length}
-  countLabel="référence"
-  onAdd={() => setModalForm({})}
-  addLabel="Nouvelle pièce"
-  addIcon={<Plus size={16} />}
-/>
-      />
+          title={<><Package size={18} /> Stock</>}
+          count={pieces.length}
+          countLabel="référence"
+          onAdd={() => setModalForm({})}
+          addLabel="Nouvelle pièce"
+          addIcon={<Plus size={16} />}
+        />
+
 
       <SearchBar
         value={searchTerm}

@@ -14,6 +14,7 @@ import FactureDetail from './Factures/FactureDetail';
 import ParametresFacturation from '../Parametres/ParametresFacturation';
 
 import './Factures.css';
+import '../../components/shared/list-page.css';
 
 const Factures = () => {
   // Onglet actif : 'devis' | 'factures' | 'parametres'
@@ -84,7 +85,7 @@ const Factures = () => {
   };
 
   return (
-    <div className="factures-page">
+    <div className="list-page">
 
       {/* ONGLETS */}
       <div className="factures-page__tabs">

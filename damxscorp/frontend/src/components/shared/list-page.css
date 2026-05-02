@@ -1,0 +1,32 @@
+/* /frontend/src/components/shared/list-page.css */
+
+/* ══════════════════════════════════════════════════════════════════
+   .list-page — Layout commun à toutes les pages de type "liste"
+   
+   Utilisé par : StockList, RdvList, ClientList, VehicleList,
+                 Fournisseurs, DevisList, FactureList...
+   
+   Apporte automatiquement :
+   - Largeur max contrôlée (900px)
+   - Centrage horizontal
+   - Padding (espace autour du contenu)
+   - Espacement vertical entre les blocs (gap)
+   ══════════════════════════════════════════════════════════════════ */
+
+.list-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 30px;
+  box-sizing: border-box;
+}
+
+/* Sur mobile, on réduit le padding pour gagner de la place */
+@media (max-width: 768px) {
+  .list-page {
+    padding: 20px;
+  }
+}

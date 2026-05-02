@@ -12,6 +12,7 @@ import {
   Car, Wrench, Package, Factory, Users, Tag, Banknote
 } from '../../utils/icons';
 import './Parametres.css';
+import '../../components/shared/list-page.css';
 
 const Parametres = () => {
   const { themeName, setTheme, themes } = useTheme();
@@ -43,7 +44,7 @@ const Parametres = () => {
   }, []);
 
   return (
-    <div className="parametres-page">
+    <div className="list-page">
       <h1 className="parametres-title"><Settings size={20} /> Paramètres</h1>
 
       {/* ── THÈMES ─────────────────────────────────────────────────────────── */}

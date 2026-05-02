@@ -14,6 +14,7 @@ import Parametres from './pages/Parametres/Parametres';
 import Fournisseurs from './pages/Fournisseurs/Fournisseurs';
 import Factures from './pages/Factures/Factures';
 import './App.css';
+import './components/shared/list-page.css';
 
 const App = () => {
   // État "épinglé" : true = sidebar ouverte et pousse le contenu

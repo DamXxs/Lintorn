@@ -1,13 +1,9 @@
 /* /frontend/src/pages/Factures/Factures/Factures.css */
 
 /* ── PAGE ────────────────────────────────────────────────────── */
-.factures-page {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  background: var(--bg);
-}
-
+/* .factures-page est défini avec list-page.css dans src/components//shared/..
+ pour avoir le même style partout */ 
+ 
 /* ── ONGLETS ─────────────────────────────────────────────────── */
 .factures-page__tabs {
   display: flex;

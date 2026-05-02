@@ -20,6 +20,7 @@ import LoadingState from '../../components/shared/LoadingState';
 import ErrorState from '../../components/shared/ErrorState';
 import { CalendarClock, User, FileText } from '../../utils/icons';
 import './RdvList.css';
+import '../../components/shared/list-page.css';
 
 // Couleurs des filtres (cohérent avec StatutBadge)
 const FILTRE_COLORS = {
@@ -172,7 +173,7 @@ const RdvList = () => {
   ];
 
   return (
-    <div className="rdv-page">
+    <div className="list-page">
 
       <PageHeader
         title={<><CalendarClock size={18} /> Rendez-vous</>}
