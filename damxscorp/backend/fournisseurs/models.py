@@ -1,19 +1,24 @@
 # /backend/fournisseurs/models.py
 from django.db import models
 
+# IMPORT du Mixin et de l'exception depuis l'app archives
+from archives.models import SoftDeleteMixin, SuppressionBloqueeError
 
-class Fournisseur(models.Model):
+
+class Fournisseur(SoftDeleteMixin):  # ← MODIF : on hérite du Mixin au lieu de models.Model
     """
     Représente un fournisseur de pièces détachées.
     Chaque pièce en stock peut être liée à un fournisseur via une FK.
     Ce modèle sert aussi à générer les emails de commande automatiques
     quand le stock d'une pièce passe sous le seuil minimum.
+    
+    NOUVEAU : Hérite de SoftDeleteMixin, ce qui ajoute :
+    - is_deleted, deleted_at (corbeille)
+    - is_archived, archived_at (archives)
+    - Méthodes soft_delete(), restore(), archive(), etc.
     """
 
-    # Les catégories sont maintenant gérées dynamiquement via les Référentiels
-    # (catégorie CATEGORIE_FOURNISSEUR dans la table referentiels_referentiel)
-    # Ce champ accepte n'importe quelle valeur — la validation se fait côté frontend.
-    # Valeurs par défaut gardées ici pour référence / compatibilité avec l'existant.
+    # Les catégories sont gérées dynamiquement via les Référentiels
     CATEGORIES_DEFAUT = [
         ('PNEUS',            'Pneumatiques'),
         ('PIECES_COMMUNES',  'Pièces communes'),
@@ -29,48 +34,22 @@ class Fournisseur(models.Model):
         help_text="Nom de l'entreprise fournisseur (ex: Autodis, LKQ)"
     )
     email = models.EmailField(
-        help_text="Email principal pour les commandes (ex: commandes@fournisseur.fr)"
+        help_text="Email principal pour les commandes"
     )
-    telephone = models.CharField(
-        max_length=20,
-        blank=True,
-        help_text="Téléphone du fournisseur"
-    )
-    contact_nom = models.CharField(
-        max_length=200,
-        blank=True,
-        help_text="Nom du contact commercial (ex: Jean Dupont)"
-    )
-    adresse = models.TextField(
-        blank=True,
-        help_text="Adresse postale complète"
-    )
+    telephone = models.CharField(max_length=20, blank=True)
+    contact_nom = models.CharField(max_length=200, blank=True)
+    adresse = models.TextField(blank=True)
     categorie = models.CharField(
-        max_length=50,          # élargi pour les valeurs custom via référentiels
+        max_length=50,
         blank=True,
         default='AUTRE',
-        help_text="Catégorie du fournisseur — valeur libre, gérée via les Référentiels"
+        help_text="Catégorie du fournisseur — gérée via les Référentiels"
     )
-    est_favori = models.BooleanField(
-        default=False,
-        help_text="Fournisseur favori ? Apparaît en premier dans la liste"
-    )
-    actif = models.BooleanField(
-        default=True,
-        help_text="Fournisseur actif ? Si False, il n'apparaît plus dans les listes"
-    )
-    notes = models.TextField(
-        blank=True,
-        help_text="Notes libres (conditions de paiement, remises, etc.)"
-    )
-    date_creation = models.DateTimeField(
-        auto_now_add=True,
-        help_text="Date d'ajout du fournisseur"
-    )
-    date_modification = models.DateTimeField(
-        auto_now=True,
-        help_text="Dernière modification"
-    )
+    est_favori = models.BooleanField(default=False)
+    actif = models.BooleanField(default=True)
+    notes = models.TextField(blank=True)
+    date_creation = models.DateTimeField(auto_now_add=True)
+    date_modification = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['nom']
@@ -82,8 +61,42 @@ class Fournisseur(models.Model):
 
     @property
     def pieces_en_alerte(self):
-        """
-        Retourne les pièces liées à ce fournisseur dont le stock est faible.
-        C'est ce qu'on met dans l'email de commande.
-        """
+        """Retourne les pièces liées dont le stock est faible."""
         return self.pieces.filter(stock_actuel__lt=models.F('stock_minimum'))
+
+    # =========================================================================
+    # NOUVEAU : Règle métier pour la corbeille
+    # =========================================================================
+    def check_can_be_deleted(self):
+        """
+        On REFUSE la suppression si le fournisseur a encore des pièces actives liées.
+        L'utilisateur doit d'abord réassigner ou supprimer ces pièces.
+        
+        Note : self.pieces utilise le manager par défaut "objects" du modèle Piece,
+        qui filtre automatiquement les pièces non-supprimées et non-archivées.
+        """
+        # On compte les pièces ACTIVES liées à ce fournisseur
+        pieces_actives = self.pieces.all()  # objects par défaut = actifs uniquement
+        nb_pieces = pieces_actives.count()
+        
+        if nb_pieces > 0:
+            # On construit la liste des éléments bloquants pour le frontend
+            elements_bloquants = [
+                {
+                    'type': 'piece',
+                    'id': p.id,
+                    'reference': p.reference,
+                    'nom': p.nom,
+                    'stock_actuel': p.stock_actuel,
+                }
+                for p in pieces_actives[:10]  # max 10 pour ne pas surcharger l'UI
+            ]
+            
+            # On lève l'exception qui sera attrapée par la vue
+            raise SuppressionBloqueeError(
+                message=(
+                    f"Ce fournisseur a {nb_pieces} pièce(s) active(s) liée(s). "
+                    f"Réassignez ou supprimez ces pièces avant de supprimer le fournisseur."
+                ),
+                elements_bloquants=elements_bloquants,
+            )

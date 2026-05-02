@@ -1,9 +1,13 @@
 # /backend/factures/models.py
 from datetime import datetime
 from django.db import models
+
 from clients.models import Client
 from planning.models import Intervention
 from stock.models import Piece
+
+# IMPORT du Mixin et de l'exception
+from archives.models import SoftDeleteMixin, SuppressionBloqueeError
 
 
 # =============================================================================
@@ -12,9 +16,8 @@ from stock.models import Piece
 
 def generer_numero_devis():
     """Génère un numéro unique au format DEV-YY-NNNNN (ex: DEV-26-00001)"""
-    # get_or_create avec pk=1 garantit un singleton
     params, _ = ParametresFacturation.objects.get_or_create(pk=1)
-    annee = datetime.now().year % 100     # 2026 → 26
+    annee = datetime.now().year % 100
     numero = params.numero_devis_actuel
     params.numero_devis_actuel += 1
     params.save()
@@ -33,13 +36,10 @@ def generer_numero_facture():
 
 # =============================================================================
 # MODÈLE PARAMÈTRES FACTURATION (Singleton)
+# INCHANGÉ — pas de soft-delete (singleton de config)
 # =============================================================================
 
 class ParametresFacturation(models.Model):
-    """
-    Paramètres globaux du système de facturation.
-    Il n'existe qu'UN seul enregistrement (pk=1).
-    """
     tva_pourcentage = models.DecimalField(
         max_digits=5,
         decimal_places=2,
@@ -66,15 +66,11 @@ class ParametresFacturation(models.Model):
 
 
 # =============================================================================
-# MODÈLE FORFAIT INTERVENTION (catalogue main d'œuvre personnalisable)
+# MODÈLE FORFAIT INTERVENTION
+# INCHANGÉ — pas de soft-delete (catalogue de config)
 # =============================================================================
 
 class ForfaitIntervention(models.Model):
-    """
-    Catalogue des forfaits de main d'œuvre configurables dans les paramètres.
-    Exemple : "Vidange VP 2L" = 50€, "Révision complète" = 150€
-    Quand on ajoute une ligne de ce type dans un devis, le prix est pré-rempli.
-    """
     nom = models.CharField(
         max_length=200,
         help_text="Nom du forfait (ex: Vidange VP 2L)"
@@ -106,14 +102,16 @@ class ForfaitIntervention(models.Model):
 
 
 # =============================================================================
-# MODÈLE DEVIS
+# MODÈLE DEVIS  (MODIFIÉ : hérite de SoftDeleteMixin)
 # =============================================================================
 
-class Devis(models.Model):
+class Devis(SoftDeleteMixin):  # ← MODIF
     """
     Devis proposé au client avant une intervention.
     Cycle de vie : CREE → VALIDE → (après intervention) → FACTURE
                                  → REFUSE ou EXPIRE (fin de vie)
+    
+    NOUVEAU : Hérite de SoftDeleteMixin → corbeille + archives.
     """
 
     STATUT_CHOICES = [
@@ -124,7 +122,6 @@ class Devis(models.Model):
         ('FACTURE', 'Devenu facture'),
     ]
 
-    # --- Identifiant ---
     numero = models.CharField(
         max_length=20,
         unique=True,
@@ -132,7 +129,6 @@ class Devis(models.Model):
         help_text="Généré automatiquement : DEV-YY-NNNNN"
     )
 
-    # --- Relations ---
     client = models.ForeignKey(
         Client,
         on_delete=models.CASCADE,
@@ -148,28 +144,23 @@ class Devis(models.Model):
         help_text="Intervention liée (optionnel)"
     )
 
-    # --- Dates ---
     date_creation = models.DateField(auto_now_add=True)
     date_validite = models.DateField(
         help_text="Date d'expiration du devis (au-delà → EXPIRE)"
     )
 
-    # --- Montants (calculés automatiquement, ne pas saisir manuellement) ---
     montant_ht = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     tva = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     montant_ttc = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
-    # --- Statut ---
     statut = models.CharField(
         max_length=20,
         choices=STATUT_CHOICES,
         default='CREE'
     )
 
-    # --- Notes ---
     notes = models.TextField(blank=True, null=True)
 
-    # --- Timestamps ---
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -177,16 +168,12 @@ class Devis(models.Model):
         return f"{self.numero} — {self.client}"
 
     def save(self, *args, **kwargs):
-        # Génère le numéro automatiquement à la première sauvegarde
         if not self.numero:
             self.numero = generer_numero_devis()
         super().save(*args, **kwargs)
 
     def calculer_montants(self):
-        """
-        Recalcule les totaux HT/TVA/TTC depuis les lignes.
-        Appelé automatiquement par LigneDevis.save() et LigneDevis.delete().
-        """
+        """Recalcule les totaux HT/TVA/TTC depuis les lignes."""
         params, _ = ParametresFacturation.objects.get_or_create(pk=1)
         self.montant_ht = sum(
             ligne.sous_total()
@@ -197,10 +184,7 @@ class Devis(models.Model):
         self.save()
 
     def liberer_stock_suspendu(self):
-        """
-        Libère les pièces suspendues quand le devis est REFUSE ou EXPIRE.
-        Les pièces redeviennent disponibles pour d'autres devis.
-        """
+        """Libère les pièces suspendues quand le devis est REFUSE ou EXPIRE."""
         for ligne in self.lignes_devis.all():
             if ligne.piece:
                 piece = ligne.piece
@@ -208,10 +192,7 @@ class Devis(models.Model):
                 piece.save()
 
     def consommer_stock(self):
-        """
-        Consomme définitivement les pièces du stock lors de la création de la facture.
-        stock_actuel diminue ET stock_suspendu est libéré.
-        """
+        """Consomme définitivement les pièces du stock lors de la création de la facture."""
         for ligne in self.lignes_devis.all():
             if ligne.piece:
                 piece = ligne.piece
@@ -223,16 +204,68 @@ class Devis(models.Model):
         ordering = ['-created_at']
         verbose_name = "Devis"
         verbose_name_plural = "Devis"
+    
+    # =========================================================================
+    # NOUVEAU : Règle métier pour la corbeille
+    # =========================================================================
+    def check_can_be_deleted(self):
+        """
+        On REFUSE la suppression si le devis est déjà transformé en facture.
+        Sinon (CREE, VALIDE, REFUSE, EXPIRE), on autorise.
+        
+        IMPORTANT : si un devis est supprimé alors qu'il avait des pièces suspendues,
+        il faut libérer le stock. On gère ça dans la méthode soft_delete().
+        """
+        if self.statut == 'FACTURE':
+            # On va chercher la facture liée pour informer
+            facture_liee = self.factures.first()  # objects par défaut = active
+            
+            elements_bloquants = []
+            if facture_liee:
+                elements_bloquants.append({
+                    'type': 'facture',
+                    'id': facture_liee.id,
+                    'numero': facture_liee.numero,
+                    'montant_ttc': float(facture_liee.montant_ttc),
+                    'statut': facture_liee.get_statut_display(),
+                })
+            
+            raise SuppressionBloqueeError(
+                message=(
+                    f"Ce devis a été transformé en facture ({facture_liee.numero if facture_liee else '?'}). "
+                    f"Vous ne pouvez pas le supprimer."
+                ),
+                elements_bloquants=elements_bloquants,
+            )
+    
+    # =========================================================================
+    # NOUVEAU : surcharge de soft_delete pour libérer le stock
+    # =========================================================================
+    def soft_delete(self, force=False):
+        """
+        Avant de mettre le devis en corbeille, on libère le stock suspendu.
+        Sinon, des pièces resteraient bloquées inutilement.
+        """
+        # On libère le stock AVANT le soft-delete
+        if self.statut in ['CREE', 'VALIDE']:
+            self.liberer_stock_suspendu()
+        
+        # Puis on appelle la méthode du parent (le Mixin)
+        super().soft_delete(force=force)
 
 
 # =============================================================================
-# MODÈLE LIGNE DEVIS
+# MODÈLE LIGNE DEVIS  (INCHANGÉ — pas de soft-delete)
 # =============================================================================
 
 class LigneDevis(models.Model):
     """
-    Une ligne dans un devis : soit une pièce du stock, soit un service libre (main-d'œuvre).
-    La pièce est automatiquement "suspendue" en stock à l'ajout de la ligne.
+    Une ligne dans un devis. Liée en CASCADE au devis parent.
+    Si le devis est soft-deleted, les lignes restent en BDD mais ne sont plus
+    accessibles via devis.lignes_devis (car le Manager du Devis filtre).
+    
+    Note : on ne met PAS de soft-delete sur les lignes individuelles,
+    car elles sont gérées comme une unité avec leur Devis parent.
     """
 
     devis = models.ForeignKey(
@@ -266,7 +299,6 @@ class LigneDevis(models.Model):
         old_quantite = 0
         old_piece_id = None
 
-        # Si la ligne existe déjà, on mémorise l'ancienne pièce et quantité
         if not is_new:
             try:
                 ancienne = LigneDevis.objects.get(pk=self.pk)
@@ -277,16 +309,12 @@ class LigneDevis(models.Model):
 
         super().save(*args, **kwargs)
 
-        # --- Gestion du stock suspendu ---
         if is_new:
-            # Nouvelle ligne avec une pièce → suspendre la quantité
             if self.piece:
                 self.piece.stock_suspendu += self.quantite
                 self.piece.save()
         else:
-            # Mise à jour : recalculer les écarts
             if old_piece_id != self.piece_id:
-                # La pièce a changé → libérer l'ancienne, suspendre la nouvelle
                 if old_piece_id:
                     try:
                         ancienne_piece = Piece.objects.get(pk=old_piece_id)
@@ -298,17 +326,14 @@ class LigneDevis(models.Model):
                     self.piece.stock_suspendu += self.quantite
                     self.piece.save()
             elif self.piece and old_quantite != self.quantite:
-                # Même pièce, quantité modifiée → ajuster la différence
                 diff = self.quantite - old_quantite
                 self.piece.stock_suspendu = max(0, self.piece.stock_suspendu + diff)
                 self.piece.save()
 
-        # Recalcule les totaux du devis parent
         self.devis.calculer_montants()
 
     def delete(self, *args, **kwargs):
         devis_parent = self.devis
-        # Libérer le stock suspendu avant suppression
         if self.piece:
             self.piece.stock_suspendu = max(0, self.piece.stock_suspendu - self.quantite)
             self.piece.save()
@@ -324,13 +349,19 @@ class LigneDevis(models.Model):
 
 
 # =============================================================================
-# MODÈLE FACTURE
+# MODÈLE FACTURE  (MODIFIÉ : hérite de SoftDeleteMixin)
 # =============================================================================
 
-class Facture(models.Model):
+class Facture(SoftDeleteMixin):  # ← MODIF
     """
     Facture émise après réalisation de l'intervention.
-    Créée depuis un devis validé ou directement.
+    
+    NOUVEAU : Hérite de SoftDeleteMixin → corbeille + archives.
+    
+    LOGIQUE LÉGALE FRANÇAISE :
+    - Une facture émise ne peut quasiment plus être supprimée (10 ans de conservation)
+    - Sauf si EMISE et aucun paiement (cas erreur de saisie immédiate)
+    - Sinon → archivage au bout d'1 an + 1 mois (géré par commande auto)
     """
 
     STATUT_CHOICES = [
@@ -340,7 +371,6 @@ class Facture(models.Model):
         ('PARTIELLEMENT_PAYEE', 'Partiellement payée'),
     ]
 
-    # --- Identifiant ---
     numero = models.CharField(
         max_length=20,
         unique=True,
@@ -348,7 +378,6 @@ class Facture(models.Model):
         help_text="Généré automatiquement : FAC-YY-NNNNN"
     )
 
-    # --- Relations ---
     client = models.ForeignKey(
         Client,
         on_delete=models.CASCADE,
@@ -370,13 +399,11 @@ class Facture(models.Model):
         related_name='factures'
     )
 
-    # --- Dates ---
     date_emission = models.DateField(auto_now_add=True)
     date_echeance = models.DateField(
         help_text="Date à laquelle le paiement est attendu"
     )
 
-    # --- Montants ---
     montant_ht = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     tva = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     montant_ttc = models.DecimalField(max_digits=10, decimal_places=2, default=0)
@@ -387,17 +414,14 @@ class Facture(models.Model):
         help_text="Montant déjà encaissé"
     )
 
-    # --- Statut ---
     statut = models.CharField(
         max_length=25,
         choices=STATUT_CHOICES,
         default='EMISE'
     )
 
-    # --- Notes ---
     notes = models.TextField(blank=True, null=True)
 
-    # --- Timestamps ---
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -438,17 +462,88 @@ class Facture(models.Model):
         ordering = ['-created_at']
         verbose_name = "Facture"
         verbose_name_plural = "Factures"
+    
+    # =========================================================================
+    # NOUVEAU : Règle métier pour la corbeille
+    # =========================================================================
+    def check_can_be_deleted(self):
+        """
+        Suppression d'une facture = action TRÈS sensible (légalement).
+        
+        On autorise UNIQUEMENT si :
+        - Statut EMISE (vient d'être créée)
+        - ET aucun paiement encore reçu (montant_paye == 0)
+        
+        Sinon → bloqué. La facture restera et sera archivée plus tard
+        par la commande automatique (1 an + 1 mois).
+        """
+        # Cas 1 : facture payée ou partiellement payée → JAMAIS supprimable
+        if self.statut in ['PAYEE', 'PARTIELLEMENT_PAYEE']:
+            raise SuppressionBloqueeError(
+                message=(
+                    f"Cette facture a reçu un paiement de {self.montant_paye}€. "
+                    f"Pour des raisons légales (conservation 10 ans), elle ne peut pas être supprimée. "
+                    f"Elle sera archivée automatiquement au bout d'1 an et 1 mois."
+                ),
+                elements_bloquants=[],
+            )
+        
+        # Cas 2 : facture impayée → on bloque aussi (créance en cours)
+        if self.statut == 'IMPAYEE':
+            raise SuppressionBloqueeError(
+                message=(
+                    f"Cette facture est marquée comme impayée. "
+                    f"Annulez d'abord le statut ou enregistrez le paiement avant de la supprimer."
+                ),
+                elements_bloquants=[],
+            )
+        
+        # Cas 3 : EMISE avec paiement déjà partiel (sécurité supplémentaire)
+        if self.montant_paye > 0:
+            raise SuppressionBloqueeError(
+                message=(
+                    f"Cette facture a déjà reçu un paiement partiel de {self.montant_paye}€. "
+                    f"Elle ne peut pas être supprimée."
+                ),
+                elements_bloquants=[],
+            )
+        
+        # Sinon : EMISE + montant_paye=0 → suppression autorisée
+        # (cas erreur de saisie immédiate)
+    
+    # =========================================================================
+    # NOUVEAU : Méthode pour l'archivage automatique
+    # =========================================================================
+    def doit_etre_archivee(self):
+        """
+        Détermine si cette facture doit être archivée.
+        Critère : facture PAYEE depuis plus d'1 an et 1 mois (= 13 mois).
+        
+        Sera utilisée par la commande automatique d'archivage.
+        """
+        from django.utils import timezone
+        from dateutil.relativedelta import relativedelta
+        
+        if self.statut != 'PAYEE':
+            return False
+        
+        if self.is_archived:
+            return False
+        
+        # Date limite : aujourd'hui - 13 mois
+        date_limite = timezone.now().date() - relativedelta(months=13)
+        
+        return self.date_emission <= date_limite
 
 
 # =============================================================================
-# MODÈLE LIGNE FACTURE
+# MODÈLE LIGNE FACTURE  (INCHANGÉ — pas de soft-delete)
 # =============================================================================
 
 class LigneFacture(models.Model):
     """
     Une ligne dans une facture : pièce ou service.
-    Même structure que LigneDevis, copiée depuis le devis lors de la conversion.
-    Ici, les pièces ne suspendent PAS le stock (déjà géré côté devis).
+    Liée en CASCADE à la facture parent.
     """
 
     facture = models.ForeignKey(

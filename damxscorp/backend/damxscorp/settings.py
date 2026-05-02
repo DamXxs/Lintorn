@@ -41,6 +41,9 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'backend', '0.0.0.0', ' curly-space-f
 # =============================================================================
 INSTALLED_APPS = [
 
+    # App d'archives (corbeille + archives) doit etre en first pour que ses modèles soient chargés AVANT les autres apps métier
+    'archives',
+
     # Tes apps métier
     'clients',
     'fournisseurs',
@@ -49,7 +52,6 @@ INSTALLED_APPS = [
     'stock',
     'vehicules',
     'factures',
-    'archives',
 
     # Apps tierces
     'corsheaders',

@@ -1,48 +1,39 @@
+# /backend/planning/models.py
 from django.db import models
+
 from clients.models import Client
 from vehicules.models import Vehicule
 
+# IMPORT du Mixin et de l'exception (UNIQUEMENT pour Intervention)
+from archives.models import SoftDeleteMixin, SuppressionBloqueeError
+
 
 # =============================================================================
-# MODÈLE DÉPARTEMENT
-# Remplace le champ type_rdv hardcodé (ATELIER / ACADEMIE).
-# Maintenant chaque département est géré dynamiquement depuis les Paramètres.
+# MODÈLE DÉPARTEMENT  (INCHANGÉ — config, pas de soft-delete)
 # =============================================================================
 class Departement(models.Model):
-    # Le CODE est l'identifiant technique (ex: 'ATELIER', 'ACADEMIE', 'CARROSSERIE')
-    # Il sert à la compatibilité avec l'existant et aux éventuels tests côté code
     code = models.CharField(
         max_length=30,
         unique=True,
         help_text="Identifiant technique unique, ex: ATELIER, ACADEMIE"
     )
-
-    # Le NOM est ce que voit l'utilisateur dans l'interface
     nom = models.CharField(
         max_length=100,
         help_text="Nom affiché dans l'interface, ex: Atelier, Académie"
     )
-
-    # La COULEUR est utilisée dans le calendrier planning (format hex)
     couleur = models.CharField(
         max_length=7,
         default='#2980b9',
         help_text="Couleur hex affichée dans le planning, ex: #2980b9"
     )
-
-    # ACTIF : si False, le département n'apparaît plus dans le formulaire de RDV
     actif = models.BooleanField(
         default=True,
         help_text="Si désactivé, ce département n'apparaît plus dans les formulaires"
     )
-
-    # ORDRE : pour trier les départements dans le formulaire
     ordre = models.PositiveIntegerField(
         default=0,
         help_text="Ordre d'affichage (0 = en premier)"
     )
-
-    # REQUIERT_VEHICULE : si True, la section véhicule s'affiche dans ModalForm
     requiert_vehicule = models.BooleanField(
         default=True,
         help_text="Si True, le champ véhicule est demandé dans le formulaire de RDV"
@@ -58,27 +49,23 @@ class Departement(models.Model):
 
 
 # =============================================================================
-# MODÈLE COLLABORATEUR
-# Représente un membre de l'équipe du garage.
+# MODÈLE COLLABORATEUR  (INCHANGÉ — config, pas de soft-delete)
 # =============================================================================
 class Collaborateur(models.Model):
     nom = models.CharField(
         max_length=100,
         help_text="Nom complet du collaborateur, ex: Thomas Dupont"
     )
-
     couleur = models.CharField(
         max_length=7,
         default='#27ae60',
         help_text="Couleur hex affichée dans le planning, ex: #27ae60"
     )
-
     role = models.CharField(
         max_length=100,
         blank=True,
         help_text="Rôle dans le garage, ex: Mécanicien, Formateur"
     )
-
     actif = models.BooleanField(
         default=True,
         help_text="Si désactivé, ce collaborateur n'apparaît plus dans les plannings"
@@ -94,9 +81,9 @@ class Collaborateur(models.Model):
 
 
 # =============================================================================
-# MODÈLE INTERVENTION
+# MODÈLE INTERVENTION  (MODIFIÉ : hérite de SoftDeleteMixin)
 # =============================================================================
-class Intervention(models.Model):
+class Intervention(SoftDeleteMixin):  # ← MODIF
 
     STATUT_CHOICES = [
         ('PLANIFIE', 'Planifié'),
@@ -105,9 +92,6 @@ class Intervention(models.Model):
         ('ANNULE', 'Annulé'),
     ]
 
-    # ── DÉPARTEMENT ─────────────────────────────────────────────────────────
-    # Remplace l'ancien champ type_rdv hardcodé.
-    # PROTECT : impossible de supprimer un département qui a des interventions.
     departement = models.ForeignKey(
         Departement,
         on_delete=models.PROTECT,
@@ -117,8 +101,6 @@ class Intervention(models.Model):
         help_text="Département concerné (ex: Atelier, Académie)"
     )
 
-    # ── COLLABORATEURS ───────────────────────────────────────────────────────
-    # ManyToMany : un RDV peut avoir 0, 1 ou plusieurs collaborateurs.
     collaborateurs = models.ManyToManyField(
         Collaborateur,
         blank=True,
@@ -126,7 +108,6 @@ class Intervention(models.Model):
         help_text="Collaborateur(s) assigné(s) à cette intervention"
     )
 
-    # ── CLIENT / VÉHICULE ────────────────────────────────────────────────────
     client = models.ForeignKey(
         Client,
         on_delete=models.CASCADE,
@@ -141,11 +122,9 @@ class Intervention(models.Model):
         blank=True,
     )
 
-    # ── DATES ────────────────────────────────────────────────────────────────
     date_debut = models.DateTimeField()
     date_fin   = models.DateTimeField(null=True, blank=True)
 
-    # ── CONTENU ──────────────────────────────────────────────────────────────
     description = models.TextField(blank=True)
 
     statut = models.CharField(
@@ -156,7 +135,6 @@ class Intervention(models.Model):
 
     rappel_envoye = models.BooleanField(default=False)
 
-    # ── MÉTADONNÉES ──────────────────────────────────────────────────────────
     date_creation     = models.DateTimeField(auto_now_add=True)
     date_modification = models.DateTimeField(auto_now=True)
 
@@ -177,3 +155,41 @@ class Intervention(models.Model):
             return f"{self.client.nom} - {self.vehicule.modele}"
         dept = self.departement.nom if self.departement else ''
         return f"{self.client.nom} - {dept}"
+    
+    # =========================================================================
+    # NOUVEAU : Règle métier pour la corbeille
+    # =========================================================================
+    def check_can_be_deleted(self):
+        """
+        On REFUSE la suppression d'un RDV s'il est lié à une facture émise.
+        
+        Pourquoi ? Si une facture a été générée à partir de ce RDV, supprimer
+        le RDV ferait perdre la traçabilité comptable.
+        
+        Note : on autorise la suppression même si EN_COURS ou TERMINE,
+        car on peut vouloir corriger une erreur de saisie.
+        """
+        # On vérifie s'il y a des factures liées (active uniquement)
+        factures_liees = self.factures.all()  # objects par défaut
+        
+        nb_factures = factures_liees.count()
+        
+        if nb_factures > 0:
+            elements_bloquants = [
+                {
+                    'type': 'facture',
+                    'id': f.id,
+                    'numero': f.numero,
+                    'montant_ttc': float(f.montant_ttc),
+                    'statut': f.get_statut_display(),
+                }
+                for f in factures_liees[:10]
+            ]
+            
+            raise SuppressionBloqueeError(
+                message=(
+                    f"Ce rendez-vous est lié à {nb_factures} facture(s). "
+                    f"Supprimer le RDV briserait la traçabilité comptable."
+                ),
+                elements_bloquants=elements_bloquants,
+            )
