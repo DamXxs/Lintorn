@@ -1,6 +1,7 @@
 # /backend/planning/admin.py
 from django.contrib import admin
 from .models import Intervention, Departement, Collaborateur
+from archives.admin import SoftDeleteAdminMixin
 
 
 @admin.register(Departement)
@@ -19,7 +20,7 @@ class CollaborateurAdmin(admin.ModelAdmin):
 
 
 @admin.register(Intervention)
-class InterventionAdmin(admin.ModelAdmin):
+class InterventionAdmin(SoftDeleteAdminMixin, admin.ModelAdmin):
     list_display       = ['id', 'departement', 'client', 'vehicule', 'date_debut', 'statut']
     list_display_links = ['id']
     list_filter        = ['departement', 'statut', 'date_debut']

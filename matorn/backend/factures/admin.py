@@ -1,6 +1,7 @@
 # /backend/factures/admin.py
 from django.contrib import admin
 from .models import ParametresFacturation, Devis, LigneDevis, Facture, LigneFacture
+from archives.admin import SoftDeleteAdminMixin
 
 
 # --- Inline pour les lignes ---
@@ -28,7 +29,7 @@ class LigneFactureInline(admin.TabularInline):
 # --- Admin Devis ---
 
 @admin.register(Devis)
-class DevisAdmin(admin.ModelAdmin):
+class DevisAdmin(SoftDeleteAdminMixin, admin.ModelAdmin):
     list_display = ['numero', 'client', 'date_creation', 'date_validite', 'montant_ttc', 'statut']
     list_filter = ['statut', 'date_creation']
     search_fields = ['numero', 'client__nom']
@@ -39,7 +40,7 @@ class DevisAdmin(admin.ModelAdmin):
 # --- Admin Facture ---
 
 @admin.register(Facture)
-class FactureAdmin(admin.ModelAdmin):
+class FactureAdmin(SoftDeleteAdminMixin, admin.ModelAdmin):
     list_display = ['numero', 'client', 'date_emission', 'montant_ttc', 'montant_paye', 'statut']
     list_filter = ['statut', 'date_emission']
     search_fields = ['numero', 'client__nom']

@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.db.models import F, ExpressionWrapper, IntegerField
 from django.utils.html import format_html
 from .models import Piece
+from archives.admin import SoftDeleteAdminMixin
 
 
 # =============================================================================
@@ -49,7 +50,7 @@ class StatutStockFilter(admin.SimpleListFilter):
 # ADMIN PIÈCE
 # =============================================================================
 @admin.register(Piece)
-class PieceAdmin(admin.ModelAdmin):
+class PieceAdmin(SoftDeleteAdminMixin, admin.ModelAdmin):
     """
     Interface admin complète pour gérer les pièces de stock.
     Accessible via /admin/stock/piece/

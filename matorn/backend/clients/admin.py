@@ -1,9 +1,10 @@
 # /backend/clients/admin.py
 from django.contrib import admin
 from .models import Client
+from archives.admin import SoftDeleteAdminMixin
 
 @admin.register(Client)
-class ClientAdmin(admin.ModelAdmin):
+class ClientAdmin(SoftDeleteAdminMixin, admin.ModelAdmin):
     """
     Configuration de l'affichage des clients dans l'admin Django
     """

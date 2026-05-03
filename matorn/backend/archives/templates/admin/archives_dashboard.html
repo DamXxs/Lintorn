@@ -1,0 +1,149 @@
+{% extends "admin/base_site.html" %}
+
+{% block title %}{{ title }} | {{ site_title }}{% endblock %}
+
+{% block branding %}
+  <h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header }}</a></h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block content %}
+<div style="padding: 20px;">
+
+  {# === EN-TÊTE === #}
+  <h1 style="margin-bottom: 24px;">{{ title }}</h1>
+
+  {# === CARTES DE STATS === #}
+  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px;">
+    
+    <div style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; text-align: center;">
+      <div style="font-size: 36px; font-weight: bold; color: #2980b9;">{{ nb_total }}</div>
+      <div style="color: #666; margin-top: 4px;">📊 Total éléments</div>
+    </div>
+    
+    <div style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; text-align: center;">
+      <div style="font-size: 36px; font-weight: bold; color: #e74c3c;">{{ nb_corbeille }}</div>
+      <div style="color: #666; margin-top: 4px;">🗑️ En corbeille</div>
+    </div>
+    
+    <div style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; text-align: center;">
+      <div style="font-size: 36px; font-weight: bold; color: #7f8c8d;">{{ nb_archive }}</div>
+      <div style="color: #666; margin-top: 4px;">📦 Archivés</div>
+    </div>
+    
+  </div>
+
+  {# === FILTRES === #}
+  <form method="get" style="background: #f8f8f8; border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+    <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+      
+      <div>
+        <label style="font-weight: 600; margin-right: 8px;">État :</label>
+        <select name="etat" style="padding: 6px 10px; border-radius: 4px; border: 1px solid #ccc;">
+          <option value="tous" {% if etat_filter == 'tous' %}selected{% endif %}>👁️ Tous</option>
+          <option value="corbeille" {% if etat_filter == 'corbeille' %}selected{% endif %}>🗑️ Corbeille</option>
+          <option value="archive" {% if etat_filter == 'archive' %}selected{% endif %}>📦 Archivés</option>
+        </select>
+      </div>
+      
+      <div>
+        <label style="font-weight: 600; margin-right: 8px;">Type :</label>
+        <select name="type" style="padding: 6px 10px; border-radius: 4px; border: 1px solid #ccc;">
+          <option value="tous" {% if type_filter == 'tous' %}selected{% endif %}>Tous les types</option>
+          {% for t in types_disponibles %}
+            <option value="{{ t.cle }}" {% if type_filter == t.cle %}selected{% endif %}>{{ t.libelle }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <button type="submit" style="background: #2980b9; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600;">
+        🔍 Filtrer
+      </button>
+      
+      <a href="?" style="color: #666; text-decoration: none; padding: 8px 16px;">
+        ✕ Réinitialiser
+      </a>
+      
+    </div>
+  </form>
+
+  {# === TABLEAU DES ÉLÉMENTS === #}
+  {% if elements %}
+    <table style="width: 100%; background: #fff; border-collapse: collapse; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+      <thead>
+        <tr style="background: #f4f4f4; border-bottom: 2px solid #ddd;">
+          <th style="padding: 12px; text-align: left;">Type</th>
+          <th style="padding: 12px; text-align: left;">Élément</th>
+          <th style="padding: 12px; text-align: left;">État</th>
+          <th style="padding: 12px; text-align: left;">Date</th>
+          <th style="padding: 12px; text-align: left;">Restant</th>
+          <th style="padding: 12px; text-align: center;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for el in elements %}
+        <tr style="border-bottom: 1px solid #eee;">
+          
+          <td style="padding: 12px;">
+            <span style="background: #ecf0f1; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+              {{ el.type_libelle }}
+            </span>
+          </td>
+          
+          <td style="padding: 12px;">
+            <strong>{{ el.libelle }}</strong>
+            <span style="color: #999; font-size: 12px;">#{{ el.id }}</span>
+          </td>
+          
+          <td style="padding: 12px;">
+            <span style="background-color: {{ el.etat_couleur }}; color: #fff; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;">
+              {{ el.etat_label }}
+            </span>
+          </td>
+          
+          <td style="padding: 12px; color: #666; font-size: 13px;">
+            {{ el.date_action|date:"d/m/Y H:i" }}
+          </td>
+          
+          <td style="padding: 12px; font-size: 13px;">
+            {% if el.jours_restants is not None %}
+              {% if el.jours_restants <= 0 %}
+                <span style="color: #e74c3c; font-weight: 600;">⏰ À purger</span>
+              {% elif el.jours_restants <= 2 %}
+                <span style="color: #e74c3c; font-weight: 600;">⚠️ {{ el.jours_restants }}j restants</span>
+              {% else %}
+                <span style="color: #666;">{{ el.jours_restants }}j restants</span>
+              {% endif %}
+            {% else %}
+              <span style="color: #999;">—</span>
+            {% endif %}
+          </td>
+          
+          <td style="padding: 12px; text-align: center;">
+            <a href="{{ el.admin_url }}" style="background: #2980b9; color: #fff; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 12px;">
+              👁️ Ouvrir
+            </a>
+          </td>
+          
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 60px; text-align: center; color: #999;">
+      <div style="font-size: 60px; margin-bottom: 16px;">🎉</div>
+      <h2 style="margin: 0 0 8px 0; color: #666;">Tout est propre !</h2>
+      <p style="margin: 0;">Aucun élément en corbeille ni dans les archives avec ces filtres.</p>
+    </div>
+  {% endif %}
+
+  {# === LIEN VERS DASHBOARD ADMIN === #}
+  <div style="margin-top: 24px;">
+    <a href="{% url 'admin:index' %}" style="color: #2980b9; text-decoration: none;">
+      ← Retour au dashboard admin
+    </a>
+  </div>
+
+</div>
+{% endblock %}

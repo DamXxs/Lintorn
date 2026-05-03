@@ -1,9 +1,10 @@
 # /backend/vehicules/admin.py
 from django.contrib import admin
 from .models import Vehicule
+from archives.admin import SoftDeleteAdminMixin
 
 @admin.register(Vehicule)
-class VehiculeAdmin(admin.ModelAdmin):
+class VehiculeAdmin(SoftDeleteAdminMixin, admin.ModelAdmin):
     """
     Configuration de l'affichage des véhicules dans l'admin Django
     """

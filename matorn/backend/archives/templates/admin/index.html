@@ -1,0 +1,79 @@
+{# 
+  Surcharge du template admin/index.html par défaut.
+  
+  On hérite du template original, et on AJOUTE un bloc de cartes de raccourcis
+  EN HAUT, avant le contenu standard de l'admin.
+#}
+{% extends "admin/index.html" %}
+{% load i18n static %}
+
+{% block content %}
+  
+  {# === BANNIÈRE RACCOURCIS MATORN === #}
+  <div style="margin-bottom: 30px;">
+    
+    <h2 style="margin: 0 0 16px 0; color: #2980b9; font-size: 18px; border-bottom: 2px solid #2980b9; padding-bottom: 8px;">
+      ⚡ Raccourcis Matorn
+    </h2>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+      
+      {# Carte 1 : Archives & Corbeille #}
+      <a href="/admin/archives-corbeille/" 
+         style="background: linear-gradient(135deg, #e74c3c, #c0392b); 
+                color: #fff; 
+                padding: 20px; 
+                border-radius: 8px; 
+                text-decoration: none; 
+                display: block;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                transition: transform 0.2s;">
+        <div style="font-size: 32px; margin-bottom: 8px;">📦</div>
+        <div style="font-weight: 600; font-size: 16px;">Archives & Corbeille</div>
+        <div style="font-size: 13px; opacity: 0.9; margin-top: 4px;">
+          Voir tous les éléments archivés ou en corbeille
+        </div>
+      </a>
+      
+      {# Carte 2 : API Health Check #}
+      <a href="/api/health/" 
+         target="_blank"
+         style="background: linear-gradient(135deg, #27ae60, #1e8449); 
+                color: #fff; 
+                padding: 20px; 
+                border-radius: 8px; 
+                text-decoration: none; 
+                display: block;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <div style="font-size: 32px; margin-bottom: 8px;">💚</div>
+        <div style="font-weight: 600; font-size: 16px;">API Status</div>
+        <div style="font-size: 13px; opacity: 0.9; margin-top: 4px;">
+          Vérifier que le backend tourne bien
+        </div>
+      </a>
+      
+      {# Carte 3 : Frontend React #}
+      <a href="http://localhost:3000" 
+         target="_blank"
+         style="background: linear-gradient(135deg, #2980b9, #1f618d); 
+                color: #fff; 
+                padding: 20px; 
+                border-radius: 8px; 
+                text-decoration: none; 
+                display: block;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <div style="font-size: 32px; margin-bottom: 8px;">🚀</div>
+        <div style="font-weight: 600; font-size: 16px;">App Matorn (React)</div>
+        <div style="font-size: 13px; opacity: 0.9; margin-top: 4px;">
+          Ouvrir l'interface principale
+        </div>
+      </a>
+      
+    </div>
+    
+  </div>
+  
+  {# === CONTENU ADMIN STANDARD (les apps avec leurs modèles) === #}
+  {{ block.super }}
+  
+{% endblock %}
