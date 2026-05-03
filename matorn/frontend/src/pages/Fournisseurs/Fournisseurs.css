@@ -20,6 +20,179 @@
 
 .fournisseurs-erreur { color: #e74c3c; }
 
+/* ── HEADER ──────────────────────────────────────────────────────────────── */
+
+.fournisseurs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.fournisseurs-header__left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.fournisseurs-titre {
+  margin: 0;
+  font-size: 32px;
+  color: #fff;
+}
+
+.fournisseurs-compteur {
+  color: #aaa;
+  font-size: 14px;
+}
+
+.fournisseurs-btn-nouveau {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 22px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.fournisseurs-btn-nouveau:hover {
+  opacity: 0.85;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(41, 128, 185, 0.4);
+}
+
+/* ── TOOLBAR ─────────────────────────────────────────────────────────────── */
+
+.fournisseurs-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.fournisseurs-search {
+  flex: 1;
+  min-width: 200px;
+  padding: 13px 20px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 15px;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.fournisseurs-search:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.fournisseurs-filtres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.fournisseurs-filtre-btn {
+  padding: 10px 16px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: #ccc;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.fournisseurs-filtre-btn:hover {
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.fournisseurs-filtre-btn--actif {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 700;
+}
+
+/* ── GRILLE ───────────────────────────────────────────────────────────────── */
+
+.fournisseurs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+/* ── ÉTAT VIDE ────────────────────────────────────────────────────────────── */
+
+.fournisseurs-vide {
+  text-align: center;
+  padding: 70px 20px;
+  color: #666;
+  font-size: 16px;
+}
+
+/* ── MODAL CONFIRMATION ───────────────────────────────────────────────────── */
+
+.fournisseurs-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.fournisseurs-confirm-modal {
+  width: min(540px, 100%);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+  padding: 26px 28px;
+}
+
+.fournisseurs-confirm-modal h3 {
+  margin: 0 0 12px;
+  font-size: 22px;
+}
+
+.fournisseurs-confirm-warning {
+  display: inline-block;
+  margin-top: 8px;
+  color: #f39c12;
+  font-weight: 700;
+}
+
+.fournisseurs-confirm-error {
+  margin: 16px 0 0;
+  color: #e74c3c;
+  font-weight: 700;
+}
+
+.fournisseurs-confirm-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
 /* ── MINI DASHBOARD STOCK ─────────────────────────────────────────────────── */
 
 .fournisseurs-stock-header {

@@ -1,7 +1,12 @@
 // /frontend/src/components/layout/Sidebar.jsx
+// MODIFICATION : ajout du lien "Archives" avec l'icône PiArchiveFill
+
 import React, { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { CalendarDays, CalendarClock, Users, Car, Package, Factory, Receipt, Settings } from '../../utils/icons';
+// 🆕 Import de l'icône archives depuis react-icons/pi directement
+// (pas encore dans icons.js — à ajouter si on veut centraliser)
+import { PiArchiveFill } from 'react-icons/pi';
 import './Sidebar.css';
 
 const Sidebar = ({ isExpanded, onToggle }) => {
@@ -33,7 +38,7 @@ const Sidebar = ({ isExpanded, onToggle }) => {
     return () => { document.body.style.overflow = ''; };
   }, [isExpanded]);
 
-  // Liens de navigation
+  // Liens de navigation principaux
   const navLinks = [
     { to: '/planning',     icon: CalendarDays,  label: 'Planning' },
     { to: '/rdv',          icon: CalendarClock,  label: 'Rendez-vous' },
@@ -56,6 +61,7 @@ const Sidebar = ({ isExpanded, onToggle }) => {
         <nav className="sidebar__nav">
           <ul className="sidebar__menu">
 
+            {/* Liens principaux */}
             {navLinks.map(({ to, icon: Icon, label }) => (
               <li key={to} className="sidebar__menu-item">
                 <NavLink
@@ -71,6 +77,23 @@ const Sidebar = ({ isExpanded, onToggle }) => {
                 </NavLink>
               </li>
             ))}
+
+            {/* 🆕 ARCHIVES & CORBEILLE — séparé visuellement */}
+            <li className="sidebar__menu-item" style={{ marginTop: '6px', paddingTop: '6px', borderTop: '1px solid var(--border)' }}>
+              <NavLink
+                to="/archives"
+                className={({ isActive }) =>
+                  isActive ? 'sidebar__link sidebar__link--active' : 'sidebar__link'
+                }
+                title="Archives & Corbeille"
+                onClick={() => window.innerWidth <= 768 && onToggle()}
+              >
+                <span className="sidebar__icon">
+                  <PiArchiveFill size={20} />
+                </span>
+                <span className="sidebar__text">Archives</span>
+              </NavLink>
+            </li>
 
             {/* PARAMÈTRES — collé en bas */}
             <li className="sidebar__menu-item sidebar__menu-item--bottom">

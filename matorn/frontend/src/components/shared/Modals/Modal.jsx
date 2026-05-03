@@ -40,7 +40,7 @@ import React from 'react';
 import { X } from '../../../utils/icons';
 import './Modal.css';
 
-const Modal = ({ title, titleIcon, onClose, children, footer, customHeader, boxClassName }) => {
+const Modal = ({ title, titleIcon, onClose, children, footer, customHeader = null, boxClassName = '' }) => {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div

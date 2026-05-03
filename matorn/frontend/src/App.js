@@ -1,4 +1,6 @@
 // /frontend/src/App.js
+// MODIFICATION : ajout de la route /archives → ArchivesPage
+
 import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
@@ -13,6 +15,8 @@ import VehicleList from './pages/Vehicles/VehicleList';
 import Parametres from './pages/Parametres/Parametres';
 import Fournisseurs from './pages/Fournisseurs/Fournisseurs';
 import Factures from './pages/Factures/Factures';
+// 🆕 Import de la page Archives (fichier .tsx, compatible avec le setup CRA)
+import ArchivesPage from './pages/Archives/ArchivesPage';
 import './App.css';
 import './components/shared/list-page.css';
 
@@ -50,6 +54,8 @@ const App = () => {
                   <Route path="/fournisseurs" element={<Fournisseurs />} />
                   <Route path="/factures" element={<Factures />} />
                   <Route path="/parametres" element={<Parametres />} />
+                  {/* 🆕 Route Archives & Corbeille */}
+                  <Route path="/archives" element={<ArchivesPage />} />
                   <Route path="*" element={<div className="page-404">Page non trouvée</div>} />
                 </Routes>
               </main>

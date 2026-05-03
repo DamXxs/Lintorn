@@ -1,13 +1,35 @@
-// /frontend/src/pages/Fournisseurs/ModalFournisseur.jsx
+// /frontend/src/pages/Fournisseurs/ModalFournisseur.tsx
 import React, { useState } from 'react';
 import Modal from '../../components/shared/Modals/Modal';
 import { useReferentiels } from '../../context/ReferentielsContext';
 import { validateNom, validateEmail, validatePhone } from '../../utils/validators';
+import { Fournisseur, FournisseurFormData } from './fournisseurService';
 import '../../components/shared/Modals/forms.css';
 import './ModalFournisseur.css';
 
-// Valeurs par défaut pour le formulaire de création
-const FORMULAIRE_VIDE = {
+// ── TYPES ─────────────────────────────────────────────────────────
+
+interface Categorie {
+  valeur: string;
+  label: string;
+  icone: string;
+}
+
+interface ModalFournisseurProps {
+  fournisseur: Fournisseur | null;
+  onSave: (formData: FournisseurFormData) => Promise<void>;
+  onClose: () => void;
+}
+
+interface FormErrors {
+  nom?: string | null;
+  email?: string | null;
+  telephone?: string | null;
+}
+
+// ── CONSTANTE ─────────────────────────────────────────────────────
+
+const FORMULAIRE_VIDE: FournisseurFormData = {
   nom:         '',
   email:       '',
   telephone:   '',
@@ -19,53 +41,58 @@ const FORMULAIRE_VIDE = {
   notes:       '',
 };
 
-/**
- * ModalFournisseur
- * Modal pour créer ou modifier un fournisseur.
- * Utilise Modal.jsx (coquille partagée) + forms.css (styles partagés).
- *
- * Props :
- *   fournisseur – null = création, objet = édition
- *   onSave      – fn(formData) → appelle l'API puis recharge la liste
- *   onClose     – fn() → ferme la modal
- */
-const ModalFournisseur = ({ fournisseur, onSave, onClose }) => {
-  const { getCategoriesFournisseur } = useReferentiels();
-  const categories = getCategoriesFournisseur();
+// ── COMPOSANT ─────────────────────────────────────────────────────
 
-  const [form,   setForm]   = useState(fournisseur || FORMULAIRE_VIDE);
-  const [errors, setErrors] = useState({});
+const ModalFournisseur: React.FC<ModalFournisseurProps> = ({
+  fournisseur,
+  onSave,
+  onClose,
+}) => {
+  const { getCategoriesFournisseur } = useReferentiels();
+  const categories: Categorie[] = getCategoriesFournisseur();
+
+  const [form, setForm]     = useState<FournisseurFormData>(fournisseur || FORMULAIRE_VIDE);
+  const [errors, setErrors] = useState<FormErrors>({});
   const [saving, setSaving] = useState(false);
-  const [erreur, setErreur] = useState(null);
+  const [erreur, setErreur] = useState<string | null>(null);
 
   const isEdition = Boolean(fournisseur?.id);
 
-  // Met à jour le champ correspondant (gère checkboxes et champs texte)
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+  // ── Gestion des changements ──────────────────────────────────────
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value, type } = e.target;
+    const checked = (e.target as HTMLInputElement).checked;
+
     setForm(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
-    if (errors[name]) {
+
+    if (errors[name as keyof FormErrors]) {
       setErrors(prev => ({ ...prev, [name]: null }));
     }
   };
 
-  const validate = () => {
-    const newErrors = {};
-    const nomError = validateNom(form.nom);
-    const emailError = !form.email?.trim() ? 'L\'email est obligatoire' : validateEmail(form.email);
+  // ── Validation ───────────────────────────────────────────────────
+  const validate = (): FormErrors => {
+    const newErrors: FormErrors = {};
+    const nomError   = validateNom(form.nom);
+    const emailError = !form.email?.trim()
+      ? "L'email est obligatoire"
+      : validateEmail(form.email);
     const phoneError = validatePhone(form.telephone);
 
-    if (nomError) newErrors.nom = nomError;
-    if (emailError) newErrors.email = emailError;
+    if (nomError)   newErrors.nom       = nomError;
+    if (emailError) newErrors.email     = emailError;
     if (phoneError) newErrors.telephone = phoneError;
 
     return newErrors;
   };
 
-  const handleSubmit = async (e) => {
+  // ── Soumission ───────────────────────────────────────────────────
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     setErreur(null);
@@ -82,14 +109,14 @@ const ModalFournisseur = ({ fournisseur, onSave, onClose }) => {
     try {
       await onSave(form);
       onClose();
-    } catch (err) {
+    } catch (err: any) {
       setErreur(err.message);
     } finally {
       setSaving(false);
     }
   };
 
-  // Boutons collés en bas — passés en prop footer à Modal
+  // ── Footer ───────────────────────────────────────────────────────
   const footer = (
     <>
       <button type="button" className="form-btn form-btn--cancel" onClick={onClose}>
@@ -101,7 +128,7 @@ const ModalFournisseur = ({ fournisseur, onSave, onClose }) => {
         className="form-btn form-btn--save"
         disabled={saving}
       >
-        {saving ? 'Enregistrement…' : (isEdition ? '💾 Enregistrer' : '➕ Créer')}
+        {saving ? 'Enregistrement…' : isEdition ? '💾 Enregistrer' : '➕ Créer'}
       </button>
     </>
   );
@@ -115,10 +142,9 @@ const ModalFournisseur = ({ fournisseur, onSave, onClose }) => {
     >
       <form id="form-fournisseur" onSubmit={handleSubmit} noValidate>
 
-        {/* Erreur globale */}
         {erreur && <div className="form-error-global">⚠️ {erreur}</div>}
 
-        {/* ── Section : Identité ─────────────────────────────────── */}
+        {/* Identité */}
         <div className="form-section">
           <p className="form-section__title">🏭 Identité</p>
 
@@ -129,7 +155,7 @@ const ModalFournisseur = ({ fournisseur, onSave, onClose }) => {
               className="form-input"
               value={form.nom}
               onChange={handleChange}
-              placeholder="Ex : Utiligroup, Norauto, Autorectif…"
+              placeholder="Ex : Utiligroup, Norauto…"
               required
             />
             {errors.nom && <span className="form-error">{errors.nom}</span>}
@@ -137,7 +163,12 @@ const ModalFournisseur = ({ fournisseur, onSave, onClose }) => {
 
           <div className="form-group">
             <label className="form-label">Catégorie</label>
-            <select name="categorie" className="form-input" value={form.categorie} onChange={handleChange}>
+            <select
+              name="categorie"
+              className="form-input"
+              value={form.categorie}
+              onChange={handleChange}
+            >
               {categories.map(c => (
                 <option key={c.valeur} value={c.valeur}>
                   {c.icone} {c.label}
@@ -147,7 +178,7 @@ const ModalFournisseur = ({ fournisseur, onSave, onClose }) => {
           </div>
         </div>
 
-        {/* ── Section : Contact ──────────────────────────────────── */}
+        {/* Contact */}
         <div className="form-section">
           <p className="form-section__title">📞 Contact</p>
 
@@ -201,7 +232,7 @@ const ModalFournisseur = ({ fournisseur, onSave, onClose }) => {
           </div>
         </div>
 
-        {/* ── Section : Notes & Options ─────────────────────────── */}
+        {/* Notes & Options */}
         <div className="form-section">
           <p className="form-section__title">📝 Notes & Options</p>
 
@@ -216,7 +247,6 @@ const ModalFournisseur = ({ fournisseur, onSave, onClose }) => {
             />
           </div>
 
-          {/* Cases à cocher — style dans ModalFournisseur.css */}
           <div className="mf-checkboxes">
             <label className="mf-checkbox-label">
               <input
