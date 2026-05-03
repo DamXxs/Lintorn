@@ -20,7 +20,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 if not SECRET_KEY:
     raise ValueError(
         "\n\n❌ ERREUR : DJANGO_SECRET_KEY est manquante !\n"
-        "   → Crée le fichier damxscorp/backend/.env\n"
+        "   → Crée le fichier core/backend/.env\n"
         "   → Ajoute cette ligne : DJANGO_SECRET_KEY=une-clé-secrète-longue\n"
         "   → Tu peux générer une clé avec : python -c \"import secrets; print(secrets.token_urlsafe(50))\"\n"
     )
@@ -81,7 +81,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'damxscorp.urls'
+ROOT_URLCONF = 'core.urls'
 
 # =============================================================================
 # TEMPLATES

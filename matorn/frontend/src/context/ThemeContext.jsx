@@ -20,7 +20,7 @@ export const ThemeProvider = ({ children }) => {
 
   // Récupère le thème sauvegardé dans le navigateur, ou utilise le défaut
   const [themeName, setThemeName] = useState(() => {
-    return localStorage.getItem('damxscorp-theme') || DEFAULT_THEME;
+    return localStorage.getItem('matorn-theme') || DEFAULT_THEME;
   });
 
   // Applique les variables CSS sur le document quand le thème change
@@ -34,7 +34,7 @@ export const ThemeProvider = ({ children }) => {
     });
 
     // Sauvegarde le choix dans le navigateur (persiste après rechargement)
-    localStorage.setItem('damxscorp-theme', themeName);
+    localStorage.setItem('matorn-theme', themeName);
 
   }, [themeName]); // Se relance à chaque changement de thème
 

@@ -172,7 +172,7 @@ export const genererPDF = (document, type = 'devis') => {
   doc.setFontSize(8);
   doc.setTextColor(150, 150, 150);
   doc.text(
-    'DamXsCorp — Gestion Garage',
+    'Nom du Garage — Généré par Matorn',
     pageWidth / 2,
     pageHeight - 10,
     { align: 'center' }

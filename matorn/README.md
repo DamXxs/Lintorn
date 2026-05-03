@@ -1,4 +1,4 @@
-# 🔧 DAMXscorp — Gestion de garage
+# 🔧 MATORN — Gestion de garage
 
 Application web de gestion de garage (clients, véhicules, planification, stock).
 **Backend** : Django + Django REST Framework
@@ -16,7 +16,7 @@ Application web de gestion de garage (clients, véhicules, planification, stock)
 ### 2. Cloner le projet
 ```bash
 git clone <url-du-repo>
-cd damxscorp
+cd matorn
 ```
 
 ### 3. Créer le fichier `.env`
@@ -65,7 +65,7 @@ docker-compose down
 ## 🗂️ Structure du projet
 
 ```
-damxscorp/
+matorn/
 ├── backend/          → Django (API REST)
 │   ├── clients/      → App clients
 │   ├── vehicules/    → App véhicules
