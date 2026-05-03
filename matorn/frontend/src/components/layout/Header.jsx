@@ -3,19 +3,29 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CircleAlert, Loader, Menu, X } from '../../utils/icons';
 import GlobalSearch from '../shared/SearchBar/GlobalSearch';
+import { useAuth } from '../../context/AuthContext';
 import './Header.css';
+
+// Couleurs par rôle — cohérent avec UtilisateursEditor
+const ROLE_COULEURS = {
+  user:       '#888',
+  superuser:  '#2980b9',
+  admin:      '#8e44ad',
+  superadmin: '#e67e22',
+};
 
 const Header = ({ isSidebarExpanded, onToggleSidebar }) => {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [djangoStatus, setDjangoStatus] = useState('checking');
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
-  // Ref vers le GlobalSearch pour le focus via Ctrl+K
-  const searchRef = useRef(null);
+  const searchRef  = useRef(null);
+  const userMenuRef = useRef(null);
 
   // ── Vérification connexion Django ────────────────────────────
   const checkDjangoConnection = async () => {
     try {
-      // URL relative → fonctionne avec le proxy craco en local ET sur Codespaces
       const apiBase = process.env.REACT_APP_API_URL || '/api';
       const response = await fetch(`${apiBase}/health/`);
       setDjangoStatus(response.ok ? 'connected' : 'error');
@@ -30,12 +40,11 @@ const Header = ({ isSidebarExpanded, onToggleSidebar }) => {
     return () => clearInterval(interval);
   }, []);
 
-  // ── Raccourci clavier Ctrl+K → focus la recherche ────────────
+  // ── Raccourci clavier Ctrl+K ─────────────────────────────────
   useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
-        // Focus l'input dans le GlobalSearch
         const input = searchRef.current?.querySelector('input');
         if (input) input.focus();
       }
@@ -44,12 +53,25 @@ const Header = ({ isSidebarExpanded, onToggleSidebar }) => {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // ── Quand l'utilisateur clique un résultat → ouvre la fiche ──
-  // Pour l'instant on navigue vers la page correspondante.
-  // Plus tard, on pourra ouvrir directement une modale.
+  // ── Ferme le menu user si clic en dehors ─────────────────────
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+        setShowUserMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // ── Logout ───────────────────────────────────────────────────
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login', { replace: true });
+  };
+
+  // ── Navigation depuis la recherche ───────────────────────────
   const handleSelectItem = useCallback((item) => {
-    // Navigue vers la page avec l'ID dans le state
-    // pour que la page ouvre automatiquement la fiche
     switch (item._type) {
       case 'client':
         navigate('/clients', { state: { openClientId: item._id } });
@@ -67,6 +89,12 @@ const Header = ({ isSidebarExpanded, onToggleSidebar }) => {
         navigate(item._pageUrl);
     }
   }, [navigate]);
+
+  // ── Initiales pour l'avatar ──────────────────────────────────
+  const getInitiales = (username) =>
+    username ? username.slice(0, 2).toUpperCase() : '??';
+
+  const couleurAvatar = ROLE_COULEURS[user?.role] ?? '#888';
 
   return (
     <header className="header">
@@ -88,8 +116,10 @@ const Header = ({ isSidebarExpanded, onToggleSidebar }) => {
         <GlobalSearch onSelectItem={handleSelectItem} />
       </div>
 
-      {/* ── DROITE : Statut Django ─────────────────────────── */}
+      {/* ── DROITE : Status + Avatar ───────────────────────── */}
       <div className="header__right">
+
+        {/* Badge Django — seulement si problème */}
         {djangoStatus !== 'connected' && (
           <div className={`header__status header__status--${djangoStatus}`}>
             <span className="header__status-dot">
@@ -100,8 +130,38 @@ const Header = ({ isSidebarExpanded, onToggleSidebar }) => {
             </span>
             <span className="header__status-text">
               {djangoStatus === 'checking' && 'Connexion...'}
-              {djangoStatus === 'error' && 'Serveur déconnecté'}
+              {djangoStatus === 'error'    && 'Serveur déconnecté'}
             </span>
+          </div>
+        )}
+
+        {/* Avatar utilisateur + menu dropdown */}
+        {user && (
+          <div className="header__user" ref={userMenuRef}>
+            <button
+              className="header__avatar"
+              style={{ background: couleurAvatar }}
+              onClick={() => setShowUserMenu(p => !p)}
+              title={`${user.username} — ${user.role}`}
+            >
+              {getInitiales(user.username)}
+            </button>
+
+            {/* Dropdown menu */}
+            {showUserMenu && (
+              <div className="header__user-menu">
+                <div className="header__user-info">
+                  <span className="header__user-name">{user.username}</span>
+                  <span className="header__user-role" style={{ color: couleurAvatar }}>
+                    {user.role}
+                  </span>
+                </div>
+                <div className="header__user-divider" />
+                <button className="header__user-logout" onClick={handleLogout}>
+                  🚪 Se déconnecter
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
