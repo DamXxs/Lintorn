@@ -2,6 +2,9 @@
 from django.contrib.auth import authenticate
 from django.middleware.csrf import get_token
 from .permissions import login_required_cookie
+from django.contrib.auth.models import User
+from .serializers import UserSerializer, UserCreateSerializer, UserUpdateSerializer
+from .permissions import login_required_cookie, require_role
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -223,3 +226,108 @@ def me_view(request):
         'email':    request.user.email,
         'role':     request.profile.role,
     })
+
+# =============================================================================
+# LISTE + CRÉATION DES UTILISATEURS
+# GET  /api/auth/users/   → liste tous les users (Admin+)
+# POST /api/auth/users/   → crée un user (Admin+)
+# =============================================================================
+@api_view(['GET', 'POST'])
+@require_role('admin')
+def users_list(request):
+
+    if request.method == 'GET':
+        users = User.objects.select_related('profile').all().order_by('username')
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)
+
+    elif request.method == 'POST':
+        serializer = UserCreateSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        data = serializer.validated_data
+
+        # Création du User Django
+        user = User.objects.create_user(
+            username=data['username'],
+            password=data['password'],
+            email=data.get('email', ''),
+        )
+
+        # Mise à jour du rôle dans le profil
+        # (le signal a déjà créé le profil avec role=USER)
+        user.profile.role = data.get('role', Role.USER)
+        user.profile.save()
+
+        return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
+
+
+# =============================================================================
+# DÉTAIL + MODIFICATION D'UN UTILISATEUR
+# GET    /api/auth/users/<id>/
+# PATCH  /api/auth/users/<id>/
+# DELETE /api/auth/users/<id>/  → désactive (soft)
+# =============================================================================
+@api_view(['GET', 'PATCH', 'DELETE'])
+@require_role('admin')
+def user_detail(request, pk):
+
+    try:
+        user = User.objects.select_related('profile').get(pk=pk)
+    except User.DoesNotExist:
+        return Response({'error': 'Utilisateur introuvable'}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        return Response(UserSerializer(user).data)
+
+    elif request.method == 'PATCH':
+        serializer = UserUpdateSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        data = serializer.validated_data
+
+        # Mise à jour email
+        if 'email' in data:
+            user.email = data['email']
+
+        # Mise à jour mot de passe
+        if 'password' in data:
+            user.set_password(data['password'])
+
+        # Mise à jour is_active
+        if 'is_active' in data:
+            # Sécurité : on ne peut pas se désactiver soi-même
+            if user.id == request.user.id and not data['is_active']:
+                return Response(
+                    {'error': 'Vous ne pouvez pas désactiver votre propre compte'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            user.is_active = data['is_active']
+
+        user.save()
+
+        # Mise à jour du rôle
+        if 'role' in data:
+            # Sécurité : un Admin ne peut pas se promouvoir SuperAdmin
+            if data['role'] == Role.SUPERADMIN and request.profile.role != Role.SUPERADMIN:
+                return Response(
+                    {'error': 'Seul un SuperAdmin peut attribuer le rôle SuperAdmin'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            user.profile.role = data['role']
+            user.profile.save()
+
+        return Response(UserSerializer(user).data)
+
+    elif request.method == 'DELETE':
+        # On ne supprime jamais un user — on le désactive
+        if user.id == request.user.id:
+            return Response(
+                {'error': 'Vous ne pouvez pas désactiver votre propre compte'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        user.is_active = False
+        user.save()
+        return Response({'message': f"Utilisateur '{user.username}' désactivé"})

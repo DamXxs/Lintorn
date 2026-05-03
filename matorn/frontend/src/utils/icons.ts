@@ -53,6 +53,7 @@ import { PiCurrencyDollarFill }    from 'react-icons/pi';
 import { PiPaletteFill }           from 'react-icons/pi';
 import { PiBellFill }              from 'react-icons/pi';
 import { PiRobotFill }             from 'react-icons/pi';
+import { PiShieldFill }            from 'react-icons/pi';
 
 // ── Type corrigé ──────────────────────────────────────────────────
 // IconType de react-icons retourne ReactNode mais TSX attend ReactElement.
@@ -114,3 +115,4 @@ export const DollarSign    = ic(PiCurrencyDollarFill);
 export const Palette       = ic(PiPaletteFill);
 export const Bell          = ic(PiBellFill);
 export const Bot           = ic(PiRobotFill);
+export const Shield        = ic(PiShieldFill);

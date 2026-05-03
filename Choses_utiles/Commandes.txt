@@ -73,3 +73,18 @@
 
 ## DATA TEST ##
     ** python manage.py loaddata fixtures/demo_data.json ** (importe les data de démo) 
+
+
+    ===============================================================================
+    ==========================                           ==========================
+    ===============================================================================
+    ## Créer superAdmin ##
+    ====Tape ça dans la console backend avec le venv ouvert====
+python manage.py shell -c "
+from django.contrib.auth.models import User
+from accounts.models import Role
+u = User.objects.get(username='Cortana')
+u.profile.role = Role.SUPERADMIN
+u.profile.save()
+print('Nouveau rôle:', u.profile.role)
+"

@@ -6,10 +6,12 @@ import ReferentielEditor from './Referentiels/ReferentielEditor';
 import DepartementEditor from './DepartementEditor';
 import CollaborateurEditor from './CollaborateurEditor';
 import ParametresFacturation from './ParametresFacturation';
+import { useAuth } from '../../context/AuthContext';
+import UtilisateursEditor from './UtilisateursEditor';
 import { fetchDepartements, fetchCollaborateurs } from '../../services/api';
 import {
   Palette, Bell, Bot, Settings, Loader,
-  Car, Wrench, Package, Factory, Users, Tag, Banknote
+  Car, Wrench, Package, Factory, Users, Tag, Banknote, Shield
 } from '../../utils/icons';
 import './Parametres.css';
 import '../../components/shared/list-page.css';
@@ -17,12 +19,14 @@ import '../../components/shared/list-page.css';
 const Parametres = () => {
   const { themeName, setTheme, themes } = useTheme();
   const { referentiels, loading, reload } = useReferentiels();
+  const { isAdmin } = useAuth();
 
   // ── Données chargées depuis l'API ─────────────────────────────────────────
   const [departements,    setDepartements]    = useState([]);
   const [collaborateurs,  setCollaborateurs]  = useState([]);
   const [loadingDepts,    setLoadingDepts]    = useState(true);
   const [loadingCollabs,  setLoadingCollabs]  = useState(true);
+  
 
   const reloadDepartements = () => {
     setLoadingDepts(true);
@@ -166,6 +170,20 @@ const Parametres = () => {
         </p>
         <ParametresFacturation embedded />
       </section>
+
+      {/* ── GESTION DES UTILISATEURS (ADMIN SEULEMENT) ──────────────────────────────── */}
+      {isAdmin() && (
+        <section className="param-section">
+          <h2 className="param-section__title">
+            <Shield size={16} /> Utilisateurs
+          </h2>
+          <p className="param-description">
+            Gérez les comptes et les droits d'accès à Matorn.
+            Seuls les Administrateurs peuvent accéder à cette section.
+          </p>
+          <UtilisateursEditor />
+        </section>
+      )}
 
       {/* ── FUTURES OPTIONS ────────────────────────────────────────────────── */}
       <section className="param-section">
