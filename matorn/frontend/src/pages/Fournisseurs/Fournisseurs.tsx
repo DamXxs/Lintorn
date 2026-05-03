@@ -19,8 +19,6 @@ import {
 import './Fournisseurs.css';
 import '../../components/shared/list-page.css';
 
-const FactoryIcon = Factory as unknown as React.ComponentType<any>;
-
 // ── TYPES LOCAUX ──────────────────────────────────────────────────
 
 type Filtre = 'tous' | 'favoris' | 'inactifs';
@@ -155,7 +153,7 @@ const Fournisseurs: React.FC = () => {
         countLabel="fournisseur"
         onAdd={handleNouveauFournisseur}
         addLabel="Nouveau fournisseur"
-        addIcon={<FactoryIcon size={16} />}
+        addIcon={<Factory size={16} />}
       />
 
       {/* Barre de recherche */}
