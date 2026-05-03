@@ -21,6 +21,7 @@
     "react-router-dom": "^7.13.0",
     "react-scripts": "5.0.1",
     "react-select": "^5.10.2",
+    "typescript": "^6.0.3",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
