@@ -44,6 +44,9 @@ INSTALLED_APPS = [
     # App d'archives (corbeille + archives) doit etre en first pour que ses modèles soient chargés AVANT les autres apps métier
     'archives',
 
+    # App d'authentification personnalisée doit être en second pour que son UserProfile soit chargé AVANT les autres apps métier
+    'accounts',
+
     # Tes apps métier
     'clients',
     'fournisseurs',
@@ -56,6 +59,7 @@ INSTALLED_APPS = [
     # Apps tierces
     'corsheaders',
     'rest_framework',
+    'rest_framework_simplejwt',
 
     # Apps Django par défaut
     'django.contrib.admin',
@@ -64,6 +68,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
 ]
 
 # =============================================================================
@@ -185,3 +190,20 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',  # tout le monde peut appeler l'API
     ],
 }
+
+
+# =============================================================================
+# SIMPLE JWT — configuration des tokens
+# =============================================================================
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME':  timedelta(minutes=15),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS':  False,
+    'ALGORITHM': 'HS256',
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+# On ajoute simplejwt aux apps installées
+# (déjà fait via rest_framework, mais on le note)
