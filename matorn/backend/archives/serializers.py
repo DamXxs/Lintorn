@@ -72,6 +72,10 @@ def serialiser_element(obj, type_url, type_libelle):
     elif type_url == 'facture':
         libelle_principal = obj.numero
         libelle_secondaire = f"{obj.client.nom} - {obj.montant_ttc}€"
+
+    elif type_url == 'or':
+        libelle_principal = obj.numero
+        libelle_secondaire = f"{obj.client.nom} - {obj.vehicule.marque} {obj.vehicule.modele}"
     
     else:
         libelle_principal = str(obj)

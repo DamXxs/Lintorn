@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'stock',
     'vehicules',
     'factures',
+    'ordres_reparation',
 
     # Apps tierces
     'corsheaders',

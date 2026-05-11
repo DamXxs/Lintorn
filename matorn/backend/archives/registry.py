@@ -20,6 +20,7 @@ MODELES_ARCHIVABLES = {
     'fournisseur':  ('fournisseurs', 'fournisseur',  'Fournisseur'),
     'devis':        ('factures',     'devis',        'Devis'),
     'facture':      ('factures',     'facture',      'Facture'),
+    'or': ('ordres_reparation', 'ordrereparation', 'Ordre de réparation'),
 }
 
 

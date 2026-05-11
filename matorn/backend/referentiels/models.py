@@ -73,3 +73,33 @@ class Referentiel(models.Model):
 
     def __str__(self):
         return f"[{self.categorie}] {self.label}"
+    
+    # =============================================================================
+    # PROXY MODELS — pour avoir des admins dédiés par catégorie
+    # =============================================================================
+    # Un proxy model ne crée PAS de nouvelle table en BDD.
+    # C'est juste un "alias" qui filtre automatiquement les requêtes.
+
+class TypeInterventionManager(models.Manager):
+    """Manager qui filtre uniquement les Référentiels de type TYPE_INTERVENTION."""
+    def get_queryset(self):
+        return super().get_queryset().filter(categorie='TYPE_INTERVENTION')
+
+
+class TypeIntervention(Referentiel):
+    """
+    Proxy vers Referentiel filtré sur categorie='TYPE_INTERVENTION'.
+    Permet d'avoir un admin dédié et un autocomplete propre.
+    """
+    objects = TypeInterventionManager()
+    
+class Meta:
+    proxy = True  # ← pas de nouvelle table en BDD
+    verbose_name = "Type d'intervention"
+    verbose_name_plural = "Types d'intervention"
+    base_manager_name = 'objects'
+    
+    def save(self, *args, **kwargs):
+        # On force la catégorie à TYPE_INTERVENTION lors de la sauvegarde
+        self.categorie = 'TYPE_INTERVENTION'
+        super().save(*args, **kwargs)

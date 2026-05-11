@@ -81,13 +81,15 @@ class Piece(SoftDeleteMixin):  # ← MODIF : hérite du Mixin
     
     @property
     def marge(self):
+        if self.prix_vente is None or self.prix_achat is None:
+            return 0
         return self.prix_vente - self.prix_achat
     
     @property
     def marge_pourcentage(self):
-        if self.prix_achat > 0:
-            return ((self.prix_vente - self.prix_achat) / self.prix_achat) * 100
-        return 0
+        if self.prix_achat is None or self.prix_vente is None or self.prix_achat <= 0:
+            return 0
+        return ((self.prix_vente - self.prix_achat) / self.prix_achat) * 100
     
     # =========================================================================
     # NOUVEAU : Règle métier pour la corbeille
