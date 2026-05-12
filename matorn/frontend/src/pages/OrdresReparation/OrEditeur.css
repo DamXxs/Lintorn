@@ -1,0 +1,191 @@
+/* /frontend/src/pages/OrdresReparation/OrEditeur.css */
+
+/* ═══════════════════════════════════════════════════════════════
+   CONTAINER
+   ═══════════════════════════════════════════════════════════════ */
+.or-editeur {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HEADER STICKY
+   ═══════════════════════════════════════════════════════════════ */
+.or-editeur__header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg-color);
+  border-bottom: 1px solid var(--border-color);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.or-editeur__btn-retour {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.15s;
+}
+
+.or-editeur__btn-retour:hover {
+  background: var(--hover-color, rgba(0, 0, 0, 0.05));
+}
+
+.or-editeur__header-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 200px;
+}
+
+.or-editeur__numero {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0;
+}
+
+.or-editeur__statut {
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.or-editeur__header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.or-editeur__btn-pdf,
+.or-editeur__btn-save {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.or-editeur__btn-pdf {
+  background: var(--card-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+}
+
+.or-editeur__btn-save {
+  background: var(--primary-color);
+  color: white;
+}
+
+.or-editeur__btn-pdf:disabled,
+.or-editeur__btn-save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CONTENU - CARDS
+   ═══════════════════════════════════════════════════════════════ */
+.or-editeur__content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 16px 24px;
+}
+
+.or-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.or-card__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-color);
+  padding: 12px 16px;
+  margin: 0;
+  background: var(--card-header-bg, rgba(0, 0, 0, 0.03));
+  border-bottom: 1px solid var(--border-color);
+}
+
+.or-card__body {
+  padding: 16px;
+  color: var(--text-color);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.or-card__body p {
+  margin: 0 0 8px 0;
+}
+
+.or-card__body p:last-child {
+  margin-bottom: 0;
+}
+
+.or-card__meta {
+  font-size: 12px;
+  color: var(--text-secondary-color, #888);
+  margin-top: 8px !important;
+}
+
+.or-card__body ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.or-card__body li {
+  margin-bottom: 4px;
+}
+
+.or-empty-line {
+  color: var(--text-secondary-color, #888);
+  font-style: italic;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .or-editeur__header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .or-editeur__header-info {
+    justify-content: space-between;
+  }
+
+  .or-editeur__header-actions {
+    justify-content: flex-end;
+  }
+}

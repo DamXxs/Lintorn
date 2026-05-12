@@ -1,0 +1,224 @@
+/* /frontend/src/pages/OrdresReparation/OrdresReparation.css */
+
+/* ── LISTE ─────────────────────────────────────────────────── */
+.or-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ── LIGNE OR ──────────────────────────────────────────────── */
+.or-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.or-row:hover {
+  border-color: var(--accent);
+  background: rgba(41, 128, 185, 0.06);
+  transform: translateX(3px);
+}
+
+/* ── COLONNE NUMÉRO + DATE ─────────────────────────────────── */
+.or-row__numero {
+  display: flex;
+  flex-direction: column;
+  min-width: 130px;
+  flex-shrink: 0;
+}
+
+.or-row__numero-text {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.5px;
+}
+
+.or-row__date {
+  font-size: 11px;
+  color: #666;
+  margin-top: 2px;
+}
+
+/* ── COLONNE INFOS (client + véhicule) ─────────────────────── */
+.or-row__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0; /* permet l'ellipsis si trop long */
+}
+
+.or-row__client {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.or-row__vehicule {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #888;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── COLONNE DROITE : statut + compteurs ───────────────────── */
+.or-row__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.or-row__statut {
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* Statuts colorés */
+.or-row__statut--ouvert {
+  background: rgba(41, 128, 185, 0.15);
+  color: #3498db;
+}
+
+.or-row__statut--en_cours {
+  background: rgba(230, 126, 34, 0.15);
+  color: #f39c12;
+}
+
+.or-row__statut--cloture {
+  background: rgba(39, 174, 96, 0.15);
+  color: #2ecc71;
+}
+
+.or-row__statut--annule {
+  background: rgba(127, 140, 141, 0.15);
+  color: #95a5a6;
+}
+
+.or-row__counters {
+  font-size: 11px;
+  color: #666;
+  white-space: nowrap;
+}
+
+/* ── RESPONSIVE ────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .or-row {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .or-row__numero {
+    min-width: 100%;
+  }
+
+  .or-row__info {
+    min-width: 60%;
+  }
+
+  .or-row__meta {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+/* ── FILTRES STATUT (boutons-pilules) ──────────────────────── */
+.or-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.or-filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--input-bg);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.or-filter-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.or-filter-btn--active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.or-filter-btn__count {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 1px 6px;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 18px;
+  text-align: center;
+}
+
+.or-filter-btn--active .or-filter-btn__count {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* ── ÉTAT VIDE ─────────────────────────────────────────────── */
+.or-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 24px;
+  color: #444;
+  text-align: center;
+}
+
+.or-empty p {
+  font-size: 14px;
+  margin: 0;
+}
+
+.or-empty button {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--accent);
+  border-radius: 6px;
+  padding: 6px 16px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.or-empty button:hover {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}

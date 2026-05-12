@@ -3,9 +3,7 @@
 
 import React, { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { CalendarDays, CalendarClock, Users, Car, Package, Factory, Receipt, Settings } from '../../utils/icons';
-// 🆕 Import de l'icône archives depuis react-icons/pi directement
-// (pas encore dans icons.js — à ajouter si on veut centraliser)
+import { CalendarDays, CalendarClock, Wrench, Users, Car, Package, Factory, Receipt, Settings } from '../../utils/icons';
 import { PiArchiveFill } from 'react-icons/pi';
 import './Sidebar.css';
 
@@ -42,6 +40,7 @@ const Sidebar = ({ isExpanded, onToggle }) => {
   const navLinks = [
     { to: '/planning',     icon: CalendarDays,  label: 'Planning' },
     { to: '/rdv',          icon: CalendarClock,  label: 'Rendez-vous' },
+    { to: '/ordres-reparation', icon: Wrench,        label: 'Ordres de réparation' },
     { to: '/clients',      icon: Users,          label: 'Clients' },
     { to: '/vehicles',     icon: Car,            label: 'Véhicules' },
     { to: '/stock',        icon: Package,        label: 'Stock' },

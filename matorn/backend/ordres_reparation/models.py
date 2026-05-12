@@ -200,6 +200,9 @@ class LignePieceUtilisee(models.Model):
     
     cree_le = models.DateTimeField(auto_now_add=True)
 
+    # ==============================================================
+    # Comportement de la save pour remplir les snapshots === //
+    # ==============================================================
     def save(self, *args, **kwargs):
         """Auto-remplit les snapshots depuis la pièce lors de la création."""
         # Si c'est une création (pas d'ID) ET que les snapshots sont vides

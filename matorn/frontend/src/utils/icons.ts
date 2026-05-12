@@ -54,6 +54,7 @@ import { PiPaletteFill }           from 'react-icons/pi';
 import { PiBellFill }              from 'react-icons/pi';
 import { PiRobotFill }             from 'react-icons/pi';
 import { PiShieldFill }            from 'react-icons/pi';
+import { PiPrinterFill }           from 'react-icons/pi';
 
 // ── Type corrigé ──────────────────────────────────────────────────
 // IconType de react-icons retourne ReactNode mais TSX attend ReactElement.
@@ -116,3 +117,6 @@ export const Palette       = ic(PiPaletteFill);
 export const Bell          = ic(PiBellFill);
 export const Bot           = ic(PiRobotFill);
 export const Shield        = ic(PiShieldFill);
+
+// ── Imprimer / PDF ───────────────────────────────────────────────
+export const Printer       = ic(PiPrinterFill);

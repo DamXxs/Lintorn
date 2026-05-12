@@ -5,9 +5,9 @@ import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { ReferentielsProvider } from './context/ReferentielsContext';
-import { AuthProvider } from './context/AuthContext';         // 🆕
-import ProtectedRoute from './components/shared/ProtectedRoute'; // 🆕
-import Login from './pages/Login';                            // 🆕
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/shared/ProtectedRoute'; 
+import Login from './pages/Login';                            
 
 import Sidebar from './components/layout/Sidebar';
 import Header from './components/layout/Header';
@@ -20,6 +20,8 @@ import Parametres from './pages/Parametres/Parametres';
 import Fournisseurs from './pages/Fournisseurs/Fournisseurs';
 import Factures from './pages/Factures/Factures';
 import ArchivesPage from './pages/Archives/ArchivesPage';
+import OrdresReparation from './pages/OrdresReparation/OrdresReparation';
+import OrEditeur from './pages/OrdresReparation/OrEditeur';
 
 import './App.css';
 import './components/shared/list-page.css';
@@ -51,12 +53,14 @@ const AppLayout = ({ isSidebarExpanded, onToggleSidebar }: {
             <Route path="/" element={<Navigate to="/planning" replace />} />
             <Route path="/planning"    element={<Planning isSidebarExpanded={isSidebarExpanded} />} />
             <Route path="/rdv"         element={<RdvList />} />
+            <Route path="/ordres-reparation" element={<OrdresReparation />} />
+            <Route path="/ordres-reparation/:id" element={<OrEditeur />} />
             <Route path="/stock"       element={<StockList />} />
             <Route path="/clients"     element={<ClientList />} />
             <Route path="/vehicles"    element={<VehicleList />} />
             <Route path="/fournisseurs" element={<Fournisseurs />} />
             <Route path="/factures"    element={<Factures />} />
-
+            
             {/* 🔐 Paramètres — réservé aux Admins */}
             <Route path="/parametres" element={
               <ProtectedRoute minimumRole="admin">

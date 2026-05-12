@@ -3,7 +3,7 @@ import React, { ReactNode } from 'react';
 import './shared.css';
 
 interface PageHeaderProps {
-  title:       string;
+  title:       ReactNode;  // ← ReactNode permet d'accepter du texte, des icônes, ou les deux
   count?:      number;
   countLabel?: string;
   onAdd?:      () => void;
