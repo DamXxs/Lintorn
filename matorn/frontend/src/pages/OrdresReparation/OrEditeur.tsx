@@ -3,7 +3,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 // Service API
-import { fetchOrdre, OrdreReparationDetail, STATUT_OR_COLORS } from './orService';
+import {
+  fetchOrdre,
+  updateOrdre,
+  OrdreReparationDetail,
+  STATUT_OR_COLORS,
+  STATUTS_OR,
+} from './orService';
 
 // Composants partagés
 import LoadingState from '../../components/shared/LoadingState';
@@ -31,6 +37,18 @@ const OrEditeur: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState<string | null>(null);
 
+  // ── État : formulaire d'édition ──────────────────────────────
+  // formData = "brouillon local" qu'on modifie sans toucher au serveur
+  const [formData, setFormData] = useState({
+    kilometrage_entree: '',
+    description_travaux: '',
+    statut: 'OUVERT',
+  });
+
+  // État de sauvegarde
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
   // ── Chargement de l'OR ───────────────────────────────────────
   const loadOrdre = useCallback(async () => {
     if (!id) return;
@@ -39,6 +57,12 @@ const OrEditeur: React.FC = () => {
       setError(null);
       const data = await fetchOrdre(parseInt(id));
       setOrdre(data);
+      // On initialise le brouillon avec les valeurs serveur
+      setFormData({
+        kilometrage_entree: data.kilometrage_entree?.toString() || '',
+        description_travaux: data.description_travaux || '',
+        statut: data.statut,
+      });
     } catch (err: any) {
       setError(err.message || 'Impossible de charger cet ordre de réparation');
     } finally {
@@ -49,6 +73,59 @@ const OrEditeur: React.FC = () => {
   useEffect(() => {
     loadOrdre();
   }, [loadOrdre]);
+
+  // ── Détection des modifications non sauvées ──────────────────
+  // On compare formData vs ordre. Si différent → isDirty = true
+  const isDirty = ordre ? (
+    formData.kilometrage_entree !== (ordre.kilometrage_entree?.toString() || '') ||
+    formData.description_travaux !== (ordre.description_travaux || '') ||
+    formData.statut !== ordre.statut
+  ) : false;
+
+  // ── Handler de changement de champ ───────────────────────────
+  // Une seule fonction pour gérer TOUS les champs (pattern courant React)
+  const handleFieldChange = (field: keyof typeof formData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  // ── Sauvegarde des modifications ─────────────────────────────
+  const handleSave = async () => {
+    if (!ordre || !isDirty) return;
+
+    setSaving(true);
+    setSaveError(null);
+
+    try {
+      const payload = {
+        kilometrage_entree: formData.kilometrage_entree
+          ? parseInt(formData.kilometrage_entree)
+          : null,
+        description_travaux: formData.description_travaux,
+        statut: formData.statut,
+      };
+
+      // PATCH vers Django
+      const updated = await updateOrdre(ordre.id, payload);
+
+      // Succès : on met à jour ordre (qui devient la nouvelle "vérité serveur")
+      setOrdre(updated);
+    } catch (err: any) {
+      setSaveError(err.message || 'Erreur lors de la sauvegarde');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // ── Annuler les modifications ────────────────────────────────
+  const handleCancel = () => {
+    if (!ordre) return;
+    setFormData({
+      kilometrage_entree: ordre.kilometrage_entree?.toString() || '',
+      description_travaux: ordre.description_travaux || '',
+      statut: ordre.statut,
+    });
+    setSaveError(null);
+  };
 
   // ── Retour à la liste ────────────────────────────────────────
   const handleRetour = () => {
@@ -68,7 +145,7 @@ const OrEditeur: React.FC = () => {
   }
 
   if (!ordre) {
-    return <ErrorState message="Ordre de réparation introuvable" />;
+    return <ErrorState message="Ordre de réparation introuvable" onRetry={loadOrdre} />;
   }
 
   return (
@@ -94,14 +171,34 @@ const OrEditeur: React.FC = () => {
         </div>
 
         <div className="or-editeur__header-actions">
+          {isDirty && (
+            <button
+              className="or-editeur__btn-cancel"
+              onClick={handleCancel}
+              disabled={saving}
+            >
+              Annuler
+            </button>
+          )}
           <button className="or-editeur__btn-pdf" disabled>
             <Printer size={16} /> Imprimer PDF
           </button>
-          <button className="or-editeur__btn-save" disabled>
-            <Save size={16} /> Enregistrer
+          <button
+            className="or-editeur__btn-save"
+            onClick={handleSave}
+            disabled={!isDirty || saving}
+          >
+            <Save size={16} /> {saving ? 'Sauvegarde...' : 'Enregistrer'}
           </button>
         </div>
       </div>
+
+      {/* === ERREUR DE SAUVEGARDE === */}
+      {saveError && (
+        <div className="or-editeur__save-error">
+          ⚠️ {saveError}
+        </div>
+      )}
 
       {/* === CONTENU === */}
       <div className="or-editeur__content">
@@ -126,12 +223,52 @@ const OrEditeur: React.FC = () => {
           </div>
         </div>
 
-        {/* CARD : Informations */}
+        {/* CARD : Informations (ÉDITABLE) */}
         <div className="or-card">
           <h2 className="or-card__title">📋 Informations</h2>
-          <div className="or-card__body">
-            <p><strong>Kilométrage :</strong> {ordre.kilometrage_entree ?? '—'} km</p>
-            <p><strong>Description :</strong> {ordre.description_travaux || '—'}</p>
+          <div className="or-card__body or-card__body--form">
+
+            <div className="or-field">
+              <label className="or-field__label">Kilométrage à l'entrée</label>
+              <div className="or-field__input-wrapper">
+                <input
+                  type="number"
+                  className="or-field__input"
+                  value={formData.kilometrage_entree}
+                  onChange={(e) => handleFieldChange('kilometrage_entree', e.target.value)}
+                  placeholder="Ex : 142500"
+                  min="0"
+                />
+                <span className="or-field__suffix">km</span>
+              </div>
+            </div>
+
+            <div className="or-field">
+              <label className="or-field__label">Description des travaux</label>
+              <textarea
+                className="or-field__input or-field__textarea"
+                value={formData.description_travaux}
+                onChange={(e) => handleFieldChange('description_travaux', e.target.value)}
+                placeholder="Décrivez les travaux à effectuer..."
+                rows={3}
+              />
+            </div>
+
+            <div className="or-field">
+              <label className="or-field__label">Statut</label>
+              <select
+                className="or-field__input or-field__select"
+                value={formData.statut}
+                onChange={(e) => handleFieldChange('statut', e.target.value)}
+              >
+                {Object.values(STATUTS_OR).map(s => (
+                  <option key={s.value} value={s.value}>
+                    {s.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
           </div>
         </div>
 

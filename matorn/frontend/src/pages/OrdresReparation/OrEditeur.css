@@ -189,3 +189,120 @@
     justify-content: flex-end;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   CHAMPS ÉDITABLES
+   ═══════════════════════════════════════════════════════════════ */
+.or-card__body--form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.or-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.or-field__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary-color, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.or-field__input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.or-field__input {
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-color);
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.or-field__input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb, 41, 128, 185), 0.15);
+}
+
+.or-field__textarea {
+  resize: vertical;
+  min-height: 60px;
+  font-family: inherit;
+}
+
+.or-field__select {
+  cursor: pointer;
+}
+
+.or-field__suffix {
+  position: absolute;
+  right: 12px;
+  color: var(--text-secondary-color, #888);
+  font-size: 13px;
+  pointer-events: none;
+}
+
+.or-field__input[type="number"] {
+  padding-right: 40px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   BOUTON ANNULER
+   ═══════════════════════════════════════════════════════════════ */
+.or-editeur__btn-cancel {
+  background: transparent;
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.15s;
+}
+
+.or-editeur__btn-cancel:hover {
+  background: var(--hover-color, rgba(0, 0, 0, 0.05));
+}
+
+.or-editeur__btn-cancel:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ERREUR DE SAUVEGARDE
+   ═══════════════════════════════════════════════════════════════ */
+.or-editeur__save-error {
+  background: rgba(231, 76, 60, 0.1);
+  border: 1px solid rgba(231, 76, 60, 0.3);
+  color: #e74c3c;
+  padding: 10px 16px;
+  margin: 0 16px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   BOUTON ENREGISTRER - état actif visible
+   ═══════════════════════════════════════════════════════════════ */
+.or-editeur__btn-save:not(:disabled) {
+  animation: pulse-soft 2s ease-in-out infinite;
+}
+
+@keyframes pulse-soft {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(var(--primary-color-rgb, 41, 128, 185), 0.4); }
+  50% { box-shadow: 0 0 0 4px rgba(var(--primary-color-rgb, 41, 128, 185), 0); }
+}
