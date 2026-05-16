@@ -29,25 +29,32 @@ interface VehiculeLite {
   immatriculation: string;
 }
 
+interface OrPrefill {
+  rdvId?:      number;
+  clientId?:   number;
+  vehiculeId?: number | null;
+  description?: string;
+}
+
 interface ModalOrCreationProps {
-  // Callback appelé après création réussie (avec l'OR créé)
   onCreated: (ordre: OrdreReparationDetail) => void;
   onClose: () => void;
+  prefill?: OrPrefill;
 }
 
 // =============================================================================
 // COMPOSANT
 // =============================================================================
-const ModalOrCreation: React.FC<ModalOrCreationProps> = ({ onCreated, onClose }) => {
+const ModalOrCreation: React.FC<ModalOrCreationProps> = ({ onCreated, onClose, prefill }) => {
 
   // ── État : listes pour les dropdowns ─────────────────────────
-  const [clients, setClients]   = useState<ClientLite[]>([]);
+  const [clients, setClients]     = useState<ClientLite[]>([]);
   const [vehicules, setVehicules] = useState<VehiculeLite[]>([]);
 
   // ── État : sélections de l'utilisateur ───────────────────────
-  const [clientId, setClientId]   = useState<number | ''>('');
-  const [vehiculeId, setVehiculeId] = useState<number | ''>('');
-  const [description, setDescription] = useState('');
+  const [clientId, setClientId]     = useState<number | ''>(prefill?.clientId ?? '');
+  const [vehiculeId, setVehiculeId] = useState<number | ''>(prefill?.vehiculeId ?? '');
+  const [description, setDescription] = useState(prefill?.description ?? '');
   const [kilometrage, setKilometrage] = useState<string>('');
 
   // ── État : UI ────────────────────────────────────────────────
@@ -85,8 +92,10 @@ const ModalOrCreation: React.FC<ModalOrCreationProps> = ({ onCreated, onClose })
       try {
         const data = await fetchVehiculesByClient(clientId as number);
         setVehicules(data);
-        // Si le client n'a qu'1 véhicule, on le sélectionne auto
-        if (data.length === 1) {
+        // Priorité : prefill vehiculeId → auto si 1 seul → vide
+        if (prefill?.vehiculeId && data.some(v => v.id === prefill.vehiculeId)) {
+          setVehiculeId(prefill.vehiculeId);
+        } else if (data.length === 1) {
           setVehiculeId(data[0].id);
         } else {
           setVehiculeId('');
@@ -119,6 +128,7 @@ const ModalOrCreation: React.FC<ModalOrCreationProps> = ({ onCreated, onClose })
         vehicule: vehiculeId as number,
         description_travaux: description,
         kilometrage_entree: kilometrage ? parseInt(kilometrage) : null,
+        rdv: prefill?.rdvId || null,
       };
 
       // Appel API

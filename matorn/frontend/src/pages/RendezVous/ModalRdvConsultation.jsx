@@ -22,7 +22,7 @@ import {
  * Utilise Modal.jsx pour l'overlay, le header (titre + ✕) et le footer.
  */
 
-const ModalRdvConsultation = ({ event, onClose, onEdit, onDelete, onStatusChange }) => {
+const ModalRdvConsultation = ({ event, onClose, onEdit, onDelete, onStatusChange, onCreateOr }) => {
 
   const [statut, setStatut] = useState(event?.statut || 'PLANIFIE');
   const [isChangingStatus, setIsChangingStatus] = useState(false);
@@ -71,6 +71,18 @@ const ModalRdvConsultation = ({ event, onClose, onEdit, onDelete, onStatusChange
     }
   };
 
+  // Données pour créer un OR depuis ce RDV
+  const canCreateOr = onCreateOr && event.client_id;
+
+  const handleCreateOrClick = () => {
+    onCreateOr({
+      rdvId:       event.id,
+      clientId:    event.client_id,
+      vehiculeId:  event.vehicule_id || null,
+      description: description || '',
+    });
+  };
+
   return (
     <Modal
       title={getDepartementLabel(type_rdv)}
@@ -78,6 +90,11 @@ const ModalRdvConsultation = ({ event, onClose, onEdit, onDelete, onStatusChange
       onClose={onClose}
       footer={
         <>
+          {canCreateOr && (
+            <button className="modal-btn modal-btn--success" onClick={handleCreateOrClick} title="Créer un ordre de réparation depuis ce RDV">
+              📋 Créer OR
+            </button>
+          )}
           <button className="modal-btn modal-btn--primary" onClick={() => onEdit(event)}>
             <Pencil size={14} /> Modifier
           </button>

@@ -1,6 +1,6 @@
 // /frontend/src/pages/Planning/Planning.jsx
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   getAllRdvs,
   addRdv,
@@ -19,6 +19,7 @@ import logger from '../../utils/logger';
 import './Planning.css';
 
 const Planning = ({ isSidebarExpanded }) => {
+  const navigate = useNavigate();
 
   const [events, setEvents]               = useState([]);
   const [loading, setLoading]             = useState(false);
@@ -142,6 +143,12 @@ const Planning = ({ isSidebarExpanded }) => {
     setClientPrefill(null);
   };
 
+  // ── Créer un OR depuis la consultation d'un RDV ──────────────
+  const handleCreateOrFromRdv = (rdvInfo) => {
+    setConsultEvent(null);
+    navigate('/ordres-reparation', { state: { prefillFromRdv: rdvInfo } });
+  };
+
   if (loading && events.length === 0) {
     return (
       <div className="planning-loading">
@@ -178,6 +185,7 @@ const Planning = ({ isSidebarExpanded }) => {
           onEdit={handleEditFromConsult}
           onDelete={handleDelete}
           onStatusChange={handleStatusChange}
+          onCreateOr={handleCreateOrFromRdv}
         />
       )}
 

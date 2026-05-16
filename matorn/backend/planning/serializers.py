@@ -92,6 +92,10 @@ class InterventionSerializer(serializers.ModelSerializer):
     departement_data    = serializers.SerializerMethodField()
     collaborateurs_data = serializers.SerializerMethodField()
 
+    # IDs FK en lecture — nécessaires pour créer un OR depuis un RDV
+    client_id   = serializers.SerializerMethodField()
+    vehicule_id = serializers.SerializerMethodField()
+
     title = serializers.SerializerMethodField()
     start = serializers.DateTimeField(source='date_debut', read_only=True)
     end   = serializers.DateTimeField(source='date_fin',   read_only=True)
@@ -102,6 +106,7 @@ class InterventionSerializer(serializers.ModelSerializer):
             'id', 'statut', 'date_debut', 'date_fin', 'description',
             'title', 'start', 'end',
             'departement_data', 'collaborateurs_data',
+            'client_id', 'vehicule_id',
             'client_nom_display', 'client_prenom_display', 'client_phone_display', 'client_email_display',
             'vehicule_immat_display', 'vehicule_marque_display', 'vehicule_modele_display', 'vehicule_annee_display',
             'type_rdv', 'collaborateurs_ids',
@@ -117,6 +122,12 @@ class InterventionSerializer(serializers.ModelSerializer):
         }
 
     # ── SerializerMethodField ────────────────────────────────────────────────
+
+    def get_client_id(self, obj):
+        return obj.client_id if obj.client_id else None
+
+    def get_vehicule_id(self, obj):
+        return obj.vehicule_id if obj.vehicule_id else None
 
     def get_vehicule_immat_display(self, obj):
         return obj.vehicule.immatriculation if obj.vehicule else ''

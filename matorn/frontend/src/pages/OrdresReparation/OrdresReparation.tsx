@@ -1,6 +1,6 @@
 // /frontend/src/pages/OrdresReparation/OrdresReparation.tsx
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 // Service API
 import { fetchOrdres, updateOrdre, deleteOrdre, OrdreReparationListItem, OrdreReparationDetail, STATUTS_OR } from './orService';
@@ -41,16 +41,26 @@ const FILTRE_COLORS: Record<string, string> = {
 // =============================================================================
 // COMPOSANT
 // =============================================================================
+// Type pour le prefill depuis un RDV
+interface OrPrefill {
+  rdvId:       number;
+  clientId:    number;
+  vehiculeId:  number | null;
+  description: string;
+}
+
 const OrdresReparation: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   // ── État : données + UI ──────────────────────────────────────
   const [ordres, setOrdres]   = useState<OrdreReparationListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState<string | null>(null);
-  
+
   // ── État : modale création ───────────────────────────────────
   const [modalCreationOuverte, setModalCreationOuverte] = useState(false);
+  const [orPrefill, setOrPrefill]                       = useState<OrPrefill | null>(null);
 
   // ── État : menu d'action rapide ──────────────────────────────
   const [menuOpenId, setMenuOpenId] = useState<number | null>(null);
@@ -74,6 +84,15 @@ const OrdresReparation: React.FC = () => {
   }, []);
 
   useEffect(() => { loadOrdres(); }, [loadOrdres]);
+
+  // Détecte un prefill depuis Planning ou ClientDetail (RDV → OR)
+  useEffect(() => {
+    if (location.state?.prefillFromRdv) {
+      setOrPrefill(location.state.prefillFromRdv);
+      setModalCreationOuverte(true);
+      window.history.replaceState({}, '');
+    }
+  }, [location.state]);
 
   // Fermer le menu action au clic hors de la ligne
   useEffect(() => {
@@ -123,8 +142,9 @@ const OrdresReparation: React.FC = () => {
   const handleOpenOr = (ordreId: number) => {
     navigate(`/ordres-reparation/${ordreId}`);
   };
-  // ── Ouverture modale création ────────────────────────────────
+  // ── Ouverture modale création (sans prefill) ─────────────────
   const handleNouveauOr = () => {
+    setOrPrefill(null);
     setModalCreationOuverte(true);
   };
 
@@ -324,7 +344,8 @@ const OrdresReparation: React.FC = () => {
       {modalCreationOuverte && (
         <ModalOrCreation
           onCreated={handleOrCreated}
-          onClose={() => setModalCreationOuverte(false)}
+          onClose={() => { setModalCreationOuverte(false); setOrPrefill(null); }}
+          prefill={orPrefill ?? undefined}
         />
       )}
     </div>

@@ -27,6 +27,10 @@ const ModalForm = ({ isOpen, onClose, initialData, prefilledDate, onSubmit }) =>
     const [collaborateurs, setCollaborateurs] = useState([]);
     const [errors,         setErrors]         = useState({});
 
+    // Véhicules pré-chargés depuis la fiche client (pour le sélecteur)
+    const clientVehicules = initialData?.clientVehicules || [];
+    const [vehiculeSelectId, setVehiculeSelectId] = useState('');
+
     // ── Chargement au montage ──────────────────────────────────────
     useEffect(() => {
         fetchDepartements(true).then(data => {
@@ -280,6 +284,49 @@ const ModalForm = ({ isOpen, onClose, initialData, prefilledDate, onSubmit }) =>
                 {deptRequiertVehicule && (
                     <div className="mf-section">
                         <div className="mf-section-title"><Car size={14} /> Informations Véhicule</div>
+
+                        {/* Sélecteur de véhicule existant si client pré-rempli */}
+                        {clientVehicules.length > 0 && (
+                            <div className="mf-group">
+                                <label className="mf-label">Véhicule existant du client</label>
+                                <select
+                                    className="mf-input"
+                                    value={vehiculeSelectId}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        setVehiculeSelectId(val);
+                                        if (!val) {
+                                            // "Nouveau véhicule" → reset les champs
+                                            setFormData(prev => ({ ...prev, plate: '', vehicleBrand: '', vehicleModel: '', vehicleYear: '' }));
+                                        } else {
+                                            const v = clientVehicules.find(v => String(v.id) === val);
+                                            if (v) {
+                                                setFormData(prev => ({
+                                                    ...prev,
+                                                    plate:        v.immatriculation || '',
+                                                    vehicleBrand: v.marque          || '',
+                                                    vehicleModel: v.modele          || '',
+                                                    vehicleYear:  v.annee?.toString() || '',
+                                                    vehicleType:  v.type_vehicule   || prev.vehicleType,
+                                                }));
+                                            }
+                                        }
+                                    }}
+                                >
+                                    <option value="">— Saisir manuellement / Nouveau véhicule —</option>
+                                    {clientVehicules.map(v => (
+                                        <option key={v.id} value={v.id}>
+                                            {v.marque} {v.modele}
+                                            {v.immatriculation ? ` — ${v.immatriculation}` : ''}
+                                            {v.annee ? ` (${v.annee})` : ''}
+                                        </option>
+                                    ))}
+                                </select>
+                                <span style={{ fontSize: 11, color: '#888', marginTop: 4, display: 'block' }}>
+                                    Sélectionner pré-remplit les champs ci-dessous (modifiables)
+                                </span>
+                            </div>
+                        )}
 
                         {/* 🆕 Type de véhicule remonté AU-DESSUS de la plaque
                             pour que le changement de type rafraîchisse visuellement la plaque */}

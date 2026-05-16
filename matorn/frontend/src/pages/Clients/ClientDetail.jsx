@@ -66,13 +66,25 @@ const ClientDetail = ({ client, onClose, onEdit, onDelete }) => {
     navigate('/planning', {
       state: {
         clientPrefill: {
+          clientId:        client.id,
           clientName:      client.nom       || '',
           clientFirstName: client.prenom    || '',
           clientPhone:     client.telephone || '',
           clientEmail:     client.email     || '',
           clientAddress:   client.adresse   || '',
+          // Véhicules du client pour le sélecteur dans ModalForm
+          clientVehicules: vehicules,
         }
       }
+    });
+  };
+
+  // ── Créer un OR depuis un RDV consulté ────────────────────────
+  const handleCreateOrFromRdv = (rdvInfo) => {
+    setConsultIntervention(null);
+    onClose();
+    navigate('/ordres-reparation', {
+      state: { prefillFromRdv: rdvInfo }
     });
   };
 
@@ -277,6 +289,7 @@ const ClientDetail = ({ client, onClose, onEdit, onDelete }) => {
           onEdit={() => setConsultIntervention(null)}
           onDelete={() => setConsultIntervention(null)}
           onStatusChange={handleStatusChange}
+          onCreateOr={handleCreateOrFromRdv}
         />
       )}
 
