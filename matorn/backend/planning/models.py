@@ -86,10 +86,11 @@ class Collaborateur(models.Model):
 class Intervention(SoftDeleteMixin):  # ← MODIF
 
     STATUT_CHOICES = [
-        ('PLANIFIE', 'Planifié'),
-        ('EN_COURS', 'En cours'),
-        ('TERMINE', 'Terminé'),
-        ('ANNULE', 'Annulé'),
+        ('PLANIFIE',    'Planifié'),
+        ('RECEPTIONNE', 'Réceptionné'),
+        ('EN_COURS',    'En cours'),
+        ('TERMINE',     'Terminé'),
+        ('ANNULE',      'Annulé'),
     ]
 
     departement = models.ForeignKey(

@@ -114,6 +114,12 @@
   color: #2ecc71;
 }
 
+.consult-statut-select--receptionne {
+  background-color: rgba(142, 68, 173, 0.15);
+  border-color: #8e44ad;
+  color: #9b59b6;
+}
+
 .consult-statut-select--annule {
   background-color: rgba(192, 57, 43, 0.15);
   border-color: #c0392b;

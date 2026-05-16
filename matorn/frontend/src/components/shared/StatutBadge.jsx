@@ -18,10 +18,11 @@ import React from 'react';
 
 // Configuration centralisée — couleurs par statut
 const STATUT_CONFIG = {
-  PLANIFIE: { label: 'Planifié',  color: '#2980b9' },
-  EN_COURS: { label: 'En cours',  color: '#e67e22' },
-  TERMINE:  { label: 'Terminé',   color: '#27ae60' },
-  ANNULE:   { label: 'Annulé',    color: '#7f8c8d' },
+  PLANIFIE:    { label: 'Planifié',    color: '#2980b9' },
+  RECEPTIONNE: { label: 'Réceptionné', color: '#8e44ad' },
+  EN_COURS:    { label: 'En cours',    color: '#e67e22' },
+  TERMINE:     { label: 'Terminé',     color: '#27ae60' },
+  ANNULE:      { label: 'Annulé',      color: '#7f8c8d' },
 };
 
 const StatutBadge = ({ statut }) => {

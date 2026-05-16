@@ -126,11 +126,8 @@ const DevisList = ({ onSelectDevis, onCreateDevis, onEditDevis, onViewPDF }) => 
         title="Devis"
         count={filtered.length}
         countLabel="devis"
-        action={
-          <button className="page-header__btn" onClick={onCreateDevis}>
-            + Nouveau devis
-          </button>
-        }
+        onAdd={onCreateDevis}
+        addLabel="Nouveau devis"
       />
 
       <SearchBar

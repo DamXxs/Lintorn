@@ -100,11 +100,8 @@ const FactureList = ({ onSelectFacture, onCreateFacture }) => {
         title="Factures"
         count={filtered.length}
         countLabel="factures"
-        action={
-          <button className="page-header__btn" onClick={onCreateFacture}>
-            + Nouvelle facture
-          </button>
-        }
+        onAdd={onCreateFacture}
+        addLabel="Nouvelle facture"
       />
 
       <SearchBar

@@ -21,6 +21,18 @@
   max-width: 900px;
 }
 
+.facture-form__field-error {
+  color: #e74c3c;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}
+
+.facture-form__input--error {
+  border-color: #e74c3c !important;
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2) !important;
+}
+
 .facture-form__section {
   margin-bottom: 2.5rem;
 }

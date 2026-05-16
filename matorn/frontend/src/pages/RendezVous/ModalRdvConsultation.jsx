@@ -72,7 +72,8 @@ const ModalRdvConsultation = ({ event, onClose, onEdit, onDelete, onStatusChange
   };
 
   // Données pour créer un OR depuis ce RDV
-  const canCreateOr = onCreateOr && event.client_id;
+  const CAN_CREATE_OR_STATUTS = ['PLANIFIE', 'RECEPTIONNE', 'EN_COURS'];
+  const canCreateOr = onCreateOr && event.client_id && CAN_CREATE_OR_STATUTS.includes(statut);
 
   const handleCreateOrClick = () => {
     onCreateOr({

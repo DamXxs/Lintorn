@@ -44,15 +44,30 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
   if (!vehicule) return null;
 
   const handleNewRdv = () => {
+    const nomParts        = (vehicule.proprietaire_nom || '').split(' ');
+    const clientName      = nomParts[0] || '';
+    const clientFirstName = nomParts.slice(1).join(' ') || '';
+
     onClose();
     navigate('/planning', {
       state: {
         clientPrefill: {
-          plate:        vehicule.immatriculation || '',
-          vehicleBrand: vehicule.marque          || '',
-          vehicleModel: vehicule.modele          || '',
-          vehicleYear:  vehicule.annee ? String(vehicule.annee) : '',
-          vehicleType:  vehicule.type_vehicule   || 'VOITURE',
+          clientId:        vehicule.proprietaire_id || null,
+          clientName,
+          clientFirstName,
+          plate:           vehicule.immatriculation  || '',
+          vehicleBrand:    vehicule.marque           || '',
+          vehicleModel:    vehicule.modele           || '',
+          vehicleYear:     vehicule.annee ? String(vehicule.annee) : '',
+          vehicleType:     vehicule.type_vehicule    || 'VOITURE',
+          clientVehicules: vehicule.proprietaire_id ? [{
+            id:              vehicule.id,
+            immatriculation: vehicule.immatriculation || '',
+            marque:          vehicule.marque          || '',
+            modele:          vehicule.modele          || '',
+            annee:           vehicule.annee           || '',
+            type_vehicule:   vehicule.type_vehicule   || 'VOITURE',
+          }] : [],
         }
       }
     });

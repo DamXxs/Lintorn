@@ -23,10 +23,11 @@ import logger from '../../utils/logger';
 // Valeurs fixes côté Django (choix fermés du modèle).
 // Non configurables dans Paramètres.
 export const STATUTS_RDV = {
-  PLANIFIE: { value: 'PLANIFIE', label: '📅 Planifié',  class: 'planifie' },
-  EN_COURS: { value: 'EN_COURS', label: '⚙️ En cours',  class: 'en-cours' },
-  TERMINE:  { value: 'TERMINE',  label: '✅ Terminé',   class: 'termine'  },
-  ANNULE:   { value: 'ANNULE',   label: '❌ Annulé',    class: 'annule'   },
+  PLANIFIE:    { value: 'PLANIFIE',    label: '📅 Planifié',      class: 'planifie'    },
+  RECEPTIONNE: { value: 'RECEPTIONNE', label: '🔧 Réceptionné',   class: 'receptionne' },
+  EN_COURS:    { value: 'EN_COURS',    label: '⚙️ En cours',      class: 'en-cours'    },
+  TERMINE:     { value: 'TERMINE',     label: '✅ Terminé',       class: 'termine'     },
+  ANNULE:      { value: 'ANNULE',      label: '❌ Annulé',        class: 'annule'      },
 };
 
 // ── HELPERS STATUT ────────────────────────────────────────────────
@@ -58,9 +59,10 @@ export const getDepartementLabel = (value) => {
  */
 export const getEventColors = (intervention) => {
   const { statut, departement } = intervention;
-  if (statut === 'ANNULE')   return { backgroundColor: '#7f8c8d', borderColor: '#95a5a6' };
-  if (statut === 'TERMINE')  return { backgroundColor: '#27ae60', borderColor: '#2ecc71' };
-  if (statut === 'EN_COURS') return { backgroundColor: '#e67e22', borderColor: '#f39c12' };
+  if (statut === 'ANNULE')      return { backgroundColor: '#7f8c8d', borderColor: '#95a5a6' };
+  if (statut === 'TERMINE')     return { backgroundColor: '#27ae60', borderColor: '#2ecc71' };
+  if (statut === 'EN_COURS')    return { backgroundColor: '#e67e22', borderColor: '#f39c12' };
+  if (statut === 'RECEPTIONNE') return { backgroundColor: '#8e44ad', borderColor: '#9b59b6' };
   const color = departement?.couleur || '#2980b9';
   return { backgroundColor: color, borderColor: color };
 };

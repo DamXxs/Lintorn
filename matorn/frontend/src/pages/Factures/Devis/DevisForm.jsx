@@ -20,7 +20,7 @@ import {
   addLigneDevis,
   deleteLigneDevis,
 } from './devisService';
-import { fetchForfaits } from '../../Parametres/parametresService';
+import { useReferentiels } from '../../../context/ReferentielsContext';
 import LoadingState from '../../../components/shared/LoadingState';
 import ErrorState from '../../../components/shared/ErrorState';
 import './DevisForm.css';
@@ -42,12 +42,19 @@ const TYPE_PIECE   = 'piece';     // pièce du stock
 
 const DevisForm = ({ devisId, onSave, onCancel }) => {
   const modeEdition = Boolean(devisId);
+  const { getTypeInterventions } = useReferentiels();
 
   // ── Données de référence ──────────────────────────────────────────────────
   const [clients, setClients] = useState([]);
   const [interventions, setInterventions] = useState([]);
   const [pieces, setPieces] = useState([]);
-  const [forfaits, setForfaits] = useState([]);
+
+  // Forfaits = types d'interventions du référentiel (une seule source de vérité)
+  const forfaits = getTypeInterventions().map(t => ({
+    id:          t.valeur,
+    nom:         t.label,
+    prix_forfait: null, // pas de prix prédéfini — l'utilisateur saisit
+  }));
 
   // ── Infos générales du devis ──────────────────────────────────────────────
   const [formData, setFormData] = useState({
@@ -79,14 +86,12 @@ const DevisForm = ({ devisId, onSave, onCancel }) => {
   useEffect(() => {
     const init = async () => {
       try {
-        const [cls, pcs, forf] = await Promise.all([
+        const [cls, pcs] = await Promise.all([
           fetchClients(),
           fetchPieces(),
-          fetchForfaits(false), // uniquement les actifs pour la saisie
         ]);
         setClients(Array.isArray(cls) ? cls : []);
         setPieces(Array.isArray(pcs) ? pcs : []);
-        setForfaits(Array.isArray(forf) ? forf : []);
       } catch (err) {
         console.error('Erreur chargement données de base:', err);
       }
@@ -179,14 +184,14 @@ const DevisForm = ({ devisId, onSave, onCancel }) => {
     }
 
     if (name === 'forfait' && value) {
-      // Auto-remplir description + prix depuis le forfait sélectionné
       const f = forfaits.find((x) => x.id.toString() === value);
       if (f) {
         setLigneForm((prev) => ({
           ...prev,
           forfait: value,
           description: f.nom,
-          prix_unitaire: parseFloat(f.prix_forfait),
+          // prix_forfait null = TYPE_INTERVENTION sans prix prédéfini, l'utilisateur saisit
+          prix_unitaire: f.prix_forfait !== null ? parseFloat(f.prix_forfait) : '',
         }));
         return;
       }
@@ -504,7 +509,7 @@ const DevisForm = ({ devisId, onSave, onCancel }) => {
                 </p>
                 {forfaits.length === 0 ? (
                   <p className="devis-form__no-forfaits">
-                    Aucun forfait configuré. Allez dans les Paramètres pour en créer.
+                    Aucun type d'intervention configuré. Allez dans Paramètres → Types d'interventions.
                   </p>
                 ) : (
                   <div className="devis-form__forfait-grid">
@@ -516,7 +521,9 @@ const DevisForm = ({ devisId, onSave, onCancel }) => {
                         onClick={() => handleLigneChange({ target: { name: 'forfait', value: f.id.toString() } })}
                       >
                         <span className="devis-form__forfait-card-nom">{f.nom}</span>
-                        <span className="devis-form__forfait-card-prix">{euros(f.prix_forfait)}</span>
+                        <span className="devis-form__forfait-card-prix">
+                          {f.prix_forfait !== null ? euros(f.prix_forfait) : 'Prix à saisir'}
+                        </span>
                         {f.description && (
                           <span className="devis-form__forfait-card-desc">{f.description}</span>
                         )}

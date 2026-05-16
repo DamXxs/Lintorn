@@ -14,6 +14,8 @@ const FactureForm = ({ onSave, onCancel }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
+  const [ligneError, setLigneError] = useState(null);
 
   const [formData, setFormData] = useState({
     client: '',
@@ -104,20 +106,21 @@ const FactureForm = ({ onSave, onCancel }) => {
   };
 
   const ajouterLigne = () => {
+    setLigneError(null);
     if (nouvelleLigne.type === 'piece' && !nouvelleLigne.piece) {
-      alert('Veuillez sélectionner une pièce');
+      setLigneError('Veuillez sélectionner une pièce');
       return;
     }
-    if (nouvelleLigne.type === 'service' && !nouvelleLigne.description) {
-      alert('Veuillez saisir une description');
+    if (nouvelleLigne.type === 'service' && !nouvelleLigne.description.trim()) {
+      setLigneError('Veuillez saisir une description');
       return;
     }
     if (nouvelleLigne.quantite <= 0) {
-      alert('La quantité doit être > 0');
+      setLigneError('La quantité doit être supérieure à 0');
       return;
     }
     if (nouvelleLigne.prix_unitaire < 0) {
-      alert('Le prix unitaire ne peut pas être négatif');
+      setLigneError('Le prix unitaire ne peut pas être négatif');
       return;
     }
 
@@ -161,18 +164,15 @@ const FactureForm = ({ onSave, onCancel }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.client) {
-      alert('Veuillez sélectionner un client');
+    const errs = {};
+    if (!formData.client)        errs.client        = 'Le client est obligatoire';
+    if (!formData.date_echeance) errs.date_echeance = 'La date d\'échéance est obligatoire';
+    if (lignes.length === 0)     errs.lignes        = 'Ajoutez au moins une ligne de facturation';
+    if (Object.keys(errs).length > 0) {
+      setFormErrors(errs);
       return;
     }
-    if (!formData.date_echeance) {
-      alert('Veuillez saisir une date d\'échéance');
-      return;
-    }
-    if (lignes.length === 0) {
-      alert('Veuillez ajouter au moins une ligne');
-      return;
-    }
+    setFormErrors({});
 
     setSubmitting(true);
     try {
@@ -215,8 +215,8 @@ const FactureForm = ({ onSave, onCancel }) => {
               id="client"
               name="client"
               value={formData.client}
-              onChange={handleFormChange}
-              required
+              onChange={(e) => { handleFormChange(e); setFormErrors(p => ({ ...p, client: null })); }}
+              className={formErrors.client ? 'facture-form__input--error' : ''}
             >
               <option value="">-- Sélectionner un client --</option>
               {clients.map((client) => (
@@ -225,6 +225,7 @@ const FactureForm = ({ onSave, onCancel }) => {
                 </option>
               ))}
             </select>
+            {formErrors.client && <span className="facture-form__field-error">{formErrors.client}</span>}
           </div>
 
           <div className="facture-form__group">
@@ -234,9 +235,10 @@ const FactureForm = ({ onSave, onCancel }) => {
               id="date_echeance"
               name="date_echeance"
               value={formData.date_echeance}
-              onChange={handleFormChange}
-              required
+              onChange={(e) => { handleFormChange(e); setFormErrors(p => ({ ...p, date_echeance: null })); }}
+              className={formErrors.date_echeance ? 'facture-form__input--error' : ''}
             />
+            {formErrors.date_echeance && <span className="facture-form__field-error">{formErrors.date_echeance}</span>}
           </div>
 
           <div className="facture-form__group">
@@ -255,6 +257,8 @@ const FactureForm = ({ onSave, onCancel }) => {
         {/* Section Lignes */}
         <div className="facture-form__section">
           <h3>Lignes de facturation</h3>
+          {formErrors.lignes && <div className="facture-form__field-error">{formErrors.lignes}</div>}
+          {ligneError && <div className="facture-form__field-error">{ligneError}</div>}
 
           <div className="facture-form__ligne-new">
             <div className="facture-form__ligne-group">

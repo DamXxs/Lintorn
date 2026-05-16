@@ -1,14 +1,16 @@
 // /frontend/src/pages/RendezVous/RdvList.jsx
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   getAllRdvs,
   searchRdvs,
+  addRdv,
   patchRdv,
   removeRdv,
   editRdv,
   STATUTS_RDV,
 } from './rdvService';
+import { formatInterventionForDjango } from '../../utils/dataFormatters';
 import { formatDateCourt, formatHeure } from '../../utils/dataFormatters';
 import StatutBadge from '../../components/shared/StatutBadge';
 import FrenchPlateInput from '../../components/shared/plates/FrenchPlateInput';
@@ -18,7 +20,7 @@ import PageHeader from '../../components/shared/PageHeader';
 import SearchBar from '../../components/shared/SearchBar/SearchBar';
 import LoadingState from '../../components/shared/LoadingState';
 import ErrorState from '../../components/shared/ErrorState';
-import { CalendarClock, User, FileText } from '../../utils/icons';
+import { CalendarClock, User, FileText, CalendarPlus } from '../../utils/icons';
 import './RdvList.css';
 import '../../components/shared/list-page.css';
 
@@ -72,8 +74,15 @@ const rdvToFormData = (rdv) => {
   };
 };
 
+// Couleurs filtres (avec le nouveau statut)
+const FILTRE_COLORS_ALL = {
+  ...FILTRE_COLORS,
+  RECEPTIONNE: '#8e44ad',
+};
+
 const RdvList = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const [rdvs, setRdvs]               = useState([]);
   const [filtered, setFiltered]       = useState([]);
@@ -82,7 +91,8 @@ const RdvList = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeStatut, setActiveStatut] = useState('ALL');
   const [consultRdv, setConsultRdv]   = useState(null);
-  const [editRdvData, setEditRdvData] = useState(null); // 👈 nouvel état pour l'édition
+  const [editRdvData, setEditRdvData] = useState(null);
+  const [newRdvOpen, setNewRdvOpen]   = useState(false);
 
   // ── Chargement ──────────────────────────────────────────────
   const loadRdvs = async () => {
@@ -146,6 +156,12 @@ const RdvList = () => {
     }
   };
 
+  // ── Créer un OR depuis un RDV ────────────────────────────────
+  const handleCreateOrFromRdv = (rdvInfo) => {
+    setConsultRdv(null);
+    navigate('/ordres-reparation', { state: { prefillFromRdv: rdvInfo } });
+  };
+
   // ── Ouverture de l'édition ───────────────────────────────────
   const handleEdit = (rdv) => {
     setConsultRdv(null);              // ferme la consultation
@@ -179,6 +195,9 @@ const RdvList = () => {
         title={<><CalendarClock size={18} /> Rendez-vous</>}
         count={filtered.length}
         countLabel="rendez-vous"
+        onAdd={() => setNewRdvOpen(true)}
+        addLabel="Nouveau RDV"
+        addIcon={<CalendarPlus size={16} />}
       />
 
       <SearchBar
@@ -194,7 +213,7 @@ const RdvList = () => {
             key={f.value}
             className={`rdv-filter-btn ${activeStatut === f.value ? 'rdv-filter-btn--active' : ''}`}
             style={activeStatut === f.value && f.value !== 'ALL'
-              ? { background: FILTRE_COLORS[f.value], borderColor: FILTRE_COLORS[f.value] }
+              ? { background: FILTRE_COLORS_ALL[f.value], borderColor: FILTRE_COLORS_ALL[f.value] }
               : {}
             }
             onClick={() => setActiveStatut(f.value)}
@@ -265,9 +284,10 @@ const RdvList = () => {
         <ModalRdvConsultation
           event={consultRdv}
           onClose={() => setConsultRdv(null)}
-          onEdit={handleEdit}           // 👈 maintenant branché correctement
+          onEdit={handleEdit}
           onDelete={(id) => handleDelete(id)}
           onStatusChange={handleStatusChange}
+          onCreateOr={handleCreateOrFromRdv}
         />
       )}
 
@@ -278,6 +298,23 @@ const RdvList = () => {
           initialData={editRdvData}
           onClose={() => setEditRdvData(null)}
           onSubmit={handleEditSubmit}
+        />
+      )}
+
+      {/* MODAL NOUVEAU RDV */}
+      {newRdvOpen && (
+        <ModalForm
+          isOpen={true}
+          onClose={() => setNewRdvOpen(false)}
+          onSubmit={async (formData) => {
+            try {
+              await addRdv(formatInterventionForDjango(formData));
+              setNewRdvOpen(false);
+              await loadRdvs();
+            } catch (err) {
+              alert(`Erreur : ${err.message}`);
+            }
+          }}
         />
       )}
 
