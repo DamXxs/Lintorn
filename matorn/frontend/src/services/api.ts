@@ -672,3 +672,23 @@ export const fetchParametres = async (): Promise<ParametresFacturation> => {
     throw new Error('Erreur lors du chargement des paramètres');
   }
 };
+
+export const updateParametres = async (
+  data: Partial<Omit<ParametresFacturation, 'id' | 'numero_devis_actuel' | 'numero_facture_actuel' | 'updated_at'>>
+): Promise<ParametresFacturation> => {
+  try {
+    const response = await api.patch<ParametresFacturation>('/factures/parametres/', data);
+    return response.data;
+  } catch (error: any) {
+    throw new Error('Erreur lors de la mise à jour des paramètres');
+  }
+};
+
+export const searchPieces = async (q: string): Promise<Piece[]> => {
+  try {
+    const response = await api.get<Piece[]>(`/stock/pieces/?search=${encodeURIComponent(q)}`);
+    return response.data;
+  } catch (error: any) {
+    throw new Error('Erreur lors de la recherche de pièces');
+  }
+};

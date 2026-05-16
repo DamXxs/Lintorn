@@ -28,7 +28,7 @@ export const generateOrPdf = async (elementId: string, filename: string): Promis
   const imgRatio  = canvas.height / canvas.width;
   const imgHeight = pageWidth * imgRatio;
 
-  if (imgHeight <= pageHeight) {
+  if (imgHeight <= pageHeight + 0.5) {
     // Tient sur une seule page
     pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, imgHeight);
   } else {

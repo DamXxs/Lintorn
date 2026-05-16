@@ -373,9 +373,42 @@
 .text-right { text-align: right; }
 .text-center { text-align: center; }
 
+/* ── Grille infos garage (2 colonnes) ─────────────────────────────────────── */
+
+.parametres-facturation__garage-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 20px;
+}
+
+.parametres-facturation__garage-full {
+  grid-column: 1 / -1;
+}
+
+/* Ajoute support email dans le groupe input */
+.parametres-facturation__group input[type="email"] {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+  background: var(--input-bg);
+  color: var(--text);
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.parametres-facturation__group input[type="email"]:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(41, 128, 185, 0.15);
+}
+
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 
 @media (max-width: 600px) {
   .parametres-facturation { padding: 1rem; }
   .parametres-facturation__forfait-form-row { flex-direction: column; }
+  .parametres-facturation__garage-grid { grid-template-columns: 1fr; }
+  .parametres-facturation__garage-full { grid-column: 1; }
 }

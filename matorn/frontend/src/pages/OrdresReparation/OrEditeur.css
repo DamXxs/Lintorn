@@ -343,7 +343,7 @@
   display: block;
   width: 100%;
   min-height: 150px;
-  padding: 14px;
+  padding: 0 14px 14px 14px; /* padding-top: 0 → lignes alignées avec le texte */
   background: var(--input-bg);
   background-image: repeating-linear-gradient(
     transparent,
@@ -476,6 +476,321 @@
   padding-bottom: 4px;
   border-bottom: 1px solid var(--border);
   min-height: 26px;
+}
+
+/* =============================================================================
+   EN-TÊTE DE CARD AVEC BOUTON ADD
+============================================================================= */
+
+.ore-card__head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.ore-card__head-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ore-btn-add {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 4px;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.ore-btn-add:hover:not(:disabled) {
+  background: rgba(255,255,255,0.3);
+}
+.ore-btn-add:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Bouton danger (suppression ligne) */
+.ore-btn-danger {
+  background: none;
+  border: none;
+  color: var(--danger);
+  cursor: pointer;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+  line-height: 1;
+}
+.ore-btn-danger:hover {
+  opacity: 1;
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+}
+
+/* Colonne actions dans les tableaux */
+.ore-table__col-action {
+  width: 44px;
+  text-align: center;
+}
+
+/* =============================================================================
+   FORMULAIRES D'AJOUT PIÈCES / INTERVENTIONS (panneau inline sous la table)
+============================================================================= */
+
+.ore-add-panel {
+  border-top: 1px solid var(--border);
+  background: color-mix(in srgb, var(--accent) 5%, var(--panel));
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ore-add-panel__title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--accent);
+  margin: 0;
+}
+
+/* Recherche pièce */
+.ore-search-wrap {
+  position: relative;
+}
+
+.ore-search-input {
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.875rem;
+  box-sizing: border-box;
+}
+.ore-search-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.ore-search-results {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.ore-search-result {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+}
+.ore-search-result:last-child { border-bottom: none; }
+
+.ore-search-result__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ore-search-result__nom {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ore-search-result__ref {
+  font-size: 0.75rem;
+  font-family: 'Courier New', monospace;
+  color: color-mix(in srgb, var(--text) 60%, transparent);
+}
+
+/* Badge stock */
+.ore-stock-badge {
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.ore-stock-badge--ok       { background: color-mix(in srgb, var(--success) 15%, transparent); color: var(--success); }
+.ore-stock-badge--alerte   { background: color-mix(in srgb, #e67e22 15%, transparent); color: #e67e22; }
+.ore-stock-badge--rupture  { background: color-mix(in srgb, var(--danger) 15%, transparent); color: var(--danger); }
+
+/* Saisie quantité + bouton ajouter */
+.ore-search-result__qty {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.ore-qty-input {
+  width: 56px;
+  padding: 5px 6px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 0.82rem;
+  text-align: center;
+}
+.ore-qty-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.ore-btn-confirm {
+  padding: 5px 10px;
+  background: var(--accent);
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+.ore-btn-confirm:hover:not(:disabled) { opacity: 0.85; }
+.ore-btn-confirm:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Formulaire intervention */
+.ore-interv-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.ore-interv-form--full {
+  grid-column: 1 / -1;
+}
+
+.ore-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ore-form-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--text) 70%, transparent);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.ore-form-input {
+  padding: 7px 10px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.85rem;
+  box-sizing: border-box;
+}
+.ore-form-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.ore-add-panel__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.ore-btn-cancel-sm {
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.ore-btn-cancel-sm:hover { background: var(--input-bg); }
+
+.ore-btn-confirm-sm {
+  padding: 6px 16px;
+  background: var(--accent);
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.ore-btn-confirm-sm:hover:not(:disabled) { opacity: 0.85; }
+.ore-btn-confirm-sm:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.ore-search-empty {
+  padding: 16px;
+  text-align: center;
+  font-size: 0.82rem;
+  color: color-mix(in srgb, var(--text) 50%, transparent);
+  font-style: italic;
+  background: var(--panel);
+}
+
+/* =============================================================================
+   SECTION CLÔTURE — champs éditables
+============================================================================= */
+
+.ore-cloture-field__input {
+  width: 100%;
+  padding: 6px 8px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-sizing: border-box;
+}
+.ore-cloture-field__input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.ore-cloture-field__input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ore-cloture-readonly {
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+  min-height: 26px;
+  color: var(--success);
 }
 
 /* =============================================================================

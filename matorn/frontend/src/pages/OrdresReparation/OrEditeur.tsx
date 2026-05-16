@@ -8,8 +8,19 @@ import {
   OrdreReparationDetail,
   STATUT_OR_COLORS,
   STATUTS_OR,
+  addPieceToOrdre,
+  deleteLignePiece,
+  addInterventionToOrdre,
+  deleteLigneIntervention,
+  cloturerOrdre,
+  LigneInterventionCreateData,
 } from './orService';
-import { fetchParametres, ParametresFacturation } from '../../services/api';
+import {
+  fetchParametres, ParametresFacturation,
+  fetchReferentiels, fetchCollaborateurs,
+  searchPieces as apiSearchPieces,
+  Referentiel, Collaborateur, Piece,
+} from '../../services/api';
 import { generateOrPdf } from './generateOrPdf';
 import OrPdfTemplate from './OrPdfTemplate';
 
@@ -29,16 +40,36 @@ type FormData = {
   description_travaux: string;
   statut: OrdreReparationDetail['statut'];
   notes_internes: string;
+  kilometrage_sortie: string;
+  heure_sortie: string;
+};
+
+type NewIntervForm = {
+  date: string;
+  type_intervention: number;
+  mecanicien: number;
+  duree_minutes: string;
+  detail: string;
 };
 
 function initFormData(ordre: OrdreReparationDetail): FormData {
   return {
-    kilometrage_entree: ordre.kilometrage_entree?.toString() ?? '',
+    kilometrage_entree:  ordre.kilometrage_entree?.toString() ?? '',
     description_travaux: ordre.description_travaux ?? '',
-    statut: ordre.statut,
-    notes_internes: ordre.notes_internes ?? '',
+    statut:              ordre.statut,
+    notes_internes:      ordre.notes_internes ?? '',
+    kilometrage_sortie:  ordre.kilometrage_sortie?.toString() ?? '',
+    heure_sortie:        ordre.heure_sortie ?? '',
   };
 }
+
+const initNewInterv = (): NewIntervForm => ({
+  date:              new Date().toISOString().slice(0, 10),
+  type_intervention: 0,
+  mecanicien:        0,
+  duree_minutes:     '',
+  detail:            '',
+});
 
 // =============================================================================
 // COMPOSANT
@@ -48,6 +79,7 @@ const OrEditeur: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
+  // ── Données principales ────────────────────────────────────
   const [ordre, setOrdre]     = useState<OrdreReparationDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState<string | null>(null);
@@ -57,19 +89,38 @@ const OrEditeur: React.FC = () => {
     description_travaux: '',
     statut: 'OUVERT',
     notes_internes: '',
+    kilometrage_sortie: '',
+    heure_sortie: '',
   });
 
   const [parametres, setParametres] = useState<ParametresFacturation | null>(null);
 
+  // ── États UI ───────────────────────────────────────────────
   const [saving, setSaving]               = useState(false);
   const [autoSaving, setAutoSaving]       = useState(false);
   const [generatingPdf, setGeneratingPdf] = useState(false);
   const [saveError, setSaveError]         = useState<string | null>(null);
 
-  // Ref pour le timer d'auto-save du kilométrage
-  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // ── Pièces ─────────────────────────────────────────────────
+  const [showAddPiece, setShowAddPiece]         = useState(false);
+  const [pieceSearch, setPieceSearch]           = useState('');
+  const [pieceResults, setPieceResults]         = useState<Piece[]>([]);
+  const [pieceLoading, setPieceLoading]         = useState(false);
+  const [addPieceQty, setAddPieceQty]           = useState<Record<number, string>>({});
+  const [addingPieceId, setAddingPieceId]       = useState<number | null>(null);
 
-  // ── Chargement ────────────────────────────────────────────
+  // ── Interventions ──────────────────────────────────────────
+  const [showAddInterv, setShowAddInterv]       = useState(false);
+  const [typeInterventions, setTypeInterventions] = useState<Referentiel[]>([]);
+  const [collaborateurs, setCollaborateurs]     = useState<Collaborateur[]>([]);
+  const [newInterv, setNewInterv]               = useState<NewIntervForm>(initNewInterv());
+  const [addingInterv, setAddingInterv]         = useState(false);
+
+  // ── Refs ───────────────────────────────────────────────────
+  const autoSaveTimer   = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pieceSearchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // ── Chargement OR ──────────────────────────────────────────
   const loadOrdre = useCallback(async () => {
     if (!id) return;
     try {
@@ -87,38 +138,52 @@ const OrEditeur: React.FC = () => {
 
   useEffect(() => { loadOrdre(); }, [loadOrdre]);
 
+  // Paramètres garage (pour PDF)
   useEffect(() => {
     fetchParametres().then(setParametres).catch(() => {});
   }, []);
 
-  // Nettoyage du timer au démontage
+  // Types intervention + mécaniciens
+  useEffect(() => {
+    Promise.all([
+      fetchReferentiels('type_intervention', true),
+      fetchCollaborateurs(true),
+    ]).then(([types, mecas]) => {
+      setTypeInterventions(types);
+      setCollaborateurs(mecas);
+    }).catch(() => {});
+  }, []);
+
+  // Nettoyage timers au démontage
   useEffect(() => {
     return () => {
-      if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+      if (autoSaveTimer.current)    clearTimeout(autoSaveTimer.current);
+      if (pieceSearchTimer.current) clearTimeout(pieceSearchTimer.current);
     };
   }, []);
 
-  // ── OR clôturé = lecture seule ─────────────────────────────
+  // ── Dérivés ────────────────────────────────────────────────
   const isLocked = ordre?.statut === 'CLOTURE';
 
-  // ── Détection modifications non sauvées ───────────────────
   const isDirty = ordre
-    ? formData.kilometrage_entree !== (ordre.kilometrage_entree?.toString() ?? '')
+    ? formData.kilometrage_entree  !== (ordre.kilometrage_entree?.toString() ?? '')
       || formData.description_travaux !== (ordre.description_travaux ?? '')
-      || formData.statut !== ordre.statut
-      || formData.notes_internes !== (ordre.notes_internes ?? '')
+      || formData.statut              !== ordre.statut
+      || formData.notes_internes      !== (ordre.notes_internes ?? '')
+      || formData.kilometrage_sortie  !== (ordre.kilometrage_sortie?.toString() ?? '')
+      || formData.heure_sortie        !== (ordre.heure_sortie ?? '')
     : false;
 
   // ── Handler générique ──────────────────────────────────────
   const handleFieldChange = (field: keyof FormData, value: string) => {
+    setSaveError(null);
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  // ── Auto-save du kilométrage (debounce 1.5s) ───────────────
+  // ── Auto-save kilométrage (debounce 1.5s) ──────────────────
   const handleKilometrageChange = (value: string) => {
     setFormData(prev => ({ ...prev, kilometrage_entree: value }));
     if (isLocked || !ordre) return;
-
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
     autoSaveTimer.current = setTimeout(async () => {
       setAutoSaving(true);
@@ -127,11 +192,8 @@ const OrEditeur: React.FC = () => {
         const updated = await updateOrdre(ordre.id, { kilometrage_entree: km });
         setOrdre(updated);
         setFormData(prev => ({ ...prev, kilometrage_entree: updated.kilometrage_entree?.toString() ?? '' }));
-      } catch {
-        // Echec silencieux pour l'auto-save
-      } finally {
-        setAutoSaving(false);
-      }
+      } catch { /* échec silencieux */ }
+      finally { setAutoSaving(false); }
     }, 1500);
   };
 
@@ -140,14 +202,54 @@ const OrEditeur: React.FC = () => {
     if (!ordre || !isDirty || isLocked) return;
     setSaving(true);
     setSaveError(null);
+
+    const isCloturingNow = formData.statut === 'CLOTURE' && ordre.statut !== 'CLOTURE';
+
+    if (isCloturingNow) {
+      const missing: string[] = [];
+      if (!formData.heure_sortie)       missing.push('heure de sortie');
+      if (!formData.kilometrage_sortie) missing.push('kilométrage de sortie');
+      if (missing.length > 0) {
+        setSaveError(`Clôture impossible — champs manquants : ${missing.join(', ')}`);
+        setSaving(false);
+        return;
+      }
+    }
+
     try {
-      const payload = {
-        kilometrage_entree: formData.kilometrage_entree ? parseInt(formData.kilometrage_entree) : null,
-        description_travaux: formData.description_travaux,
-        statut: formData.statut,
-        notes_internes: formData.notes_internes,
-      };
-      const updated = await updateOrdre(ordre.id, payload);
+      let updated: OrdreReparationDetail;
+
+      if (isCloturingNow) {
+        // Sauvegarder d'abord les autres champs si besoin
+        const needPatch =
+          formData.description_travaux !== ordre.description_travaux ||
+          formData.notes_internes      !== ordre.notes_internes      ||
+          formData.kilometrage_entree  !== (ordre.kilometrage_entree?.toString() ?? '');
+
+        if (needPatch) {
+          await updateOrdre(ordre.id, {
+            kilometrage_entree:  formData.kilometrage_entree ? parseInt(formData.kilometrage_entree) : null,
+            description_travaux: formData.description_travaux,
+            notes_internes:      formData.notes_internes,
+          });
+        }
+        // Appel de l'action de clôture
+        updated = await cloturerOrdre(ordre.id, {
+          kilometrage_sortie: formData.kilometrage_sortie ? parseInt(formData.kilometrage_sortie) : undefined,
+          heure_sortie:       formData.heure_sortie || undefined,
+        });
+      } else {
+        const payload = {
+          kilometrage_entree:  formData.kilometrage_entree ? parseInt(formData.kilometrage_entree) : null,
+          description_travaux: formData.description_travaux,
+          statut:              formData.statut,
+          notes_internes:      formData.notes_internes,
+          kilometrage_sortie:  formData.kilometrage_sortie ? parseInt(formData.kilometrage_sortie) : null,
+          heure_sortie:        formData.heure_sortie || null,
+        };
+        updated = await updateOrdre(ordre.id, payload);
+      }
+
       setOrdre(updated);
       setFormData(initFormData(updated));
     } catch (err: any) {
@@ -157,7 +259,14 @@ const OrEditeur: React.FC = () => {
     }
   };
 
-  // ── Génération PDF ─────────────────────────────────────────
+  // ── Annuler les modifications ──────────────────────────────
+  const handleCancel = () => {
+    if (!ordre) return;
+    setFormData(initFormData(ordre));
+    setSaveError(null);
+  };
+
+  // ── PDF ────────────────────────────────────────────────────
   const handleGeneratePdf = async () => {
     if (!parametres) return;
     setGeneratingPdf(true);
@@ -170,11 +279,105 @@ const OrEditeur: React.FC = () => {
     }
   };
 
-  // ── Annuler les modifications ──────────────────────────────
-  const handleCancel = () => {
+  // ── PIÈCES : recherche ─────────────────────────────────────
+  const handlePieceSearchChange = (q: string) => {
+    setPieceSearch(q);
+    setPieceResults([]);
+    if (pieceSearchTimer.current) clearTimeout(pieceSearchTimer.current);
+    if (q.length < 2) return;
+    pieceSearchTimer.current = setTimeout(async () => {
+      setPieceLoading(true);
+      try {
+        const results = await apiSearchPieces(q);
+        setPieceResults(results);
+      } catch { setPieceResults([]); }
+      finally { setPieceLoading(false); }
+    }, 300);
+  };
+
+  // ── PIÈCES : ajout ─────────────────────────────────────────
+  const handleAddPiece = async (pieceId: number) => {
     if (!ordre) return;
-    setFormData(initFormData(ordre));
+    const qtyStr = addPieceQty[pieceId] ?? '1';
+    const qty    = parseInt(qtyStr);
+    if (!qty || qty < 1) return;
+
+    setAddingPieceId(pieceId);
+    try {
+      await addPieceToOrdre(ordre.id, { piece: pieceId, quantite: qty });
+      const updated = await fetchOrdre(ordre.id);
+      setOrdre(updated);
+      setFormData(prev => ({ ...prev })); // conserve le form
+      setShowAddPiece(false);
+      setPieceSearch('');
+      setPieceResults([]);
+      setAddPieceQty({});
+    } catch (err: any) {
+      setSaveError(err.message);
+    } finally {
+      setAddingPieceId(null);
+    }
+  };
+
+  // ── PIÈCES : suppression ───────────────────────────────────
+  const handleDeletePiece = async (lignePieceId: number) => {
+    try {
+      await deleteLignePiece(lignePieceId);
+      setOrdre(prev =>
+        prev
+          ? {
+              ...prev,
+              pieces: prev.pieces.filter(p => p.id !== lignePieceId),
+              nombre_pieces: Math.max(0, prev.nombre_pieces - 1),
+            }
+          : prev
+      );
+    } catch (err: any) {
+      setSaveError(err.message);
+    }
+  };
+
+  // ── INTERVENTIONS : ajout ──────────────────────────────────
+  const handleAddInterv = async () => {
+    if (!ordre) return;
+    if (!newInterv.date || !newInterv.type_intervention || !newInterv.mecanicien || !newInterv.duree_minutes) {
+      setSaveError('Tous les champs marqués * sont obligatoires');
+      return;
+    }
+    setAddingInterv(true);
     setSaveError(null);
+    try {
+      const payload: LigneInterventionCreateData = {
+        date:              newInterv.date,
+        type_intervention: newInterv.type_intervention,
+        mecanicien:        newInterv.mecanicien,
+        duree_minutes:     parseInt(newInterv.duree_minutes),
+        detail:            newInterv.detail || undefined,
+      };
+      await addInterventionToOrdre(ordre.id, payload);
+      const updated = await fetchOrdre(ordre.id);
+      setOrdre(updated);
+      setShowAddInterv(false);
+      setNewInterv(initNewInterv());
+    } catch (err: any) {
+      setSaveError(err.message);
+    } finally {
+      setAddingInterv(false);
+    }
+  };
+
+  // ── INTERVENTIONS : suppression ────────────────────────────
+  const handleDeleteInterv = async (ligneId: number) => {
+    try {
+      await deleteLigneIntervention(ligneId);
+      setOrdre(prev =>
+        prev
+          ? { ...prev, interventions: prev.interventions.filter(i => i.id !== ligneId) }
+          : prev
+      );
+    } catch (err: any) {
+      setSaveError(err.message);
+    }
   };
 
   // ═══════════════════════════════════════════════════════════
@@ -296,7 +499,7 @@ const OrEditeur: React.FC = () => {
 
         </div>
 
-        {/* ── 2. INFORMATIONS SAISIES (kilométrage + statut) ── */}
+        {/* ── 2. INFORMATIONS SAISIES ── */}
         <div className="ore-card">
           <div className="ore-card__head">Informations saisies</div>
           <div className="ore-card__body">
@@ -361,7 +564,80 @@ const OrEditeur: React.FC = () => {
 
         {/* ── 4. PIÈCES SORTIES ── */}
         <div className="ore-card">
-          <div className="ore-card__head">Pièces sorties du stock ({ordre.nombre_pieces})</div>
+          <div className="ore-card__head-row">
+            <span className="ore-card__head-label">Pièces sorties du stock ({ordre.nombre_pieces})</span>
+            {!isLocked && (
+              <button
+                className="ore-btn-add"
+                onClick={() => { setShowAddPiece(v => !v); setPieceSearch(''); setPieceResults([]); }}
+              >
+                {showAddPiece ? '✕ Fermer' : '+ Ajouter'}
+              </button>
+            )}
+          </div>
+
+          {/* ── Panneau recherche pièce ── */}
+          {showAddPiece && (
+            <div className="ore-add-panel">
+              <p className="ore-add-panel__title">Rechercher une pièce dans le stock</p>
+              <input
+                className="ore-search-input"
+                type="text"
+                placeholder="Nom, référence… (min. 2 car.)"
+                value={pieceSearch}
+                onChange={e => handlePieceSearchChange(e.target.value)}
+                autoFocus
+              />
+
+              {pieceLoading && (
+                <div className="ore-search-empty">Recherche en cours…</div>
+              )}
+
+              {!pieceLoading && pieceSearch.length >= 2 && pieceResults.length === 0 && (
+                <div className="ore-search-empty">Aucune pièce trouvée pour « {pieceSearch} »</div>
+              )}
+
+              {pieceResults.length > 0 && (
+                <div className="ore-search-results">
+                  {pieceResults.map(p => {
+                    const qty = addPieceQty[p.id] ?? '1';
+                    const statusClass =
+                      p.stock_status === 'RUPTURE' ? 'rupture' :
+                      p.stock_status === 'ALERTE'  ? 'alerte'  : 'ok';
+                    return (
+                      <div key={p.id} className="ore-search-result">
+                        <div className="ore-search-result__info">
+                          <div className="ore-search-result__nom">{p.nom}</div>
+                          <div className="ore-search-result__ref">{p.reference}</div>
+                        </div>
+                        <span className={`ore-stock-badge ore-stock-badge--${statusClass}`}>
+                          {p.stock_status === 'RUPTURE' ? 'Rupture' : `Dispo : ${p.stock_disponible}`}
+                        </span>
+                        <div className="ore-search-result__qty">
+                          <input
+                            type="number"
+                            className="ore-qty-input"
+                            value={qty}
+                            min="1"
+                            onChange={e => setAddPieceQty(prev => ({ ...prev, [p.id]: e.target.value }))}
+                          />
+                          <button
+                            className="ore-btn-confirm"
+                            onClick={() => handleAddPiece(p.id)}
+                            disabled={addingPieceId === p.id || p.stock_disponible <= 0}
+                            title={p.stock_disponible <= 0 ? 'Stock insuffisant' : 'Ajouter'}
+                          >
+                            {addingPieceId === p.id ? '…' : 'Ajouter'}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="ore-card__body ore-card__body--table">
             {ordre.pieces.length === 0 ? (
               <p className="ore-empty">Aucune pièce ajoutée</p>
@@ -372,6 +648,7 @@ const OrEditeur: React.FC = () => {
                     <th className="ore-table__col-qte">Qté</th>
                     <th>Désignation</th>
                     <th className="ore-table__col-ref">Référence</th>
+                    {!isLocked && <th className="ore-table__col-action"></th>}
                   </tr>
                 </thead>
                 <tbody>
@@ -380,6 +657,15 @@ const OrEditeur: React.FC = () => {
                       <td className="ore-table__center">{p.quantite}</td>
                       <td>{p.designation_snapshot}</td>
                       <td className="ore-table__mono">{p.reference_snapshot}</td>
+                      {!isLocked && (
+                        <td className="ore-table__center">
+                          <button
+                            className="ore-btn-danger"
+                            onClick={() => handleDeletePiece(p.id)}
+                            title="Retirer cette pièce"
+                          >×</button>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
@@ -390,7 +676,104 @@ const OrEditeur: React.FC = () => {
 
         {/* ── 5. INTERVENTIONS / MAIN D'ŒUVRE ── */}
         <div className="ore-card">
-          <div className="ore-card__head">Temps passé / Interventions</div>
+          <div className="ore-card__head-row">
+            <span className="ore-card__head-label">Temps passé / Interventions</span>
+            {!isLocked && (
+              <button
+                className="ore-btn-add"
+                onClick={() => { setShowAddInterv(v => !v); setNewInterv(initNewInterv()); setSaveError(null); }}
+              >
+                {showAddInterv ? '✕ Fermer' : '+ Ajouter'}
+              </button>
+            )}
+          </div>
+
+          {/* ── Formulaire ajout intervention ── */}
+          {showAddInterv && (
+            <div className="ore-add-panel">
+              <p className="ore-add-panel__title">Nouvelle intervention</p>
+              <div className="ore-interv-form">
+
+                <div className="ore-form-field">
+                  <label className="ore-form-label">Date *</label>
+                  <input
+                    type="date"
+                    className="ore-form-input"
+                    value={newInterv.date}
+                    onChange={e => setNewInterv(p => ({ ...p, date: e.target.value }))}
+                  />
+                </div>
+
+                <div className="ore-form-field">
+                  <label className="ore-form-label">Durée (minutes) *</label>
+                  <input
+                    type="number"
+                    className="ore-form-input"
+                    placeholder="Ex : 90"
+                    min="1"
+                    value={newInterv.duree_minutes}
+                    onChange={e => setNewInterv(p => ({ ...p, duree_minutes: e.target.value }))}
+                  />
+                </div>
+
+                <div className="ore-form-field">
+                  <label className="ore-form-label">Type d'intervention *</label>
+                  <select
+                    className="ore-form-input"
+                    value={newInterv.type_intervention}
+                    onChange={e => setNewInterv(p => ({ ...p, type_intervention: parseInt(e.target.value) }))}
+                  >
+                    <option value={0}>— Choisir —</option>
+                    {typeInterventions.map(t => (
+                      <option key={t.id} value={t.id}>{t.icone} {t.label}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="ore-form-field">
+                  <label className="ore-form-label">Mécanicien *</label>
+                  <select
+                    className="ore-form-input"
+                    value={newInterv.mecanicien}
+                    onChange={e => setNewInterv(p => ({ ...p, mecanicien: parseInt(e.target.value) }))}
+                  >
+                    <option value={0}>— Choisir —</option>
+                    {collaborateurs.map(c => (
+                      <option key={c.id} value={c.id}>{c.nom}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="ore-form-field ore-interv-form--full">
+                  <label className="ore-form-label">Détail / Notes (optionnel)</label>
+                  <input
+                    type="text"
+                    className="ore-form-input"
+                    placeholder="Description courte de l'intervention…"
+                    value={newInterv.detail}
+                    onChange={e => setNewInterv(p => ({ ...p, detail: e.target.value }))}
+                  />
+                </div>
+
+              </div>
+              <div className="ore-add-panel__actions">
+                <button
+                  className="ore-btn-cancel-sm"
+                  onClick={() => { setShowAddInterv(false); setNewInterv(initNewInterv()); setSaveError(null); }}
+                >
+                  Annuler
+                </button>
+                <button
+                  className="ore-btn-confirm-sm"
+                  onClick={handleAddInterv}
+                  disabled={addingInterv}
+                >
+                  {addingInterv ? 'Enregistrement…' : 'Enregistrer'}
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="ore-card__body ore-card__body--table">
             {ordre.interventions.length === 0 ? (
               <p className="ore-empty">Aucune intervention enregistrée</p>
@@ -403,6 +786,7 @@ const OrEditeur: React.FC = () => {
                     <th className="ore-table__col-meca">Mécanicien</th>
                     <th className="ore-table__col-duree">Durée</th>
                     <th>Détail</th>
+                    {!isLocked && <th className="ore-table__col-action"></th>}
                   </tr>
                 </thead>
                 <tbody>
@@ -420,6 +804,15 @@ const OrEditeur: React.FC = () => {
                       <td>{i.mecanicien_nom}</td>
                       <td className="ore-table__center ore-table__mono">{i.duree_formatee}</td>
                       <td>{i.detail || '—'}</td>
+                      {!isLocked && (
+                        <td className="ore-table__center">
+                          <button
+                            className="ore-btn-danger"
+                            onClick={() => handleDeleteInterv(i.id)}
+                            title="Supprimer cette intervention"
+                          >×</button>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
@@ -434,24 +827,43 @@ const OrEditeur: React.FC = () => {
           <div className="ore-card__body">
 
             <div className="ore-cloture-grid">
+
+              {/* Date de fin — auto-définie par Django lors de la clôture */}
               <div className="ore-cloture-field">
                 <span className="ore-cloture-field__label">Date de fin</span>
-                <span className="ore-cloture-field__value">
-                  {ordre.date_cloture ? formatDateCourt(ordre.date_cloture) : '—'}
-                </span>
+                {ordre.date_cloture ? (
+                  <span className="ore-cloture-readonly">{formatDateCourt(ordre.date_cloture)}</span>
+                ) : (
+                  <span className="ore-cloture-field__value">—</span>
+                )}
               </div>
+
+              {/* Km sortie — éditable */}
               <div className="ore-cloture-field">
-                <span className="ore-cloture-field__label">Km / h sortie</span>
-                <span className="ore-cloture-field__value">
-                  {ordre.kilometrage_sortie ? `${ordre.kilometrage_sortie.toLocaleString('fr-FR')} km` : '—'}
-                </span>
+                <span className="ore-cloture-field__label">Km sortie</span>
+                <input
+                  type="number"
+                  className="ore-cloture-field__input"
+                  value={formData.kilometrage_sortie}
+                  onChange={e => handleFieldChange('kilometrage_sortie', e.target.value)}
+                  disabled={isLocked}
+                  placeholder="Ex : 143 200"
+                  min="0"
+                />
               </div>
+
+              {/* Heure sortie — éditable */}
               <div className="ore-cloture-field">
                 <span className="ore-cloture-field__label">Heure sortie</span>
-                <span className="ore-cloture-field__value">
-                  {ordre.heure_sortie || '—'}
-                </span>
+                <input
+                  type="time"
+                  className="ore-cloture-field__input"
+                  value={formData.heure_sortie}
+                  onChange={e => handleFieldChange('heure_sortie', e.target.value)}
+                  disabled={isLocked}
+                />
               </div>
+
             </div>
 
             <div className="ore-field ore-field--full">

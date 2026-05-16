@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // Service API
-import { fetchOrdres, OrdreReparationListItem, OrdreReparationDetail, STATUTS_OR } from './orService';
+import { fetchOrdres, updateOrdre, deleteOrdre, OrdreReparationListItem, OrdreReparationDetail, STATUTS_OR } from './orService';
 
 // Composants partagés
 import PageHeader from '../../components/shared/PageHeader';
@@ -52,6 +52,9 @@ const OrdresReparation: React.FC = () => {
   // ── État : modale création ───────────────────────────────────
   const [modalCreationOuverte, setModalCreationOuverte] = useState(false);
 
+  // ── État : menu d'action rapide ──────────────────────────────
+  const [menuOpenId, setMenuOpenId] = useState<number | null>(null);
+
   // ── État : filtres ───────────────────────────────────────────
   const [searchQuery, setSearchQuery]   = useState('');
   const [activeStatut, setActiveStatut] = useState<StatutFiltre>('ALL');
@@ -70,9 +73,14 @@ const OrdresReparation: React.FC = () => {
     }
   }, []);
 
+  useEffect(() => { loadOrdres(); }, [loadOrdres]);
+
+  // Fermer le menu action au clic hors de la ligne
   useEffect(() => {
-    loadOrdres();
-  }, [loadOrdres]);
+    const close = () => setMenuOpenId(null);
+    document.addEventListener('click', close);
+    return () => document.removeEventListener('click', close);
+  }, []);
 
   // ── Filtrage combiné (statut + texte) ────────────────────────
   // useMemo = "ne recalcule que si ordres/activeStatut/searchQuery change"
@@ -131,6 +139,32 @@ const OrdresReparation: React.FC = () => {
   const handleResetFiltres = () => {
     setSearchQuery('');
     setActiveStatut('ALL');
+  };
+
+  // ── Action rapide : mettre en Annulé ─────────────────────────
+  const handleAnnuler = async (e: React.MouseEvent, or: OrdreReparationListItem) => {
+    e.stopPropagation();
+    setMenuOpenId(null);
+    if (!window.confirm(`Mettre l'OR ${or.numero} en Annulé ?`)) return;
+    try {
+      await updateOrdre(or.id, { statut: 'ANNULE' } as any);
+      setOrdres(prev => prev.map(o => o.id === or.id ? { ...o, statut: 'ANNULE', statut_display: 'Annulé' } : o));
+    } catch (err: any) {
+      alert(`Erreur : ${err.message}`);
+    }
+  };
+
+  // ── Action rapide : supprimer ─────────────────────────────────
+  const handleSupprimer = async (e: React.MouseEvent, or: OrdreReparationListItem) => {
+    e.stopPropagation();
+    setMenuOpenId(null);
+    if (!window.confirm(`Supprimer définitivement l'OR ${or.numero} ?`)) return;
+    try {
+      await deleteOrdre(or.id);
+      setOrdres(prev => prev.filter(o => o.id !== or.id));
+    } catch (err: any) {
+      alert(`Erreur : ${err.message}`);
+    }
   };
 
   // ═══════════════════════════════════════════════════════════════
@@ -222,7 +256,7 @@ const OrdresReparation: React.FC = () => {
             <div
               key={or.id}
               className="or-row"
-              onClick={() => handleOpenOr(or.id)}
+              onClick={() => { if (menuOpenId === or.id) setMenuOpenId(null); else handleOpenOr(or.id); }}
             >
               <div className="or-row__numero">
                 <span className="or-row__numero-text">{or.numero}</span>
@@ -249,6 +283,38 @@ const OrdresReparation: React.FC = () => {
                   {or.nombre_pieces > 0 && `🔩 ${or.nombre_pieces}`}
                   {or.duree_totale_minutes > 0 && ` · ⏱️ ${Math.floor(or.duree_totale_minutes / 60)}h${String(or.duree_totale_minutes % 60).padStart(2, '0')}`}
                 </span>
+              </div>
+
+              {/* ── Menu actions rapides ── */}
+              <div
+                className="or-row__actions"
+                onClick={e => e.stopPropagation()}
+              >
+                <button
+                  className="or-action-trigger"
+                  onClick={e => { e.stopPropagation(); setMenuOpenId(menuOpenId === or.id ? null : or.id); }}
+                  title="Actions"
+                >
+                  ⋯
+                </button>
+                {menuOpenId === or.id && (
+                  <div className="or-action-menu">
+                    {or.statut !== 'ANNULE' && or.statut !== 'CLOTURE' && (
+                      <button
+                        className="or-action-item"
+                        onClick={e => handleAnnuler(e, or)}
+                      >
+                        ❌ Mettre en Annulé
+                      </button>
+                    )}
+                    <button
+                      className="or-action-item or-action-item--danger"
+                      onClick={e => handleSupprimer(e, or)}
+                    >
+                      🗑️ Supprimer
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ))}
