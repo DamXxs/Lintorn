@@ -101,7 +101,7 @@ const OrEditeur: React.FC = () => {
           ? parseInt(formData.kilometrage_entree)
           : null,
         description_travaux: formData.description_travaux,
-        statut: formData.statut,
+        statut: formData.statut as OrdreReparationDetail['statut'],
       };
 
       // PATCH vers Django
