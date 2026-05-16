@@ -1,5 +1,5 @@
 // /frontend/src/pages/OrdresReparation/orService.ts
-import api from '../../services/api';
+import { api } from '../../services/api';
 
 // =============================================================================
 // INTERFACES — la "fiche technique" des données échangées avec Django
