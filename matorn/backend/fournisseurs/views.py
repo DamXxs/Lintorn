@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Fournisseur
 from .serializers import FournisseurSerializer, EmailCommandeSerializer
+from accounts.permissions import login_required_cookie
 
 
 # =============================================================================
@@ -13,6 +14,7 @@ from .serializers import FournisseurSerializer, EmailCommandeSerializer
 # POST /api/fournisseurs/   → créer un fournisseur
 # =============================================================================
 @api_view(['GET', 'POST'])
+@login_required_cookie
 def fournisseur_list(request):
 
     if request.method == 'GET':
@@ -47,6 +49,7 @@ def fournisseur_list(request):
 # DELETE /api/fournisseurs/42/
 # =============================================================================
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+@login_required_cookie
 def fournisseur_detail(request, pk):
 
     try:
@@ -99,6 +102,7 @@ def fournisseur_detail(request, pk):
 #   4. Le frontend React n'a plus qu'à afficher ça dans un formulaire
 # =============================================================================
 @api_view(['GET'])
+@login_required_cookie
 def generer_email_commande(request, pk):
     """
     Génère un email de commande pré-rempli pour un fournisseur.
@@ -181,6 +185,7 @@ def generer_email_commande(request, pk):
 # Utile pour le dashboard React : affiche quels fournisseurs doivent être contactés
 # =============================================================================
 @api_view(['GET'])
+@login_required_cookie
 def fournisseurs_avec_alertes(request):
     """
     Retourne uniquement les fournisseurs qui ont au moins une pièce en alerte.

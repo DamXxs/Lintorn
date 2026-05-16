@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Piece
 from .serializers import PieceSerializer
+from accounts.permissions import login_required_cookie
 
 
 # =============================================================================
@@ -12,6 +13,7 @@ from .serializers import PieceSerializer
 # POST /api/stock/pieces/   → crée une nouvelle pièce
 # =============================================================================
 @api_view(['GET', 'POST'])
+@login_required_cookie
 def piece_list(request):
 
     if request.method == 'GET':
@@ -56,6 +58,7 @@ def piece_list(request):
 # DELETE /api/stock/pieces/42/   → supprime la pièce 42
 # =============================================================================
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+@login_required_cookie
 def piece_detail(request, pk):
 
     try:

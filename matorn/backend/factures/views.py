@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .models import ParametresFacturation, ForfaitIntervention, Devis, LigneDevis, Facture, LigneFacture
+from accounts.permissions import login_required_cookie
 from .serializers import (
     ParametresFacturationSerializer,
     ForfaitInterventionSerializer,
@@ -20,6 +21,7 @@ from .serializers import (
 # =============================================================================
 
 @api_view(['GET', 'PATCH'])
+@login_required_cookie
 def parametres_view(request):
     # Toujours travailler sur le singleton pk=1
     params, _ = ParametresFacturation.objects.get_or_create(pk=1)
@@ -43,6 +45,7 @@ def parametres_view(request):
 # =============================================================================
 
 @api_view(['GET', 'POST'])
+@login_required_cookie
 def forfait_list(request):
     if request.method == 'GET':
         # Par défaut, renvoyer uniquement les forfaits actifs
@@ -62,6 +65,7 @@ def forfait_list(request):
 
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+@login_required_cookie
 def forfait_detail(request, pk):
     try:
         forfait = ForfaitIntervention.objects.get(pk=pk)
@@ -92,6 +96,7 @@ def forfait_detail(request, pk):
 # =============================================================================
 
 @api_view(['GET', 'POST'])
+@login_required_cookie
 def devis_list(request):
     if request.method == 'GET':
         devis = Devis.objects.select_related('client', 'intervention').all()
@@ -116,6 +121,7 @@ def devis_list(request):
 
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+@login_required_cookie
 def devis_detail(request, pk):
     try:
         devis = Devis.objects.select_related('client', 'intervention').prefetch_related(
@@ -161,6 +167,7 @@ def devis_detail(request, pk):
 # =============================================================================
 
 @api_view(['POST'])
+@login_required_cookie
 def devis_valider(request, pk):
     """Marque le devis comme validé par le client"""
     try:
@@ -180,6 +187,7 @@ def devis_valider(request, pk):
 
 
 @api_view(['POST'])
+@login_required_cookie
 def devis_refuser(request, pk):
     """Marque le devis comme refusé et libère le stock suspendu"""
     try:
@@ -200,6 +208,7 @@ def devis_refuser(request, pk):
 
 
 @api_view(['POST'])
+@login_required_cookie
 def devis_creer_facture(request, pk):
     """
     Crée une facture à partir d'un devis validé.
@@ -268,6 +277,7 @@ def devis_creer_facture(request, pk):
 # =============================================================================
 
 @api_view(['GET', 'POST'])
+@login_required_cookie
 def ligne_devis_list(request, devis_id):
     try:
         devis = Devis.objects.get(pk=devis_id)
@@ -287,6 +297,7 @@ def ligne_devis_list(request, devis_id):
 
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+@login_required_cookie
 def ligne_devis_detail(request, pk):
     try:
         ligne = LigneDevis.objects.select_related('piece', 'devis').get(pk=pk)
@@ -317,6 +328,7 @@ def ligne_devis_detail(request, pk):
 # =============================================================================
 
 @api_view(['GET', 'POST'])
+@login_required_cookie
 def facture_list(request):
     if request.method == 'GET':
         factures = Facture.objects.select_related('client', 'devis', 'intervention').all()
@@ -340,6 +352,7 @@ def facture_list(request):
 
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+@login_required_cookie
 def facture_detail(request, pk):
     try:
         facture = Facture.objects.select_related(
@@ -365,6 +378,7 @@ def facture_detail(request, pk):
 
 
 @api_view(['POST'])
+@login_required_cookie
 def facture_enregistrer_paiement(request, pk):
     """
     Enregistre un paiement (total ou partiel) et met à jour le statut.
@@ -406,6 +420,7 @@ def facture_enregistrer_paiement(request, pk):
 # =============================================================================
 
 @api_view(['GET', 'POST'])
+@login_required_cookie
 def ligne_facture_list(request, facture_id):
     try:
         facture = Facture.objects.get(pk=facture_id)
@@ -425,6 +440,7 @@ def ligne_facture_list(request, facture_id):
 
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+@login_required_cookie
 def ligne_facture_detail(request, pk):
     try:
         ligne = LigneFacture.objects.select_related('piece', 'facture').get(pk=pk)

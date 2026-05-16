@@ -16,6 +16,7 @@ from rest_framework import status
 
 from .registry import MODELES_ARCHIVABLES, get_model_class, get_libelle
 from .serializers import serialiser_element
+from accounts.permissions import require_role
 
 
 # =============================================================================
@@ -43,6 +44,7 @@ def _get_object_or_none(type_url, pk):
 # GET /api/archives/?etat=corbeille&type=client → combiné
 # =============================================================================
 @api_view(['GET'])
+@require_role('superuser')
 def archives_list(request):
     """
     Liste tous les éléments en corbeille ou archives, tous modèles confondus.
@@ -101,6 +103,7 @@ def archives_list(request):
 # POST /api/archives/<type>/<id>/restore/
 # =============================================================================
 @api_view(['POST'])
+@require_role('superuser')
 def restore_element(request, type_url, pk):
     """
     Restaure un élément depuis la corbeille OU les archives.
@@ -139,6 +142,7 @@ def restore_element(request, type_url, pk):
 # DELETE /api/archives/<type>/<id>/purge/
 # =============================================================================
 @api_view(['DELETE'])
+@require_role('superuser')
 def purge_element(request, type_url, pk):
     """
     Supprime DÉFINITIVEMENT un élément de la base de données.
@@ -173,6 +177,7 @@ def purge_element(request, type_url, pk):
 # Utile pour le frontend : récupérer la liste des filtres disponibles
 # =============================================================================
 @api_view(['GET'])
+@require_role('superuser')
 def types_archivables(request):
     """
     Retourne la liste des types de modèles archivables.

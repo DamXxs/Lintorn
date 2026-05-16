@@ -12,6 +12,41 @@ const api = axios.create({
   // withCredentials retiré : inutile avec le proxy et cause des erreurs CSRF
 });
 
+// Intercepteur global : si le token expire en cours de session → tentative de refresh
+// Si le refresh échoue aussi → redirection vers /login
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url?.includes('/auth/')
+    ) {
+      originalRequest._retry = true;
+
+      try {
+        const refreshResponse = await fetch('/api/auth/refresh/', {
+          method: 'POST',
+          credentials: 'include',
+        });
+
+        if (refreshResponse.ok) {
+          return api(originalRequest);
+        }
+      } catch {
+        // Refresh injoignable
+      }
+
+      // Refresh échoué → déconnexion forcée
+      window.location.href = '/login';
+    }
+
+    return Promise.reject(error);
+  }
+);
+
 // ── INTERVENTIONS ────────────────────────────────────────────────
 
 export const fetchInterventions = async () => {

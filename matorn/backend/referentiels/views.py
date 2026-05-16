@@ -4,9 +4,11 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Referentiel
 from .serializers import ReferentielSerializer
+from accounts.permissions import login_required_cookie
 
 
 @api_view(['GET', 'POST'])
+@login_required_cookie
 def referentiel_list(request):
     """
     GET  /api/referentiels/                     → tous les référentiels
@@ -39,6 +41,7 @@ def referentiel_list(request):
 
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+@login_required_cookie
 def referentiel_detail(request, pk):
     """
     GET    /api/referentiels/42/ → détail

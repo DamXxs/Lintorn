@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Client
 from .serializers import ClientSerializer
+from accounts.permissions import login_required_cookie
 
 
 # =============================================================================
@@ -12,6 +13,7 @@ from .serializers import ClientSerializer
 # POST /api/clients/     → crée un nouveau client
 # =============================================================================
 @api_view(['GET', 'POST'])
+@login_required_cookie
 def client_list(request):
 
     if request.method == 'GET':
@@ -56,6 +58,7 @@ def client_list(request):
 # DELETE /api/clients/42/   → supprime le client 42
 # =============================================================================
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+@login_required_cookie
 def client_detail(request, pk):
 
     # D'abord, on vérifie que le client existe

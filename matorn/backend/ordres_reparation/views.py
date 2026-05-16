@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from .models import OrdreReparation, LignePieceUtilisee, LigneIntervention
+from accounts.permissions import login_required_cookie
 from .serializers import (
     OrdreReparationListSerializer,
     OrdreReparationDetailSerializer,
@@ -18,6 +19,7 @@ from .serializers import (
 # POST /api/ordres-reparation/        → crée un OR
 # =============================================================================
 @api_view(['GET', 'POST'])
+@login_required_cookie
 def ordre_reparation_list(request):
     
     if request.method == 'GET':
@@ -66,6 +68,7 @@ def ordre_reparation_list(request):
 # DELETE /api/ordres-reparation/42/   → soft-delete (corbeille)
 # =============================================================================
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+@login_required_cookie
 def ordre_reparation_detail(request, pk):
     
     try:
@@ -133,6 +136,7 @@ def ordre_reparation_detail(request, pk):
 # Body : { "kilometrage_sortie": 142500, "heure_sortie": "17:30" }
 # =============================================================================
 @api_view(['POST'])
+@login_required_cookie
 def ordre_reparation_cloturer(request, pk):
     """Marque un OR comme clôturé avec les infos de fin d'intervention."""
     from datetime import date
@@ -172,6 +176,7 @@ def ordre_reparation_cloturer(request, pk):
 # POST /api/ordres-reparation/42/pieces/        → ajoute une pièce
 # =============================================================================
 @api_view(['GET', 'POST'])
+@login_required_cookie
 def ligne_piece_list(request, ordre_id):
     
     try:
@@ -222,6 +227,7 @@ def ligne_piece_list(request, ordre_id):
 # GET/PUT/PATCH/DELETE /api/ordres-reparation/lignes-pieces/<id>/
 # =============================================================================
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+@login_required_cookie
 def ligne_piece_detail(request, pk):
     
     try:
@@ -256,6 +262,7 @@ def ligne_piece_detail(request, pk):
 # LIGNES INTERVENTIONS — même pattern que pour les pièces
 # =============================================================================
 @api_view(['GET', 'POST'])
+@login_required_cookie
 def ligne_intervention_list(request, ordre_id):
     
     try:
@@ -285,6 +292,7 @@ def ligne_intervention_list(request, ordre_id):
 
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+@login_required_cookie
 def ligne_intervention_detail(request, pk):
     
     try:

@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Intervention, Departement, Collaborateur
 from .serializers import InterventionSerializer, DepartementSerializer, CollaborateurSerializer
+from accounts.permissions import login_required_cookie
 
 
 # =============================================================================
@@ -14,6 +15,7 @@ from .serializers import InterventionSerializer, DepartementSerializer, Collabor
 # =============================================================================
 
 @api_view(['GET', 'POST'])
+@login_required_cookie
 def departement_list(request):
     if request.method == 'GET':
         departements = Departement.objects.all()
@@ -30,6 +32,7 @@ def departement_list(request):
 
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+@login_required_cookie
 def departement_detail(request, pk):
     try:
         departement = Departement.objects.get(pk=pk)
@@ -73,6 +76,7 @@ def departement_detail(request, pk):
 # =============================================================================
 
 @api_view(['GET', 'POST'])
+@login_required_cookie
 def collaborateur_list(request):
     if request.method == 'GET':
         collaborateurs = Collaborateur.objects.all()
@@ -89,6 +93,7 @@ def collaborateur_list(request):
 
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+@login_required_cookie
 def collaborateur_detail(request, pk):
     try:
         collaborateur = Collaborateur.objects.get(pk=pk)
@@ -116,6 +121,7 @@ def collaborateur_detail(request, pk):
 # =============================================================================
 
 @api_view(['GET', 'POST'])
+@login_required_cookie
 def intervention_list(request):
     if request.method == 'GET':
         interventions = Intervention.objects.select_related(
@@ -142,6 +148,7 @@ def intervention_list(request):
 
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+@login_required_cookie
 def intervention_detail(request, pk):
     try:
         intervention = Intervention.objects.select_related(

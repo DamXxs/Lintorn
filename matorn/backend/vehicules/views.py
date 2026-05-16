@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Vehicule
 from .serializers import VehiculeSerializer
+from accounts.permissions import login_required_cookie
 
 
 # =============================================================================
@@ -12,6 +13,7 @@ from .serializers import VehiculeSerializer
 # POST /api/vehicules/   → crée un nouveau véhicule
 # =============================================================================
 @api_view(['GET', 'POST'])
+@login_required_cookie
 def vehicule_list(request):
 
     if request.method == 'GET':
@@ -54,6 +56,7 @@ def vehicule_list(request):
 # DELETE /api/vehicules/42/   → supprime
 # =============================================================================
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+@login_required_cookie
 def vehicule_detail(request, pk):
 
     try:
