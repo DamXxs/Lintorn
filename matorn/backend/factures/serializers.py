@@ -10,8 +10,15 @@ from .models import ParametresFacturation, ForfaitIntervention, Devis, LigneDevi
 class ParametresFacturationSerializer(serializers.ModelSerializer):
     class Meta:
         model = ParametresFacturation
-        fields = ['id', 'tva_pourcentage', 'numero_devis_actuel', 'numero_facture_actuel', 'updated_at']
-        # Les compteurs sont en lecture seule pour éviter les manipulations
+        fields = [
+            'id',
+            # Infos garage
+            'nom_garage', 'adresse_garage', 'telephone_garage',
+            'email_garage', 'siret', 'numero_tva',
+            # Facturation
+            'tva_pourcentage', 'numero_devis_actuel', 'numero_facture_actuel',
+            'updated_at',
+        ]
         read_only_fields = ['id', 'numero_devis_actuel', 'numero_facture_actuel', 'updated_at']
 
 

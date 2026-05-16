@@ -217,8 +217,14 @@ export const updateOrdre = async (
   id: number,
   data: Partial<OrdreReparationDetail>
 ): Promise<OrdreReparationDetail> => {
-  const response = await api.patch(`/ordres-reparation/${id}/`, data);
-  return response.data;
+  try {
+    const response = await api.patch<OrdreReparationDetail>(`/ordres-reparation/${id}/`, data);
+    return response.data;
+  } catch (error: any) {
+    const serverMessage = error.response?.data?.error;
+    if (serverMessage) throw new Error(serverMessage);
+    throw new Error('Erreur lors de la modification');
+  }
 };
 
 /**

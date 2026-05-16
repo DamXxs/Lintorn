@@ -645,3 +645,30 @@ export const deleteCollaborateur = async (id: number): Promise<void> => {
     throw new Error('Erreur lors de la suppression du collaborateur');
   }
 };
+
+// =============================================================================
+// PARAMÈTRES FACTURATION (singleton — infos garage + config TVA)
+// =============================================================================
+
+export interface ParametresFacturation {
+  id: number;
+  nom_garage: string;
+  adresse_garage: string;
+  telephone_garage: string;
+  email_garage: string;
+  siret: string;
+  numero_tva: string;
+  tva_pourcentage: string;
+  numero_devis_actuel: number;
+  numero_facture_actuel: number;
+  updated_at: string;
+}
+
+export const fetchParametres = async (): Promise<ParametresFacturation> => {
+  try {
+    const response = await api.get<ParametresFacturation>('/factures/parametres/');
+    return response.data;
+  } catch (error: any) {
+    throw new Error('Erreur lors du chargement des paramètres');
+  }
+};

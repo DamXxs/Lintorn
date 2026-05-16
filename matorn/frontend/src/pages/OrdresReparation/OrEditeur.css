@@ -1,308 +1,507 @@
-/* /frontend/src/pages/OrdresReparation/OrEditeur.css */
+/* /frontend/src/pages/OrdresReparation/OrEditeur.css
+   Layout inspiré de la maquette OR v3 — adapté thème dark/variables CSS */
 
-/* ═══════════════════════════════════════════════════════════════
-   CONTAINER
-   ═══════════════════════════════════════════════════════════════ */
-.or-editeur {
-  width: 100%;
+/* =============================================================================
+   CONTENEUR PRINCIPAL
+============================================================================= */
+
+.ore {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
 }
 
-/* ═══════════════════════════════════════════════════════════════
+/* =============================================================================
    HEADER STICKY
-   ═══════════════════════════════════════════════════════════════ */
-.or-editeur__header {
+============================================================================= */
+
+.ore__header {
   position: sticky;
   top: 0;
-  z-index: 10;
-  background: var(--bg-color);
-  border-bottom: 1px solid var(--border-color);
-  padding: 12px 16px;
+  z-index: 100;
   display: flex;
   align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 20px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 2px 8px var(--shadow);
 }
 
-.or-editeur__btn-retour {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: transparent;
-  border: 1px solid var(--border-color);
-  color: var(--text-color);
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 13px;
-  transition: background 0.15s;
-}
-
-.or-editeur__btn-retour:hover {
-  background: var(--hover-color, rgba(0, 0, 0, 0.05));
-}
-
-.or-editeur__header-info {
+.ore__header-center {
   flex: 1;
   display: flex;
   align-items: center;
   gap: 12px;
-  min-width: 200px;
 }
 
-.or-editeur__numero {
+.ore__numero {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text-color);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
   margin: 0;
 }
 
-.or-editeur__statut {
-  color: white;
-  padding: 4px 10px;
+.ore__statut-badge {
+  padding: 3px 10px;
   border-radius: 12px;
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 600;
-  text-transform: uppercase;
+  color: #fff;
+  letter-spacing: 0.5px;
 }
 
-.or-editeur__header-actions {
+.ore__header-actions {
   display: flex;
+  align-items: center;
   gap: 8px;
 }
 
-.or-editeur__btn-pdf,
-.or-editeur__btn-save {
+.ore__btn-retour {
   display: flex;
   align-items: center;
   gap: 6px;
-  border: none;
-  padding: 8px 14px;
+  padding: 7px 14px;
+  background: transparent;
+  border: 1px solid var(--border);
   border-radius: 6px;
+  color: var(--text);
+  font-size: 0.85rem;
   cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  transition: opacity 0.15s, transform 0.15s;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.ore__btn-retour:hover {
+  background: var(--input-bg);
 }
 
-.or-editeur__btn-pdf {
-  background: var(--card-bg);
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
+.ore__btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  background: var(--accent);
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
 }
-
-.or-editeur__btn-save {
-  background: var(--primary-color);
-  color: white;
-}
-
-.or-editeur__btn-pdf:disabled,
-.or-editeur__btn-save:disabled {
-  opacity: 0.5;
+.ore__btn-primary:disabled {
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   CONTENU - CARDS
-   ═══════════════════════════════════════════════════════════════ */
-.or-editeur__content {
+.ore__btn-secondary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.ore__btn-secondary:hover:not(:disabled) {
+  background: var(--input-bg);
+}
+.ore__btn-secondary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* =============================================================================
+   BANNERS (clôturé, erreur)
+============================================================================= */
+
+.ore__banner-lock {
+  padding: 10px 20px;
+  background: color-mix(in srgb, var(--danger) 15%, transparent);
+  border-bottom: 1px solid var(--danger);
+  color: var(--danger);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.ore__save-error {
+  margin: 12px 20px 0;
+  padding: 10px 14px;
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  border: 1px solid var(--danger);
+  border-radius: 6px;
+  color: var(--danger);
+  font-size: 0.85rem;
+}
+
+/* =============================================================================
+   CONTENU PRINCIPAL
+============================================================================= */
+
+.ore__content {
+  flex: 1;
+  max-width: 960px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 0 16px 24px;
 }
 
-.or-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
+/* Ligne 2 colonnes (Client + Véhicule) */
+.ore__row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* =============================================================================
+   CARDS — sections de la maquette
+============================================================================= */
+
+.ore-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
   border-radius: 8px;
   overflow: hidden;
 }
 
-.or-card__title {
+/* Tête de section : bande accent comme les sections noires de la maquette */
+.ore-card__head {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
+  padding: 8px 14px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.ore-card__body {
+  padding: 14px;
+}
+
+.ore-card__body--table {
+  padding: 0;
+  overflow-x: auto;
+}
+
+.ore-card__body--description {
+  padding: 0;
+}
+
+/* =============================================================================
+   GRILLE INFO (label + valeur, style maquette)
+============================================================================= */
+
+.ore-info-grid {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 6px 10px;
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.ore-info-grid dt {
+  color: color-mix(in srgb, var(--text) 60%, transparent);
+  font-size: 0.8rem;
+  align-self: center;
+}
+
+.ore-info-grid dd {
   font-weight: 600;
-  color: var(--text-color);
-  padding: 12px 16px;
   margin: 0;
-  background: var(--card-header-bg, rgba(0, 0, 0, 0.03));
-  border-bottom: 1px solid var(--border-color);
+  align-self: center;
+  word-break: break-word;
 }
 
-.or-card__body {
-  padding: 16px;
-  color: var(--text-color);
-  font-size: 14px;
-  line-height: 1.6;
+.ore-mono {
+  font-family: 'Courier New', monospace;
+  font-weight: 500;
+  letter-spacing: 1px;
 }
 
-.or-card__body p {
-  margin: 0 0 8px 0;
+/* =============================================================================
+   CONTRÔLES (kilométrage + statut)
+============================================================================= */
+
+.ore-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
 }
 
-.or-card__body p:last-child {
-  margin-bottom: 0;
-}
-
-.or-card__meta {
-  font-size: 12px;
-  color: var(--text-secondary-color, #888);
-  margin-top: 8px !important;
-}
-
-.or-card__body ul {
-  margin: 0;
-  padding-left: 20px;
-}
-
-.or-card__body li {
-  margin-bottom: 4px;
-}
-
-.or-empty-line {
-  color: var(--text-secondary-color, #888);
-  font-style: italic;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   RESPONSIVE
-   ═══════════════════════════════════════════════════════════════ */
-@media (max-width: 768px) {
-  .or-editeur__header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .or-editeur__header-info {
-    justify-content: space-between;
-  }
-
-  .or-editeur__header-actions {
-    justify-content: flex-end;
-  }
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   CHAMPS ÉDITABLES
-   ═══════════════════════════════════════════════════════════════ */
-.or-card__body--form {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.or-field {
+.ore-field {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.or-field__label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary-color, #888);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+.ore-field--full {
+  margin-top: 14px;
 }
 
-.or-field__input-wrapper {
-  position: relative;
+.ore-field__label {
+  font-size: 0.8rem;
+  color: color-mix(in srgb, var(--text) 70%, transparent);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ore-autosave-indicator {
+  font-size: 0.72rem;
+  color: var(--success);
+  font-weight: 400;
+  font-style: italic;
+}
+
+.ore-field__km-wrap {
   display: flex;
   align-items: center;
 }
 
-.or-field__input {
+.ore-field__input {
   width: 100%;
-  padding: 8px 12px;
-  background: var(--bg-color);
-  border: 1px solid var(--border-color);
+  padding: 8px 10px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
   border-radius: 6px;
-  color: var(--text-color);
-  font-size: 14px;
-  font-family: inherit;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  color: var(--text);
+  font-size: 0.875rem;
+  transition: border-color 0.15s;
 }
-
-.or-field__input:focus {
+.ore-field__input:focus {
   outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb, 41, 128, 185), 0.15);
+  border-color: var(--accent);
 }
-
-.or-field__textarea {
-  resize: vertical;
-  min-height: 60px;
-  font-family: inherit;
-}
-
-.or-field__select {
-  cursor: pointer;
-}
-
-.or-field__suffix {
-  position: absolute;
-  right: 12px;
-  color: var(--text-secondary-color, #888);
-  font-size: 13px;
-  pointer-events: none;
-}
-
-.or-field__input[type="number"] {
-  padding-right: 40px;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   BOUTON ANNULER
-   ═══════════════════════════════════════════════════════════════ */
-.or-editeur__btn-cancel {
-  background: transparent;
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
-  padding: 8px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 13px;
-  transition: background 0.15s;
-}
-
-.or-editeur__btn-cancel:hover {
-  background: var(--hover-color, rgba(0, 0, 0, 0.05));
-}
-
-.or-editeur__btn-cancel:disabled {
+.ore-field__input:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   ERREUR DE SAUVEGARDE
-   ═══════════════════════════════════════════════════════════════ */
-.or-editeur__save-error {
-  background: rgba(231, 76, 60, 0.1);
-  border: 1px solid rgba(231, 76, 60, 0.3);
-  color: #e74c3c;
-  padding: 10px 16px;
-  margin: 0 16px;
+.ore-field__km-wrap .ore-field__input {
+  border-radius: 6px 0 0 6px;
+}
+
+.ore-field__suffix {
+  padding: 8px 10px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-left: none;
+  border-radius: 0 6px 6px 0;
+  font-size: 0.8rem;
+  color: color-mix(in srgb, var(--text) 60%, transparent);
+  white-space: nowrap;
+}
+
+.ore-field__select {
+  cursor: pointer;
+}
+
+.ore-field__textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+  line-height: 1.5;
   border-radius: 6px;
-  font-size: 13px;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   BOUTON ENREGISTRER - état actif visible
-   ═══════════════════════════════════════════════════════════════ */
-.or-editeur__btn-save:not(:disabled) {
-  animation: pulse-soft 2s ease-in-out infinite;
+/* =============================================================================
+   DESCRIPTION DES TRAVAUX (effet papier ligné de la maquette)
+============================================================================= */
+
+.ore-rdv-hint {
+  padding: 8px 14px;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.8rem;
+  color: color-mix(in srgb, var(--text) 80%, transparent);
 }
 
-@keyframes pulse-soft {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(var(--primary-color-rgb, 41, 128, 185), 0.4); }
-  50% { box-shadow: 0 0 0 4px rgba(var(--primary-color-rgb, 41, 128, 185), 0); }
+.ore-rdv-hint__label {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.ore-description {
+  display: block;
+  width: 100%;
+  min-height: 150px;
+  padding: 14px;
+  background: var(--input-bg);
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 27px,
+    var(--border) 27px,
+    var(--border) 28px
+  );
+  border: none;
+  color: var(--text);
+  font-size: 0.9rem;
+  line-height: 28px;
+  font-family: inherit;
+  resize: vertical;
+  box-sizing: border-box;
+}
+.ore-description:focus {
+  outline: none;
+  background-color: color-mix(in srgb, var(--input-bg) 90%, var(--accent) 10%);
+}
+.ore-description:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =============================================================================
+   TABLEAUX (pièces + interventions, style maquette)
+============================================================================= */
+
+.ore-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.ore-table thead {
+  background: var(--input-bg);
+}
+
+.ore-table th {
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: color-mix(in srgb, var(--text) 70%, transparent);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--border);
+}
+
+.ore-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.ore-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.ore-table tbody tr:hover {
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+}
+
+/* Colonnes fixes (reprend les proportions de la maquette) */
+.ore-table__col-qte   { width: 55px; }
+.ore-table__col-ref   { width: 160px; }
+.ore-table__col-date  { width: 95px; }
+.ore-table__col-type  { width: 160px; }
+.ore-table__col-meca  { width: 130px; }
+.ore-table__col-duree { width: 80px; }
+
+.ore-table__center {
+  text-align: center;
+}
+
+.ore-table__mono {
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+}
+
+/* Badge type d'intervention (ligne de gauche colorée) */
+.ore-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px 2px 10px;
+  border-left: 3px solid;
+  font-size: 0.82rem;
+}
+
+/* Message "vide" */
+.ore-empty {
+  padding: 20px;
+  text-align: center;
+  color: color-mix(in srgb, var(--text) 40%, transparent);
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+/* =============================================================================
+   SECTION CLÔTURE
+============================================================================= */
+
+.ore-cloture-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.ore-cloture-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ore-cloture-field__label {
+  font-size: 0.78rem;
+  color: color-mix(in srgb, var(--text) 60%, transparent);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+.ore-cloture-field__value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+  min-height: 26px;
+}
+
+/* =============================================================================
+   RESPONSIVE
+============================================================================= */
+
+@media (max-width: 700px) {
+  .ore__row-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .ore-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .ore-cloture-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ore__header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .ore__header-center {
+    width: 100%;
+    order: -1;
+  }
 }

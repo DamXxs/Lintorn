@@ -40,6 +40,18 @@ def generer_numero_facture():
 # =============================================================================
 
 class ParametresFacturation(models.Model):
+    # === Infos garage (en-tête des documents PDF) ===
+    nom_garage = models.CharField(max_length=200, blank=True, default='')
+    adresse_garage = models.TextField(blank=True, default='')
+    telephone_garage = models.CharField(max_length=20, blank=True, default='')
+    email_garage = models.EmailField(blank=True, default='')
+    siret = models.CharField(max_length=20, blank=True, default='')
+    numero_tva = models.CharField(
+        max_length=20, blank=True, default='',
+        help_text="Numéro TVA intracommunautaire (ex: FR12345678900)"
+    )
+
+    # === Facturation ===
     tva_pourcentage = models.DecimalField(
         max_digits=5,
         decimal_places=2,
