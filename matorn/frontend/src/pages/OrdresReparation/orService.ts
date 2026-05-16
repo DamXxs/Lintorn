@@ -253,6 +253,17 @@ export const cloturerOrdre = async (
   return response.data;
 };
 
+export const decloturerOrdre = async (id: number): Promise<OrdreReparationDetail> => {
+  try {
+    const response = await api.post<OrdreReparationDetail>(`/ordres-reparation/${id}/decloturer/`);
+    return response.data;
+  } catch (error: any) {
+    const serverMessage = error.response?.data?.error;
+    if (serverMessage) throw new Error(serverMessage);
+    throw new Error('Erreur lors de la déclôture');
+  }
+};
+
 // =============================================================================
 // LIGNES PIÈCES — CRUD des pièces dans un OR
 // =============================================================================

@@ -12,8 +12,11 @@ urlpatterns = [
     # /api/ordres-reparation/42/      → détail + modif + suppression
     path('<int:pk>/', views.ordre_reparation_detail, name='or_detail'),
     
-    # /api/ordres-reparation/42/cloturer/  → action de clôture
+    # /api/ordres-reparation/42/cloturer/    → action de clôture
     path('<int:pk>/cloturer/', views.ordre_reparation_cloturer, name='or_cloturer'),
+
+    # /api/ordres-reparation/42/decloturer/ → action de déclôture
+    path('<int:pk>/decloturer/', views.ordre_reparation_decloturer, name='or_decloturer'),
     
     # ============================================================
     # LIGNES PIÈCES UTILISÉES

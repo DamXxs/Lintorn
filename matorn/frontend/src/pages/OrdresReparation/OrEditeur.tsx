@@ -13,6 +13,7 @@ import {
   addInterventionToOrdre,
   deleteLigneIntervention,
   cloturerOrdre,
+  decloturerOrdre,
   LigneInterventionCreateData,
 } from './orService';
 import {
@@ -100,6 +101,8 @@ const OrEditeur: React.FC = () => {
   const [autoSaving, setAutoSaving]       = useState(false);
   const [generatingPdf, setGeneratingPdf] = useState(false);
   const [saveError, setSaveError]         = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors]     = useState<Record<string, boolean>>({});
+  const [decloturing, setDecloturing]     = useState(false);
 
   // ── Pièces ─────────────────────────────────────────────────
   const [showAddPiece, setShowAddPiece]         = useState(false);
@@ -146,7 +149,7 @@ const OrEditeur: React.FC = () => {
   // Types intervention + mécaniciens
   useEffect(() => {
     Promise.all([
-      fetchReferentiels('type_intervention', true),
+      fetchReferentiels('TYPE_INTERVENTION', true),
       fetchCollaborateurs(true),
     ]).then(([types, mecas]) => {
       setTypeInterventions(types);
@@ -161,6 +164,16 @@ const OrEditeur: React.FC = () => {
       if (pieceSearchTimer.current) clearTimeout(pieceSearchTimer.current);
     };
   }, []);
+
+  // Scroll automatique vers le premier champ en erreur
+  useEffect(() => {
+    if (Object.values(fieldErrors).some(Boolean)) {
+      setTimeout(() => {
+        document.querySelector<HTMLElement>('.ore-input--error')
+          ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 50);
+    }
+  }, [fieldErrors]);
 
   // ── Dérivés ────────────────────────────────────────────────
   const isLocked = ordre?.statut === 'CLOTURE';
@@ -177,6 +190,7 @@ const OrEditeur: React.FC = () => {
   // ── Handler générique ──────────────────────────────────────
   const handleFieldChange = (field: keyof FormData, value: string) => {
     setSaveError(null);
+    if (fieldErrors[field]) setFieldErrors(prev => ({ ...prev, [field]: false }));
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -206,11 +220,15 @@ const OrEditeur: React.FC = () => {
     const isCloturingNow = formData.statut === 'CLOTURE' && ordre.statut !== 'CLOTURE';
 
     if (isCloturingNow) {
-      const missing: string[] = [];
-      if (!formData.heure_sortie)       missing.push('heure de sortie');
-      if (!formData.kilometrage_sortie) missing.push('kilométrage de sortie');
-      if (missing.length > 0) {
+      const errors: Record<string, boolean> = {};
+      if (!formData.heure_sortie)       errors.heure_sortie = true;
+      if (!formData.kilometrage_sortie) errors.kilometrage_sortie = true;
+      if (Object.keys(errors).length > 0) {
+        const missing = [];
+        if (errors.heure_sortie)       missing.push('heure de sortie');
+        if (errors.kilometrage_sortie) missing.push('kilométrage de sortie');
         setSaveError(`Clôture impossible — champs manquants : ${missing.join(', ')}`);
+        setFieldErrors(errors);
         setSaving(false);
         return;
       }
@@ -340,7 +358,13 @@ const OrEditeur: React.FC = () => {
   // ── INTERVENTIONS : ajout ──────────────────────────────────
   const handleAddInterv = async () => {
     if (!ordre) return;
-    if (!newInterv.date || !newInterv.type_intervention || !newInterv.mecanicien || !newInterv.duree_minutes) {
+    const intervErrors: Record<string, boolean> = {};
+    if (!newInterv.date)               intervErrors.interv_date = true;
+    if (!newInterv.type_intervention)  intervErrors.interv_type = true;
+    if (!newInterv.mecanicien)         intervErrors.interv_meca = true;
+    if (!newInterv.duree_minutes)      intervErrors.interv_duree = true;
+    if (Object.keys(intervErrors).length > 0) {
+      setFieldErrors(intervErrors);
       setSaveError('Tous les champs marqués * sont obligatoires');
       return;
     }
@@ -363,6 +387,22 @@ const OrEditeur: React.FC = () => {
       setSaveError(err.message);
     } finally {
       setAddingInterv(false);
+    }
+  };
+
+  // ── DÉCLÔTURE ──────────────────────────────────────────────
+  const handleDecloturer = async () => {
+    if (!ordre || !window.confirm('Déclôturer cet OR et le repasser en "En cours" ?')) return;
+    setDecloturing(true);
+    setSaveError(null);
+    try {
+      const updated = await decloturerOrdre(ordre.id);
+      setOrdre(updated);
+      setFormData(initFormData(updated));
+    } catch (err: any) {
+      setSaveError(err.message);
+    } finally {
+      setDecloturing(false);
     }
   };
 
@@ -422,6 +462,16 @@ const OrEditeur: React.FC = () => {
           >
             <Printer size={15} /> {generatingPdf ? 'Génération...' : 'PDF'}
           </button>
+          {isLocked && (
+            <button
+              className="ore__btn-secondary ore__btn-decloturer"
+              onClick={handleDecloturer}
+              disabled={decloturing}
+              title="Repasser cet OR en cours (si facture non payée)"
+            >
+              {decloturing ? 'Déclôture...' : '🔓 Déclôturer'}
+            </button>
+          )}
           {!isLocked && (
             <button
               className="ore__btn-primary"
@@ -698,9 +748,9 @@ const OrEditeur: React.FC = () => {
                   <label className="ore-form-label">Date *</label>
                   <input
                     type="date"
-                    className="ore-form-input"
+                    className={`ore-form-input${fieldErrors.interv_date ? ' ore-input--error' : ''}`}
                     value={newInterv.date}
-                    onChange={e => setNewInterv(p => ({ ...p, date: e.target.value }))}
+                    onChange={e => { setFieldErrors(p => ({ ...p, interv_date: false })); setNewInterv(p => ({ ...p, date: e.target.value })); }}
                   />
                 </div>
 
@@ -708,20 +758,20 @@ const OrEditeur: React.FC = () => {
                   <label className="ore-form-label">Durée (minutes) *</label>
                   <input
                     type="number"
-                    className="ore-form-input"
+                    className={`ore-form-input${fieldErrors.interv_duree ? ' ore-input--error' : ''}`}
                     placeholder="Ex : 90"
                     min="1"
                     value={newInterv.duree_minutes}
-                    onChange={e => setNewInterv(p => ({ ...p, duree_minutes: e.target.value }))}
+                    onChange={e => { setFieldErrors(p => ({ ...p, interv_duree: false })); setNewInterv(p => ({ ...p, duree_minutes: e.target.value })); }}
                   />
                 </div>
 
                 <div className="ore-form-field">
                   <label className="ore-form-label">Type d'intervention *</label>
                   <select
-                    className="ore-form-input"
+                    className={`ore-form-input${fieldErrors.interv_type ? ' ore-input--error' : ''}`}
                     value={newInterv.type_intervention}
-                    onChange={e => setNewInterv(p => ({ ...p, type_intervention: parseInt(e.target.value) }))}
+                    onChange={e => { setFieldErrors(p => ({ ...p, interv_type: false })); setNewInterv(p => ({ ...p, type_intervention: parseInt(e.target.value) })); }}
                   >
                     <option value={0}>— Choisir —</option>
                     {typeInterventions.map(t => (
@@ -733,9 +783,9 @@ const OrEditeur: React.FC = () => {
                 <div className="ore-form-field">
                   <label className="ore-form-label">Mécanicien *</label>
                   <select
-                    className="ore-form-input"
+                    className={`ore-form-input${fieldErrors.interv_meca ? ' ore-input--error' : ''}`}
                     value={newInterv.mecanicien}
-                    onChange={e => setNewInterv(p => ({ ...p, mecanicien: parseInt(e.target.value) }))}
+                    onChange={e => { setFieldErrors(p => ({ ...p, interv_meca: false })); setNewInterv(p => ({ ...p, mecanicien: parseInt(e.target.value) })); }}
                   >
                     <option value={0}>— Choisir —</option>
                     {collaborateurs.map(c => (
@@ -843,7 +893,7 @@ const OrEditeur: React.FC = () => {
                 <span className="ore-cloture-field__label">Km sortie</span>
                 <input
                   type="number"
-                  className="ore-cloture-field__input"
+                  className={`ore-cloture-field__input${fieldErrors.kilometrage_sortie ? ' ore-input--error' : ''}`}
                   value={formData.kilometrage_sortie}
                   onChange={e => handleFieldChange('kilometrage_sortie', e.target.value)}
                   disabled={isLocked}
@@ -857,7 +907,7 @@ const OrEditeur: React.FC = () => {
                 <span className="ore-cloture-field__label">Heure sortie</span>
                 <input
                   type="time"
-                  className="ore-cloture-field__input"
+                  className={`ore-cloture-field__input${fieldErrors.heure_sortie ? ' ore-input--error' : ''}`}
                   value={formData.heure_sortie}
                   onChange={e => handleFieldChange('heure_sortie', e.target.value)}
                   disabled={isLocked}

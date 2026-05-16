@@ -148,6 +148,68 @@
   text-align: center;
 }
 
+.facture-list__cell--actions {
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* ── MENU 3-POINTS ───────────────────────────────────────────── */
+.fv-action-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.fv-action-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-size: 1.1rem;
+  cursor: pointer;
+  opacity: 0.45;
+  transition: opacity 0.15s, background 0.15s;
+  line-height: 1;
+}
+
+.facture-list__table tbody tr:hover .fv-action-trigger,
+.fv-action-trigger:focus { opacity: 1; }
+.fv-action-trigger:hover { background: var(--input-bg); opacity: 1; }
+
+.fv-action-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 200;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px var(--shadow);
+  min-width: 150px;
+  overflow: hidden;
+}
+
+.fv-action-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.fv-action-item:last-child { border-bottom: none; }
+.fv-action-item:hover { background: var(--input-bg); }
+
 /* ── BADGES STATUT ───────────────────────────────────────────── */
 .facture-list__badge {
   display: inline-block;

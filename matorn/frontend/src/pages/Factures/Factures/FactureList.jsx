@@ -49,6 +49,7 @@ const FactureList = ({ onSelectFacture, onCreateFacture }) => {
   const [error,        setError]        = useState(null);
   const [searchQuery,  setSearchQuery]  = useState('');
   const [filtreStatut, setFiltreStatut] = useState('ALL');
+  const [menuOpenId,   setMenuOpenId]   = useState(null);
 
   const loadFactures = useCallback(async () => {
     setLoading(true);
@@ -64,6 +65,12 @@ const FactureList = ({ onSelectFacture, onCreateFacture }) => {
   }, []);
 
   useEffect(() => { loadFactures(); }, [loadFactures]);
+
+  useEffect(() => {
+    const close = () => setMenuOpenId(null);
+    document.addEventListener('click', close);
+    return () => document.removeEventListener('click', close);
+  }, []);
 
   // ── Filtrage local ────────────────────────────────────────
   const filtered = factures
@@ -152,6 +159,7 @@ const FactureList = ({ onSelectFacture, onCreateFacture }) => {
                 <th style={{ textAlign: 'right' }}>Payé</th>
                 <th style={{ textAlign: 'right' }}>Solde</th>
                 <th style={{ textAlign: 'center' }}>Statut</th>
+                <th style={{ textAlign: 'center', width: 48 }}></th>
               </tr>
             </thead>
             <tbody>
@@ -182,6 +190,28 @@ const FactureList = ({ onSelectFacture, onCreateFacture }) => {
                       <span className={`facture-list__badge ${getBadgeClass(f.statut)}`}>
                         {getStatutLabel(f.statut)}
                       </span>
+                    </td>
+                    <td
+                      className="facture-list__cell--actions"
+                      onClick={e => e.stopPropagation()}
+                    >
+                      <div className="fv-action-wrap">
+                        <button
+                          className="fv-action-trigger"
+                          onClick={e => { e.stopPropagation(); setMenuOpenId(menuOpenId === f.id ? null : f.id); }}
+                          title="Actions"
+                        >⋯</button>
+                        {menuOpenId === f.id && (
+                          <div className="fv-action-menu">
+                            <button
+                              className="fv-action-item"
+                              onClick={() => { setMenuOpenId(null); onSelectFacture(f); }}
+                            >
+                              👁️ Ouvrir
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );

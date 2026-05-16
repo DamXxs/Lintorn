@@ -6,7 +6,40 @@
 .parametres-title {
   font-size: 24px;
   color: var(--text);
-  margin-bottom: 30px;
+  margin-bottom: 12px;
+}
+
+/* ── NAV STICKY SECTIONS ─────────────────────────────────────── */
+.param-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 10px 0;
+  margin-bottom: 20px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.param-nav__btn {
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--input-bg);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.param-nav__btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--input-bg));
 }
 
 /* ── SECTIONS ────────────────────────────────────────────────── */

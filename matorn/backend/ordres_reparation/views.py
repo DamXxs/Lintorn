@@ -165,7 +165,41 @@ def ordre_reparation_cloturer(request, pk):
         ordre.heure_sortie = request.data['heure_sortie']
     
     ordre.save()
-    
+
+    serializer = OrdreReparationDetailSerializer(ordre)
+    return Response(serializer.data)
+
+
+# =============================================================================
+# ACTION : DÉCLÔTURER UN OR
+# POST /api/ordres-reparation/42/decloturer/
+# Bloqué si la facture liée est entièrement payée.
+# =============================================================================
+@api_view(['POST'])
+@login_required_cookie
+def ordre_reparation_decloturer(request, pk):
+    try:
+        ordre = OrdreReparation.objects.select_related('rdv').get(pk=pk)
+    except OrdreReparation.DoesNotExist:
+        return Response({'error': 'OR introuvable'}, status=status.HTTP_404_NOT_FOUND)
+
+    if ordre.statut != OrdreReparation.STATUT_CLOTURE:
+        return Response(
+            {'error': 'Cet OR n\'est pas clôturé.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # Blocage si facture intégralement payée
+    if ordre.rdv and ordre.rdv.factures.filter(statut='PAYEE').exists():
+        return Response(
+            {'error': 'Impossible de déclôturer cet OR : la facture associée a été réglée en totalité.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    ordre.statut = OrdreReparation.STATUT_EN_COURS
+    ordre.date_cloture = None
+    ordre.save()
+
     serializer = OrdreReparationDetailSerializer(ordre)
     return Response(serializer.data)
 

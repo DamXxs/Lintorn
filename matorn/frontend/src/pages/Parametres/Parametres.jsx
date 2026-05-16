@@ -16,6 +16,24 @@ import {
 import './Parametres.css';
 import '../../components/shared/list-page.css';
 
+const PARAM_SECTIONS = [
+  { id: 'section-theme',         label: 'Thème' },
+  { id: 'section-departements',  label: 'Départements' },
+  { id: 'section-equipe',        label: 'Équipe' },
+  { id: 'section-vehicules',     label: 'Véhicules' },
+  { id: 'section-interventions', label: 'Interventions' },
+  { id: 'section-stock',         label: 'Stock' },
+  { id: 'section-fournisseurs',  label: 'Fournisseurs' },
+  { id: 'section-facturation',   label: 'Facturation' },
+  { id: 'section-utilisateurs',  label: 'Utilisateurs' },
+  { id: 'section-notifications', label: 'Notifs' },
+  { id: 'section-ia',            label: 'IA' },
+];
+
+const scrollTo = (sectionId) => {
+  document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
 const Parametres = () => {
   const { themeName, setTheme, themes } = useTheme();
   const { referentiels, loading, reload } = useReferentiels();
@@ -51,8 +69,17 @@ const Parametres = () => {
     <div className="list-page">
       <h1 className="parametres-title"><Settings size={20} /> Paramètres</h1>
 
+      {/* ── NAV STICKY PAR SECTION ─────────────────────────────────────────── */}
+      <nav className="param-nav">
+        {PARAM_SECTIONS.map(s => (
+          <button key={s.id} className="param-nav__btn" onClick={() => scrollTo(s.id)}>
+            {s.label}
+          </button>
+        ))}
+      </nav>
+
       {/* ── THÈMES ─────────────────────────────────────────────────────────── */}
-      <section className="param-section">
+      <section id="section-theme" className="param-section">
         <h2 className="param-section__title"><Palette size={16} /> Thème de l'interface</h2>
         <div className="theme-grid">
           {Object.entries(themes).map(([key, theme]) => (
@@ -75,7 +102,7 @@ const Parametres = () => {
       </section>
 
       {/* ── DÉPARTEMENTS ───────────────────────────────────────────────────── */}
-      <section className="param-section">
+      <section id="section-departements" className="param-section">
         <h2 className="param-section__title"><Factory size={16} /> Départements</h2>
         <p className="param-description">
           Définissez les départements de votre garage (ex : Atelier, Académie, Carrosserie…).
@@ -90,7 +117,7 @@ const Parametres = () => {
       </section>
 
       {/* ── ÉQUIPE / COLLABORATEURS ─────────────────────────────────────────── */}
-      <section className="param-section">
+      <section id="section-equipe" className="param-section">
         <h2 className="param-section__title"><Users size={16} /> Équipe</h2>
         <p className="param-description">
           Gérez les membres de votre équipe. Chaque collaborateur apparaîtra dans le planning
@@ -110,7 +137,7 @@ const Parametres = () => {
         </section>
       ) : (
         <>
-          <section className="param-section">
+          <section id="section-vehicules" className="param-section">
             <h2 className="param-section__title"><Car size={16} /> Types de véhicules</h2>
             <p className="param-description">
               Définissez les types de véhicules que vous acceptez dans votre garage.
@@ -123,7 +150,7 @@ const Parametres = () => {
             />
           </section>
 
-          <section className="param-section">
+          <section id="section-interventions" className="param-section">
             <h2 className="param-section__title"><Wrench size={16} /> Types d'interventions</h2>
             <p className="param-description">
               Personnalisez les types d'interventions selon votre activité.
@@ -135,7 +162,7 @@ const Parametres = () => {
             />
           </section>
 
-          <section className="param-section">
+          <section id="section-stock" className="param-section">
             <h2 className="param-section__title"><Package size={16} /> Catégories de stock</h2>
             <p className="param-description">
               Organisez vos pièces par catégories adaptées à votre stock.
@@ -147,7 +174,7 @@ const Parametres = () => {
             />
           </section>
 
-          <section className="param-section">
+          <section id="section-fournisseurs" className="param-section">
             <h2 className="param-section__title"><Tag size={16} /> Catégories de fournisseurs</h2>
             <p className="param-description">
               Personnalisez les catégories de vos fournisseurs (pneumatiques, pièces, carrosserie…).
@@ -163,7 +190,7 @@ const Parametres = () => {
       )}
 
       {/* ── PARAMÈTRES DE FACTURATION ──────────────────────────────────────── */}
-      <section className="param-section">
+      <section id="section-facturation" className="param-section">
         <h2 className="param-section__title"><Banknote size={16} /> Facturation</h2>
         <p className="param-description">
           Configurez le taux de TVA et les forfaits main d'œuvre utilisés dans vos devis et factures.
@@ -173,7 +200,7 @@ const Parametres = () => {
 
       {/* ── GESTION DES UTILISATEURS (ADMIN SEULEMENT) ──────────────────────────────── */}
       {isAdmin() && (
-        <section className="param-section">
+        <section id="section-utilisateurs" className="param-section">
           <h2 className="param-section__title">
             <Shield size={16} /> Utilisateurs
           </h2>
@@ -186,12 +213,12 @@ const Parametres = () => {
       )}
 
       {/* ── FUTURES OPTIONS ────────────────────────────────────────────────── */}
-      <section className="param-section">
+      <section id="section-notifications" className="param-section">
         <h2 className="param-section__title"><Bell size={16} /> Notifications <span className="coming-soon">bientôt</span></h2>
         <p className="param-placeholder">Alertes de stock, rappels RDV automatiques...</p>
       </section>
 
-      <section className="param-section">
+      <section id="section-ia" className="param-section">
         <h2 className="param-section__title"><Bot size={16} /> IA & Messagerie <span className="coming-soon">bientôt</span></h2>
         <p className="param-placeholder">Assistant IA pour les prises de RDV automatiques...</p>
       </section>

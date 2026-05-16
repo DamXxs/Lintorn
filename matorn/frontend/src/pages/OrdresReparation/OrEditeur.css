@@ -794,6 +794,34 @@
 }
 
 /* =============================================================================
+   VALIDATORS — champ en erreur (bordure rouge + animation)
+============================================================================= */
+
+.ore-input--error {
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 25%, transparent) !important;
+  animation: ore-shake 0.3s ease;
+}
+
+@keyframes ore-shake {
+  0%, 100% { transform: translateX(0); }
+  25%       { transform: translateX(-4px); }
+  75%       { transform: translateX(4px); }
+}
+
+/* =============================================================================
+   BOUTON DÉCLÔTURER
+============================================================================= */
+
+.ore__btn-decloturer {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+.ore__btn-decloturer:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
+}
+
+/* =============================================================================
    RESPONSIVE
 ============================================================================= */
 

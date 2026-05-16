@@ -2,6 +2,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from django.db.models import Q
 from .models import Piece
 from .serializers import PieceSerializer
 from accounts.permissions import login_required_cookie
@@ -22,9 +23,10 @@ def piece_list(request):
         # Recherche optionnelle : /api/stock/pieces/?search=filtre
         search = request.query_params.get('search', None)
         if search:
-            pieces = pieces.filter(nom__icontains=search) \
-                   | pieces.filter(reference__icontains=search) \
-                   | pieces.filter(fournisseur__icontains=search)
+            pieces = pieces.filter(
+                Q(nom__icontains=search) |
+                Q(reference__icontains=search)
+            )
 
         # Filtre par catégorie : /api/stock/pieces/?categorie=FILTRATION
         categorie = request.query_params.get('categorie', None)

@@ -152,29 +152,72 @@
 .devis-list__badge--expire   { background: rgba(149,165,166,0.15);color: #95a5a6; }
 .devis-list__badge--facture  { background: rgba(155,89,182,0.15); color: #9b59b6; }
 
-/* ── BOUTONS ACTION ──────────────────────────────────────────── */
-.devis-list__btn-action {
-  background: none;
+/* ── MENU 3-POINTS ───────────────────────────────────────────── */
+.dv-action-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.dv-action-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
   border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 4px 8px;
-  font-size: 12px;
-  cursor: pointer;
+  background: transparent;
   color: var(--text);
-  transition: all 0.15s ease;
-  margin: 0 2px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  opacity: 0.45;
+  transition: opacity 0.15s, background 0.15s;
+  line-height: 1;
 }
 
-.devis-list__btn-action:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: rgba(41, 128, 185, 0.08);
+.devis-list__table tbody tr:hover .dv-action-trigger,
+.dv-action-trigger:focus {
+  opacity: 1;
 }
 
-.devis-list__btn-action--danger:hover {
-  border-color: #e74c3c;
-  color: #e74c3c;
-  background: rgba(231, 76, 60, 0.08);
+.dv-action-trigger:hover {
+  background: var(--input-bg);
+  opacity: 1;
+}
+
+.dv-action-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 200;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px var(--shadow);
+  min-width: 170px;
+  overflow: hidden;
+}
+
+.dv-action-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.dv-action-item:last-child { border-bottom: none; }
+.dv-action-item:hover { background: var(--input-bg); }
+
+.dv-action-item--danger { color: var(--danger); }
+.dv-action-item--danger:hover {
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
 }
 
 /* ── ÉTAT VIDE ───────────────────────────────────────────────── */

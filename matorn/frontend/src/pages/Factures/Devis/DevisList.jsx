@@ -51,6 +51,7 @@ const DevisList = ({ onSelectDevis, onCreateDevis, onEditDevis, onViewPDF }) => 
   const [error,        setError]        = useState(null);
   const [searchQuery,  setSearchQuery]  = useState('');
   const [filtreStatut, setFiltreStatut] = useState('ALL');
+  const [menuOpenId,   setMenuOpenId]   = useState(null);
 
   const loadDevis = useCallback(async () => {
     setLoading(true);
@@ -66,6 +67,13 @@ const DevisList = ({ onSelectDevis, onCreateDevis, onEditDevis, onViewPDF }) => 
   }, []);
 
   useEffect(() => { loadDevis(); }, [loadDevis]);
+
+  // Fermer le menu au clic hors du tableau
+  useEffect(() => {
+    const close = () => setMenuOpenId(null);
+    document.addEventListener('click', close);
+    return () => document.removeEventListener('click', close);
+  }, []);
 
   // ── Filtrage local (statut + recherche texte) ─────────────
   const filtered = devis
@@ -199,60 +207,39 @@ const DevisList = ({ onSelectDevis, onCreateDevis, onEditDevis, onViewPDF }) => 
                   </td>
                   <td
                     className="devis-list__cell--actions"
-                    onClick={e => e.stopPropagation()} /* empêche l'ouverture du détail */
+                    onClick={e => e.stopPropagation()}
                   >
-                    {/* Aperçu PDF — toujours dispo */}
-                    {onViewPDF && (
+                    <div className="dv-action-wrap">
                       <button
-                        className="devis-list__btn-action"
-                        onClick={() => onViewPDF(d.id)}
-                        title="Aperçu PDF"
-                      >
-                        PDF
-                      </button>
-                    )}
-
-                    {/* Modifier — uniquement si CREE */}
-                    {d.statut === 'CREE' && onEditDevis && (
-                      <button
-                        className="devis-list__btn-action"
-                        onClick={() => onEditDevis(d.id)}
-                        title="Modifier"
-                      >
-                        Modifier
-                      </button>
-                    )}
-
-                    {/* Valider / Refuser — si CREE */}
-                    {d.statut === 'CREE' && (
-                      <>
-                        <button
-                          className="devis-list__btn-action"
-                          onClick={e => handleValider(e, d.id)}
-                          title="Valider"
-                        >
-                          Valider
-                        </button>
-                        <button
-                          className="devis-list__btn-action devis-list__btn-action--danger"
-                          onClick={e => handleRefuser(e, d.id)}
-                          title="Refuser"
-                        >
-                          Refuser
-                        </button>
-                      </>
-                    )}
-
-                    {/* Refuser — si VALIDE */}
-                    {d.statut === 'VALIDE' && (
-                      <button
-                        className="devis-list__btn-action devis-list__btn-action--danger"
-                        onClick={e => handleRefuser(e, d.id)}
-                        title="Refuser"
-                      >
-                        Refuser
-                      </button>
-                    )}
+                        className="dv-action-trigger"
+                        onClick={e => { e.stopPropagation(); setMenuOpenId(menuOpenId === d.id ? null : d.id); }}
+                        title="Actions"
+                      >⋯</button>
+                      {menuOpenId === d.id && (
+                        <div className="dv-action-menu">
+                          {onViewPDF && (
+                            <button className="dv-action-item" onClick={() => { setMenuOpenId(null); onViewPDF(d.id); }}>
+                              📄 Aperçu PDF
+                            </button>
+                          )}
+                          {d.statut === 'CREE' && onEditDevis && (
+                            <button className="dv-action-item" onClick={() => { setMenuOpenId(null); onEditDevis(d.id); }}>
+                              ✏️ Modifier
+                            </button>
+                          )}
+                          {d.statut === 'CREE' && (
+                            <button className="dv-action-item" onClick={e => { setMenuOpenId(null); handleValider(e, d.id); }}>
+                              ✅ Valider
+                            </button>
+                          )}
+                          {(d.statut === 'CREE' || d.statut === 'VALIDE') && (
+                            <button className="dv-action-item dv-action-item--danger" onClick={e => { setMenuOpenId(null); handleRefuser(e, d.id); }}>
+                              ❌ Refuser
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
