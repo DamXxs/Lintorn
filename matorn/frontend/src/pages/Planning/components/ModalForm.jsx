@@ -1,15 +1,16 @@
 // /src/pages/Planning/components/ModalForm.jsx
 import React, { useState, useEffect, useMemo } from 'react';
-import { fetchDepartements, fetchCollaborateurs } from '../../../services/api';
+import { fetchDepartements, fetchCollaborateurs, fetchVehiculesByClient } from '../../../services/api';
 import { useReferentiels } from '../../../context/ReferentielsContext';
-import { formatNom, formatPrenom, formatPhone, formatImmatriculation, validateEmail, validateImmatriculation } from '../../../utils/validators';
+import { formatPrenom, formatPhone, formatImmatriculation, validateEmail, validateImmatriculation } from '../../../utils/validators';
 import logger from '../../../utils/logger';
 
-import Modal              from '../../../components/shared/Modals/Modal';
-// 🆕 Remplacement : FrenchPlateInput → PlateSelector (dans le nouveau dossier plates/)
-import PlateSelector      from '../../../components/shared/plates/PlateSelector';
-import AddressAutocomplete from '../../../components/shared/AdressAutocomplete/AddressAutocomplete';
-import SivButton           from '../../../components/shared/SivButton/SivButton';
+import Modal                from '../../../components/shared/Modals/Modal';
+import PlateSelector        from '../../../components/shared/plates/PlateSelector';
+import AddressAutocomplete  from '../../../components/shared/AdressAutocomplete/AddressAutocomplete';
+import SivButton            from '../../../components/shared/SivButton/SivButton';
+import ClientSearchInput    from '../../../components/shared/ClientSearchInput/ClientSearchInput';
+import VehicleChipSelector  from '../../../components/shared/VehicleChipSelector/VehicleChipSelector';
 import { User, Car, CalendarClock, FileText, Save, Users, X } from '../../../utils/icons';
 import './ModalForm.css';
 
@@ -28,9 +29,11 @@ const ModalForm = ({ isOpen, onClose, initialData, prefilledDate, onSubmit }) =>
     const [collaborateurs, setCollaborateurs] = useState([]);
     const [errors,         setErrors]         = useState({});
 
-    // Véhicules pré-chargés depuis la fiche client (pour le sélecteur)
-    const clientVehicules = initialData?.clientVehicules || [];
-    const [vehiculeSelectId, setVehiculeSelectId] = useState('');
+    // ── Client sélectionné + véhicules dynamiques ────────────────
+    const [clientSelected,    setClientSelected]    = useState(null);
+    const [dynamicVehicules,  setDynamicVehicules]  = useState([]);
+    const [loadingVehicules,  setLoadingVehicules]  = useState(false);
+    const [vehiculeSelectId,  setVehiculeSelectId]  = useState('');
 
     // ── Chargement au montage ──────────────────────────────────────
     useEffect(() => {
@@ -46,6 +49,80 @@ const ModalForm = ({ isOpen, onClose, initialData, prefilledDate, onSubmit }) =>
 
         fetchCollaborateurs(true).then(setCollaborateurs).catch(() => {});
     }, []);
+
+    // ── Sélection d'un client (depuis ClientSearchInput) ───────────
+    const handleClientSelect = async (client) => {
+        setClientSelected(client);
+        setFormData(prev => ({
+            ...prev,
+            clientName:      client.nom,
+            clientFirstName: client.prenom    || '',
+            clientPhone:     client.telephone || '',
+            clientEmail:     client.email     || '',
+            clientAddress:   client.adresse   || '',
+            clientId:        client.id,
+        }));
+        // Charger les véhicules du client
+        setLoadingVehicules(true);
+        setDynamicVehicules([]);
+        setVehiculeSelectId('');
+        try {
+            const vehicules = await fetchVehiculesByClient(client.id);
+            setDynamicVehicules(vehicules);
+            if (vehicules.length === 1) {
+                const v = vehicules[0];
+                setVehiculeSelectId(String(v.id));
+                setFormData(prev => ({
+                    ...prev,
+                    plate:        v.immatriculation   || '',
+                    vehicleBrand: v.marque            || '',
+                    vehicleModel: v.modele            || '',
+                    vehicleYear:  v.annee?.toString() || '',
+                    vehicleType:  v.type_vehicule     || prev.vehicleType,
+                    vin:          v.vin               || '',
+                }));
+            }
+        } catch {
+            setDynamicVehicules([]);
+        } finally {
+            setLoadingVehicules(false);
+        }
+    };
+
+    // ── Désélection d'un client ────────────────────────────────────
+    const handleClearClient = () => {
+        setClientSelected(null);
+        setDynamicVehicules([]);
+        setVehiculeSelectId('');
+        setFormData(prev => ({
+            ...prev,
+            clientName: '', clientFirstName: '', clientPhone: '',
+            clientEmail: '', clientAddress: '', clientId: null,
+            plate: '', vehicleBrand: '', vehicleModel: '', vehicleYear: '', vin: '',
+        }));
+    };
+
+    // ── Sélection d'un véhicule (depuis VehicleChipSelector) ──────
+    const handleVehicleChipSelect = (v) => {
+        setVehiculeSelectId(String(v.id));
+        setFormData(prev => ({
+            ...prev,
+            plate:        v.immatriculation   || '',
+            vehicleBrand: v.marque            || '',
+            vehicleModel: v.modele            || '',
+            vehicleYear:  v.annee?.toString() || '',
+            vehicleType:  v.type_vehicule     || prev.vehicleType,
+            vin:          v.vin               || '',
+        }));
+    };
+
+    const handleVehicleChipManual = () => {
+        setVehiculeSelectId('');
+        setFormData(prev => ({
+            ...prev,
+            plate: '', vehicleBrand: '', vehicleModel: '', vehicleYear: '', vin: '',
+        }));
+    };
 
     // ── Initiales d'un collaborateur ───────────────────────────────
     const getInitiales = (nom) => {
@@ -76,6 +153,7 @@ const ModalForm = ({ isOpen, onClose, initialData, prefilledDate, onSubmit }) =>
         clientPhone:      '',
         clientEmail:      '',
         clientAddress:    '',
+        clientId:         null,
         vehicleType:      'VOITURE',
         plate:            '',
         vehicleBrand:     '',
@@ -92,10 +170,29 @@ const ModalForm = ({ isOpen, onClose, initialData, prefilledDate, onSubmit }) =>
 
     const [formData, setFormData] = useState(emptyForm);
 
-    // ── Initialisation selon le contexte (édition / date préfill / vide) ──
+    // ── Initialisation selon le contexte ──────────────────────────
     useEffect(() => {
         if (initialData) {
             setFormData(prev => ({ ...prev, ...initialData }));
+            // Reconstituer le client sélectionné si le prefill a un clientId
+            if (initialData.clientId) {
+                setClientSelected({
+                    id:        initialData.clientId,
+                    nom:       initialData.clientName      || '',
+                    prenom:    initialData.clientFirstName || '',
+                    telephone: initialData.clientPhone     || '',
+                    email:     initialData.clientEmail     || '',
+                    adresse:   initialData.clientAddress   || '',
+                });
+                setDynamicVehicules(initialData.clientVehicules || []);
+                // Auto-select si 1 seul véhicule
+                if ((initialData.clientVehicules || []).length === 1) {
+                    setVehiculeSelectId(String(initialData.clientVehicules[0].id));
+                }
+            } else {
+                setClientSelected(null);
+                setDynamicVehicules(initialData.clientVehicules || []);
+            }
         } else if (prefilledDate) {
             const dateObj  = new Date(prefilledDate);
             const dateStr  = dateObj.toISOString().split('T')[0];
@@ -103,8 +200,14 @@ const ModalForm = ({ isOpen, onClose, initialData, prefilledDate, onSubmit }) =>
             const endObj   = new Date(dateObj.getTime() + 60 * 60 * 1000);
             const endTime  = endObj.toTimeString().slice(0, 5);
             setFormData({ ...emptyForm, dateStart: dateStr, timeStart: timeStr, dateEnd: dateStr, timeEnd: endTime });
+            setClientSelected(null);
+            setDynamicVehicules([]);
+            setVehiculeSelectId('');
         } else {
             setFormData(emptyForm);
+            setClientSelected(null);
+            setDynamicVehicules([]);
+            setVehiculeSelectId('');
         }
     }, [initialData, prefilledDate, emptyForm]);
 
@@ -112,19 +215,15 @@ const ModalForm = ({ isOpen, onClose, initialData, prefilledDate, onSubmit }) =>
     const handleChange = (e) => {
         let { name, value } = e.target;
 
-        if (name === 'clientName')      value = formatNom(value);
         if (name === 'clientFirstName') value = formatPrenom(value);
         if (name === 'clientPhone')     value = formatPhone(value);
 
-        // 🆕 Formatage plaque avec prise en compte du type de véhicule
         if (name === 'plate') {
             value = formatImmatriculation(value, { vehicleType: formData.vehicleType });
         }
 
-        if (name === 'clientName')  setErrors(prev => ({ ...prev, clientName: value.trim() ? null : prev.clientName }));
         if (name === 'clientEmail') setErrors(prev => ({ ...prev, clientEmail: validateEmail(value) }));
 
-        // 🆕 Validation plaque en temps réel avec le bon vehicleType
         if (name === 'plate') {
             setErrors(prev => ({
                 ...prev,
@@ -135,8 +234,6 @@ const ModalForm = ({ isOpen, onClose, initialData, prefilledDate, onSubmit }) =>
         if (name === 'dateStart')   setErrors(prev => ({ ...prev, dateStart: value ? null : prev.dateStart }));
         if (name === 'dateEnd')     setErrors(prev => ({ ...prev, dateEnd: value ? null : prev.dateEnd }));
 
-        // 🆕 Si on change de type de véhicule, on reset la plaque
-        // (parce que le format attendu change : SIV → métal → bois...)
         if (name === 'vehicleType') {
             setFormData(prev => ({ ...prev, [name]: value, plate: '' }));
             setErrors(prev => ({ ...prev, plate: null }));
@@ -165,7 +262,6 @@ const ModalForm = ({ isOpen, onClose, initialData, prefilledDate, onSubmit }) =>
 
         const deptRequiertVehicule = departements.find(d => d.code === formData.departement)?.requiert_vehicule;
         if (deptRequiertVehicule) {
-            // 🆕 Validation plaque avec vehicleType
             const plateError = validateImmatriculation(formData.plate, {
                 vehicleType: formData.vehicleType
             });
@@ -190,16 +286,21 @@ const ModalForm = ({ isOpen, onClose, initialData, prefilledDate, onSubmit }) =>
     const isEditing = Boolean(initialData?.id);
     const deptRequiertVehicule = departements.find(d => d.code === formData.departement)?.requiert_vehicule;
 
-    // SIV → pré-remplir les champs véhicule (nommage ModalForm : vehicleBrand, vehicleModel, vehicleYear)
+    // SIV → pré-remplir les champs véhicule
     const handleSivResult = (data) => {
         setFormData(prev => ({
             ...prev,
             ...(data.marque  && { vehicleBrand: data.marque }),
             ...(data.modele  && { vehicleModel: data.modele }),
             ...(data.annee   && { vehicleYear:  data.annee }),
-            ...(data.vin     && { vin:        data.vin }),
+            ...(data.vin     && { vin:          data.vin }),
         }));
     };
+
+    // Véhicules effectifs (dynamiques OU issus du prefill)
+    const effectiveVehicules = dynamicVehicules.length > 0
+        ? dynamicVehicules
+        : (initialData?.clientVehicules || []);
 
     // ── RENDU ──────────────────────────────────────────────────────
     return (
@@ -245,11 +346,27 @@ const ModalForm = ({ isOpen, onClose, initialData, prefilledDate, onSubmit }) =>
                 <div className="mf-section">
                     <div className="mf-section-title"><User size={14} /> Informations Client</div>
 
+                    {/* ── Autocomplete client (mode création) ──────── */}
+                    {!isEditing && (
+                        <div className="mf-group">
+                            <ClientSearchInput
+                                selected={clientSelected}
+                                onSelect={handleClientSelect}
+                                onClear={handleClearClient}
+                                placeholder="Rechercher un client existant..."
+                            />
+                        </div>
+                    )}
+
+                    {/* Nom + Prénom — toujours éditables */}
                     <div className="mf-grid-2col">
                         <div className="mf-group">
                             <label className="mf-label required">Nom</label>
-                            <input type="text" name="clientName" value={formData.clientName}
-                                onChange={handleChange} placeholder="Dupont" className="mf-input" />
+                            <input
+                                type="text" name="clientName" value={formData.clientName}
+                                onChange={handleChange} placeholder="Dupont"
+                                className={`mf-input ${errors.clientName ? 'mf-input--error' : ''}`}
+                            />
                             {errors.clientName && <span className="mf-error">{errors.clientName}</span>}
                         </div>
                         <div className="mf-group">
@@ -286,53 +403,29 @@ const ModalForm = ({ isOpen, onClose, initialData, prefilledDate, onSubmit }) =>
                 {/* ── 2. INFORMATIONS VÉHICULE (si requis) ──────── */}
                 {deptRequiertVehicule && (
                     <div className="mf-section">
-                        <div className="mf-section-title"><Car size={14} /> Informations Véhicule</div>
+                        <div className="mf-section-title">
+                            <Car size={14} /> Informations Véhicule
+                        </div>
 
-                        {/* Sélecteur de véhicule existant si client pré-rempli */}
-                        {clientVehicules.length > 0 && (
+                        {/* ── Sélecteur de véhicule en chips ────────── */}
+                        {(effectiveVehicules.length > 0 || loadingVehicules) && (
                             <div className="mf-group">
-                                <label className="mf-label">Véhicule existant du client</label>
-                                <select
-                                    className="mf-input"
-                                    value={vehiculeSelectId}
-                                    onChange={(e) => {
-                                        const val = e.target.value;
-                                        setVehiculeSelectId(val);
-                                        if (!val) {
-                                            // "Nouveau véhicule" → reset les champs
-                                            setFormData(prev => ({ ...prev, plate: '', vehicleBrand: '', vehicleModel: '', vehicleYear: '' }));
-                                        } else {
-                                            const v = clientVehicules.find(v => String(v.id) === val);
-                                            if (v) {
-                                                setFormData(prev => ({
-                                                    ...prev,
-                                                    plate:        v.immatriculation || '',
-                                                    vehicleBrand: v.marque          || '',
-                                                    vehicleModel: v.modele          || '',
-                                                    vehicleYear:  v.annee?.toString() || '',
-                                                    vehicleType:  v.type_vehicule   || prev.vehicleType,
-                                                }));
-                                            }
-                                        }
-                                    }}
-                                >
-                                    <option value="">— Saisir manuellement / Nouveau véhicule —</option>
-                                    {clientVehicules.map(v => (
-                                        <option key={v.id} value={v.id}>
-                                            {v.marque} {v.modele}
-                                            {v.immatriculation ? ` — ${v.immatriculation}` : ''}
-                                            {v.annee ? ` (${v.annee})` : ''}
-                                        </option>
-                                    ))}
-                                </select>
-                                <span style={{ fontSize: 11, color: '#888', marginTop: 4, display: 'block' }}>
-                                    Sélectionner pré-remplit les champs ci-dessous (modifiables)
-                                </span>
+                                <label className="mf-label">
+                                    {loadingVehicules ? 'Véhicule(s)' :
+                                     effectiveVehicules.length === 1 ? 'Véhicule du client' :
+                                     `${effectiveVehicules.length} véhicules — choisissez`}
+                                </label>
+                                <VehicleChipSelector
+                                    vehicules={effectiveVehicules}
+                                    selectedId={vehiculeSelectId}
+                                    onSelect={handleVehicleChipSelect}
+                                    onManual={handleVehicleChipManual}
+                                    loading={loadingVehicules}
+                                />
                             </div>
                         )}
 
-                        {/* 🆕 Type de véhicule remonté AU-DESSUS de la plaque
-                            pour que le changement de type rafraîchisse visuellement la plaque */}
+                        {/* Type véhicule + type intervention */}
                         <div className="mf-grid-2col">
                             <div className="mf-group">
                                 <label className="mf-label required">Type de véhicule</label>
@@ -354,8 +447,7 @@ const ModalForm = ({ isOpen, onClose, initialData, prefilledDate, onSubmit }) =>
                             </div>
                         </div>
 
-                        {/* 🆕 Plaque adaptative : PlateSelector reçoit vehicleType
-                            et choisit automatiquement le bon composant visuel */}
+                        {/* Plaque + SIV */}
                         <div className="mf-group">
                             <label className="mf-label required">Immatriculation</label>
                             <div className="plate-with-siv">

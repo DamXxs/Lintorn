@@ -1,14 +1,16 @@
 // /frontend/src/pages/Vehicles/VehicleForm.tsx
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { addVehicule, editVehicule } from './vehicleService';
 import { useReferentiels } from '../../context/ReferentielsContext';
 import { fetchClients } from '../../services/api';
 import { validateImmatriculation, validateAnnee, formatImmatriculation } from '../../utils/validators';
 import useForm from '../../hooks/useForm';
-import { Key, Car, User, FileText, Pencil, Save, Loader, CircleAlert, UserPlus, Search, X } from '../../utils/icons';
-import Modal         from '../../components/shared/Modals/Modal';
-import PlateSelector from '../../components/shared/plates/PlateSelector';
-import ClientFormInLine, { ClientLite } from '../../components/shared/inline/ClientFormInLine';
+import { Key, Car, User, FileText, Pencil, Save, Loader, CircleAlert, UserPlus } from '../../utils/icons';
+import Modal             from '../../components/shared/Modals/Modal';
+import PlateSelector     from '../../components/shared/plates/PlateSelector';
+import ClientFormInLine  from '../../components/shared/inline/ClientFormInLine';
+import { ClientLite }    from '../../components/shared/ClientSearchInput/ClientSearchInput';
+import ClientSearchInput from '../../components/shared/ClientSearchInput/ClientSearchInput';
 import SivButton, { SivResult } from '../../components/shared/SivButton/SivButton';
 import '../../components/shared/Modals/forms.css';
 import './VehicleForm.css';
@@ -67,72 +69,40 @@ const INITIAL_DATA: FormData = {
 
 const VehicleForm: React.FC<VehicleFormProps> = ({ editingVehicule, onClose, onSuccess }) => {
 
-  const [clients, setClients] = useState<ClientLite[]>([]);
-  const { getTypeVehicules }  = useReferentiels();
+  const { getTypeVehicules } = useReferentiels();
 
-  // ── Autocomplete client ────────────────────────────────────────
-  const [clientSearch,   setClientSearch]   = useState('');
+  // ── Client sélectionné ────────────────────────────────────────
   const [clientSelected, setClientSelected] = useState<ClientLite | null>(null);
-  const [showDropdown,   setShowDropdown]   = useState(false);
   const [showNewClient,  setShowNewClient]  = useState(false);
-  const searchRef = useRef<HTMLDivElement>(null);
 
+  // Pré-remplir le client en mode édition
   useEffect(() => {
-    fetchClients().then((data: any[]) => {
-      const list = data as ClientLite[];
-      setClients(list);
-      if (editingVehicule?.proprietaire_id) {
-        const found = list.find(c => c.id === editingVehicule.proprietaire_id);
+    if (editingVehicule?.proprietaire_id) {
+      fetchClients().then((data: any[]) => {
+        const found = (data as ClientLite[]).find(c => c.id === editingVehicule.proprietaire_id);
         if (found) {
           setClientSelected(found);
-          setClientSearch(`${found.nom} ${found.prenom || ''}`.trim());
+          setFormData(prev => ({ ...prev, proprietaire: String(found.id) }));
         }
-      }
-    }).catch(() => {});
-  }, [editingVehicule]);
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
-        setShowDropdown(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
-
-  const clientsFiltres = clientSearch.trim().length >= 1
-    ? clients.filter(c =>
-        `${c.nom} ${c.prenom || ''}`.toLowerCase().includes(clientSearch.toLowerCase()) ||
-        (c.telephone || '').includes(clientSearch)
-      ).slice(0, 8)
-    : [];
-
-  const handleClientSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setClientSearch(e.target.value);
-    setShowDropdown(true);
-    if (!e.target.value.trim()) {
+      }).catch(() => {});
+    } else {
       setClientSelected(null);
-      setFormData(prev => ({ ...prev, proprietaire: '' }));
     }
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editingVehicule]);
 
   const handleClientSelect = (client: ClientLite) => {
     setClientSelected(client);
-    setClientSearch(`${client.nom} ${client.prenom || ''}`.trim());
-    setShowDropdown(false);
     setFormData(prev => ({ ...prev, proprietaire: String(client.id) }));
   };
 
   const handleClearClient = () => {
     setClientSelected(null);
-    setClientSearch('');
     setFormData(prev => ({ ...prev, proprietaire: '' }));
   };
 
   // ── Callback après création client inline ──────────────────────
   const handleClientCreated = (client: ClientLite) => {
-    setClients(prev => [...prev, client]);
     handleClientSelect(client);
     setShowNewClient(false);
   };
@@ -345,72 +315,30 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ editingVehicule, onClose, onS
           </div>
         </div>
 
-        {/* PROPRIÉTAIRE — autocomplete + création inline */}
+        {/* PROPRIÉTAIRE — autocomplete partagé + création inline */}
         <div className="form-section">
           <div className="form-section__title"><User size={14} /> Propriétaire</div>
 
-          <div className="form-group" ref={searchRef} style={{ position: 'relative' }}>
-            <label className="form-label">Rechercher un client</label>
-
-            {clientSelected ? (
-              <div className="vf-client-selected">
-                <span className="vf-client-selected__name">
-                  {clientSelected.nom} {clientSelected.prenom || ''}
-                  {clientSelected.telephone && ` — ${clientSelected.telephone}`}
-                </span>
-                <button type="button" className="vf-client-selected__clear" onClick={handleClearClient} title="Changer">
-                  <X size={14} />
-                </button>
-              </div>
-            ) : (
-              <>
-                <div className="vf-client-search">
-                  <Search size={14} className="vf-client-search__icon" />
-                  <input
-                    type="text"
-                    className="form-input vf-client-search__input"
-                    placeholder="Nom, prénom ou téléphone..."
-                    value={clientSearch}
-                    onChange={handleClientSearchChange}
-                    onFocus={() => clientSearch.trim() && setShowDropdown(true)}
-                    autoComplete="off"
-                  />
-                </div>
-
-                {showDropdown && clientsFiltres.length > 0 && (
-                  <div className="vf-client-dropdown">
-                    {clientsFiltres.map(c => (
-                      <button
-                        key={c.id}
-                        type="button"
-                        className="vf-client-dropdown__item"
-                        onMouseDown={() => handleClientSelect(c)}
-                      >
-                        <span className="vf-client-dropdown__nom">{c.nom} {c.prenom || ''}</span>
-                        {c.telephone && <span className="vf-client-dropdown__tel">{c.telephone}</span>}
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                {showDropdown && clientSearch.trim().length >= 2 && clientsFiltres.length === 0 && (
-                  <div className="vf-client-dropdown vf-client-dropdown--empty">Aucun client trouvé</div>
-                )}
-              </>
-            )}
-
-            {!showNewClient && (
-              <button
-                type="button"
-                className="vf-btn-new-client"
-                onClick={() => { setShowNewClient(true); setShowDropdown(false); }}
-              >
-                <UserPlus size={13} /> Créer un nouveau client
-              </button>
-            )}
+          <div className="form-group">
+            <label className="form-label">Rechercher un client existant</label>
+            <ClientSearchInput
+              selected={clientSelected}
+              onSelect={handleClientSelect}
+              onClear={handleClearClient}
+              placeholder="Nom, prénom ou téléphone..."
+            />
           </div>
 
-          {/* ClientFormInLine — composant partagé */}
+          {!showNewClient && (
+            <button
+              type="button"
+              className="vf-btn-new-client"
+              onClick={() => setShowNewClient(true)}
+            >
+              <UserPlus size={13} /> Créer un nouveau client
+            </button>
+          )}
+
           {showNewClient && (
             <ClientFormInLine
               onCreated={handleClientCreated}

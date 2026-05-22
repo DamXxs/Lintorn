@@ -44,6 +44,58 @@
 
 .cf-vehicule-block__remove:hover { color: #e74c3c; }
 
+/* ── Bandeau doublon ────────────────────────────────────────── */
+.cf-duplicate-warning {
+  background: rgba(243, 156, 18, 0.1);
+  border: 1px solid rgba(243, 156, 18, 0.4);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cf-duplicate-warning__text {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: 13px;
+  color: #b7770d;
+}
+
+.cf-duplicate-warning__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.cf-btn-dup {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s;
+}
+
+.cf-btn-dup--use {
+  background: var(--accent, #2980b9);
+  color: #fff;
+}
+.cf-btn-dup--use:hover { background: #2471a3; }
+
+.cf-btn-dup--force {
+  background: transparent;
+  border: 1px solid #b7770d;
+  color: #b7770d;
+}
+.cf-btn-dup--force:hover { background: rgba(243, 156, 18, 0.1); }
+
 /* Bouton ajouter un véhicule */
 .cf-btn-add-vehicule {
   display: flex;

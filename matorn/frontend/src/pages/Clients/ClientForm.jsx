@@ -1,10 +1,12 @@
 // /frontend/src/pages/Clients/ClientForm.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { addClient, editClient } from './clientService';
 import { addVehicule } from '../Vehicles/vehicleService';
+import { fetchClients } from '../../services/api';
 import { validateNom, validatePhone, validateEmail, formatNom, formatPrenom, formatPhone } from '../../utils/validators';
 import useForm from '../../hooks/useForm';
-import { User, Phone, FileText, Pencil, UserPlus, Save, Loader, CircleAlert, Car, Plus } from '../../utils/icons';
+import { User, Phone, FileText, Pencil, UserPlus, Save, Loader, CircleAlert, CircleCheck, Car, Plus } from '../../utils/icons';
 import Modal from '../../components/shared/Modals/Modal';
 import VehicleFormInLine from '../../components/shared/inline/VehicleFormInLine';
 import '../../components/shared/Modals/forms.css';
@@ -22,9 +24,16 @@ const vehiculeVide = () => ({
   marque:          '',
   modele:          '',
   annee:           '',
+  vin:             '',
 });
 
+// ── Helpers normalisation (même logique que ClientFormInLine) ──────────────────
+const normalizeStr  = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+const normalizePhone = (s) => s.replace(/\D/g, '');
+
 const ClientForm = ({ editingClient, onClose, onSuccess }) => {
+
+  const navigate = useNavigate();
 
   const { formData, setFormData, errors, setErrors, saving, setSaving }
     = useForm(
@@ -39,6 +48,33 @@ const ClientForm = ({ editingClient, onClose, onSuccess }) => {
           notes:     client.notes     || '',
         })
       );
+
+  // ── Détection de doublons (mode création uniquement) ──────────
+  const [allClients,   setAllClients]   = useState([]);
+  const [duplicate,    setDuplicate]    = useState(null);
+  const [forcedCreate, setForcedCreate] = useState(false);
+  const dupCheckTimeout = useRef(null);
+
+  useEffect(() => {
+    if (!editingClient) {
+      fetchClients().then(setAllClients).catch(() => {});
+    }
+  }, [editingClient]);
+
+  const checkDuplicate = (nom, telephone) => {
+    if (dupCheckTimeout.current) clearTimeout(dupCheckTimeout.current);
+    dupCheckTimeout.current = setTimeout(() => {
+      const normNom   = normalizeStr(nom);
+      const normPhone = normalizePhone(telephone);
+      if (!normNom && !normPhone) { setDuplicate(null); return; }
+      const found = allClients.find(c => {
+        const nomMatch   = normNom.length >= 2   && normalizeStr(c.nom).startsWith(normNom);
+        const phoneMatch = normPhone.length >= 6 && normalizePhone(c.telephone || '') === normPhone;
+        return nomMatch || phoneMatch;
+      });
+      setDuplicate(found || null);
+    }, 400);
+  };
 
   // Véhicules à créer (mode création uniquement)
   const [vehicules, setVehicules] = useState([]);
@@ -60,6 +96,14 @@ const ClientForm = ({ editingClient, onClose, onSuccess }) => {
     if (name === 'telephone') value = formatPhone(value);
     setFormData(prev => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: null }));
+    // Vérification doublon sur nom ou téléphone
+    if (!editingClient && (name === 'nom' || name === 'telephone')) {
+      setForcedCreate(false);
+      checkDuplicate(
+        name === 'nom'       ? value : formData.nom,
+        name === 'telephone' ? value : formData.telephone,
+      );
+    }
   };
 
   const validate = () => {
@@ -136,6 +180,34 @@ const ClientForm = ({ editingClient, onClose, onSuccess }) => {
 
         {errors.global && (
           <div className="form-error-global"><CircleAlert size={14} /> {errors.global}</div>
+        )}
+
+        {/* Bandeau doublon — mode création uniquement */}
+        {!editingClient && duplicate && !forcedCreate && (
+          <div className="cf-duplicate-warning">
+            <span className="cf-duplicate-warning__text">
+              <CircleAlert size={13} />
+              Client similaire trouvé&nbsp;:&nbsp;
+              <strong>{duplicate.nom} {duplicate.prenom || ''}</strong>
+              {duplicate.telephone && <>&nbsp;— {duplicate.telephone}</>}
+            </span>
+            <div className="cf-duplicate-warning__actions">
+              <button
+                type="button"
+                className="cf-btn-dup cf-btn-dup--use"
+                onClick={() => { onClose(); navigate('/clients', { state: { openClientId: duplicate.id } }); }}
+              >
+                <CircleCheck size={13} /> Ouvrir ce client
+              </button>
+              <button
+                type="button"
+                className="cf-btn-dup cf-btn-dup--force"
+                onClick={() => setForcedCreate(true)}
+              >
+                Créer quand même
+              </button>
+            </div>
+          </div>
         )}
 
         {/* IDENTITÉ */}

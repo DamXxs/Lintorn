@@ -1,0 +1,146 @@
+/* /frontend/src/components/shared/ClientSearchInput/ClientSearchInput.css
+   Utilise UNIQUEMENT des CSS variables — s'adapte automatiquement à tous les thèmes.
+   Variables utilisées : --accent, --border, --text, --panel, --input-bg, --shadow  */
+
+/* ── Wrapper racine ──────────────────────────────────────────────── */
+.csi-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* ── Zone de recherche (contient barre + dropdown) ───────────────── */
+.csi-search-zone {
+  position: relative; /* Le dropdown se positionne par rapport à cette zone, PAS au parent */
+}
+
+/* ── Barre de recherche ──────────────────────────────────────────── */
+.csi-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--input-bg);
+  border: 1px solid var(--accent);
+  border-radius: 7px;
+  padding: 0 10px;
+  transition: box-shadow 0.15s;
+}
+
+.csi-search-bar:focus-within {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.csi-search-bar__icon {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.csi-search-bar__input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 8px 0;
+  font-size: 13px;
+  color: var(--text);
+  width: 100%;
+}
+
+.csi-search-bar__input::placeholder {
+  color: color-mix(in srgb, var(--text) 40%, transparent);
+  font-style: italic;
+  font-size: 12px;
+}
+
+/* ── Dropdown résultats ──────────────────────────────────────────── */
+.csi-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px var(--shadow);
+  z-index: 200;
+  overflow: hidden;
+  /* Animation d'apparition */
+  animation: csi-appear 0.12s ease-out;
+}
+
+@keyframes csi-appear {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.csi-dropdown__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 9px 14px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  gap: 8px;
+  transition: background 0.1s;
+}
+
+.csi-dropdown__item:last-child { border-bottom: none; }
+
+.csi-dropdown__item:hover {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.csi-dropdown__nom {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.csi-dropdown__tel {
+  font-size: 11px;
+  color: color-mix(in srgb, var(--text) 55%, transparent);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.csi-dropdown--empty {
+  padding: 10px 14px;
+  font-size: 12px;
+  color: color-mix(in srgb, var(--text) 50%, transparent);
+  font-style: italic;
+}
+
+/* ── Badge client sélectionné ────────────────────────────────────── */
+.csi-badge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  background: color-mix(in srgb, var(--accent) 12%, var(--input-bg));
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: 7px;
+}
+
+.csi-badge__info {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.csi-badge__clear {
+  background: none;
+  border: none;
+  color: color-mix(in srgb, var(--text) 50%, transparent);
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+.csi-badge__clear:hover { color: var(--danger); }
