@@ -44,18 +44,14 @@ export const ICONES_CATALOGUE = {
   'Mécanique': [
     { nom: 'Wrench',      label: 'Clé',        Composant: PiWrenchFill },
     { nom: 'Hammer',      label: 'Marteau',     Composant: PiHammerFill },
-    { nom: 'Cog',         label: 'Engrenage',   Composant: PiGearSixFill },
     { nom: 'Settings',    label: 'Réglages',    Composant: PiGearSixFill },
-    { nom: 'Fuel',        label: 'Carburant',   Composant: PiLightningFill },
     { nom: 'Zap',         label: 'Électrique',  Composant: PiLightningFill },
     { nom: 'Battery',     label: 'Batterie',    Composant: PiBatteryFullFill },
     { nom: 'CircleDot',   label: 'Pneu',        Composant: PiCircleFill },
     { nom: 'Flame',       label: 'Moteur',      Composant: PiFlameFill },
     { nom: 'Shield',      label: 'Protection',  Composant: PiShieldFill },
-    { nom: 'CheckCircle', label: 'Validé',      Composant: PiShieldFill },
   ],
   'Stock & Divers': [
-    { nom: 'Package',       label: 'Colis',      Composant: PiPackageFill },
     { nom: 'Box',           label: 'Boîte',      Composant: PiPackageFill },
     { nom: 'Tag',           label: 'Étiquette',  Composant: PiTagFill },
     { nom: 'Star',          label: 'Favori',     Composant: PiStarFill },

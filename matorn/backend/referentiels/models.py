@@ -36,12 +36,12 @@ class Referentiel(models.Model):
         help_text="Libellé affiché (ex: Voiture, Bateau)"
     )
 
-    # Icône emoji
+    # Nom de l'icône (catalogue iconUtils.js côté frontend)
     icone = models.CharField(
-        max_length=10,
+        max_length=50,
         blank=True,
         default='',
-        help_text="Icône emoji (ex: 🚗)"
+        help_text="Nom de l'icône (ex: Car, Wrench, AlertTriangle)"
     )
 
     # Couleur hex (utile pour les types d'intervention dans le calendrier)
