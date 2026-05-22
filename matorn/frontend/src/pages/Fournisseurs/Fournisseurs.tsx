@@ -16,6 +16,7 @@ import {
   Fournisseur,
   FournisseurFormData,
 } from './fournisseurService';
+import { getApiError } from '../../utils/apiError';
 import './Fournisseurs.css';
 import '../../components/shared/list-page.css';
 
@@ -58,8 +59,8 @@ const Fournisseurs: React.FC = () => {
     try {
       const data = await fetchFournisseurs();
       setFournisseurs(data);
-    } catch (err: any) {
-      setErreur(err.message || 'Impossible de charger les fournisseurs');
+    } catch (err: unknown) {
+      setErreur(getApiError(err, 'Impossible de charger les fournisseurs'));
     } finally {
       setLoading(false);
     }
@@ -108,8 +109,8 @@ const Fournisseurs: React.FC = () => {
     try {
       await patchFournisseur(f.id, { est_favori: !f.est_favori });
       await charger();
-    } catch (err: any) {
-      setErreur(err.message);
+    } catch (err: unknown) {
+      setErreur(getApiError(err, 'Erreur lors de la mise à jour du favori'));
     }
   };
 
@@ -126,8 +127,8 @@ const Fournisseurs: React.FC = () => {
       await deleteFournisseur(aSupprimer.id);
       setASupprimer(null);
       await charger();
-    } catch (err: any) {
-      setErreurSuppression(err.message);
+    } catch (err: unknown) {
+      setErreurSuppression(getApiError(err, 'Erreur lors de la suppression'));
     } finally {
       setSuppression(false);
     }

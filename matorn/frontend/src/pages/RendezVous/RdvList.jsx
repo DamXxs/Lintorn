@@ -21,6 +21,7 @@ import SearchBar from '../../components/shared/SearchBar/SearchBar';
 import LoadingState from '../../components/shared/LoadingState';
 import ErrorState from '../../components/shared/ErrorState';
 import { CalendarClock, User, FileText, CalendarPlus } from '../../utils/icons';
+import { getApiError } from '../../utils/apiError';
 import './RdvList.css';
 import '../../components/shared/list-page.css';
 
@@ -312,7 +313,7 @@ const RdvList = () => {
               setNewRdvOpen(false);
               await loadRdvs();
             } catch (err) {
-              alert(`Erreur : ${err.message}`);
+              alert(`Erreur : ${getApiError(err, 'Erreur inattendue')}`);
             }
           }}
         />

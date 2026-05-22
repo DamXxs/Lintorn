@@ -23,6 +23,7 @@ import {
 import { useReferentiels } from '../../../context/ReferentielsContext';
 import LoadingState from '../../../components/shared/LoadingState';
 import ErrorState from '../../../components/shared/ErrorState';
+import { getApiError } from '../../../utils/apiError';
 import './DevisForm.css';
 
 // Génère un identifiant temporaire pour les lignes locales (avant sauvegarde)
@@ -147,7 +148,7 @@ const DevisForm = ({ devisId, onSave, onCancel }) => {
           (data.lignes_devis || []).map((l) => ({ ...l, _isLocal: false }))
         );
       } catch (err) {
-        setError(err.message);
+        setError(getApiError(err, 'Impossible de charger le devis'));
       } finally {
         setLoading(false);
       }
@@ -253,7 +254,7 @@ const DevisForm = ({ devisId, onSave, onCancel }) => {
           { ...nouvelleLigne, _isLocal: false, _isForfait: ligneData._isForfait },
         ]);
       } catch (err) {
-        alert(`Erreur : ${err.message}`);
+        alert(`Erreur : ${getApiError(err, 'Erreur lors de l\'ajout de la ligne')}`);
         return;
       }
     } else {
@@ -276,7 +277,7 @@ const DevisForm = ({ devisId, onSave, onCancel }) => {
         await deleteLigneDevis(ligne.id);
         setLignes((prev) => prev.filter((l) => l.id !== ligne.id));
       } catch (err) {
-        alert(`Erreur suppression : ${err.message}`);
+        alert(`Erreur suppression : ${getApiError(err, 'Erreur inattendue')}`);
       }
     }
   };
@@ -317,7 +318,7 @@ const DevisForm = ({ devisId, onSave, onCancel }) => {
         onSave();
       }
     } catch (err) {
-      alert(`Erreur sauvegarde : ${err.message}`);
+      alert(`Erreur sauvegarde : ${getApiError(err, 'Erreur lors de la sauvegarde')}`);
     } finally {
       setSaving(false);
     }

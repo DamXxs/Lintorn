@@ -16,6 +16,7 @@ import {
 } from './parametresService';
 import LoadingState from '../../components/shared/LoadingState';
 import ErrorState from '../../components/shared/ErrorState';
+import { getApiError } from '../../utils/apiError';
 import './ParametresFacturation.css';
 
 // ── Formulaire vierge pour un nouveau forfait ─────────────────────────────────
@@ -75,8 +76,8 @@ const ParametresFacturation = ({ onBack, embedded = false }) => {
         });
         setForfaits(Array.isArray(forf) ? forf : []);
       } catch (err) {
-        setErrorParams(err.message);
-        setErrorForfaits(err.message);
+        setErrorParams(getApiError(err, 'Erreur lors du chargement des paramètres'));
+        setErrorForfaits(getApiError(err, 'Erreur lors du chargement des forfaits'));
       } finally {
         setLoading(false);
         setLoadingForfaits(false);
@@ -96,7 +97,7 @@ const ParametresFacturation = ({ onBack, embedded = false }) => {
       setSuccessGarage('Infos du garage mises à jour');
       setTimeout(() => setSuccessGarage(''), 3000);
     } catch (err) {
-      setErrorGarage(err.message);
+      setErrorGarage(getApiError(err, 'Erreur lors de la sauvegarde des infos garage'));
     } finally {
       setSavingGarage(false);
     }
@@ -117,7 +118,7 @@ const ParametresFacturation = ({ onBack, embedded = false }) => {
       setSuccessParams('TVA mise à jour');
       setTimeout(() => setSuccessParams(''), 3000);
     } catch (err) {
-      setErrorParams(err.message);
+      setErrorParams(getApiError(err, 'Erreur lors de la sauvegarde de la TVA'));
     } finally {
       setSavingParams(false);
     }
@@ -166,7 +167,7 @@ const ParametresFacturation = ({ onBack, embedded = false }) => {
       }
       setShowForfaitForm(false);
     } catch (err) {
-      alert(`Erreur : ${err.message}`);
+      alert(`Erreur : ${getApiError(err, 'Erreur lors de l\'enregistrement du forfait')}`);
     } finally {
       setSavingForfait(false);
     }
@@ -177,7 +178,7 @@ const ParametresFacturation = ({ onBack, embedded = false }) => {
       const updated = await updateForfait(f.id, { actif: !f.actif });
       setForfaits(prev => prev.map(x => x.id === f.id ? updated : x));
     } catch (err) {
-      alert(`Erreur : ${err.message}`);
+      alert(`Erreur : ${getApiError(err, 'Erreur lors de la mise à jour du forfait')}`);
     }
   };
 
@@ -187,7 +188,7 @@ const ParametresFacturation = ({ onBack, embedded = false }) => {
       await deleteForfait(f.id);
       setForfaits(prev => prev.filter(x => x.id !== f.id));
     } catch (err) {
-      alert(`Erreur : ${err.message}`);
+      alert(`Erreur : ${getApiError(err, 'Erreur lors de la suppression du forfait')}`);
     }
   };
 

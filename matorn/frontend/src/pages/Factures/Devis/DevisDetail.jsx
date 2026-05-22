@@ -10,6 +10,7 @@ import LoadingState from '../../../components/shared/LoadingState';
 import ErrorState from '../../../components/shared/ErrorState';
 import Modal from '../../../components/shared/Modals/Modal';
 import DevisDocument from './DevisDocument';
+import { getApiError } from '../../../utils/apiError';
 import './DevisDetail.css';
 
 const DevisDetail = ({ devisId, onBack, onFactureCreee, onEdit }) => {
@@ -27,7 +28,7 @@ const DevisDetail = ({ devisId, onBack, onFactureCreee, onEdit }) => {
       const data = await fetchDevisById(devisId);
       setDevis(data);
     } catch (err) {
-      setError(err.message);
+      setError(getApiError(err, 'Impossible de charger le devis'));
     } finally {
       setLoading(false);
     }
@@ -43,7 +44,7 @@ const DevisDetail = ({ devisId, onBack, onFactureCreee, onEdit }) => {
       await validerDevis(devisId);
       loadDevis();
     } catch (err) {
-      alert(`Erreur : ${err.message}`);
+      alert(`Erreur : ${getApiError(err, 'Erreur lors de la validation')}`);
     }
   };
 
@@ -53,7 +54,7 @@ const DevisDetail = ({ devisId, onBack, onFactureCreee, onEdit }) => {
       await refuserDevis(devisId);
       loadDevis();
     } catch (err) {
-      alert(`Erreur : ${err.message}`);
+      alert(`Erreur : ${getApiError(err, 'Erreur lors du refus')}`);
     }
   };
 
@@ -67,7 +68,7 @@ const DevisDetail = ({ devisId, onBack, onFactureCreee, onEdit }) => {
       setShowModalFacture(false);
       onFactureCreee(facture);
     } catch (err) {
-      alert(`Erreur : ${err.message}`);
+      alert(`Erreur : ${getApiError(err, 'Erreur lors de la création de la facture')}`);
     }
   };
 

@@ -24,6 +24,7 @@ import {
 } from '../../services/api';
 import { generateOrPdf } from './generateOrPdf';
 import OrPdfTemplate from './OrPdfTemplate';
+import { getApiError } from '../../utils/apiError';
 
 import LoadingState from '../../components/shared/LoadingState';
 import ErrorState from '../../components/shared/ErrorState';
@@ -132,8 +133,8 @@ const OrEditeur: React.FC = () => {
       const data = await fetchOrdre(parseInt(id));
       setOrdre(data);
       setFormData(initFormData(data));
-    } catch (err: any) {
-      setError(err.message || 'Impossible de charger cet ordre de réparation');
+    } catch (err: unknown) {
+      setError(getApiError(err, 'Impossible de charger cet ordre de réparation'));
     } finally {
       setLoading(false);
     }
@@ -270,8 +271,8 @@ const OrEditeur: React.FC = () => {
 
       setOrdre(updated);
       setFormData(initFormData(updated));
-    } catch (err: any) {
-      setSaveError(err.message || 'Erreur lors de la sauvegarde');
+    } catch (err: unknown) {
+      setSaveError(getApiError(err, 'Erreur lors de la sauvegarde'));
     } finally {
       setSaving(false);
     }
@@ -290,8 +291,8 @@ const OrEditeur: React.FC = () => {
     setGeneratingPdf(true);
     try {
       await generateOrPdf('or-pdf-template', `${ordre?.numero ?? 'OR'}.pdf`);
-    } catch (err: any) {
-      setSaveError(`Erreur PDF : ${err.message}`);
+    } catch (err: unknown) {
+      setSaveError(`Erreur PDF : ${getApiError(err, 'Erreur inattendue')}`);
     } finally {
       setGeneratingPdf(false);
     }
@@ -330,8 +331,8 @@ const OrEditeur: React.FC = () => {
       setPieceSearch('');
       setPieceResults([]);
       setAddPieceQty({});
-    } catch (err: any) {
-      setSaveError(err.message);
+    } catch (err: unknown) {
+      setSaveError(getApiError(err, 'Erreur lors de l\'ajout de la pièce'));
     } finally {
       setAddingPieceId(null);
     }
@@ -350,8 +351,8 @@ const OrEditeur: React.FC = () => {
             }
           : prev
       );
-    } catch (err: any) {
-      setSaveError(err.message);
+    } catch (err: unknown) {
+      setSaveError(getApiError(err, 'Erreur lors de la suppression de la pièce'));
     }
   };
 
@@ -383,8 +384,8 @@ const OrEditeur: React.FC = () => {
       setOrdre(updated);
       setShowAddInterv(false);
       setNewInterv(initNewInterv());
-    } catch (err: any) {
-      setSaveError(err.message);
+    } catch (err: unknown) {
+      setSaveError(getApiError(err, 'Erreur lors de l\'ajout de l\'intervention'));
     } finally {
       setAddingInterv(false);
     }
@@ -399,8 +400,8 @@ const OrEditeur: React.FC = () => {
       const updated = await decloturerOrdre(ordre.id);
       setOrdre(updated);
       setFormData(initFormData(updated));
-    } catch (err: any) {
-      setSaveError(err.message);
+    } catch (err: unknown) {
+      setSaveError(getApiError(err, 'Erreur lors de la déclôture'));
     } finally {
       setDecloturing(false);
     }
@@ -415,8 +416,8 @@ const OrEditeur: React.FC = () => {
           ? { ...prev, interventions: prev.interventions.filter(i => i.id !== ligneId) }
           : prev
       );
-    } catch (err: any) {
-      setSaveError(err.message);
+    } catch (err: unknown) {
+      setSaveError(getApiError(err, 'Erreur lors de la suppression de l\'intervention'));
     }
   };
 

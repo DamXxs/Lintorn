@@ -12,6 +12,7 @@ import VehicleFormInLine from '../../components/shared/inline/VehicleFormInLine'
 import '../../components/shared/Modals/forms.css';
 import './ClientForm.css';
 import AddressAutocomplete from '../../components/shared/AdressAutocomplete/AddressAutocomplete';
+import { getApiError } from '../../utils/apiError';
 
 const INITIAL_DATA = {
   nom: '', prenom: '', telephone: '', email: '', adresse: '', notes: '',
@@ -151,7 +152,7 @@ const ClientForm = ({ editingClient, onClose, onSuccess }) => {
       }
       onSuccess();
     } catch (err) {
-      setErrors({ global: err.message });
+      setErrors({ global: getApiError(err, 'Erreur lors de l\'enregistrement du client') });
     } finally {
       setSaving(false);
     }

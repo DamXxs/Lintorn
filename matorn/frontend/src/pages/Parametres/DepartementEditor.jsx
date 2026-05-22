@@ -5,6 +5,7 @@ import {
 } from '../../services/api';
 import { COULEURS_PALETTE } from '../../utils/colorUtils';
 import { CheckCircle, Circle, Pencil, Trash2, Plus, Save, Loader, CircleAlert } from '../../utils/icons';
+import { getApiError } from '../../utils/apiError';
 
 // Génère un CODE technique depuis un nom (ex: "Carrosserie" → "CARROSSERIE")
 const genererCode = (nom) =>
@@ -46,7 +47,7 @@ const DepartementEditor = ({ departements, onReload }) => {
       await updateDepartement(item.id, { actif: !item.actif });
       onReload();
     } catch (err) {
-      alert(err.message);
+      alert(getApiError(err, 'Erreur lors du changement de statut'));
     }
   };
 
@@ -57,7 +58,7 @@ const DepartementEditor = ({ departements, onReload }) => {
       await deleteDepartement(item.id);
       onReload();
     } catch (err) {
-      alert(err.message);
+      alert(getApiError(err, 'Erreur lors de la suppression'));
     }
   };
 
@@ -90,7 +91,7 @@ const DepartementEditor = ({ departements, onReload }) => {
       resetForm();
       onReload();
     } catch (err) {
-      setError(err.message);
+      setError(getApiError(err, 'Erreur lors de l\'enregistrement'));
     } finally {
       setSaving(false);
     }

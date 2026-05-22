@@ -5,6 +5,7 @@ import PageHeader from '../../../components/shared/PageHeader';
 import SearchBar from '../../../components/shared/SearchBar/SearchBar';
 import LoadingState from '../../../components/shared/LoadingState';
 import ErrorState from '../../../components/shared/ErrorState';
+import { getApiError } from '../../../utils/apiError';
 import './FactureList.css';
 
 // ── Constantes statut ────────────────────────────────────────
@@ -58,7 +59,7 @@ const FactureList = ({ onSelectFacture, onCreateFacture }) => {
       const data = await fetchFactures();
       setFactures(Array.isArray(data) ? data : []);
     } catch (err) {
-      setError(err.message);
+      setError(getApiError(err, 'Impossible de charger les factures'));
     } finally {
       setLoading(false);
     }

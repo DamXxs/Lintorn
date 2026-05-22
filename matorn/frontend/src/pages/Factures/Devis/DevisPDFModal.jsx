@@ -8,6 +8,7 @@ import { fetchDevisById } from '@/pages/Factures/Devis/devisService';
 import DevisDocument from './DevisDocument';
 import LoadingState from '@/components/shared/LoadingState';
 import ErrorState from '@/components/shared/ErrorState';
+import { getApiError } from '../../../utils/apiError';
 import './DevisPDFModal.css';
 
 const DevisPDFModal = ({ devisId, onClose }) => {
@@ -23,7 +24,7 @@ const DevisPDFModal = ({ devisId, onClose }) => {
         const data = await fetchDevisById(devisId);
         setDevis(data);
       } catch (err) {
-        setError(err.message);
+        setError(getApiError(err, 'Impossible de charger le devis'));
       } finally {
         setLoading(false);
       }

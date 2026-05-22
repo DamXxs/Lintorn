@@ -11,6 +11,7 @@ import Login from './pages/Login';
 
 import Sidebar from './components/layout/Sidebar';
 import Header from './components/layout/Header';
+import OfflineBanner from './components/layout/OfflineBanner';
 import Planning from './pages/Planning/Planning';
 import RdvList from './pages/RendezVous/RdvList';
 import StockList from './pages/Stock/StockList';
@@ -36,6 +37,8 @@ const AppLayout = ({ isSidebarExpanded, onToggleSidebar }: {
 }) => {
   return (
     <div className="app">
+
+      <OfflineBanner />
 
       <Header
         isSidebarExpanded={isSidebarExpanded}

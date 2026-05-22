@@ -5,6 +5,7 @@ import { fetchParametres } from '../../../pages/Parametres/parametresService';
 import { createFacture } from '../../../pages/Factures/Factures/factureService';
 import LoadingState from '../../../components/shared/LoadingState';
 import ErrorState from '../../../components/shared/ErrorState';
+import { getApiError } from '../../../utils/apiError';
 import './FactureForm.css';
 
 const FactureForm = ({ onSave, onCancel }) => {
@@ -48,7 +49,7 @@ const FactureForm = ({ onSave, onCancel }) => {
           setTva(paramsData.tva_pourcentage);
         }
       } catch (err) {
-        setError(err.message);
+        setError(getApiError(err, 'Erreur lors du chargement des données'));
       } finally {
         setLoading(false);
       }
@@ -191,7 +192,7 @@ const FactureForm = ({ onSave, onCancel }) => {
 
       onSave(facture);
     } catch (err) {
-      alert(`Erreur : ${err.message}`);
+      alert(`Erreur : ${getApiError(err, 'Erreur inattendue')}`);
     } finally {
       setSubmitting(false);
     }

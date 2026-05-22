@@ -175,7 +175,7 @@ const ArchivesPage: React.FC = () => {
       setElements(dataElements.results);
       setTypes(dataTypes);
     } catch {
-      setError('Impossible de charger les données. Vérifie que le backend tourne.');
+      setError('Impossible de charger les données.');
     } finally {
       setLoading(false);
     }

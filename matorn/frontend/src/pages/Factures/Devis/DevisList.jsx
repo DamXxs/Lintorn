@@ -5,6 +5,7 @@ import PageHeader from '../../../components/shared/PageHeader';
 import SearchBar from '../../../components/shared/SearchBar/SearchBar';
 import LoadingState from '../../../components/shared/LoadingState';
 import ErrorState from '../../../components/shared/ErrorState';
+import { getApiError } from '../../../utils/apiError';
 import './DevisList.css';
 
 // ── Constantes statut ────────────────────────────────────────
@@ -60,7 +61,7 @@ const DevisList = ({ onSelectDevis, onCreateDevis, onEditDevis, onViewPDF }) => 
       const data = await fetchDevis();
       setDevis(Array.isArray(data) ? data : []);
     } catch (err) {
-      setError(err.message);
+      setError(getApiError(err, 'Impossible de charger les devis'));
     } finally {
       setLoading(false);
     }
@@ -96,7 +97,7 @@ const DevisList = ({ onSelectDevis, onCreateDevis, onEditDevis, onViewPDF }) => 
       await validerDevis(id);
       loadDevis();
     } catch (err) {
-      alert(`Erreur : ${err.message}`);
+      alert(`Erreur : ${getApiError(err, 'Erreur lors de la validation')}`);
     }
   };
 
@@ -107,7 +108,7 @@ const DevisList = ({ onSelectDevis, onCreateDevis, onEditDevis, onViewPDF }) => 
       await refuserDevis(id);
       loadDevis();
     } catch (err) {
-      alert(`Erreur : ${err.message}`);
+      alert(`Erreur : ${getApiError(err, 'Erreur lors du refus')}`);
     }
   };
 

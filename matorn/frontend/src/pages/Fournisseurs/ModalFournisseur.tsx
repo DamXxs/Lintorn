@@ -4,6 +4,7 @@ import Modal from '../../components/shared/Modals/Modal';
 import { useReferentiels } from '../../context/ReferentielsContext';
 import { validateNom, validateEmail, validatePhone } from '../../utils/validators';
 import { Fournisseur, FournisseurFormData } from './fournisseurService';
+import { getApiError } from '../../utils/apiError';
 import '../../components/shared/Modals/forms.css';
 import './ModalFournisseur.css';
 
@@ -109,8 +110,8 @@ const ModalFournisseur: React.FC<ModalFournisseurProps> = ({
     try {
       await onSave(form);
       onClose();
-    } catch (err: any) {
-      setErreur(err.message);
+    } catch (err: unknown) {
+      setErreur(getApiError(err, 'Erreur lors de l\'enregistrement'));
     } finally {
       setSaving(false);
     }

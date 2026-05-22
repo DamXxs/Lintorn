@@ -12,6 +12,7 @@ import ClientFormInLine  from '../../components/shared/inline/ClientFormInLine';
 import { ClientLite }    from '../../components/shared/ClientSearchInput/ClientSearchInput';
 import ClientSearchInput from '../../components/shared/ClientSearchInput/ClientSearchInput';
 import SivButton, { SivResult } from '../../components/shared/SivButton/SivButton';
+import { getApiError } from '../../utils/apiError';
 import '../../components/shared/Modals/forms.css';
 import './VehicleForm.css';
 
@@ -191,8 +192,8 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ editingVehicule, onClose, onS
         await addVehicule(data);
       }
       onSuccess();
-    } catch (err: any) {
-      setErrors({ global: err.message });
+    } catch (err: unknown) {
+      setErrors({ global: getApiError(err, 'Erreur lors de l\'enregistrement du véhicule') });
     } finally {
       setSaving(false);
     }

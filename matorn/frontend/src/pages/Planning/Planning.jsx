@@ -15,6 +15,9 @@ import Calendar from './components/Calendar';
 import CollaborateurFilter from './components/CollaborateurFilter';
 import ModalRdvConsultation from '../RendezVous/ModalRdvConsultation';
 import ModalForm from './components/ModalForm';
+import LoadingState from '../../components/shared/LoadingState';
+import ErrorState from '../../components/shared/ErrorState';
+import { getApiError } from '../../utils/apiError';
 import logger from '../../utils/logger';
 import './Planning.css';
 
@@ -23,6 +26,7 @@ const Planning = ({ isSidebarExpanded }) => {
 
   const [events, setEvents]               = useState([]);
   const [loading, setLoading]             = useState(false);
+  const [error,   setError]               = useState(null);
   const [consultEvent, setConsultEvent]   = useState(null);
   const [isFormOpen, setIsFormOpen]       = useState(false);
   const [editingEvent, setEditingEvent]   = useState(null);
@@ -49,10 +53,12 @@ const Planning = ({ isSidebarExpanded }) => {
   const loadData = async () => {
     try {
       setLoading(true);
+      setError(null);
       const data = await getAllRdvs();
       setEvents(formatEventsForCalendar(data));
     } catch (err) {
       logger.error('Erreur chargement planning', err);
+      setError(getApiError(err, 'Impossible de charger le planning'));
     } finally {
       setLoading(false);
     }
@@ -132,7 +138,7 @@ const Planning = ({ isSidebarExpanded }) => {
       setPrefilledDate(null);
       await loadData();
     } catch (err) {
-      alert(`❌ ${err.message}`);
+      alert(`❌ ${getApiError(err, 'Erreur inattendue')}`);
     }
   };
 
@@ -149,14 +155,8 @@ const Planning = ({ isSidebarExpanded }) => {
     navigate('/ordres-reparation', { state: { prefillFromRdv: rdvInfo } });
   };
 
-  if (loading && events.length === 0) {
-    return (
-      <div className="planning-loading">
-        <div className="spinner" />
-        <p>⏳ Chargement...</p>
-      </div>
-    );
-  }
+  if (loading && events.length === 0) return <LoadingState message="Chargement du planning..." />;
+  if (error)                           return <ErrorState  message={error} onRetry={loadData} />;
 
   return (
     <div className="planning-page">

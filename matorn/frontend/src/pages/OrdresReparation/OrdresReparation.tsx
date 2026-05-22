@@ -11,6 +11,7 @@ import LoadingState from '../../components/shared/LoadingState';
 import ErrorState from '../../components/shared/ErrorState';
 import SearchBar from '../../components/shared/SearchBar/SearchBar';
 import ModalOrCreation from './ModalOrCreation';
+import { getApiError } from '../../utils/apiError';
 
 // Icônes
 import { Wrench, User, Car } from '../../utils/icons';
@@ -76,8 +77,8 @@ const OrdresReparation: React.FC = () => {
       setError(null);
       const data = await fetchOrdres();
       setOrdres(data);
-    } catch (err: any) {
-      setError(err.message || 'Impossible de charger les ordres de réparation');
+    } catch (err: unknown) {
+      setError(getApiError(err, 'Impossible de charger les ordres de réparation'));
     } finally {
       setLoading(false);
     }
@@ -169,8 +170,8 @@ const OrdresReparation: React.FC = () => {
     try {
       await updateOrdre(or.id, { statut: 'ANNULE' } as any);
       setOrdres(prev => prev.map(o => o.id === or.id ? { ...o, statut: 'ANNULE', statut_display: 'Annulé' } : o));
-    } catch (err: any) {
-      alert(`Erreur : ${err.message}`);
+    } catch (err: unknown) {
+      alert(`Erreur : ${getApiError(err, 'Erreur inattendue')}`);
     }
   };
 
@@ -182,8 +183,8 @@ const OrdresReparation: React.FC = () => {
     try {
       await deleteOrdre(or.id);
       setOrdres(prev => prev.filter(o => o.id !== or.id));
-    } catch (err: any) {
-      alert(`Erreur : ${err.message}`);
+    } catch (err: unknown) {
+      alert(`Erreur : ${getApiError(err, 'Erreur inattendue')}`);
     }
   };
 

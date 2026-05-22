@@ -9,6 +9,7 @@ import { fetchClients, fetchVehiculesByClient } from '../../services/api';
 
 // Styles
 import '../../components/shared/Modals/forms.css';
+import { getApiError } from '../../utils/apiError';
 
 // =============================================================================
 // TYPES
@@ -136,8 +137,8 @@ const ModalOrCreation: React.FC<ModalOrCreationProps> = ({ onCreated, onClose, p
 
       // Succès : on notifie le parent
       onCreated(nouveau);
-    } catch (err: any) {
-      setErreur(err.message || 'Erreur lors de la création');
+    } catch (err: unknown) {
+      setErreur(getApiError(err, 'Erreur lors de la création'));
     } finally {
       setSaving(false);
     }

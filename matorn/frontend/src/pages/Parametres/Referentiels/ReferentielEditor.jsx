@@ -4,6 +4,7 @@ import { createReferentiel, updateReferentiel, deleteReferentiel } from '../../.
 import { ICONES_CATALOGUE, renderIcone, suggererIcone } from './iconUtils';
 import { COULEURS_PALETTE } from '../../../utils/colorUtils';
 import { CheckCircle, Circle, Pencil, Trash2, Plus, Save, Loader, CircleAlert } from '../../../utils/icons';
+import { getApiError } from '../../../utils/apiError';
 import './ReferentielEditor.css';
 
 // ── GÉNÈRE LA CLÉ INTERNE depuis le label ────────────────────────
@@ -151,7 +152,7 @@ const ReferentielEditor = ({ categorie, items, onReload }) => {
       resetForm();
       onReload();
     } catch (err) {
-      setError(err.message);
+      setError(getApiError(err, 'Erreur lors de l\'enregistrement'));
     } finally {
       setSaving(false);
     }

@@ -19,6 +19,7 @@ import Modal from '../../components/shared/Modals/Modal';
 import { fetchFournisseurs } from '../Fournisseurs/fournisseurService';
 import { validateReference, validateNom, validatePrix } from '../../utils/validators';
 import { Package, Save, Loader } from '../../utils/icons';
+import { getApiError } from '../../utils/apiError';
 import './StockForm.css';
 
 // ── Formulaire vide pour la création ─────────────────────────────
@@ -117,7 +118,7 @@ const StockForm = ({ piece, onSave, onClose }) => {
       await onSave(payload);
       onClose();
     } catch (err) {
-      setErreur(err.message);
+      setErreur(getApiError(err, 'Erreur lors de l\'enregistrement de la pièce'));
     } finally {
       setSaving(false);
     }

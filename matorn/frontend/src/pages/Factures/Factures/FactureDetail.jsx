@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { fetchFactureById, enregistrerPaiement } from '../../../pages/Factures/Factures/factureService';
 import LoadingState from '../../../components/shared/LoadingState';
 import ErrorState from '../../../components/shared/ErrorState';
+import { getApiError } from '../../../utils/apiError';
 import './FactureDetail.css';
 
 const FactureDetail = ({ factureId, onBack }) => {
@@ -20,7 +21,7 @@ const FactureDetail = ({ factureId, onBack }) => {
         const data = await fetchFactureById(factureId);
         setFacture(data);
       } catch (err) {
-        setError(err.message);
+        setError(getApiError(err, 'Impossible de charger la facture'));
       } finally {
         setLoading(false);
       }
@@ -53,7 +54,7 @@ const FactureDetail = ({ factureId, onBack }) => {
       setPaiementForm('');
       alert('Paiement enregistré avec succès');
     } catch (err) {
-      alert(`Erreur : ${err.message}`);
+      alert(`Erreur : ${getApiError(err, 'Erreur lors de l\'enregistrement du paiement')}`);
     } finally {
       setEnregistrementEnCours(false);
     }

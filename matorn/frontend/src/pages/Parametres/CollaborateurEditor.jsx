@@ -5,6 +5,7 @@ import {
 } from '../../services/api';
 import { COULEURS_PALETTE } from '../../utils/colorUtils';
 import { CheckCircle, Circle, Pencil, Trash2, Plus, Save, Loader, CircleAlert } from '../../utils/icons';
+import { getApiError } from '../../utils/apiError';
 
 const CollaborateurEditor = ({ collaborateurs, onReload }) => {
 
@@ -45,7 +46,7 @@ const CollaborateurEditor = ({ collaborateurs, onReload }) => {
       await updateCollaborateur(item.id, { actif: !item.actif });
       onReload();
     } catch (err) {
-      alert(err.message);
+      alert(getApiError(err, 'Erreur lors du changement de statut'));
     }
   };
 
@@ -56,7 +57,7 @@ const CollaborateurEditor = ({ collaborateurs, onReload }) => {
       await deleteCollaborateur(item.id);
       onReload();
     } catch (err) {
-      alert(err.message);
+      alert(getApiError(err, 'Erreur lors de la suppression'));
     }
   };
 
@@ -87,7 +88,7 @@ const CollaborateurEditor = ({ collaborateurs, onReload }) => {
       resetForm();
       onReload();
     } catch (err) {
-      setError(err.message);
+      setError(getApiError(err, 'Erreur lors de l\'enregistrement'));
     } finally {
       setSaving(false);
     }

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Modal from '../../components/shared/Modals/Modal';
 import { fetchEmailCommande, EmailCommandeData, PieceAlerte } from './fournisseurService';
+import { getApiError } from '../../utils/apiError';
 import '../../components/shared/Modals/forms.css';
 import './ModalEmailPreRempli.css';
 
@@ -35,8 +36,8 @@ const ModalEmailPreRempli: React.FC<ModalEmailPreRempliProps> = ({
         const data = await fetchEmailCommande(fournisseurId);
         setEmailData(data);
         setCorpsEdite(data.corps);
-      } catch (err: any) {
-        setErreur(err.message || 'Impossible de générer l\'email');
+      } catch (err: unknown) {
+        setErreur(getApiError(err, 'Impossible de générer l\'email'));
       } finally {
         setLoading(false);
       }
