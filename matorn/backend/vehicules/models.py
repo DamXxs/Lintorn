@@ -31,6 +31,12 @@ class Vehicule(SoftDeleteMixin):  # ← MODIF : hérite du Mixin
     marque = models.CharField(max_length=50)
     modele = models.CharField(max_length=50)
     annee = models.IntegerField(null=True, blank=True)
+    vin   = models.CharField(
+        max_length=17,
+        blank=True,
+        null=True,
+        help_text="Numéro de châssis (VIN — Vehicle Identification Number)"
+    )
 
     type_vehicule = models.CharField(
         max_length=20,

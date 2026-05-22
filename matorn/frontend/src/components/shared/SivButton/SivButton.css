@@ -1,0 +1,71 @@
+/* /frontend/src/components/shared/SivButton/SivButton.css */
+
+.siv-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+/* Bouton */
+.siv-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 14px;
+  height: 38px;           /* Aligné avec les inputs standards */
+  background: var(--panel, #f0f4f8);
+  border: 1px solid var(--border, #ddd);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent, #2980b9);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+  letter-spacing: 0.3px;
+}
+
+.siv-btn:hover:not(.siv-btn--disabled) {
+  background: rgba(41, 128, 185, 0.1);
+  border-color: var(--accent, #2980b9);
+}
+
+.siv-btn--disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.siv-btn--loading {
+  opacity: 0.8;
+  cursor: wait;
+}
+
+/* Spinner */
+@keyframes siv-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.siv-spin {
+  animation: siv-spin 0.8s linear infinite;
+}
+
+/* Tooltip résultat */
+.siv-tooltip {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  animation: siv-fade-in 0.2s ease;
+}
+
+@keyframes siv-fade-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.siv-tooltip--ok  { color: #27ae60; background: rgba(39, 174, 96, 0.1); }
+.siv-tooltip--err { color: #888;    background: rgba(0,0,0,0.04); }

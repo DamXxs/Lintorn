@@ -9,7 +9,8 @@ import Modal              from '../../../components/shared/Modals/Modal';
 // 🆕 Remplacement : FrenchPlateInput → PlateSelector (dans le nouveau dossier plates/)
 import PlateSelector      from '../../../components/shared/plates/PlateSelector';
 import AddressAutocomplete from '../../../components/shared/AdressAutocomplete/AddressAutocomplete';
-import { User, Car, CalendarClock, FileText, Save, Search, Users, X } from '../../../utils/icons';
+import SivButton           from '../../../components/shared/SivButton/SivButton';
+import { User, Car, CalendarClock, FileText, Save, Users, X } from '../../../utils/icons';
 import './ModalForm.css';
 
 // ── Créneaux horaires 00:00 → 23:30 par pas de 30 minutes ────────
@@ -186,17 +187,19 @@ const ModalForm = ({ isOpen, onClose, initialData, prefilledDate, onSubmit }) =>
         onSubmit(formData);
     };
 
-    // ── SIV (placeholder) ──────────────────────────────────────────
-    const handleSivSearch = () => {
-        alert('API SIV pas encore implémentée — bientôt disponible !');
-    };
-
     const isEditing = Boolean(initialData?.id);
     const deptRequiertVehicule = departements.find(d => d.code === formData.departement)?.requiert_vehicule;
 
-    // 🆕 Helper : l'API SIV n'a de sens que pour une plaque française (voiture/moto/etc.)
-    const showSivButton = !['BATEAU', 'JETSKI', 'VOILIER', 'MOTOCULTURE', 'ENGIN', 'ENGIN_AGRICOLE', 'TONDEUSE']
-        .includes((formData.vehicleType || '').toUpperCase());
+    // SIV → pré-remplir les champs véhicule (nommage ModalForm : vehicleBrand, vehicleModel, vehicleYear)
+    const handleSivResult = (data) => {
+        setFormData(prev => ({
+            ...prev,
+            ...(data.marque  && { vehicleBrand: data.marque }),
+            ...(data.modele  && { vehicleModel: data.modele }),
+            ...(data.annee   && { vehicleYear:  data.annee }),
+            ...(data.vin     && { vin:        data.vin }),
+        }));
+    };
 
     // ── RENDU ──────────────────────────────────────────────────────
     return (
@@ -364,17 +367,11 @@ const ModalForm = ({ isOpen, onClose, initialData, prefilledDate, onSubmit }) =>
                                     size="md"
                                     hasError={Boolean(errors.plate)}
                                 />
-                                {/* Bouton SIV affiché uniquement pour les véhicules français */}
-                                {showSivButton && (
-                                    <button
-                                        type="button" className="btn-siv"
-                                        onClick={handleSivSearch}
-                                        disabled={!formData.plate}
-                                        title="API SIV — bientôt disponible"
-                                    >
-                                        <Search size={14} /> SIV
-                                    </button>
-                                )}
+                                <SivButton
+                                    immatriculation={formData.plate}
+                                    vehicleType={formData.vehicleType}
+                                    onResult={handleSivResult}
+                                />
                             </div>
                             {errors.plate && <span className="mf-error">{errors.plate}</span>}
                         </div>

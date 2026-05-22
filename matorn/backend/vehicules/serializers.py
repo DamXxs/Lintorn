@@ -25,6 +25,7 @@ class VehiculeSerializer(serializers.ModelSerializer):
             'marque',
             'modele',
             'annee',
+            'vin',
             'type_vehicule',
             'proprietaire',       # ID brut (write — pour créer/modifier)
             'proprietaire_nom',   # Nom complet (read — pour afficher)

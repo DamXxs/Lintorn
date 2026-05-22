@@ -1,0 +1,93 @@
+/* /frontend/src/components/shared/inline/VehicleFormInLine.css */
+
+.vfi-block {
+  background: var(--bg, #f5f7fa);
+  border: 1px solid var(--border, #ddd);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+/* En-tête du bloc */
+.vfi-block__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.vfi-block__num {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent, #2980b9);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.vfi-block__remove {
+  background: none;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+.vfi-block__remove:hover { color: #e74c3c; }
+
+/* Grille 2 colonnes */
+.vfi-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+/* Groupe champ */
+.vfi-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vfi-group--year {
+  max-width: 130px;
+}
+
+/* Plaque + bouton SIV côte à côte */
+.vfi-plate-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vfi-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.vfi-input {
+  padding: 7px 10px;
+  border: 1px solid var(--border, #ddd);
+  border-radius: 6px;
+  font-size: 13px;
+  background: var(--bg, #fff);
+  color: var(--text, #222);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none;
+  width: 100%;
+}
+
+.vfi-input:focus {
+  border-color: var(--accent, #2980b9);
+  box-shadow: 0 0 0 2px rgba(41, 128, 185, 0.15);
+}
+
+select.vfi-input {
+  cursor: pointer;
+}

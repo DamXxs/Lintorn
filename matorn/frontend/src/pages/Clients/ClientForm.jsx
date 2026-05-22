@@ -2,11 +2,11 @@
 import React, { useState } from 'react';
 import { addClient, editClient } from './clientService';
 import { addVehicule } from '../Vehicles/vehicleService';
-import { useReferentiels } from '../../context/ReferentielsContext';
-import { validateNom, validatePhone, validateEmail, validateImmatriculation, formatNom, formatPrenom, formatPhone, formatImmatriculation } from '../../utils/validators';
+import { validateNom, validatePhone, validateEmail, formatNom, formatPrenom, formatPhone } from '../../utils/validators';
 import useForm from '../../hooks/useForm';
-import { User, Phone, FileText, Pencil, UserPlus, Save, Loader, CircleAlert, Car, Plus, X } from '../../utils/icons';
+import { User, Phone, FileText, Pencil, UserPlus, Save, Loader, CircleAlert, Car, Plus } from '../../utils/icons';
 import Modal from '../../components/shared/Modals/Modal';
+import VehicleFormInLine from '../../components/shared/inline/VehicleFormInLine';
 import '../../components/shared/Modals/forms.css';
 import './ClientForm.css';
 import AddressAutocomplete from '../../components/shared/AdressAutocomplete/AddressAutocomplete';
@@ -15,7 +15,7 @@ const INITIAL_DATA = {
   nom: '', prenom: '', telephone: '', email: '', adresse: '', notes: '',
 };
 
-const VEHICULE_VIDE = () => ({
+const vehiculeVide = () => ({
   _tempId:         Date.now() + Math.random(),
   type_vehicule:   'VOITURE',
   immatriculation: '',
@@ -25,8 +25,6 @@ const VEHICULE_VIDE = () => ({
 });
 
 const ClientForm = ({ editingClient, onClose, onSuccess }) => {
-
-  const { getTypeVehicules } = useReferentiels();
 
   const { formData, setFormData, errors, setErrors, saving, setSaving }
     = useForm(
@@ -42,9 +40,19 @@ const ClientForm = ({ editingClient, onClose, onSuccess }) => {
         })
       );
 
-  // Véhicules à créer (seulement en mode création)
+  // Véhicules à créer (mode création uniquement)
   const [vehicules, setVehicules] = useState([]);
 
+  // ── Gestion véhicules ──────────────────────────────────────────
+  const handleVehiculeChange = (tempId, field, value) => {
+    setVehicules(prev => prev.map(v => v._tempId !== tempId ? v : { ...v, [field]: value }));
+  };
+
+  const handleRemoveVehicule = (tempId) => {
+    setVehicules(prev => prev.filter(v => v._tempId !== tempId));
+  };
+
+  // ── Gestion client ─────────────────────────────────────────────
   const handleChange = (e) => {
     let { name, value } = e.target;
     if (name === 'nom')       value = formatNom(value);
@@ -54,28 +62,6 @@ const ClientForm = ({ editingClient, onClose, onSuccess }) => {
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: null }));
   };
 
-  // ── Gestion des véhicules ────────────────────────────────────────
-  const handleAddVehicule = () => {
-    setVehicules(prev => [...prev, VEHICULE_VIDE()]);
-  };
-
-  const handleRemoveVehicule = (tempId) => {
-    setVehicules(prev => prev.filter(v => v._tempId !== tempId));
-  };
-
-  const handleVehiculeChange = (tempId, field, value) => {
-    setVehicules(prev => prev.map(v => {
-      if (v._tempId !== tempId) return v;
-      // Changer le type reset la plaque
-      if (field === 'type_vehicule') return { ...v, type_vehicule: value, immatriculation: '' };
-      if (field === 'immatriculation') {
-        value = formatImmatriculation(value, { vehicleType: v.type_vehicule });
-      }
-      return { ...v, [field]: value };
-    }));
-  };
-
-  // ── Validation ───────────────────────────────────────────────────
   const validate = () => {
     const newErrors = {};
     const nomError   = validateNom(formData.nom);
@@ -87,7 +73,6 @@ const ClientForm = ({ editingClient, onClose, onSuccess }) => {
     return newErrors;
   };
 
-  // ── Soumission ───────────────────────────────────────────────────
   const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validate();
@@ -107,7 +92,7 @@ const ClientForm = ({ editingClient, onClose, onSuccess }) => {
         await editClient(editingClient.id, formData);
       } else {
         const nouveauClient = await addClient(formData);
-        // Créer les véhicules liés
+        // Créer les véhicules non-vides liés au client
         for (const v of vehicules) {
           if (!v.marque.trim() && !v.modele.trim() && !v.immatriculation.trim()) continue;
           await addVehicule({
@@ -135,36 +120,20 @@ const ClientForm = ({ editingClient, onClose, onSuccess }) => {
       onClose={onClose}
       footer={
         <>
-          <button
-            type="button"
-            className="form-btn form-btn--cancel"
-            onClick={onClose}
-            disabled={saving}
-          >
+          <button type="button" className="form-btn form-btn--cancel" onClick={onClose} disabled={saving}>
             Annuler
           </button>
-          <button
-            type="submit"
-            form="client-form"
-            className="form-btn form-btn--save"
-            disabled={saving}
-          >
+          <button type="submit" form="client-form" className="form-btn form-btn--save" disabled={saving}>
             {saving
               ? <><Loader size={16} /> Enregistrement...</>
-              : editingClient
-                ? <><Save size={16} /> Modifier</>
-                : <><Save size={16} /> Créer</>
+              : editingClient ? <><Save size={16} /> Modifier</> : <><Save size={16} /> Créer</>
             }
           </button>
         </>
       }
     >
-      <form
-        id="client-form"
-        className="client-form__body"
-        onSubmit={handleSubmit}
-        noValidate
-      >
+      <form id="client-form" className="client-form__body" onSubmit={handleSubmit} noValidate>
+
         {errors.global && (
           <div className="form-error-global"><CircleAlert size={14} /> {errors.global}</div>
         )}
@@ -216,15 +185,12 @@ const ClientForm = ({ editingClient, onClose, onSuccess }) => {
               {errors.email && <span className="form-error">{errors.email}</span>}
             </div>
           </div>
-
           <div className="form-group" style={{ marginTop: '10px' }}>
             <label className="form-label">Adresse postale</label>
             <AddressAutocomplete
               value={formData.adresse}
               onChange={(val) => setFormData(prev => ({ ...prev, adresse: val }))}
-              onSelect={(adresseObj) => {
-                setFormData(prev => ({ ...prev, adresse: adresseObj.adresse }));
-              }}
+              onSelect={(adresseObj) => setFormData(prev => ({ ...prev, adresse: adresseObj.adresse }))}
             />
           </div>
         </div>
@@ -242,7 +208,7 @@ const ClientForm = ({ editingClient, onClose, onSuccess }) => {
           </div>
         </div>
 
-        {/* VÉHICULES — seulement en création */}
+        {/* VÉHICULES — création uniquement */}
         {!editingClient && (
           <div className="form-section">
             <div className="form-section__title">
@@ -250,88 +216,18 @@ const ClientForm = ({ editingClient, onClose, onSuccess }) => {
               <span style={{ fontSize: 11, fontWeight: 400, color: '#888', marginLeft: 6 }}>(optionnel)</span>
             </div>
 
+            {/* VehicleFormInLine — composant partagé */}
             {vehicules.map((v, idx) => (
-              <div key={v._tempId} className="cf-vehicule-block">
-                <div className="cf-vehicule-block__header">
-                  <span className="cf-vehicule-block__num">Véhicule {idx + 1}</span>
-                  <button
-                    type="button"
-                    className="cf-vehicule-block__remove"
-                    onClick={() => handleRemoveVehicule(v._tempId)}
-                    title="Retirer ce véhicule"
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
-
-                <div className="form-row-2col">
-                  <div className="form-group">
-                    <label className="form-label">Type</label>
-                    <select
-                      className="form-input"
-                      value={v.type_vehicule}
-                      onChange={e => handleVehiculeChange(v._tempId, 'type_vehicule', e.target.value)}
-                    >
-                      {getTypeVehicules().map(t => (
-                        <option key={t.valeur} value={t.valeur}>{t.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Immatriculation</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={v.immatriculation}
-                      onChange={e => handleVehiculeChange(v._tempId, 'immatriculation', e.target.value)}
-                      placeholder="AB-123-CD"
-                    />
-                  </div>
-                </div>
-
-                <div className="form-row-2col">
-                  <div className="form-group">
-                    <label className="form-label">Marque</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={v.marque}
-                      onChange={e => handleVehiculeChange(v._tempId, 'marque', e.target.value)}
-                      placeholder="Peugeot"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Modèle</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={v.modele}
-                      onChange={e => handleVehiculeChange(v._tempId, 'modele', e.target.value)}
-                      placeholder="308"
-                    />
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Année</label>
-                  <input
-                    type="number"
-                    className="form-input"
-                    value={v.annee}
-                    onChange={e => handleVehiculeChange(v._tempId, 'annee', e.target.value)}
-                    placeholder="2020"
-                    min="1900" max="2030"
-                    style={{ maxWidth: 120 }}
-                  />
-                </div>
-              </div>
+              <VehicleFormInLine
+                key={v._tempId}
+                vehicule={v}
+                index={idx}
+                onChange={handleVehiculeChange}
+                onRemove={handleRemoveVehicule}
+              />
             ))}
 
-            <button
-              type="button"
-              className="cf-btn-add-vehicule"
-              onClick={handleAddVehicule}
-            >
+            <button type="button" className="cf-btn-add-vehicule" onClick={() => setVehicules(prev => [...prev, vehiculeVide()])}>
               <Plus size={13} /> Ajouter un véhicule
             </button>
           </div>
