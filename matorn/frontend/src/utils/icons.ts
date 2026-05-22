@@ -1,3 +1,4 @@
+import { PiArchiveFill } from 'react-icons/pi';
 // /frontend/src/utils/icons.ts
 // ══════════════════════════════════════════════════════════════════
 //  CATALOGUE D'ICÔNES UI — point d'entrée unique pour toute l'app
@@ -87,6 +88,7 @@ export const Package       = ic(PiPackageFill);
 export const Factory       = ic(PiFactoryFill);
 export const Receipt       = ic(PiReceiptFill);
 export const Settings      = ic(PiGearSixFill);
+export const Archive       = ic(PiArchiveFill);
 
 // ── Planning / RDV ────────────────────────────────────────────────
 export const CalendarClock = ic(PiClockClockwiseFill);
