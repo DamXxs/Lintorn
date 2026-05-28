@@ -10,8 +10,20 @@
   --border:   #282828;
   --danger:   #c0392b;
   --success:  #27ae60;
+  --warning:  #e67e22;
   --input-bg: #1a1a1a;
   --shadow:   rgba(0, 0, 0, 0.6);
+
+  /* ── VARIANTES RGB (pour rgba() — compatibilité universelle) ── */
+  /* Même couleur que ci-dessus, décomposée en R, G, B séparés    */
+  /* Utilisation : rgba(var(--accent-rgb), 0.15)                   */
+  --accent-rgb:   41, 128, 185;
+  --danger-rgb:   192, 57, 43;
+  --success-rgb:  39, 174, 96;
+  --warning-rgb:  230, 126, 34;
+  --text-rgb:     224, 224, 224;
+  --border-rgb:   40, 40, 40;
+  --input-bg-rgb: 26, 26, 26;
 }
 
 /* ── RESET GLOBAL ────────────────────────────────────────────── */

@@ -325,7 +325,7 @@ const OrdresReparation: React.FC = () => {
                         className="or-action-item"
                         onClick={e => handleAnnuler(e, or)}
                       >
-                        ❌ Mettre en Annulé
+                        ❌ Annulé
                       </button>
                     )}
                     <button

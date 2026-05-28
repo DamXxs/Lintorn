@@ -1,5 +1,6 @@
 /* /frontend/src/pages/OrdresReparation/OrEditeur.css
-   Layout inspiré de la maquette OR v3 — adapté thème dark/variables CSS */
+   Layout inspiré de la maquette OR v3 — adapté thème dark/variables CSS
+   ⚠️ color-mix() remplacé par rgba(var(--X-rgb), opacity) pour compatibilité universelle */
 
 /* =============================================================================
    CONTENEUR PRINCIPAL
@@ -126,7 +127,7 @@
 
 .ore__banner-lock {
   padding: 10px 20px;
-  background: color-mix(in srgb, var(--danger) 15%, transparent);
+  background: rgba(var(--danger-rgb), 0.15);
   border-bottom: 1px solid var(--danger);
   color: var(--danger);
   font-size: 0.85rem;
@@ -137,7 +138,7 @@
 .ore__save-error {
   margin: 12px 20px 0;
   padding: 10px 14px;
-  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  background: rgba(var(--danger-rgb), 0.12);
   border: 1px solid var(--danger);
   border-radius: 6px;
   color: var(--danger);
@@ -217,7 +218,7 @@
 }
 
 .ore-info-grid dt {
-  color: color-mix(in srgb, var(--text) 60%, transparent);
+  color: rgba(var(--text-rgb), 0.6);
   font-size: 0.8rem;
   align-self: center;
 }
@@ -257,7 +258,7 @@
 
 .ore-field__label {
   font-size: 0.8rem;
-  color: color-mix(in srgb, var(--text) 70%, transparent);
+  color: rgba(var(--text-rgb), 0.7);
   font-weight: 500;
   display: flex;
   align-items: center;
@@ -306,7 +307,7 @@
   border-left: none;
   border-radius: 0 6px 6px 0;
   font-size: 0.8rem;
-  color: color-mix(in srgb, var(--text) 60%, transparent);
+  color: rgba(var(--text-rgb), 0.6);
   white-space: nowrap;
 }
 
@@ -328,10 +329,10 @@
 
 .ore-rdv-hint {
   padding: 8px 14px;
-  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  background: rgba(var(--accent-rgb), 0.10);
   border-bottom: 1px solid var(--border);
   font-size: 0.8rem;
-  color: color-mix(in srgb, var(--text) 80%, transparent);
+  color: rgba(var(--text-rgb), 0.8);
 }
 
 .ore-rdv-hint__label {
@@ -361,7 +362,9 @@
 }
 .ore-description:focus {
   outline: none;
-  background-color: color-mix(in srgb, var(--input-bg) 90%, var(--accent) 10%);
+  /* Mélange manuel : input-bg (#1a1a1a) légèrement teinté accent — pas de color-mix */
+  background-color: rgba(var(--input-bg-rgb), 0.9);
+  border: 1px solid rgba(var(--accent-rgb), 0.3);
 }
 .ore-description:disabled {
   opacity: 0.6;
@@ -387,7 +390,7 @@
   text-align: left;
   font-size: 0.78rem;
   font-weight: 700;
-  color: color-mix(in srgb, var(--text) 70%, transparent);
+  color: rgba(var(--text-rgb), 0.7);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   border-bottom: 2px solid var(--border);
@@ -404,7 +407,7 @@
 }
 
 .ore-table tbody tr:hover {
-  background: color-mix(in srgb, var(--accent) 5%, transparent);
+  background: rgba(var(--accent-rgb), 0.05);
 }
 
 /* Colonnes fixes (reprend les proportions de la maquette) */
@@ -438,7 +441,7 @@
 .ore-empty {
   padding: 20px;
   text-align: center;
-  color: color-mix(in srgb, var(--text) 40%, transparent);
+  color: rgba(var(--text-rgb), 0.4);
   font-style: italic;
   font-size: 0.85rem;
 }
@@ -464,7 +467,7 @@
 
 .ore-cloture-field__label {
   font-size: 0.78rem;
-  color: color-mix(in srgb, var(--text) 60%, transparent);
+  color: rgba(var(--text-rgb), 0.6);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-weight: 500;
@@ -506,8 +509,8 @@
   align-items: center;
   gap: 4px;
   padding: 3px 10px;
-  background: rgba(255,255,255,0.2);
-  border: 1px solid rgba(255,255,255,0.4);
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 4px;
   color: #fff;
   font-size: 0.75rem;
@@ -518,7 +521,7 @@
   letter-spacing: 0;
 }
 .ore-btn-add:hover:not(:disabled) {
-  background: rgba(255,255,255,0.3);
+  background: rgba(255, 255, 255, 0.3);
 }
 .ore-btn-add:disabled {
   opacity: 0.5;
@@ -540,7 +543,7 @@
 }
 .ore-btn-danger:hover {
   opacity: 1;
-  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  background: rgba(var(--danger-rgb), 0.12);
 }
 
 /* Colonne actions dans les tableaux */
@@ -555,7 +558,7 @@
 
 .ore-add-panel {
   border-top: 1px solid var(--border);
-  background: color-mix(in srgb, var(--accent) 5%, var(--panel));
+  background: rgba(var(--accent-rgb), 0.05);
   padding: 14px;
   display: flex;
   flex-direction: column;
@@ -626,7 +629,7 @@
 .ore-search-result__ref {
   font-size: 0.75rem;
   font-family: 'Courier New', monospace;
-  color: color-mix(in srgb, var(--text) 60%, transparent);
+  color: rgba(var(--text-rgb), 0.6);
 }
 
 /* Badge stock */
@@ -638,9 +641,9 @@
   white-space: nowrap;
   flex-shrink: 0;
 }
-.ore-stock-badge--ok       { background: color-mix(in srgb, var(--success) 15%, transparent); color: var(--success); }
-.ore-stock-badge--alerte   { background: color-mix(in srgb, #e67e22 15%, transparent); color: #e67e22; }
-.ore-stock-badge--rupture  { background: color-mix(in srgb, var(--danger) 15%, transparent); color: var(--danger); }
+.ore-stock-badge--ok      { background: rgba(var(--success-rgb), 0.15); color: var(--success); }
+.ore-stock-badge--alerte  { background: rgba(var(--warning-rgb), 0.15); color: var(--warning); }
+.ore-stock-badge--rupture { background: rgba(var(--danger-rgb),  0.15); color: var(--danger); }
 
 /* Saisie quantité + bouton ajouter */
 .ore-search-result__qty {
@@ -700,7 +703,7 @@
 .ore-form-label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: color-mix(in srgb, var(--text) 70%, transparent);
+  color: rgba(var(--text-rgb), 0.7);
   text-transform: uppercase;
   letter-spacing: 0.4px;
 }
@@ -755,7 +758,7 @@
   padding: 16px;
   text-align: center;
   font-size: 0.82rem;
-  color: color-mix(in srgb, var(--text) 50%, transparent);
+  color: rgba(var(--text-rgb), 0.5);
   font-style: italic;
   background: var(--panel);
 }
@@ -799,7 +802,7 @@
 
 .ore-input--error {
   border-color: var(--danger) !important;
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 25%, transparent) !important;
+  box-shadow: 0 0 0 2px rgba(var(--danger-rgb), 0.25) !important;
   animation: ore-shake 0.3s ease;
 }
 
@@ -818,7 +821,7 @@
   border-color: var(--danger);
 }
 .ore__btn-decloturer:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--danger) 10%, transparent);
+  background: rgba(var(--danger-rgb), 0.10);
 }
 
 /* =============================================================================
