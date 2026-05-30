@@ -24,6 +24,7 @@ import { useReferentiels } from '../../../context/ReferentielsContext';
 import LoadingState from '../../../components/shared/LoadingState';
 import ErrorState from '../../../components/shared/ErrorState';
 import { getApiError } from '../../../utils/apiError';
+import ConfirmModal from '../../../components/shared/ConfirmModal/ConfirmModal';
 import './DevisForm.css';
 
 // Génère un identifiant temporaire pour les lignes locales (avant sauvegarde)
@@ -82,6 +83,8 @@ const DevisForm = ({ devisId, onSave, onCancel }) => {
   const [loading, setLoading] = useState(modeEdition);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  const [confirmSupprLigne, setConfirmSupprLigne] = useState(false);
+  const [ligneToDelete, setLigneToDelete] = useState(null);
 
   // ── Chargement initial : clients + pièces + forfaits ─────────────────────
   useEffect(() => {
@@ -267,9 +270,15 @@ const DevisForm = ({ devisId, onSave, onCancel }) => {
   };
 
   // ── Supprimer une ligne ───────────────────────────────────────────────────
-  const handleDeleteLigne = async (ligne) => {
-    if (!window.confirm('Supprimer cette ligne ?')) return;
+  const handleDeleteLigne = (ligne) => {
+    setLigneToDelete(ligne);
+    setConfirmSupprLigne(true);
+  };
 
+  const doDeleteLigne = async () => {
+    setConfirmSupprLigne(false);
+    const ligne = ligneToDelete;
+    setLigneToDelete(null);
     if (ligne._isLocal) {
       setLignes((prev) => prev.filter((l) => l.id !== ligne.id));
     } else {
@@ -673,6 +682,15 @@ const DevisForm = ({ devisId, onSave, onCancel }) => {
           </p>
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={confirmSupprLigne}
+        title="Supprimer cette ligne ?"
+        variant="danger"
+        labelConfirm="Supprimer"
+        onConfirm={doDeleteLigne}
+        onCancel={() => { setConfirmSupprLigne(false); setLigneToDelete(null); }}
+      />
     </div>
   );
 };

@@ -11,6 +11,7 @@ import ErrorState from '../../../components/shared/ErrorState';
 import Modal from '../../../components/shared/Modals/Modal';
 import DevisDocument from './DevisDocument';
 import { getApiError } from '../../../utils/apiError';
+import ConfirmModal from '../../../components/shared/ConfirmModal/ConfirmModal';
 import './DevisDetail.css';
 
 const DevisDetail = ({ devisId, onBack, onFactureCreee, onEdit }) => {
@@ -20,6 +21,8 @@ const DevisDetail = ({ devisId, onBack, onFactureCreee, onEdit }) => {
   const [showModalFacture, setShowModalFacture] = useState(false);
   const [notesFacture, setNotesFacture] = useState('');
   const [showDocument, setShowDocument] = useState(false);
+  const [confirmValider, setConfirmValider] = useState(false);
+  const [confirmRefuser, setConfirmRefuser] = useState(false);
 
   const loadDevis = useCallback(async () => {
     setLoading(true);
@@ -38,8 +41,12 @@ const DevisDetail = ({ devisId, onBack, onFactureCreee, onEdit }) => {
     loadDevis();
   }, [loadDevis]);
 
-  const handleValider = async () => {
-    if (!window.confirm('Êtes-vous sûr de vouloir valider ce devis ?')) return;
+  const handleValider = () => {
+    setConfirmValider(true);
+  };
+
+  const doValider = async () => {
+    setConfirmValider(false);
     try {
       await validerDevis(devisId);
       loadDevis();
@@ -48,8 +55,12 @@ const DevisDetail = ({ devisId, onBack, onFactureCreee, onEdit }) => {
     }
   };
 
-  const handleRefuser = async () => {
-    if (!window.confirm('Êtes-vous sûr de vouloir refuser ce devis ?')) return;
+  const handleRefuser = () => {
+    setConfirmRefuser(true);
+  };
+
+  const doRefuser = async () => {
+    setConfirmRefuser(false);
     try {
       await refuserDevis(devisId);
       loadDevis();
@@ -367,6 +378,25 @@ const DevisDetail = ({ devisId, onBack, onFactureCreee, onEdit }) => {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={confirmValider}
+        title="Valider ce devis ?"
+        message="Le devis sera marqué comme accepté."
+        variant="info"
+        labelConfirm="Valider"
+        onConfirm={doValider}
+        onCancel={() => setConfirmValider(false)}
+      />
+      <ConfirmModal
+        isOpen={confirmRefuser}
+        title="Refuser ce devis ?"
+        message="Le devis sera marqué comme refusé."
+        variant="danger"
+        labelConfirm="Refuser"
+        onConfirm={doRefuser}
+        onCancel={() => setConfirmRefuser(false)}
+      />
     </div>
   );
 };

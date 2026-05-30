@@ -1,0 +1,183 @@
+/* /frontend/src/components/shared/ConfirmModal/ConfirmModal.css */
+
+/* =============================================================================
+   OVERLAY — fond sombre derrière la modale
+============================================================================= */
+
+.confirm-modal__overlay {
+  /* Couvre tout l'écran, par-dessus tout le reste */
+  position: fixed;
+  inset: 0;                          /* = top:0 right:0 bottom:0 left:0 */
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.65);
+
+  /* Centre la boîte horizontalement et verticalement */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Légère animation d'apparition */
+  animation: confirm-overlay-in 0.15s ease;
+}
+
+@keyframes confirm-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* =============================================================================
+   BOÎTE CENTRALE
+============================================================================= */
+
+.confirm-modal__box {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 420px;
+  margin: 0 16px;                    /* Marge sur mobile */
+
+  /* Animation d'entrée — légère remontée */
+  animation: confirm-box-in 0.18s ease;
+}
+
+@keyframes confirm-box-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* =============================================================================
+   EN-TÊTE : titre + croix
+============================================================================= */
+
+.confirm-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.confirm-modal__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.3;
+}
+
+/* Bouton croix (✕) en haut à droite */
+.confirm-modal__close {
+  background: none;
+  border: none;
+  color: rgba(var(--text-rgb), 0.5);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  line-height: 1;
+  transition: color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+.confirm-modal__close:hover {
+  color: var(--text);
+  background: rgba(var(--text-rgb), 0.08);
+}
+
+/* =============================================================================
+   CORPS : message
+============================================================================= */
+
+.confirm-modal__body {
+  padding: 16px 20px;
+}
+
+.confirm-modal__message {
+  font-size: 0.9rem;
+  color: rgba(var(--text-rgb), 0.75);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* =============================================================================
+   PIED : boutons Annuler + Confirmer
+============================================================================= */
+
+.confirm-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 20px 16px;
+  border-top: 1px solid var(--border);
+}
+
+/* Base commune aux deux boutons */
+.confirm-modal__btn {
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s, background 0.15s;
+  border: none;
+}
+
+/* ── Bouton Annuler (solide, fond panel) ── */
+.confirm-modal__btn--cancel {
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.confirm-modal__btn--cancel:hover {
+  background: rgba(var(--text-rgb), 0.1);
+}
+
+/* ── Bouton Confirmer — variante DANGER (rouge) ── */
+.confirm-modal__btn--danger {
+  background: var(--danger);
+  color: #fff;
+}
+.confirm-modal__btn--danger:hover {
+  opacity: 0.85;
+}
+
+/* ── Bouton Confirmer — variante WARNING (orange) ── */
+.confirm-modal__btn--warning {
+  background: var(--warning);
+  color: #fff;
+}
+.confirm-modal__btn--warning:hover {
+  opacity: 0.85;
+}
+
+/* ── Bouton Confirmer — variante INFO (bleu accent) ── */
+.confirm-modal__btn--info {
+  background: var(--accent);
+  color: #fff;
+}
+.confirm-modal__btn--info:hover {
+  opacity: 0.85;
+}
+
+/* État désactivé (si on passe disabled en cours d'action) */
+.confirm-modal__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* =============================================================================
+   RESPONSIVE MOBILE
+============================================================================= */
+
+@media (max-width: 480px) {
+  .confirm-modal__footer {
+    flex-direction: column-reverse;  /* Confirmer en haut sur mobile */
+    gap: 8px;
+  }
+
+  .confirm-modal__btn {
+    width: 100%;
+    text-align: center;
+  }
+}

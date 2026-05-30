@@ -5,6 +5,7 @@ import { ICONES_CATALOGUE, renderIcone, suggererIcone } from './iconUtils';
 import { COULEURS_PALETTE } from '../../../utils/colorUtils';
 import { CheckCircle, Circle, Pencil, Trash2, Plus, Save, Loader, CircleAlert } from '../../../utils/icons';
 import { getApiError } from '../../../utils/apiError';
+import ConfirmModal from '../../../components/shared/ConfirmModal/ConfirmModal';
 import './ReferentielEditor.css';
 
 // ── GÉNÈRE LA CLÉ INTERNE depuis le label ────────────────────────
@@ -31,6 +32,8 @@ const ReferentielEditor = ({ categorie, items, onReload }) => {
   const [error, setError]               = useState(null);
   const [showIconPicker, setShowIconPicker] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
+  const [confirmSuppr, setConfirmSuppr] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
 
   // ── HELPERS ──────────────────────────────────────────────────
   const resetForm = () => {
@@ -110,13 +113,20 @@ const ReferentielEditor = ({ categorie, items, onReload }) => {
   };
 
   // ── SUPPRIMER ─────────────────────────────────────────────────
-  const handleDelete = async (item) => {
-    if (!window.confirm(`Supprimer "${item.label}" définitivement ?`)) return;
+  const handleDelete = (item) => {
+    setItemToDelete(item);
+    setConfirmSuppr(true);
+  };
+
+  const doDelete = async () => {
+    setConfirmSuppr(false);
     try {
-      await deleteReferentiel(item.id);
+      await deleteReferentiel(itemToDelete.id);
       onReload();
     } catch {
       alert('❌ Erreur lors de la suppression');
+    } finally {
+      setItemToDelete(null);
     }
   };
 
@@ -390,6 +400,16 @@ const ReferentielEditor = ({ categorie, items, onReload }) => {
           ＋ Ajouter une entrée
         </button>
       )}
+
+      <ConfirmModal
+        isOpen={confirmSuppr}
+        title="Supprimer cette entrée ?"
+        message={itemToDelete ? `Supprimer "${itemToDelete.label}" définitivement ?` : ''}
+        variant="danger"
+        labelConfirm="Supprimer"
+        onConfirm={doDelete}
+        onCancel={() => { setConfirmSuppr(false); setItemToDelete(null); }}
+      />
     </div>
   );
 };

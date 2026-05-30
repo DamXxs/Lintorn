@@ -17,6 +17,7 @@ import {
   Pencil, Trash2, X, CalendarPlus, Loader, Plus
 } from '../../utils/icons';
 import IconChip, { CHIP_COLORS } from '../../components/shared/IconChip/IconChip';
+import ConfirmModal from '../../components/shared/ConfirmModal/ConfirmModal';
 import './ClientDetail.css';
 
 const ClientDetail = ({ client, onClose, onEdit, onDelete }) => {
@@ -31,6 +32,8 @@ const ClientDetail = ({ client, onClose, onEdit, onDelete }) => {
   const [selectedVehicule, setSelectedVehicule]       = useState(null);
   const [editingVehicule, setEditingVehicule]         = useState(null);
   const [isVehicleFormOpen, setIsVehicleFormOpen]     = useState(false);
+  const [confirmSupprVehicule, setConfirmSupprVehicule] = useState(false);
+  const [vehiculeToDelete, setVehiculeToDelete]         = useState(null);
 
   // ── Chargement des véhicules ───────────────────────────────────
   const loadVehicules = useCallback(async () => {
@@ -303,19 +306,32 @@ const ClientDetail = ({ client, onClose, onEdit, onDelete }) => {
             setEditingVehicule(v);
             setIsVehicleFormOpen(true);
           }}
-          onDelete={async (v) => {
-            if (window.confirm(`Supprimer "${v.marque} ${v.modele}" ?`)) {
-              try {
-                await removeVehicule(v.id);
-                setSelectedVehicule(null);
-                await loadVehicules();
-              } catch {
-                alert('❌ Erreur lors de la suppression');
-              }
-            }
+          onDelete={(v) => {
+            setVehiculeToDelete(v);
+            setConfirmSupprVehicule(true);
           }}
         />
       )}
+
+      <ConfirmModal
+        isOpen={confirmSupprVehicule}
+        title="Supprimer ce véhicule ?"
+        message={vehiculeToDelete ? `${vehiculeToDelete.marque} ${vehiculeToDelete.modele} sera supprimé définitivement.` : ''}
+        variant="danger"
+        labelConfirm="Supprimer"
+        onConfirm={async () => {
+          setConfirmSupprVehicule(false);
+          try {
+            await removeVehicule(vehiculeToDelete.id);
+            setSelectedVehicule(null);
+            setVehiculeToDelete(null);
+            await loadVehicules();
+          } catch {
+            alert('❌ Erreur lors de la suppression');
+          }
+        }}
+        onCancel={() => { setConfirmSupprVehicule(false); setVehiculeToDelete(null); }}
+      />
 
       {/* FORMULAIRE VÉHICULE — création ou modification */}
       {isVehicleFormOpen && (

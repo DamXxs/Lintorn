@@ -6,6 +6,7 @@ import {
 import { COULEURS_PALETTE } from '../../utils/colorUtils';
 import { CheckCircle, Circle, Pencil, Trash2, Plus, Save, Loader, CircleAlert } from '../../utils/icons';
 import { getApiError } from '../../utils/apiError';
+import ConfirmModal from '../../components/shared/ConfirmModal/ConfirmModal';
 
 const CollaborateurEditor = ({ collaborateurs, onReload }) => {
 
@@ -15,6 +16,8 @@ const CollaborateurEditor = ({ collaborateurs, onReload }) => {
   const [saving,          setSaving]          = useState(false);
   const [error,           setError]           = useState(null);
   const [showColorPicker, setShowColorPicker] = useState(false);
+  const [confirmSuppr, setConfirmSuppr]       = useState(false);
+  const [itemToDelete, setItemToDelete]       = useState(null);
 
   // ── HELPERS ──────────────────────────────────────────────────────────────
   const resetForm = () => {
@@ -51,13 +54,20 @@ const CollaborateurEditor = ({ collaborateurs, onReload }) => {
   };
 
   // ── SUPPRIMER ────────────────────────────────────────────────────────────
-  const handleDelete = async (item) => {
-    if (!window.confirm(`Supprimer "${item.nom}" de l'équipe ?`)) return;
+  const handleDelete = (item) => {
+    setItemToDelete(item);
+    setConfirmSuppr(true);
+  };
+
+  const doDelete = async () => {
+    setConfirmSuppr(false);
     try {
-      await deleteCollaborateur(item.id);
+      await deleteCollaborateur(itemToDelete.id);
       onReload();
     } catch (err) {
       alert(getApiError(err, 'Erreur lors de la suppression'));
+    } finally {
+      setItemToDelete(null);
     }
   };
 
@@ -272,6 +282,16 @@ const CollaborateurEditor = ({ collaborateurs, onReload }) => {
           ＋ Ajouter un collaborateur
         </button>
       )}
+
+      <ConfirmModal
+        isOpen={confirmSuppr}
+        title="Supprimer ce collaborateur ?"
+        message={itemToDelete ? `Supprimer "${itemToDelete.nom}" de l'équipe ?` : ''}
+        variant="danger"
+        labelConfirm="Supprimer"
+        onConfirm={doDelete}
+        onCancel={() => { setConfirmSuppr(false); setItemToDelete(null); }}
+      />
 
     </div>
   );
