@@ -36,7 +36,7 @@
 body {
   background: var(--bg);
   height: 100vh;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
   color: var(--text);
   overflow: hidden;
 }

@@ -78,7 +78,7 @@ export const THEMES = {
       '--bg':          '#0d0a07',
       '--panel':       '#141008',
       '--accent':      '#e67e22',
-      '--text':        '#d4a96a',
+      '--text':        '#ffe2b6',
       '--border':      '#473721',
       '--danger':      '#c0392b',
       '--success':     '#27ae60',

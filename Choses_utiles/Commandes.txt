@@ -78,7 +78,7 @@
     ===============================================================================
     ==========================                           ==========================
     ===============================================================================
-    ## Créer superAdmin ##
+    ## Créer superAdmin ## = Plus besoin !!!! Utilise set_role !!!
     ====Tape ça dans la console backend avec le venv ouvert====
 python manage.py shell -c "
 from django.contrib.auth.models import User
@@ -88,3 +88,17 @@ u.profile.role = Role.SUPERADMIN
 u.profile.save()
 print('Nouveau rôle:', u.profile.role)
 "
+==============================================================
+====================== commandes set_role ====================
+==============================================================
+
+# Changer un rôle
+python manage.py set_role damien superadmin
+python manage.py set_role jean user
+python manage.py set_role marie admin
+python manage.py set_role pierre superuser
+
+# Lister tout le monde
+python manage.py set_role --list
+
+=============================================================
