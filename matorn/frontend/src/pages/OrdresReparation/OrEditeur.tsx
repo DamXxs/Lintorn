@@ -603,7 +603,7 @@ const OrEditeur: React.FC = () => {
 
         {/* ── 3. DESCRIPTION DES TRAVAUX ── */}
         <div className="ore-card">
-          <div className="ore-card__head">Description des travaux demandés / effectués</div>
+          <div className="ore-card__head">Description des travaux</div>
           <div className="ore-card__body ore-card__body--description">
             {ordre.rdv_description && (
               <div className="ore-rdv-hint">
