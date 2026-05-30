@@ -31,6 +31,7 @@ import ErrorState from '../../components/shared/ErrorState';
 import { ArrowLeft, Wrench, User, Car, Save, Printer } from '../../utils/icons';
 import { formatDateCourt } from '../../utils/dataFormatters';
 
+import ConfirmModal from '../../components/shared/ConfirmModal/ConfirmModal';
 import './OrEditeur.css';
 
 // =============================================================================
@@ -104,6 +105,7 @@ const OrEditeur: React.FC = () => {
   const [saveError, setSaveError]         = useState<string | null>(null);
   const [fieldErrors, setFieldErrors]     = useState<Record<string, boolean>>({});
   const [decloturing, setDecloturing]     = useState(false);
+  const [confirmDecloturer, setConfirmDecloturer] = useState(false);
 
   // ── Pièces ─────────────────────────────────────────────────
   const [showAddPiece, setShowAddPiece]         = useState(false);
@@ -392,8 +394,14 @@ const OrEditeur: React.FC = () => {
   };
 
   // ── DÉCLÔTURE ──────────────────────────────────────────────
-  const handleDecloturer = async () => {
-    if (!ordre || !window.confirm('Déclôturer cet OR et le repasser en "En cours" ?')) return;
+  const handleDecloturer = () => {
+    if (!ordre) return;
+    setConfirmDecloturer(true);
+  };
+
+  const doDecloturer = async () => {
+    if (!ordre) return;
+    setConfirmDecloturer(false);
     setDecloturing(true);
     setSaveError(null);
     try {
@@ -940,6 +948,16 @@ const OrEditeur: React.FC = () => {
           <OrPdfTemplate ordre={ordre} parametres={parametres} />
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={confirmDecloturer}
+        title="Déclôturer cet OR ?"
+        message={'L\'OR repassera en statut "En cours".'}
+        variant="warning"
+        labelConfirm="Déclôturer"
+        onConfirm={doDecloturer}
+        onCancel={() => setConfirmDecloturer(false)}
+      />
 
     </div>
   );

@@ -8,6 +8,7 @@ import SearchBar    from '../../components/shared/SearchBar/SearchBar';
 import LoadingState from '../../components/shared/LoadingState';
 import ErrorState   from '../../components/shared/ErrorState';
 import StockForm    from './StockForm';
+import ConfirmModal from '../../components/shared/ConfirmModal/ConfirmModal';
 import './StockList.css';
 import '../../components/shared/list-page.css';
 
@@ -48,6 +49,8 @@ const StockList: React.FC = () => {
   // null = fermé | {} = création | Piece = édition
   const [modalForm,  setModalForm]  = useState<Piece | Record<string, never> | null>(null);
   const [menuOpenId, setMenuOpenId] = useState<number | null>(null);
+  const [confirmSuppr, setConfirmSuppr] = useState(false);
+  const [pieceToDelete, setPieceToDelete] = useState<Piece | null>(null);
   const menuRef = useRef<HTMLTableDataCellElement>(null);
 
   // Ferme le menu au clic extérieur
@@ -89,20 +92,27 @@ const StockList: React.FC = () => {
   };
 
   // ── Suppression ──────────────────────────────────────────────
-  const handleDelete = async (piece: Piece) => {
+  const handleDelete = (piece: Piece) => {
     setMenuOpenId(null);
 
     if (piece.stock_actuel > 0) {
       alert(`⚠️ Impossible de supprimer "${piece.nom}" : il reste ${piece.stock_actuel} unité(s) en stock.`);
       return;
     }
-    if (!window.confirm(`🗑️ Supprimer définitivement "${piece.nom}" ?\n\nCette action est irréversible.`)) return;
+    setPieceToDelete(piece);
+    setConfirmSuppr(true);
+  };
 
+  const doSupprimer = async () => {
+    if (!pieceToDelete) return;
+    setConfirmSuppr(false);
     try {
-      await removePiece(piece.id);
+      await removePiece(pieceToDelete.id);
       await loadPieces();
     } catch {
       alert('❌ Erreur lors de la suppression');
+    } finally {
+      setPieceToDelete(null);
     }
   };
 
@@ -259,6 +269,16 @@ const StockList: React.FC = () => {
           onClose={() => setModalForm(null)}
         />
       )}
+
+      <ConfirmModal
+        isOpen={confirmSuppr}
+        title="Supprimer cette pièce ?"
+        message="Il reste 0 unité en stock. Cette action est irréversible."
+        variant="danger"
+        labelConfirm="Supprimer"
+        onConfirm={doSupprimer}
+        onCancel={() => { setConfirmSuppr(false); setPieceToDelete(null); }}
+      />
 
     </div>
   );

@@ -6,6 +6,7 @@ import SearchBar from '../../../components/shared/SearchBar/SearchBar';
 import LoadingState from '../../../components/shared/LoadingState';
 import ErrorState from '../../../components/shared/ErrorState';
 import { getApiError } from '../../../utils/apiError';
+import ConfirmModal from '../../../components/shared/ConfirmModal/ConfirmModal';
 import './DevisList.css';
 
 // ── Constantes statut ────────────────────────────────────────
@@ -53,6 +54,7 @@ const DevisList = ({ onSelectDevis, onCreateDevis, onEditDevis, onViewPDF }) => 
   const [searchQuery,  setSearchQuery]  = useState('');
   const [filtreStatut, setFiltreStatut] = useState('ALL');
   const [menuOpenId,   setMenuOpenId]   = useState(null);
+  const [pendingAction, setPendingAction] = useState(null); // { type: 'valider' | 'refuser', id: number }
 
   const loadDevis = useCallback(async () => {
     setLoading(true);
@@ -90,25 +92,29 @@ const DevisList = ({ onSelectDevis, onCreateDevis, onEditDevis, onViewPDF }) => 
     });
 
   // ── Actions rapides ───────────────────────────────────────
-  const handleValider = async (e, id) => {
+  const handleValider = (e, id) => {
     e.stopPropagation();
-    if (!window.confirm('Valider ce devis ?')) return;
-    try {
-      await validerDevis(id);
-      loadDevis();
-    } catch (err) {
-      alert(`Erreur : ${getApiError(err, 'Erreur lors de la validation')}`);
-    }
+    setPendingAction({ type: 'valider', id });
   };
 
-  const handleRefuser = async (e, id) => {
+  const handleRefuser = (e, id) => {
     e.stopPropagation();
-    if (!window.confirm('Refuser ce devis ?')) return;
+    setPendingAction({ type: 'refuser', id });
+  };
+
+  const doConfirmedAction = async () => {
+    if (!pendingAction) return;
+    const { type, id } = pendingAction;
+    setPendingAction(null);
     try {
-      await refuserDevis(id);
+      if (type === 'valider') {
+        await validerDevis(id);
+      } else {
+        await refuserDevis(id);
+      }
       loadDevis();
     } catch (err) {
-      alert(`Erreur : ${getApiError(err, 'Erreur lors du refus')}`);
+      alert(`Erreur : ${getApiError(err, type === 'valider' ? 'Erreur lors de la validation' : 'Erreur lors du refus')}`);
     }
   };
 
@@ -246,6 +252,24 @@ const DevisList = ({ onSelectDevis, onCreateDevis, onEditDevis, onViewPDF }) => 
         </div>
       )}
 
+      <ConfirmModal
+        isOpen={pendingAction?.type === 'valider'}
+        title="Valider ce devis ?"
+        message="Le devis sera marqué comme accepté."
+        variant="info"
+        labelConfirm="Valider"
+        onConfirm={doConfirmedAction}
+        onCancel={() => setPendingAction(null)}
+      />
+      <ConfirmModal
+        isOpen={pendingAction?.type === 'refuser'}
+        title="Refuser ce devis ?"
+        message="Le devis sera marqué comme refusé."
+        variant="danger"
+        labelConfirm="Refuser"
+        onConfirm={doConfirmedAction}
+        onCancel={() => setPendingAction(null)}
+      />
     </div>
   );
 };

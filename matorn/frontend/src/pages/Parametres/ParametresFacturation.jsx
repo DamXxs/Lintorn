@@ -16,6 +16,7 @@ import {
 } from './parametresService';
 import LoadingState from '../../components/shared/LoadingState';
 import ErrorState from '../../components/shared/ErrorState';
+import ConfirmModal from '../../components/shared/ConfirmModal/ConfirmModal';
 import { getApiError } from '../../utils/apiError';
 import './ParametresFacturation.css';
 
@@ -54,6 +55,8 @@ const ParametresFacturation = ({ onBack, embedded = false }) => {
   const [editingForfaitId, setEditingForfaitId] = useState(null);
   const [showForfaitForm, setShowForfaitForm]   = useState(false);
   const [savingForfait, setSavingForfait]       = useState(false);
+  const [confirmSupprForfait, setConfirmSupprForfait] = useState(false);
+  const [forfaitToDelete, setForfaitToDelete]         = useState(null);
 
   // ── Chargement ────────────────────────────────────────────────────────────────
   const [loading, setLoading] = useState(true);
@@ -182,13 +185,20 @@ const ParametresFacturation = ({ onBack, embedded = false }) => {
     }
   };
 
-  const handleDeleteForfait = async (f) => {
-    if (!window.confirm(`Supprimer le forfait "${f.nom}" ?`)) return;
+  const handleDeleteForfait = (f) => {
+    setForfaitToDelete(f);
+    setConfirmSupprForfait(true);
+  };
+
+  const doDeleteForfait = async () => {
+    setConfirmSupprForfait(false);
     try {
-      await deleteForfait(f.id);
-      setForfaits(prev => prev.filter(x => x.id !== f.id));
+      await deleteForfait(forfaitToDelete.id);
+      setForfaits(prev => prev.filter(x => x.id !== forfaitToDelete.id));
     } catch (err) {
       alert(`Erreur : ${getApiError(err, 'Erreur lors de la suppression du forfait')}`);
+    } finally {
+      setForfaitToDelete(null);
     }
   };
 
@@ -479,6 +489,15 @@ const ParametresFacturation = ({ onBack, embedded = false }) => {
           </table>
         )}
       </div>
+      <ConfirmModal
+        isOpen={confirmSupprForfait}
+        title="Supprimer ce forfait ?"
+        message={forfaitToDelete ? `Supprimer "${forfaitToDelete.nom}" ?` : ''}
+        variant="danger"
+        labelConfirm="Supprimer"
+        onConfirm={doDeleteForfait}
+        onCancel={() => { setConfirmSupprForfait(false); setForfaitToDelete(null); }}
+      />
     </div>
   );
 };

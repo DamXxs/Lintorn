@@ -6,6 +6,7 @@ import {
 import { COULEURS_PALETTE } from '../../utils/colorUtils';
 import { CheckCircle, Circle, Pencil, Trash2, Plus, Save, Loader, CircleAlert } from '../../utils/icons';
 import { getApiError } from '../../utils/apiError';
+import ConfirmModal from '../../components/shared/ConfirmModal/ConfirmModal';
 
 // Génère un CODE technique depuis un nom (ex: "Carrosserie" → "CARROSSERIE")
 const genererCode = (nom) =>
@@ -23,6 +24,8 @@ const DepartementEditor = ({ departements, onReload }) => {
   const [saving,          setSaving]          = useState(false);
   const [error,           setError]           = useState(null);
   const [showColorPicker, setShowColorPicker] = useState(false);
+  const [confirmSuppr, setConfirmSuppr]       = useState(false);
+  const [itemToDelete, setItemToDelete]       = useState(null);
 
   // ── HELPERS ──────────────────────────────────────────────────────────────
   const resetForm = () => {
@@ -52,13 +55,20 @@ const DepartementEditor = ({ departements, onReload }) => {
   };
 
   // ── SUPPRIMER ────────────────────────────────────────────────────────────
-  const handleDelete = async (item) => {
-    if (!window.confirm(`Supprimer le département "${item.nom}" définitivement ?`)) return;
+  const handleDelete = (item) => {
+    setItemToDelete(item);
+    setConfirmSuppr(true);
+  };
+
+  const doDelete = async () => {
+    setConfirmSuppr(false);
     try {
-      await deleteDepartement(item.id);
+      await deleteDepartement(itemToDelete.id);
       onReload();
     } catch (err) {
       alert(getApiError(err, 'Erreur lors de la suppression'));
+    } finally {
+      setItemToDelete(null);
     }
   };
 
@@ -271,6 +281,16 @@ const DepartementEditor = ({ departements, onReload }) => {
           ＋ Ajouter un département
         </button>
       )}
+
+      <ConfirmModal
+        isOpen={confirmSuppr}
+        title="Supprimer ce département ?"
+        message={itemToDelete ? `Supprimer "${itemToDelete.nom}" définitivement ?` : ''}
+        variant="danger"
+        labelConfirm="Supprimer"
+        onConfirm={doDelete}
+        onCancel={() => { setConfirmSuppr(false); setItemToDelete(null); }}
+      />
 
     </div>
   );

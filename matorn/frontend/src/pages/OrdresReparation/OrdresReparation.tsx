@@ -11,6 +11,7 @@ import LoadingState from '../../components/shared/LoadingState';
 import ErrorState from '../../components/shared/ErrorState';
 import SearchBar from '../../components/shared/SearchBar/SearchBar';
 import ModalOrCreation from './ModalOrCreation';
+import ConfirmModal from '../../components/shared/ConfirmModal/ConfirmModal';
 import { getApiError } from '../../utils/apiError';
 
 // Icônes
@@ -65,6 +66,9 @@ const OrdresReparation: React.FC = () => {
 
   // ── État : menu d'action rapide ──────────────────────────────
   const [menuOpenId, setMenuOpenId] = useState<number | null>(null);
+
+  // ── État : actions confirmées ─────────────────────────────────
+  const [pendingAction, setPendingAction] = useState<{ type: 'annuler' | 'supprimer'; or: OrdreReparationListItem } | null>(null);
 
   // ── État : filtres ───────────────────────────────────────────
   const [searchQuery, setSearchQuery]   = useState('');
@@ -163,26 +167,32 @@ const OrdresReparation: React.FC = () => {
   };
 
   // ── Action rapide : mettre en Annulé ─────────────────────────
-  const handleAnnuler = async (e: React.MouseEvent, or: OrdreReparationListItem) => {
+  const handleAnnuler = (e: React.MouseEvent, or: OrdreReparationListItem) => {
     e.stopPropagation();
     setMenuOpenId(null);
-    if (!window.confirm(`Mettre l'OR ${or.numero} en Annulé ?`)) return;
-    try {
-      await updateOrdre(or.id, { statut: 'ANNULE' } as any);
-      setOrdres(prev => prev.map(o => o.id === or.id ? { ...o, statut: 'ANNULE', statut_display: 'Annulé' } : o));
-    } catch (err: unknown) {
-      alert(`Erreur : ${getApiError(err, 'Erreur inattendue')}`);
-    }
+    setPendingAction({ type: 'annuler', or });
   };
 
   // ── Action rapide : supprimer ─────────────────────────────────
-  const handleSupprimer = async (e: React.MouseEvent, or: OrdreReparationListItem) => {
+  const handleSupprimer = (e: React.MouseEvent, or: OrdreReparationListItem) => {
     e.stopPropagation();
     setMenuOpenId(null);
-    if (!window.confirm(`Supprimer définitivement l'OR ${or.numero} ?`)) return;
+    setPendingAction({ type: 'supprimer', or });
+  };
+
+  // ── Exécution de l'action confirmée ──────────────────────────
+  const doConfirmedAction = async () => {
+    if (!pendingAction) return;
+    const { type, or } = pendingAction;
+    setPendingAction(null);
     try {
-      await deleteOrdre(or.id);
-      setOrdres(prev => prev.filter(o => o.id !== or.id));
+      if (type === 'annuler') {
+        await updateOrdre(or.id, { statut: 'ANNULE' } as any);
+        setOrdres(prev => prev.map(o => o.id === or.id ? { ...o, statut: 'ANNULE', statut_display: 'Annulé' } : o));
+      } else {
+        await deleteOrdre(or.id);
+        setOrdres(prev => prev.filter(o => o.id !== or.id));
+      }
     } catch (err: unknown) {
       alert(`Erreur : ${getApiError(err, 'Erreur inattendue')}`);
     }
@@ -349,6 +359,26 @@ const OrdresReparation: React.FC = () => {
           prefill={orPrefill ?? undefined}
         />
       )}
+
+      {/* === MODALES DE CONFIRMATION === */}
+      <ConfirmModal
+        isOpen={pendingAction?.type === 'annuler'}
+        title={pendingAction ? `Annuler l'OR ${pendingAction.or.numero} ?` : ''}
+        message="L'OR passera en statut Annulé."
+        variant="warning"
+        labelConfirm="Annuler l'OR"
+        onConfirm={doConfirmedAction}
+        onCancel={() => setPendingAction(null)}
+      />
+      <ConfirmModal
+        isOpen={pendingAction?.type === 'supprimer'}
+        title={pendingAction ? `Supprimer l'OR ${pendingAction.or.numero} ?` : ''}
+        message="Cette action est irréversible."
+        variant="danger"
+        labelConfirm="Supprimer"
+        onConfirm={doConfirmedAction}
+        onCancel={() => setPendingAction(null)}
+      />
     </div>
   );
 };
