@@ -8,7 +8,7 @@
       "label": "Voiture",
       "icone": "🚗",
       "couleur": "",
-      "ordre": 1,
+      "ordre_reparation": 1,
       "actif": true
     }
   },
@@ -47,7 +47,7 @@
       "label": "Bateau",
       "icone": "🚤",
       "couleur": "",
-      "ordre": 4,
+      "ordre_reparation": 4,
       "actif": true
     }
   },
@@ -60,7 +60,7 @@
       "label": "Entretien VP2 (Petite vidange)",
       "icone": "🔧",
       "couleur": "",
-      "ordre": 1,
+      "ordre_reparation": 1,
       "actif": true
     }
   },
@@ -99,7 +99,7 @@
       "label": "Pneumatiques",
       "icone": "⚫",
       "couleur": "",
-      "ordre": 4,
+      "ordre_reparation": 4,
       "actif": true
     }
   },
@@ -138,7 +138,7 @@
       "label": "Filtration",
       "icone": "🔵",
       "couleur": "",
-      "ordre": 1,
+      "ordre_reparation": 1,
       "actif": true
     }
   },
@@ -177,7 +177,7 @@
       "label": "Pneumatiques",
       "icone": "⚫",
       "couleur": "",
-      "ordre": 4,
+      "ordre_reparation": 4,
       "actif": true
     }
   },
@@ -242,7 +242,7 @@
       "label": "Pièces communes",
       "icone": "🔩",
       "couleur": "",
-      "ordre": 1,
+      "ordre_reparation": 1,
       "actif": true
     }
   },
@@ -272,6 +272,7 @@
       "actif": true
     }
   },
+
   {
     "model": "clients.client",
     "pk": 1,
@@ -282,7 +283,12 @@
       "email": "jean.dupont@email.fr",
       "adresse": "12 rue des Acacias, 90000 Belfort",
       "notes": "Client fidèle depuis 2020, préfère être appelé le matin.",
-      "date_creation": "2026-01-10T08:30:00Z"
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-01-10T08:30:00Z",
+      "updated_at": "2026-01-10T08:30:00Z"
     }
   },
   {
@@ -295,7 +301,12 @@
       "email": "sophie.martin@gmail.com",
       "adresse": "5 avenue Jean Jaurès, 25000 Besançon",
       "notes": "Véhicule souvent chargé, attention aux suspensions.",
-      "date_creation": "2026-01-15T10:00:00Z"
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-01-15T10:00:00Z",
+      "updated_at": "2026-01-15T10:00:00Z"
     }
   },
   {
@@ -308,7 +319,12 @@
       "email": "m.bernard@orange.fr",
       "adresse": "8 rue de la Paix, 68100 Mulhouse",
       "notes": "",
-      "date_creation": "2026-02-01T09:00:00Z"
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-02-01T09:00:00Z",
+      "updated_at": "2026-02-01T09:00:00Z"
     }
   },
   {
@@ -321,7 +337,12 @@
       "email": "isa.leroy@yahoo.fr",
       "adresse": "22 impasse des Lilas, 70000 Vesoul",
       "notes": "Réduction fidélité 5%.",
-      "date_creation": "2026-02-14T14:30:00Z"
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-02-14T14:30:00Z",
+      "updated_at": "2026-02-14T14:30:00Z"
     }
   },
   {
@@ -334,9 +355,15 @@
       "email": "contact@garagemoreau.fr",
       "adresse": "Zone Artisanale, 39000 Lons-le-Saunier",
       "notes": "Client professionnel, facturation mensuelle.",
-      "date_creation": "2026-03-01T08:00:00Z"
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-03-01T08:00:00Z",
+      "updated_at": "2026-03-01T08:00:00Z"
     }
   },
+
   {
     "model": "vehicules.vehicule",
     "pk": 1,
@@ -348,7 +375,12 @@
       "type_vehicule": "VOITURE",
       "proprietaire": 1,
       "notes": "Entretien régulier, huile 5W30.",
-      "date_creation": "2026-01-10T08:35:00Z"
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-01-10T08:35:00Z",
+      "updated_at": "2026-01-10T08:35:00Z"
     }
   },
   {
@@ -362,7 +394,12 @@
       "type_vehicule": "VOITURE",
       "proprietaire": 2,
       "notes": "Boîte automatique.",
-      "date_creation": "2026-01-15T10:05:00Z"
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-01-15T10:05:00Z",
+      "updated_at": "2026-01-15T10:05:00Z"
     }
   },
   {
@@ -376,7 +413,12 @@
       "type_vehicule": "MOTO",
       "proprietaire": 3,
       "notes": "Révision tous les 6000 km.",
-      "date_creation": "2026-02-01T09:10:00Z"
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-02-01T09:10:00Z",
+      "updated_at": "2026-02-01T09:10:00Z"
     }
   },
   {
@@ -390,7 +432,12 @@
       "type_vehicule": "VOITURE",
       "proprietaire": 4,
       "notes": "",
-      "date_creation": "2026-02-14T14:35:00Z"
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-02-14T14:35:00Z",
+      "updated_at": "2026-02-14T14:35:00Z"
     }
   },
   {
@@ -404,7 +451,12 @@
       "type_vehicule": "VOITURE",
       "proprietaire": 5,
       "notes": "Utilitaire, révision annuelle obligatoire.",
-      "date_creation": "2026-03-01T08:10:00Z"
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-03-01T08:10:00Z",
+      "updated_at": "2026-03-01T08:10:00Z"
     }
   },
   {
@@ -418,9 +470,15 @@
       "type_vehicule": "VOITURE",
       "proprietaire": 1,
       "notes": "Second véhicule de Jean Dupont, utilitaire.",
-      "date_creation": "2026-03-10T11:00:00Z"
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-03-10T11:00:00Z",
+      "updated_at": "2026-03-10T11:00:00Z"
     }
   },
+
   {
     "model": "fournisseurs.fournisseur",
     "pk": 1,
@@ -434,8 +492,12 @@
       "est_favori": true,
       "actif": true,
       "notes": "Délai 24h, remise 8% sur commandes > 500€.",
-      "date_creation": "2026-01-05T08:00:00Z",
-      "date_modification": "2026-01-05T08:00:00Z"
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-01-05T08:00:00Z",
+      "updated_at": "2026-01-05T08:00:00Z"
     }
   },
   {
@@ -451,8 +513,12 @@
       "est_favori": false,
       "actif": true,
       "notes": "Spécialiste pneumatiques, livraison J+2.",
-      "date_creation": "2026-01-06T09:00:00Z",
-      "date_modification": "2026-01-06T09:00:00Z"
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-01-06T09:00:00Z",
+      "updated_at": "2026-01-06T09:00:00Z"
     }
   },
   {
@@ -468,10 +534,15 @@
       "est_favori": false,
       "actif": true,
       "notes": "Fournisseur officiel huiles moteur et liquides.",
-      "date_creation": "2026-01-07T10:00:00Z",
-      "date_modification": "2026-01-07T10:00:00Z"
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-01-07T10:00:00Z",
+      "updated_at": "2026-01-07T10:00:00Z"
     }
   },
+
   {
     "model": "stock.piece",
     "pk": 1,
@@ -487,8 +558,12 @@
       "stock_suspendu": 0,
       "fournisseur_ref": 1,
       "delai_livraison": 1,
-      "date_creation": "2026-01-08T08:00:00Z",
-      "date_modification": "2026-01-08T08:00:00Z"
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-01-08T08:00:00Z",
+      "updated_at": "2026-01-08T08:00:00Z"
     }
   },
   {
@@ -506,8 +581,12 @@
       "stock_suspendu": 0,
       "fournisseur_ref": 1,
       "delai_livraison": 1,
-      "date_creation": "2026-01-08T08:05:00Z",
-      "date_modification": "2026-01-08T08:05:00Z"
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-01-08T08:05:00Z",
+      "updated_at": "2026-01-08T08:05:00Z"
     }
   },
   {
@@ -525,8 +604,12 @@
       "stock_suspendu": 0,
       "fournisseur_ref": 3,
       "delai_livraison": 2,
-      "date_creation": "2026-01-08T08:10:00Z",
-      "date_modification": "2026-01-08T08:10:00Z"
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-01-08T08:10:00Z",
+      "updated_at": "2026-01-08T08:10:00Z"
     }
   },
   {
@@ -544,8 +627,12 @@
       "stock_suspendu": 0,
       "fournisseur_ref": 3,
       "delai_livraison": 2,
-      "date_creation": "2026-01-08T08:15:00Z",
-      "date_modification": "2026-01-08T08:15:00Z"
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-01-08T08:15:00Z",
+      "updated_at": "2026-01-08T08:15:00Z"
     }
   },
   {
@@ -563,8 +650,12 @@
       "stock_suspendu": 0,
       "fournisseur_ref": 1,
       "delai_livraison": 1,
-      "date_creation": "2026-01-08T08:20:00Z",
-      "date_modification": "2026-01-08T08:20:00Z"
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-01-08T08:20:00Z",
+      "updated_at": "2026-01-08T08:20:00Z"
     }
   },
   {
@@ -582,8 +673,12 @@
       "stock_suspendu": 0,
       "fournisseur_ref": 1,
       "delai_livraison": 2,
-      "date_creation": "2026-01-08T08:25:00Z",
-      "date_modification": "2026-01-08T08:25:00Z"
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-01-08T08:25:00Z",
+      "updated_at": "2026-01-08T08:25:00Z"
     }
   },
   {
@@ -601,8 +696,12 @@
       "stock_suspendu": 0,
       "fournisseur_ref": 2,
       "delai_livraison": 3,
-      "date_creation": "2026-01-08T08:30:00Z",
-      "date_modification": "2026-01-08T08:30:00Z"
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-01-08T08:30:00Z",
+      "updated_at": "2026-01-08T08:30:00Z"
     }
   },
   {
@@ -620,8 +719,12 @@
       "stock_suspendu": 0,
       "fournisseur_ref": 1,
       "delai_livraison": 1,
-      "date_creation": "2026-01-08T08:35:00Z",
-      "date_modification": "2026-01-08T08:35:00Z"
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-01-08T08:35:00Z",
+      "updated_at": "2026-01-08T08:35:00Z"
     }
   },
   {
@@ -639,8 +742,12 @@
       "stock_suspendu": 0,
       "fournisseur_ref": 1,
       "delai_livraison": 2,
-      "date_creation": "2026-01-08T08:40:00Z",
-      "date_modification": "2026-01-08T08:40:00Z"
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-01-08T08:40:00Z",
+      "updated_at": "2026-01-08T08:40:00Z"
     }
   },
   {
@@ -658,10 +765,15 @@
       "stock_suspendu": 0,
       "fournisseur_ref": 1,
       "delai_livraison": 1,
-      "date_creation": "2026-01-08T08:45:00Z",
-      "date_modification": "2026-01-08T08:45:00Z"
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-01-08T08:45:00Z",
+      "updated_at": "2026-01-08T08:45:00Z"
     }
   },
+
   {
     "model": "planning.departement",
     "pk": 1,
@@ -682,7 +794,7 @@
       "nom": "Académie",
       "couleur": "#8e44ad",
       "actif": true,
-      "ordre": 1,
+      "ordre_reparation": 1,
       "requiert_vehicule": false
     }
   },
@@ -711,9 +823,7 @@
     "pk": 1,
     "fields": {
       "departement": 1,
-      "collaborateurs": [
-        1
-      ],
+      "collaborateurs": [1],
       "client": 1,
       "vehicule": 1,
       "date_debut": "2026-04-07T08:00:00Z",
@@ -721,8 +831,12 @@
       "description": "Vidange + filtre à huile + filtre habitacle",
       "statut": "PLANIFIE",
       "rappel_envoye": false,
-      "date_creation": "2026-04-01T10:00:00Z",
-      "date_modification": "2026-04-01T10:00:00Z"
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-04-01T10:00:00Z",
+      "updated_at": "2026-04-01T10:00:00Z"
     }
   },
   {
@@ -730,9 +844,7 @@
     "pk": 2,
     "fields": {
       "departement": 1,
-      "collaborateurs": [
-        2
-      ],
+      "collaborateurs": [2],
       "client": 2,
       "vehicule": 2,
       "date_debut": "2026-04-07T10:00:00Z",
@@ -740,8 +852,12 @@
       "description": "Remplacement plaquettes et disques avant",
       "statut": "PLANIFIE",
       "rappel_envoye": false,
-      "date_creation": "2026-04-01T11:00:00Z",
-      "date_modification": "2026-04-01T11:00:00Z"
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-04-01T11:00:00Z",
+      "updated_at": "2026-04-01T11:00:00Z"
     }
   },
   {
@@ -749,10 +865,7 @@
     "pk": 3,
     "fields": {
       "departement": 1,
-      "collaborateurs": [
-        1,
-        2
-      ],
+      "collaborateurs": [1, 2],
       "client": 3,
       "vehicule": 3,
       "date_debut": "2026-04-08T09:00:00Z",
@@ -760,8 +873,12 @@
       "description": "Révision annuelle moto — huile + filtres + bougies",
       "statut": "PLANIFIE",
       "rappel_envoye": false,
-      "date_creation": "2026-04-02T08:30:00Z",
-      "date_modification": "2026-04-02T08:30:00Z"
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-04-02T08:30:00Z",
+      "updated_at": "2026-04-02T08:30:00Z"
     }
   },
   {
@@ -769,9 +886,7 @@
     "pk": 4,
     "fields": {
       "departement": 1,
-      "collaborateurs": [
-        1
-      ],
+      "collaborateurs": [1],
       "client": 4,
       "vehicule": 4,
       "date_debut": "2026-04-05T14:00:00Z",
@@ -779,8 +894,12 @@
       "description": "Diagnostic électronique — voyant moteur allumé",
       "statut": "EN_COURS",
       "rappel_envoye": true,
-      "date_creation": "2026-04-03T09:00:00Z",
-      "date_modification": "2026-04-05T14:05:00Z"
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-04-03T09:00:00Z",
+      "updated_at": "2026-04-05T14:05:00Z"
     }
   },
   {
@@ -788,9 +907,7 @@
     "pk": 5,
     "fields": {
       "departement": 1,
-      "collaborateurs": [
-        2
-      ],
+      "collaborateurs": [2],
       "client": 5,
       "vehicule": 5,
       "date_debut": "2026-04-03T08:00:00Z",
@@ -798,10 +915,15 @@
       "description": "Révision complète Transit — huile + filtres + courroie",
       "statut": "TERMINE",
       "rappel_envoye": true,
-      "date_creation": "2026-03-28T10:00:00Z",
-      "date_modification": "2026-04-03T10:05:00Z"
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-03-28T10:00:00Z",
+      "updated_at": "2026-04-03T10:05:00Z"
     }
   },
+
   {
     "model": "factures.parametresfacturation",
     "pk": 1,
@@ -827,6 +949,10 @@
       "montant_ttc": "85.80",
       "statut": "VALIDE",
       "notes": "Devis accepté par email.",
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
       "created_at": "2026-04-01T10:05:00Z",
       "updated_at": "2026-04-02T09:00:00Z"
     }
@@ -845,6 +971,10 @@
       "montant_ttc": "177.60",
       "statut": "CREE",
       "notes": "",
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
       "created_at": "2026-04-01T11:05:00Z",
       "updated_at": "2026-04-01T11:05:00Z"
     }
@@ -863,6 +993,10 @@
       "montant_ttc": "350.40",
       "statut": "FACTURE",
       "notes": "Devis converti en facture FAC-26-00001.",
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
       "created_at": "2026-03-28T10:05:00Z",
       "updated_at": "2026-04-03T10:10:00Z"
     }
@@ -881,6 +1015,10 @@
       "montant_ttc": "114.00",
       "statut": "EXPIRE",
       "notes": "Client n'a pas donné suite.",
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
       "created_at": "2026-03-20T14:00:00Z",
       "updated_at": "2026-03-20T14:00:00Z"
     }
@@ -899,6 +1037,10 @@
       "montant_ttc": "0.00",
       "statut": "CREE",
       "notes": "Devis en attente de diagnostic.",
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
       "created_at": "2026-04-03T09:05:00Z",
       "updated_at": "2026-04-03T09:05:00Z"
     }
@@ -1036,6 +1178,10 @@
       "montant_paye": "421.08",
       "statut": "PAYEE",
       "notes": "Règlement CB en boutique.",
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
       "created_at": "2026-04-03T10:15:00Z",
       "updated_at": "2026-04-03T10:20:00Z"
     }
@@ -1056,6 +1202,10 @@
       "montant_paye": "0.00",
       "statut": "IMPAYEE",
       "notes": "Relance envoyée le 01/04.",
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
       "created_at": "2026-03-15T11:00:00Z",
       "updated_at": "2026-04-01T09:00:00Z"
     }
@@ -1076,6 +1226,10 @@
       "montant_paye": "50.00",
       "statut": "PARTIELLEMENT_PAYEE",
       "notes": "Acompte 50€ reçu.",
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
       "created_at": "2026-03-20T14:00:00Z",
       "updated_at": "2026-03-25T09:00:00Z"
     }
@@ -1096,6 +1250,10 @@
       "montant_paye": "0.00",
       "statut": "EMISE",
       "notes": "",
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
       "created_at": "2026-04-01T16:00:00Z",
       "updated_at": "2026-04-01T16:00:00Z"
     }
@@ -1116,6 +1274,10 @@
       "montant_paye": "144.00",
       "statut": "PAYEE",
       "notes": "Virement reçu.",
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
       "created_at": "2026-03-10T10:00:00Z",
       "updated_at": "2026-03-15T08:00:00Z"
     }
@@ -1274,6 +1436,181 @@
       "prix_unitaire": "13.00",
       "created_at": "2026-03-10T10:07:00Z",
       "updated_at": "2026-03-10T10:07:00Z"
+    }
+  },
+
+  {
+    "model": "ordres_reparation.ordrereparation",
+    "pk": 1,
+    "fields": {
+      "numero": "OR-26-00001",
+      "client": 1,
+      "vehicule": 1,
+      "intervention": 1,
+      "statut": "CLOTURE",
+      "description_travaux": "Vidange complète + remplacement filtre à huile et filtre habitacle. RAS constaté sur le véhicule.",
+      "km_entree": 87500,
+      "km_sortie": 87502,
+      "date_entree": "2026-04-07T08:00:00Z",
+      "date_sortie": "2026-04-07T09:30:00Z",
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-04-07T08:00:00Z",
+      "updated_at": "2026-04-07T09:35:00Z"
+    }
+  },
+  {
+    "model": "ordres_reparation.ordrereparation",
+    "pk": 2,
+    "fields": {
+      "numero": "OR-26-00002",
+      "client": 2,
+      "vehicule": 2,
+      "intervention": 2,
+      "statut": "EN_COURS",
+      "description_travaux": "Remplacement plaquettes et disques de frein avant. Bruit de frottement signalé par la cliente à basse vitesse.",
+      "km_entree": 42100,
+      "km_sortie": null,
+      "date_entree": "2026-04-07T10:00:00Z",
+      "date_sortie": null,
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-04-07T10:00:00Z",
+      "updated_at": "2026-04-07T10:00:00Z"
+    }
+  },
+  {
+    "model": "ordres_reparation.ordrereparation",
+    "pk": 3,
+    "fields": {
+      "numero": "OR-26-00003",
+      "client": 3,
+      "vehicule": 3,
+      "intervention": 3,
+      "statut": "EN_ATTENTE",
+      "description_travaux": "Révision annuelle moto : vidange huile moteur, remplacement filtres, vérification bougies et chaîne.",
+      "km_entree": 18300,
+      "km_sortie": null,
+      "date_entree": "2026-04-08T09:00:00Z",
+      "date_sortie": null,
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-04-08T09:00:00Z",
+      "updated_at": "2026-04-08T09:00:00Z"
+    }
+  },
+  {
+    "model": "ordres_reparation.ordrereparation",
+    "pk": 4,
+    "fields": {
+      "numero": "OR-26-00004",
+      "client": 5,
+      "vehicule": 5,
+      "intervention": 5,
+      "statut": "CLOTURE",
+      "description_travaux": "Révision complète Ford Transit : vidange + filtres huile/air/habitacle + remplacement courroie de distribution avec tendeur et galet.",
+      "km_entree": 134200,
+      "km_sortie": 134205,
+      "date_entree": "2026-04-03T08:00:00Z",
+      "date_sortie": "2026-04-03T10:00:00Z",
+      "is_deleted": false,
+      "deleted_at": null,
+      "is_archived": false,
+      "archived_at": null,
+      "created_at": "2026-04-03T08:00:00Z",
+      "updated_at": "2026-04-03T10:05:00Z"
+    }
+  },
+
+  {
+    "model": "ordres_reparation.lignepiecutilisee",
+    "pk": 1,
+    "fields": {
+      "ordre_reparation": 1,
+      "piece": 4,
+      "quantite": 2,
+      "prix_unitaire_snapshot": "32.00"
+    }
+  },
+  {
+    "model": "ordres_reparation.lignepiecutilisee",
+    "pk": 2,
+    "fields": {
+      "ordre_reparation": 1,
+      "piece": 1,
+      "quantite": 1,
+      "prix_unitaire_snapshot": "8.90"
+    }
+  },
+  {
+    "model": "ordres_reparation.lignepiecutilisee",
+    "pk": 3,
+    "fields": {
+      "ordre_reparation": 1,
+      "piece": 10,
+      "quantite": 1,
+      "prix_unitaire_snapshot": "14.00"
+    }
+  },
+  {
+    "model": "ordres_reparation.lignepiecutilisee",
+    "pk": 4,
+    "fields": {
+      "ordre_reparation": 4,
+      "piece": 4,
+      "quantite": 2,
+      "prix_unitaire_snapshot": "32.00"
+    }
+  },
+  {
+    "model": "ordres_reparation.lignepiecutilisee",
+    "pk": 5,
+    "fields": {
+      "ordre_reparation": 4,
+      "piece": 1,
+      "quantite": 1,
+      "prix_unitaire_snapshot": "8.90"
+    }
+  },
+  {
+    "model": "ordres_reparation.lignepiecutilisee",
+    "pk": 6,
+    "fields": {
+      "ordre_reparation": 4,
+      "piece": 9,
+      "quantite": 1,
+      "prix_unitaire_snapshot": "130.00"
+    }
+  },
+
+  {
+    "model": "ordres_reparation.ligneintervention",
+    "pk": 1,
+    "fields": {
+      "ordre_reparation": 1,
+      "type_intervention": "ENTRETIEN_VP2",
+      "description": "Vidange + filtre huile + filtre habitacle",
+      "technicien": "Thomas Dupont",
+      "duree_heures": "1.50",
+      "taux_horaire": "55.00"
+    }
+  },
+  {
+    "model": "ordres_reparation.ligneintervention",
+    "pk": 2,
+    "fields": {
+      "ordre_reparation": 4,
+      "type_intervention": "REVISION_COMPLETE",
+      "description": "Révision complète + remplacement courroie distribution",
+      "technicien": "Lucas Martin",
+      "duree_heures": "2.00",
+      "taux_horaire": "55.00"
     }
   }
 ]

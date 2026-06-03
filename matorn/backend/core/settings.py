@@ -210,3 +210,7 @@ SIMPLE_JWT = {
 
 # On ajoute simplejwt aux apps installées
 # (déjà fait via rest_framework, mais on le note)
+
+FIXTURE_DIRS = [
+    BASE_DIR / 'fixtures', # dossier pour les fixtures de test
+]
