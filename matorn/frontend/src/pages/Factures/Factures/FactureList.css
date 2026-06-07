@@ -242,8 +242,38 @@
 
 /* ── RESPONSIVE ──────────────────────────────────────────────── */
 @media (max-width: 768px) {
+  .facture-list__table-wrap {
+    overflow-x: auto;
+  }
+  /* Réduit la densité */
+  .facture-list__table th,
+  .facture-list__table td {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  /* Masque "Émise le", "Échéance", "Payé", "Solde" — th:nth-child aligne avec les td cachés */
+  .facture-list__table th:nth-child(3),
+  .facture-list__table th:nth-child(4),
+  .facture-list__table th:nth-child(6),
+  .facture-list__table th:nth-child(7),
   .facture-list__cell--date,
-  .facture-list__cell--paye {
+  .facture-list__cell--paye,
+  .facture-list__cell--solde {
     display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Masque aussi "Statut" — reste : Numéro, Client, Montant TTC, Actions */
+  .facture-list__table th:nth-child(8),
+  .facture-list__cell--statut {
+    display: none;
+  }
+  /* Tronque le nom client si trop long */
+  .facture-list__cell--client {
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }

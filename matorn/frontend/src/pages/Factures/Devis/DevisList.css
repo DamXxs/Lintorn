@@ -237,8 +237,35 @@
 
 /* ── RESPONSIVE ──────────────────────────────────────────────── */
 @media (max-width: 768px) {
+  .devis-list__table-wrap {
+    overflow-x: auto;
+  }
+  /* Réduit la densité */
+  .devis-list__table th,
+  .devis-list__table td {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  /* Masque "Créé le" et "Validité" — th:nth-child aligne avec les td cachés */
+  .devis-list__table th:nth-child(3),
+  .devis-list__table th:nth-child(4),
   .devis-list__cell--date,
   .devis-list__cell--date-validite {
     display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Masque aussi "Statut" — reste : Numéro, Client, Montant, Actions */
+  .devis-list__table th:nth-child(6),
+  .devis-list__cell--statut {
+    display: none;
+  }
+  /* Tronque le nom client si trop long */
+  .devis-list__cell--client {
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }

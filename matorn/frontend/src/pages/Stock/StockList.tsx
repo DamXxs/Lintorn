@@ -1,5 +1,5 @@
 // /frontend/src/pages/Stock/StockList.tsx
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Piece } from '../../services/api';
 import { getAllPieces, searchPieces, addPiece, editPiece, removePiece, getStockStats } from './stockService';
 import { Package, Plus, Pencil, Trash2 } from '../../utils/icons';
@@ -49,20 +49,25 @@ const StockList: React.FC = () => {
   // null = fermé | {} = création | Piece = édition
   const [modalForm,  setModalForm]  = useState<Piece | Record<string, never> | null>(null);
   const [menuOpenId, setMenuOpenId] = useState<number | null>(null);
+  const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
   const [confirmSuppr, setConfirmSuppr] = useState(false);
   const [pieceToDelete, setPieceToDelete] = useState<Piece | null>(null);
   const menuRef = useRef<HTMLTableDataCellElement>(null);
 
-  // Ferme le menu au clic extérieur
+  const closeMenu = useCallback(() => { setMenuOpenId(null); setMenuPos(null); }, []);
+
+  // Ferme au clic extérieur et au scroll
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpenId(null);
-      }
+    const handleClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) closeMenu();
     };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
+    document.addEventListener('mousedown', handleClick);
+    window.addEventListener('scroll', closeMenu, true);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      window.removeEventListener('scroll', closeMenu, true);
+    };
+  }, [closeMenu]);
 
   // ── Chargement ───────────────────────────────────────────────
   const loadPieces = async () => {
@@ -232,12 +237,22 @@ const StockList: React.FC = () => {
                     <div className="stock-action-wrap">
                       <button
                         className="stock-action-trigger"
-                        onClick={() => setMenuOpenId(menuOpenId === piece.id ? null : piece.id)}
+                        onClick={e => {
+                          e.stopPropagation();
+                          if (menuOpenId === piece.id) { closeMenu(); return; }
+                          const r = e.currentTarget.getBoundingClientRect();
+                          const MENU_H = 90;
+                          setMenuPos({
+                            top: r.bottom + MENU_H > window.innerHeight ? r.top - MENU_H - 4 : r.bottom + 4,
+                            right: window.innerWidth - r.right,
+                          });
+                          setMenuOpenId(piece.id);
+                        }}
                         title="Actions"
                       >⋯</button>
 
-                      {menuOpenId === piece.id && (
-                        <div className="stock-action-menu">
+                      {menuOpenId === piece.id && menuPos && (
+                        <div className="stock-action-menu" style={{ position: 'fixed', top: menuPos.top, right: menuPos.right }}>
                           <button
                             className="stock-action-item"
                             onClick={() => { setMenuOpenId(null); setModalForm(piece); }}

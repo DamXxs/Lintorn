@@ -214,18 +214,11 @@
   color: var(--text);
   font-size: 1.1rem;
   cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.15s, background 0.15s;
+  transition: background 0.15s;
   line-height: 1;
 }
 
-/* Visible au survol de la ligne OU quand le menu est ouvert */
-.stock-table tbody tr:hover .stock-action-trigger,
-.stock-action-trigger:focus,
-.stock-action-trigger:has(+ .stock-action-menu) {
-  opacity: 1;
-}
-.stock-action-trigger:hover { background: var(--input-bg); opacity: 1; }
+.stock-action-trigger:hover { background: var(--input-bg); }
 
 .stock-action-menu {
   position: absolute;

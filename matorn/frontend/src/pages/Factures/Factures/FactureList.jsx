@@ -51,6 +51,7 @@ const FactureList = ({ onSelectFacture, onCreateFacture }) => {
   const [searchQuery,  setSearchQuery]  = useState('');
   const [filtreStatut, setFiltreStatut] = useState('ALL');
   const [menuOpenId,   setMenuOpenId]   = useState(null);
+  const [menuPos,      setMenuPos]      = useState(null);
 
   const loadFactures = useCallback(async () => {
     setLoading(true);
@@ -67,11 +68,16 @@ const FactureList = ({ onSelectFacture, onCreateFacture }) => {
 
   useEffect(() => { loadFactures(); }, [loadFactures]);
 
+  // Ferme au clic extérieur et au scroll
+  const closeMenu = useCallback(() => { setMenuOpenId(null); setMenuPos(null); }, []);
   useEffect(() => {
-    const close = () => setMenuOpenId(null);
-    document.addEventListener('click', close);
-    return () => document.removeEventListener('click', close);
-  }, []);
+    document.addEventListener('click', closeMenu);
+    window.addEventListener('scroll', closeMenu, true);
+    return () => {
+      document.removeEventListener('click', closeMenu);
+      window.removeEventListener('scroll', closeMenu, true);
+    };
+  }, [closeMenu]);
 
   // ── Filtrage local ────────────────────────────────────────
   const filtered = factures
@@ -196,11 +202,21 @@ const FactureList = ({ onSelectFacture, onCreateFacture }) => {
                       <div className="fv-action-wrap">
                         <button
                           className="fv-action-trigger"
-                          onClick={e => { e.stopPropagation(); setMenuOpenId(menuOpenId === f.id ? null : f.id); }}
+                          onClick={e => {
+                            e.stopPropagation();
+                            if (menuOpenId === f.id) { closeMenu(); return; }
+                            const r = e.currentTarget.getBoundingClientRect();
+                            const MENU_H = 50;
+                            setMenuPos({
+                              top: r.bottom + MENU_H > window.innerHeight ? r.top - MENU_H - 4 : r.bottom + 4,
+                              right: window.innerWidth - r.right,
+                            });
+                            setMenuOpenId(f.id);
+                          }}
                           title="Actions"
                         >⋯</button>
-                        {menuOpenId === f.id && (
-                          <div className="fv-action-menu">
+                        {menuOpenId === f.id && menuPos && (
+                          <div className="fv-action-menu" style={{ position: 'fixed', top: menuPos.top, right: menuPos.right }}>
                             <button
                               className="fv-action-item"
                               onClick={() => { setMenuOpenId(null); onSelectFacture(f); }}
