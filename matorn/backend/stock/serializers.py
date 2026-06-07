@@ -51,13 +51,13 @@ class PieceSerializer(serializers.ModelSerializer):
             'fournisseur_nom',    # nom calculé (lecture seule)
             'fournisseur_email',  # email calculé (lecture seule)
             'delai_livraison',
-            'date_creation',
-            'date_modification',
+            'created_at',
+            'updated_at',
         ]
         read_only_fields = [
             'id',
-            'date_creation',
-            'date_modification',
+            'created_at',
+            'updated_at',
             'stock_suspendu',   # géré par les devis, pas manuellement
             'fournisseur_nom',
             'fournisseur_email',

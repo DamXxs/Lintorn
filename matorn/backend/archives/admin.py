@@ -12,7 +12,7 @@ from django.contrib import admin
 from django.contrib import messages
 from django.utils.safestring import mark_safe
 
-from .models import SuppressionBloqueeError
+from mixins.models import SuppressionBloqueeError
 
 
 class EtatFilter(admin.SimpleListFilter):

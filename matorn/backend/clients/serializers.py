@@ -21,6 +21,6 @@ class ClientSerializer(serializers.ModelSerializer):
             'email',
             'adresse',
             'notes',
-            'date_creation',    # ← Lecture seule (auto_now_add)
+            'created_at',
         ]
-        read_only_fields = ['id', 'date_creation']  # ← React ne peut pas les modifier
+        read_only_fields = ['id', 'created_at']

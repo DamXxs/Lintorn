@@ -56,10 +56,10 @@ export interface Client {
   email: string;
   adresse: string;
   notes: string;
-  date_creation: string;
+  created_at: string;
 }
 
-export type ClientCreateData = Omit<Client, 'id' | 'date_creation'>;
+export type ClientCreateData = Omit<Client, 'id' | 'created_at'>;
 export type ClientUpdateData = Partial<ClientCreateData>;
 
 // ── VÉHICULE ──────────────────────────────────────────────────────────────────
@@ -75,10 +75,10 @@ export interface Vehicule {
   proprietaire_nom: string | null; // lecture seule
   proprietaire_id: number | null;  // lecture seule
   notes: string;
-  date_creation: string;
+  created_at: string;
 }
 
-export type VehiculeCreateData = Omit<Vehicule, 'id' | 'date_creation' | 'proprietaire_nom' | 'proprietaire_id'>;
+export type VehiculeCreateData = Omit<Vehicule, 'id' | 'created_at' | 'proprietaire_nom' | 'proprietaire_id'>;
 export type VehiculeUpdateData = Partial<VehiculeCreateData>;
 
 // ── STOCK / PIÈCES ─────────────────────────────────────────────────────────────
@@ -102,13 +102,13 @@ export interface Piece {
   fournisseur_nom: string | null;      // lecture seule
   fournisseur_email: string | null;    // lecture seule
   delai_livraison: number | null;
-  date_creation: string;
-  date_modification: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export type PieceCreateData = Omit<
   Piece,
-  'id' | 'date_creation' | 'date_modification' | 'marge' | 'marge_pourcentage'
+  'id' | 'created_at' | 'updated_at' | 'marge' | 'marge_pourcentage'
   | 'stock_suspendu' | 'stock_disponible' | 'stock_status'
   | 'fournisseur_nom' | 'fournisseur_email'
 >;

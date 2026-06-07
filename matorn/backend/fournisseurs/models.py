@@ -2,7 +2,7 @@
 from django.db import models
 
 # IMPORT du Mixin et de l'exception depuis l'app archives
-from archives.models import SoftDeleteMixin, SuppressionBloqueeError
+from mixins.models import SoftDeleteMixin, SuppressionBloqueeError
 
 
 class Fournisseur(SoftDeleteMixin):  # ← MODIF : on hérite du Mixin au lieu de models.Model
@@ -48,9 +48,6 @@ class Fournisseur(SoftDeleteMixin):  # ← MODIF : on hérite du Mixin au lieu d
     est_favori = models.BooleanField(default=False)
     actif = models.BooleanField(default=True)
     notes = models.TextField(blank=True)
-    date_creation = models.DateTimeField(auto_now_add=True)
-    date_modification = models.DateTimeField(auto_now=True)
-
     class Meta:
         ordering = ['nom']
         verbose_name = "Fournisseur"

@@ -31,9 +31,9 @@ class VehiculeSerializer(serializers.ModelSerializer):
             'proprietaire_nom',   # Nom complet (read — pour afficher)
             'proprietaire_id',    # ID (read — pour le lien)
             'notes',
-            'date_creation',
+            'created_at',
         ]
-        read_only_fields = ['id', 'date_creation', 'proprietaire_nom', 'proprietaire_id']
+        read_only_fields = ['id', 'created_at', 'proprietaire_nom', 'proprietaire_id']
 
     def get_proprietaire_nom(self, obj):
         """Retourne "Dupont Jean" ou None si pas de propriétaire."""

@@ -22,8 +22,8 @@ export interface Fournisseur {
   actif: boolean;
   notes: string;
   nb_pieces: number;
-  date_creation: string;
-  date_modification: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface PieceAlerte {
@@ -51,7 +51,7 @@ export interface StockAlertes {
 }
 
 // Formulaire (création / édition) — id optionnel car absent à la création
-export type FournisseurFormData = Omit<Fournisseur, 'id' | 'nb_pieces' | 'date_creation' | 'date_modification'> & {
+export type FournisseurFormData = Omit<Fournisseur, 'id' | 'nb_pieces' | 'created_at' | 'updated_at'> & {
   id?: number;
 };
 

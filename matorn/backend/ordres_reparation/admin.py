@@ -37,6 +37,6 @@ class OrdreReparationAdmin(SoftDeleteAdminMixin, admin.ModelAdmin):
     list_display = ['numero', 'date_ouverture', 'client', 'vehicule', 'statut']
     list_filter = ['statut', 'date_ouverture']
     search_fields = ['numero', 'client__nom', 'vehicule__immatriculation']
-    readonly_fields = ['numero', 'cree_le', 'modifie_le']
+    readonly_fields = ['numero', 'created_at', 'updated_at']
     autocomplete_fields = ['client', 'vehicule', 'rdv']
     inlines = [LignePieceUtiliseeInline, LigneInterventionInline]

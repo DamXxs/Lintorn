@@ -97,26 +97,26 @@ const App = () => {
     // AuthProvider enveloppe TOUT — doit être au plus haut niveau
     <AuthProvider>
       <ThemeProvider>
-        <ReferentielsProvider>
-          <BrowserRouter>
-            <Routes>
+        <BrowserRouter>
+          <Routes>
 
-              {/* Route publique — page de login */}
-              <Route path="/login" element={<Login />} />
+            {/* Route publique — page de login */}
+            <Route path="/login" element={<Login />} />
 
-              {/* Toutes les autres routes — protégées */}
-              <Route path="/*" element={
-                <ProtectedRoute>
+            {/* Toutes les autres routes — protégées */}
+            <Route path="/*" element={
+              <ProtectedRoute>
+                <ReferentielsProvider>
                   <AppLayout
                     isSidebarExpanded={isSidebarExpanded}
                     onToggleSidebar={() => setIsSidebarExpanded(!isSidebarExpanded)}
                   />
-                </ProtectedRoute>
-              } />
+                </ReferentielsProvider>
+              </ProtectedRoute>
+            } />
 
-            </Routes>
-          </BrowserRouter>
-        </ReferentielsProvider>
+          </Routes>
+        </BrowserRouter>
       </ThemeProvider>
     </AuthProvider>
   );

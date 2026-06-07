@@ -80,7 +80,7 @@ class PieceAdmin(SoftDeleteAdminMixin, admin.ModelAdmin):
     search_fields = ('reference', 'nom', 'description', 'fournisseur_ref__nom')
 
     # ── Filtres latéraux ──────────────────────────────────────────────────────
-    list_filter = ('categorie', StatutStockFilter, 'fournisseur_ref', 'date_creation')
+    list_filter = ('categorie', StatutStockFilter, 'fournisseur_ref', 'created_at')
 
     # ── Tri par défaut ────────────────────────────────────────────────────────
     ordering = ('categorie', 'nom')
@@ -116,8 +116,8 @@ class PieceAdmin(SoftDeleteAdminMixin, admin.ModelAdmin):
         'stock_disponible',
         'marge',
         'marge_pourcentage',
-        'date_creation',
-        'date_modification',
+        'created_at',
+        'updated_at',
     )
 
     # ── Colonne statut colorée ────────────────────────────────────────────────

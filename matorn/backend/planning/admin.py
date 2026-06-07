@@ -26,4 +26,4 @@ class InterventionAdmin(SoftDeleteAdminMixin, admin.ModelAdmin):
     list_filter        = ['departement', 'statut', 'date_debut']
     search_fields      = ['client__nom', 'vehicule__immatriculation', 'description']
     ordering           = ['-date_debut']
-    readonly_fields    = ['date_creation', 'date_modification']
+    readonly_fields    = ['created_at', 'updated_at']

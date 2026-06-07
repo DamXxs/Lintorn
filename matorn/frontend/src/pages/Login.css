@@ -71,7 +71,7 @@
 
 .login__input:focus {
   border-color: var(--accent, #2980b9);
-  background: #fff;
+  background: #0a0a0a;
 }
 
 /* Erreur */

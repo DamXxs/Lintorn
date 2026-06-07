@@ -4,7 +4,7 @@ from django.db import models
 from datetime import date
 
 # Import du Mixin pour la cohérence avec le reste du projet
-from archives.models import SoftDeleteMixin, SuppressionBloqueeError
+from mixins.models import SoftDeleteMixin, SuppressionBloqueeError
 
 
 # ============================================================
@@ -93,10 +93,6 @@ class OrdreReparation(SoftDeleteMixin):
         blank=True,
         help_text="Notes du mécanicien, non imprimées sur l'OR"
     )
-    
-    # === Timestamps ===
-    cree_le = models.DateTimeField(auto_now_add=True)
-    modifie_le = models.DateTimeField(auto_now=True)
     
     class Meta:
         verbose_name = "Ordre de réparation"

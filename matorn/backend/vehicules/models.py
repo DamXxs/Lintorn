@@ -5,7 +5,7 @@ from django.utils import timezone
 from clients.models import Client
 
 # IMPORT du Mixin et de l'exception
-from archives.models import SoftDeleteMixin, SuppressionBloqueeError
+from mixins.models import SoftDeleteMixin, SuppressionBloqueeError
 
 
 class Vehicule(SoftDeleteMixin):  # ← MODIF : hérite du Mixin
@@ -52,7 +52,6 @@ class Vehicule(SoftDeleteMixin):  # ← MODIF : hérite du Mixin
         related_name='vehicules',
     )
 
-    date_creation = models.DateTimeField(auto_now_add=True)
     notes = models.TextField(blank=True)
 
     class Meta:

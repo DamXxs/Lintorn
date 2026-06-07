@@ -7,7 +7,7 @@ from planning.models import Intervention
 from stock.models import Piece
 
 # IMPORT du Mixin et de l'exception
-from archives.models import SoftDeleteMixin, SuppressionBloqueeError
+from mixins.models import SoftDeleteMixin, SuppressionBloqueeError
 
 
 # =============================================================================

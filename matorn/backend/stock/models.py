@@ -2,7 +2,7 @@
 from django.db import models
 
 # IMPORT du Mixin et de l'exception
-from archives.models import SoftDeleteMixin, SuppressionBloqueeError
+from mixins.models import SoftDeleteMixin, SuppressionBloqueeError
 
 
 class Piece(SoftDeleteMixin):  # ← MODIF : hérite du Mixin
@@ -53,9 +53,6 @@ class Piece(SoftDeleteMixin):  # ← MODIF : hérite du Mixin
         related_name='pieces',
     )
     delai_livraison = models.IntegerField(default=2)
-    
-    date_creation = models.DateTimeField(auto_now_add=True)
-    date_modification = models.DateTimeField(auto_now=True)
     
     class Meta:
         ordering = ['categorie', 'nom']

@@ -1,0 +1,15 @@
+Fichier	        Rôle
+
+models.py	    La structure des données — ce qui est en base
+
+views.py	    La logique — ce qui se passe quand l'API reçoit une requête
+
+urls.py	        Le routage — quelle URL appelle quelle vue
+
+serializers.py	La traduction — convertit les objets Python en JSON (et inversement) pour que React comprenne
+
+admin.py	    L'interface d'administration Django — permet de gérer les données directement via /admin sans passer par React
+
+apps.py	        La carte d'identité de l'app — son nom, sa config. Django l'utilise pour l'enregistrer dans INSTALLED_APPS
+
+tests.py	    Les tests automatisés — vérifie que le code fait bien ce qu'il est censé faire

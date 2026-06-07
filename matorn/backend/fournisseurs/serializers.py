@@ -26,10 +26,10 @@ class FournisseurSerializer(serializers.ModelSerializer):
             'actif',
             'notes',
             'nb_pieces',
-            'date_creation',
-            'date_modification',
+            'created_at',
+            'updated_at',
         ]
-        read_only_fields = ['id', 'date_creation', 'date_modification', 'nb_pieces']
+        read_only_fields = ['id', 'created_at', 'updated_at', 'nb_pieces']
 
     def get_nb_pieces(self, obj):
         """Retourne le nombre de pièces liées à ce fournisseur."""

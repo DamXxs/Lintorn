@@ -12,6 +12,7 @@ import ErrorState   from '../../components/shared/ErrorState';
 import PageHeader   from '../../components/shared/PageHeader';
 import SearchBar    from '../../components/shared/SearchBar/SearchBar';
 import useDelete    from '../../hooks/useDelete';
+import ConfirmModal from '../../components/shared/ConfirmModal/ConfirmModal';
 import './VehicleList.css';
 import '../../components/shared/list-page.css';
 
@@ -57,7 +58,7 @@ const VehicleList = () => {
     }
   }, [location.state, vehicules]);
 
-  const { handleDelete } = useDelete({
+  const { handleDelete, confirmModalProps } = useDelete({
     deleteService: removeVehicule,
     onSuccess: async () => {
       setSelectedVehicule(null);
@@ -155,6 +156,8 @@ const VehicleList = () => {
           }}
         />
       )}
+
+      <ConfirmModal {...confirmModalProps} />
 
     </div>
   );

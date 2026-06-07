@@ -215,9 +215,9 @@ class OrdreReparationDetailSerializer(serializers.ModelSerializer):
             'nombre_pieces', 'duree_totale_minutes',
             
             # === Timestamps ===
-            'cree_le', 'modifie_le',
+            'created_at', 'updated_at',
         ]
         read_only_fields = [
-            'id', 'numero', 'cree_le', 'modifie_le',
+            'id', 'numero', 'created_at', 'updated_at',
             'nombre_pieces', 'duree_totale_minutes',
         ]

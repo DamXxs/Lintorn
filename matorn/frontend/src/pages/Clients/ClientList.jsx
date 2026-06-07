@@ -12,6 +12,7 @@ import ErrorState   from '../../components/shared/ErrorState';
 import PageHeader   from '../../components/shared/PageHeader';
 import SearchBar    from '../../components/shared/SearchBar/SearchBar';
 import useDelete    from '../../hooks/useDelete';
+import ConfirmModal from '../../components/shared/ConfirmModal/ConfirmModal';
 import '../../components/shared/list-page.css';
 
 const ClientList = () => {
@@ -57,7 +58,7 @@ const ClientList = () => {
   }, [location.state, clients]);
 
   // ── Suppression via le hook centralisé ──────────────────────────
-  const { handleDelete } = useDelete({
+  const { handleDelete, confirmModalProps } = useDelete({
     deleteService: removeClient,
     onSuccess: async () => {
       setSelectedClient(null);
@@ -122,7 +123,7 @@ const ClientList = () => {
                 )}
               </div>
               <div className="client-card__footer">
-                <span className="client-card__date">Depuis {formatDateCourt(client.date_creation)}</span>
+                <span className="client-card__date">Depuis {formatDateCourt(client.created_at)}</span>
               </div>
             </div>
           ))}
@@ -149,6 +150,8 @@ const ClientList = () => {
           onSuccess={() => { setIsFormOpen(false); setEditingClient(null); loadClients(); }}
         />
       )}
+
+      <ConfirmModal {...confirmModalProps} />
 
     </div>
   );

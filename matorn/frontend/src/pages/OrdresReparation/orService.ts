@@ -113,8 +113,8 @@ export interface OrdreReparationDetail {
   duree_totale_minutes: number;
 
   // Timestamps
-  cree_le: string;
-  modifie_le: string;
+  created_at: string;
+  updated_at: string;
 }
 
 /**

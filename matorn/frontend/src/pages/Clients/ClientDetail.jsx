@@ -114,7 +114,7 @@ const ClientDetail = ({ client, onClose, onEdit, onDelete }) => {
       <div className="client-detail__header-info">
         <h2 className="client-detail__name">{client.nom} {client.prenom}</h2>
         <span className="client-detail__since">
-          Client depuis {formatDateLong(client.date_creation)}
+          Client depuis {formatDateLong(client.created_at)}
         </span>
       </div>
       <button className="modal-close" onClick={onClose} type="button">

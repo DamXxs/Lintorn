@@ -5,7 +5,7 @@ from clients.models import Client
 from vehicules.models import Vehicule
 
 # IMPORT du Mixin et de l'exception (UNIQUEMENT pour Intervention)
-from archives.models import SoftDeleteMixin, SuppressionBloqueeError
+from mixins.models import SoftDeleteMixin, SuppressionBloqueeError
 
 
 # =============================================================================
@@ -135,9 +135,6 @@ class Intervention(SoftDeleteMixin):  # ← MODIF
     )
 
     rappel_envoye = models.BooleanField(default=False)
-
-    date_creation     = models.DateTimeField(auto_now_add=True)
-    date_modification = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['-date_debut']

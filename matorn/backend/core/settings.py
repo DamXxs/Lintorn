@@ -41,10 +41,13 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'backend', '0.0.0.0', '.app.github.de
 # =============================================================================
 INSTALLED_APPS = [
 
-    # App d'archives (corbeille + archives) doit etre en first pour que ses modèles soient chargés AVANT les autres apps métier
+    # App mixin en first pour que ses modèles soient chargés AVANT les autres apps
+    'mixins',
+
+    # App d'archives (corbeille + archives) doit etre avant accounts pour que ses modèles soient chargés AVANT les autres apps métier
     'archives',
 
-    # App d'authentification personnalisée doit être en second pour que son UserProfile soit chargé AVANT les autres apps métier
+    # App d'authentification personnalisée doit être en troisième pour que son UserProfile soit chargé AVANT les autres apps métier
     'accounts',
 
     # Tes apps métier

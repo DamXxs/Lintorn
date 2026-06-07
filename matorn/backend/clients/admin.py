@@ -15,7 +15,7 @@ class ClientAdmin(SoftDeleteAdminMixin, admin.ModelAdmin):
     list_display_links = ['id', 'nom']
     
     # Filtres sur le côté
-    list_filter = ['date_creation']
+    list_filter = ['created_at']
     
     # Barre de recherche
     search_fields = ['nom', 'prenom', 'email', 'telephone']

@@ -223,7 +223,7 @@ const VehicleDetail = ({ vehicule, onClose, onEdit, onDelete }) => {
           </div>
 
           <div className="vd-section">
-            <div className="vd-meta">Ajouté le {formatDateLong(vehicule.date_creation)}</div>
+            <div className="vd-meta">Ajouté le {formatDateLong(vehicule.created_at)}</div>
           </div>
 
         </div>

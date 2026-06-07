@@ -8,8 +8,8 @@
       "label": "Voiture",
       "icone": "🚗",
       "couleur": "",
-      "ordre_reparation": 1,
-      "actif": true
+      "actif": true,
+      "ordre": 1
     }
   },
   {
@@ -47,8 +47,8 @@
       "label": "Bateau",
       "icone": "🚤",
       "couleur": "",
-      "ordre_reparation": 4,
-      "actif": true
+      "actif": true,
+      "ordre": 4
     }
   },
   {
@@ -60,8 +60,8 @@
       "label": "Entretien VP2 (Petite vidange)",
       "icone": "🔧",
       "couleur": "",
-      "ordre_reparation": 1,
-      "actif": true
+      "actif": true,
+      "ordre": 1
     }
   },
   {
@@ -99,8 +99,8 @@
       "label": "Pneumatiques",
       "icone": "⚫",
       "couleur": "",
-      "ordre_reparation": 4,
-      "actif": true
+      "actif": true,
+      "ordre": 4
     }
   },
   {
@@ -138,8 +138,8 @@
       "label": "Filtration",
       "icone": "🔵",
       "couleur": "",
-      "ordre_reparation": 1,
-      "actif": true
+      "actif": true,
+      "ordre": 1
     }
   },
   {
@@ -177,8 +177,8 @@
       "label": "Pneumatiques",
       "icone": "⚫",
       "couleur": "",
-      "ordre_reparation": 4,
-      "actif": true
+      "actif": true,
+      "ordre": 4
     }
   },
   {
@@ -242,8 +242,8 @@
       "label": "Pièces communes",
       "icone": "🔩",
       "couleur": "",
-      "ordre_reparation": 1,
-      "actif": true
+      "actif": true,
+      "ordre": 1
     }
   },
   {
@@ -272,7 +272,6 @@
       "actif": true
     }
   },
-
   {
     "model": "clients.client",
     "pk": 1,
@@ -363,7 +362,6 @@
       "updated_at": "2026-03-01T08:00:00Z"
     }
   },
-
   {
     "model": "vehicules.vehicule",
     "pk": 1,
@@ -478,7 +476,6 @@
       "updated_at": "2026-03-10T11:00:00Z"
     }
   },
-
   {
     "model": "fournisseurs.fournisseur",
     "pk": 1,
@@ -542,7 +539,6 @@
       "updated_at": "2026-01-07T10:00:00Z"
     }
   },
-
   {
     "model": "stock.piece",
     "pk": 1,
@@ -773,7 +769,6 @@
       "updated_at": "2026-01-08T08:45:00Z"
     }
   },
-
   {
     "model": "planning.departement",
     "pk": 1,
@@ -794,8 +789,8 @@
       "nom": "Académie",
       "couleur": "#8e44ad",
       "actif": true,
-      "ordre_reparation": 1,
-      "requiert_vehicule": false
+      "requiert_vehicule": false,
+      "ordre": 1
     }
   },
   {
@@ -823,7 +818,9 @@
     "pk": 1,
     "fields": {
       "departement": 1,
-      "collaborateurs": [1],
+      "collaborateurs": [
+        1
+      ],
       "client": 1,
       "vehicule": 1,
       "date_debut": "2026-04-07T08:00:00Z",
@@ -844,7 +841,9 @@
     "pk": 2,
     "fields": {
       "departement": 1,
-      "collaborateurs": [2],
+      "collaborateurs": [
+        2
+      ],
       "client": 2,
       "vehicule": 2,
       "date_debut": "2026-04-07T10:00:00Z",
@@ -865,7 +864,10 @@
     "pk": 3,
     "fields": {
       "departement": 1,
-      "collaborateurs": [1, 2],
+      "collaborateurs": [
+        1,
+        2
+      ],
       "client": 3,
       "vehicule": 3,
       "date_debut": "2026-04-08T09:00:00Z",
@@ -886,7 +888,9 @@
     "pk": 4,
     "fields": {
       "departement": 1,
-      "collaborateurs": [1],
+      "collaborateurs": [
+        1
+      ],
       "client": 4,
       "vehicule": 4,
       "date_debut": "2026-04-05T14:00:00Z",
@@ -907,7 +911,9 @@
     "pk": 5,
     "fields": {
       "departement": 1,
-      "collaborateurs": [2],
+      "collaborateurs": [
+        2
+      ],
       "client": 5,
       "vehicule": 5,
       "date_debut": "2026-04-03T08:00:00Z",
@@ -923,7 +929,6 @@
       "updated_at": "2026-04-03T10:05:00Z"
     }
   },
-
   {
     "model": "factures.parametresfacturation",
     "pk": 1,
@@ -1438,7 +1443,6 @@
       "updated_at": "2026-03-10T10:07:00Z"
     }
   },
-
   {
     "model": "ordres_reparation.ordrereparation",
     "pk": 1,
@@ -1446,19 +1450,19 @@
       "numero": "OR-26-00001",
       "client": 1,
       "vehicule": 1,
-      "intervention": 1,
       "statut": "CLOTURE",
       "description_travaux": "Vidange complète + remplacement filtre à huile et filtre habitacle. RAS constaté sur le véhicule.",
-      "km_entree": 87500,
-      "km_sortie": 87502,
-      "date_entree": "2026-04-07T08:00:00Z",
-      "date_sortie": "2026-04-07T09:30:00Z",
       "is_deleted": false,
       "deleted_at": null,
       "is_archived": false,
       "archived_at": null,
       "created_at": "2026-04-07T08:00:00Z",
-      "updated_at": "2026-04-07T09:35:00Z"
+      "updated_at": "2026-04-07T09:35:00Z",
+      "rdv": 1,
+      "kilometrage_entree": 87500,
+      "kilometrage_sortie": 87502,
+      "date_ouverture": "2026-04-07",
+      "date_cloture": "2026-04-07"
     }
   },
   {
@@ -1468,19 +1472,19 @@
       "numero": "OR-26-00002",
       "client": 2,
       "vehicule": 2,
-      "intervention": 2,
       "statut": "EN_COURS",
       "description_travaux": "Remplacement plaquettes et disques de frein avant. Bruit de frottement signalé par la cliente à basse vitesse.",
-      "km_entree": 42100,
-      "km_sortie": null,
-      "date_entree": "2026-04-07T10:00:00Z",
-      "date_sortie": null,
       "is_deleted": false,
       "deleted_at": null,
       "is_archived": false,
       "archived_at": null,
       "created_at": "2026-04-07T10:00:00Z",
-      "updated_at": "2026-04-07T10:00:00Z"
+      "updated_at": "2026-04-07T10:00:00Z",
+      "rdv": 2,
+      "kilometrage_entree": 42100,
+      "kilometrage_sortie": null,
+      "date_ouverture": "2026-04-07",
+      "date_cloture": null
     }
   },
   {
@@ -1490,19 +1494,19 @@
       "numero": "OR-26-00003",
       "client": 3,
       "vehicule": 3,
-      "intervention": 3,
       "statut": "EN_ATTENTE",
       "description_travaux": "Révision annuelle moto : vidange huile moteur, remplacement filtres, vérification bougies et chaîne.",
-      "km_entree": 18300,
-      "km_sortie": null,
-      "date_entree": "2026-04-08T09:00:00Z",
-      "date_sortie": null,
       "is_deleted": false,
       "deleted_at": null,
       "is_archived": false,
       "archived_at": null,
       "created_at": "2026-04-08T09:00:00Z",
-      "updated_at": "2026-04-08T09:00:00Z"
+      "updated_at": "2026-04-08T09:00:00Z",
+      "rdv": 3,
+      "kilometrage_entree": 18300,
+      "kilometrage_sortie": null,
+      "date_ouverture": "2026-04-08",
+      "date_cloture": null
     }
   },
   {
@@ -1512,93 +1516,92 @@
       "numero": "OR-26-00004",
       "client": 5,
       "vehicule": 5,
-      "intervention": 5,
       "statut": "CLOTURE",
       "description_travaux": "Révision complète Ford Transit : vidange + filtres huile/air/habitacle + remplacement courroie de distribution avec tendeur et galet.",
-      "km_entree": 134200,
-      "km_sortie": 134205,
-      "date_entree": "2026-04-03T08:00:00Z",
-      "date_sortie": "2026-04-03T10:00:00Z",
       "is_deleted": false,
       "deleted_at": null,
       "is_archived": false,
       "archived_at": null,
       "created_at": "2026-04-03T08:00:00Z",
-      "updated_at": "2026-04-03T10:05:00Z"
+      "updated_at": "2026-04-03T10:05:00Z",
+      "rdv": 5,
+      "kilometrage_entree": 134200,
+      "kilometrage_sortie": 134205,
+      "date_ouverture": "2026-04-03",
+      "date_cloture": "2026-04-03"
     }
   },
-
   {
-    "model": "ordres_reparation.lignepiecutilisee",
+    "model": "ordres_reparation.lignepieceutilisee",
     "pk": 1,
     "fields": {
       "ordre_reparation": 1,
       "piece": 4,
       "quantite": 2,
-      "prix_unitaire_snapshot": "32.00"
+      "cree_le": "2026-01-01T00:00:00Z"
     }
   },
   {
-    "model": "ordres_reparation.lignepiecutilisee",
+    "model": "ordres_reparation.lignepieceutilisee",
     "pk": 2,
     "fields": {
       "ordre_reparation": 1,
       "piece": 1,
       "quantite": 1,
-      "prix_unitaire_snapshot": "8.90"
+      "cree_le": "2026-01-01T00:00:00Z"
     }
   },
   {
-    "model": "ordres_reparation.lignepiecutilisee",
+    "model": "ordres_reparation.lignepieceutilisee",
     "pk": 3,
     "fields": {
       "ordre_reparation": 1,
       "piece": 10,
       "quantite": 1,
-      "prix_unitaire_snapshot": "14.00"
+      "cree_le": "2026-01-01T00:00:00Z"
     }
   },
   {
-    "model": "ordres_reparation.lignepiecutilisee",
+    "model": "ordres_reparation.lignepieceutilisee",
     "pk": 4,
     "fields": {
       "ordre_reparation": 4,
       "piece": 4,
       "quantite": 2,
-      "prix_unitaire_snapshot": "32.00"
+      "cree_le": "2026-01-01T00:00:00Z"
     }
   },
   {
-    "model": "ordres_reparation.lignepiecutilisee",
+    "model": "ordres_reparation.lignepieceutilisee",
     "pk": 5,
     "fields": {
       "ordre_reparation": 4,
       "piece": 1,
       "quantite": 1,
-      "prix_unitaire_snapshot": "8.90"
+      "cree_le": "2026-01-01T00:00:00Z"
     }
   },
   {
-    "model": "ordres_reparation.lignepiecutilisee",
+    "model": "ordres_reparation.lignepieceutilisee",
     "pk": 6,
     "fields": {
       "ordre_reparation": 4,
       "piece": 9,
       "quantite": 1,
-      "prix_unitaire_snapshot": "130.00"
+      "cree_le": "2026-01-01T00:00:00Z"
     }
   },
-
   {
     "model": "ordres_reparation.ligneintervention",
     "pk": 1,
     "fields": {
       "ordre_reparation": 1,
-      "type_intervention": "ENTRETIEN_VP2",
-      "description": "Vidange + filtre huile + filtre habitacle",
-      "technicien": "Thomas Dupont",
-      "duree_heures": "1.50",
-      "taux_horaire": "55.00"
+      "date": "2026-04-07",
+      "type_intervention": 5,
+      "mecanicien": 1,
+      "duree_minutes": 90,
+      "detail": "Vidange + filtre huile + filtre habitacle",
+      "cree_le": "2026-01-01T00:00:00Z"
     }
   },
   {
@@ -1606,11 +1609,12 @@
     "pk": 2,
     "fields": {
       "ordre_reparation": 4,
-      "type_intervention": "REVISION_COMPLETE",
-      "description": "Révision complète + remplacement courroie distribution",
-      "technicien": "Lucas Martin",
-      "duree_heures": "2.00",
-      "taux_horaire": "55.00"
+      "date": "2026-04-03",
+      "type_intervention": 9,
+      "mecanicien": 2,
+      "duree_minutes": 120,
+      "detail": "Révision complète + remplacement courroie distribution",
+      "cree_le": "2026-01-01T00:00:00Z"
     }
   }
 ]

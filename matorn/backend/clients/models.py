@@ -3,7 +3,7 @@ from django.db import models
 from django.utils import timezone
 
 # IMPORT du Mixin et de l'exception
-from archives.models import SoftDeleteMixin, SuppressionBloqueeError
+from mixins.models import SoftDeleteMixin, SuppressionBloqueeError
 
 
 # =============================================================================
@@ -40,11 +40,6 @@ class Client(SoftDeleteMixin):  # ← MODIF : hérite du Mixin
         max_length=255,
         blank=True,
         help_text="Adresse postale complète"
-    )
-    
-    date_creation = models.DateTimeField(
-        auto_now_add=True,
-        help_text="Date de création de la fiche client"
     )
     
     notes = models.TextField(
