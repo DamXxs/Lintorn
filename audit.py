@@ -93,6 +93,21 @@ TRADUCTIONS = {
     "DJ012": "Ordre des blocs du modèle : champs d'abord, puis `Meta`, puis `__str__`, puis les méthodes.",
 }
 
+# Mêmes traductions pour `manage.py check --deploy`, qui ne parle qu'anglais lui aussi.
+# Ces alertes sont NORMALES en développement — elles doivent toutes disparaître
+# le jour de la mise en production.
+TRADUCTIONS_DEPLOY = {
+    "security.W004": "Pas de HSTS : le navigateur n'est pas forcé de rester en HTTPS lors des visites suivantes.",
+    "security.W008": "Pas de redirection automatique HTTP → HTTPS.",
+    "security.W009": "SECRET_KEY trop faible ou par défaut : elle signe les sessions, elle doit être longue et unique.",
+    "security.W012": "Le cookie de session n'est pas marqué `secure` : il peut circuler en clair sur du HTTP.",
+    "security.W016": "Le cookie CSRF n'est pas marqué `secure` : le jeton anti-falsification peut être intercepté.",
+    "security.W018": "DEBUG = True : en production, la moindre erreur afficherait ton code et tes réglages au visiteur.",
+    "security.W019": "X_FRAME_OPTIONS mal réglé : le site pourrait être affiché dans une iframe pirate (clickjacking).",
+    "security.W020": "ALLOWED_HOSTS vide : Django accepterait n'importe quel nom de domaine.",
+    "security.W022": "Pas de SECURE_REFERRER_POLICY : les URL internes peuvent fuiter vers les sites externes visités.",
+}
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # EXÉCUTION D'UN OUTIL EXTERNE
@@ -172,6 +187,29 @@ def controle_ruff() -> Resultat:
 
     resultat.detail = "\n".join(entete + traduites)
     resultat.resume = f"{len(traduites)} alerte(s) reelle(s)"
+    return resultat
+
+
+def controle_deploy() -> Resultat:
+    """`manage.py check --deploy`, traduit. Non bloquant : ces alertes sont
+    normales en dev, mais elles doivent toutes tomber avant la mise en ligne."""
+    resultat = lancer(
+        "Django check --deploy",
+        [PYTHON, "manage.py", "check", "--deploy", "--fail-level", "WARNING"],
+        BACKEND, bloquant=False,
+    )
+    if resultat.statut != "ALERTE":
+        return resultat
+
+    codes = re.findall(r"\((security\.\w+)\)", resultat.detail)
+    if not codes:
+        return resultat
+
+    lignes = ["A REGLER AVANT LA MISE EN PRODUCTION :"]
+    for code in dict.fromkeys(codes):     # dédoublonne en gardant l'ordre
+        lignes.append(f"  {code} — {TRADUCTIONS_DEPLOY.get(code, '(non traduit)')}")
+    resultat.detail = "\n".join(lignes)
+    resultat.resume = f"{len(set(codes))} point(s) a regler avant la prod"
     return resultat
 
 
@@ -295,11 +333,7 @@ def controles(rapide: bool) -> list[Resultat]:
         verifier_docs(),
 
         # — Informatif : normal en dev, doit être vert le jour de la prod —
-        # --fail-level WARNING : sans ça, `check --deploy` sort en 0 malgré ses
-        # avertissements de sécurité → le contrôle passerait au vert pour rien.
-        lancer("Django check --deploy",
-               [PYTHON, "manage.py", "check", "--deploy", "--fail-level", "WARNING"],
-               BACKEND, bloquant=False),
+        controle_deploy(),
     ]
 
     if not rapide:
