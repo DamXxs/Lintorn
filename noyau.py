@@ -232,14 +232,24 @@ def _verifier_documents(titre: str, documents: list, bloquant_possible: bool) ->
     écrit n'est pas un mensonge, et la mémoire de l'assistant ne doit jamais
     empêcher un push du dev.
     """
+    # ⚠️ GARDE-FOU : aucun document à analyser = le contrôle est HORS SERVICE,
+    # pas « au vert ». C'est arrivé le 30/07 (les .md avaient été déplacés) :
+    # l'outil affichait « OK — 0 chemin vérifié » et ne surveillait plus rien.
+    # Un contrôle muet est plus dangereux qu'un contrôle rouge.
+    existants = [d for d in documents if d.exists()]
+    if not existants:
+        return Resultat(
+            titre, "INDISPONIBLE",
+            "AUCUN document trouve — le controle ne verifie rien !",
+            bloquant=False,
+        )
+
     index_noms = indexer_fichiers()
     certains: list[str] = []      # cité AVEC extension et absent → le doc ment
     incertains: list[str] = []    # sans extension → peut être une tournure de phrase
     verifies = 0
 
-    for doc in documents:
-        if not doc.exists():
-            continue
+    for doc in existants:
         texte = doc.read_text(encoding="utf-8", errors="replace")
         # On ignore les blocs ``` (exemples de code) : seuls les `inline` comptent
         texte = re.sub(r"```.*?```", "", texte, flags=re.DOTALL)

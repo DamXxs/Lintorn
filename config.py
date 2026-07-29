@@ -142,12 +142,15 @@ CONTROLES_INTERNES = {
 }
 
 # Les documents du DÉPÔT dont on vérifie qu'ils ne mentent pas.
-# Un chemin absent est simplement ignoré.
-DOCS_A_VERIFIER = [
-    RACINE / "CLAUDE.md",
-    RACINE / "ARCHITECTURE.md",
-    RACINE / "audit_structurel.md",
-]
+#
+# ⚠️ On les CHERCHE au lieu de les nommer un par un. Le 30/07/2026, le dev a
+# déplacé tous les .md dans `Notes/` : les chemins codés en dur ne pointaient
+# plus sur rien, et le contrôle affichait « OK — 0 chemin vérifié ». Il ne
+# vérifiait plus RIEN tout en étant vert. En scannant les dossiers, un
+# rangement ne casse plus le contrôle.
+DOCS_A_VERIFIER = sorted(
+    {*RACINE.glob("*.md"), *(RACINE / "Notes").glob("*.md")}
+)
 
 
 def _dossier_memoire():
