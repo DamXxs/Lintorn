@@ -1,0 +1,119 @@
+#!/bin/sh
+#
+# Hook PRE-PUSH — audit avant d'envoyer quoi que ce soit sur GitHub.
+#
+# POURQUOI PRE-PUSH ET PAS PRE-COMMIT ?
+#   Un commit est local et se rattrape (`git commit --amend`, `git reset`).
+#   Un push est PUBLIC : une fois parti, c'est dans l'historique de tout le
+#   monde. Et ça n'alourdit pas chaque commit — on peut commiter dix fois et
+#   ne payer l'audit qu'une seule.
+#
+# CE QU'IL FAIT
+#   1. calcule la liste des fichiers réellement poussés
+#   2. lance l'audit, avec un focus sur CES fichiers
+#   3. si un contrôle bloquant est rouge → demande confirmation
+#
+# INSTALLATION (une seule fois, depuis la racine du dépôt) :
+#   git config core.hooksPath matorn/tools/hooks
+#
+#   ⚠️ Sans cette commande, git regarde dans .git/hooks/ — un dossier qui n'est
+#   PAS versionné. En rangeant le hook ici, il suit le dépôt : il sera là sur
+#   Codespaces et sur toute autre machine.
+#
+# POUR TOUT COURT-CIRCUITER : git push --no-verify
+
+# Le venv n'est pas au même endroit sous Windows et sous Linux.
+if [ -x "matorn/backend/venv/Scripts/python.exe" ]; then
+    PY="matorn/backend/venv/Scripts/python.exe"
+elif [ -x "matorn/backend/venv/bin/python" ]; then
+    PY="matorn/backend/venv/bin/python"
+else
+    PY="python"
+fi
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 1. QUELS FICHIERS PARTENT DANS CE PUSH ?
+# ─────────────────────────────────────────────────────────────────────────────
+# git envoie au hook, sur son entrée standard, une ligne par branche poussée :
+#   <ref locale> <sha local> <ref distante> <sha distant>
+# Le sha distant vaut 000...0 quand la branche n'existe pas encore là-bas.
+FICHIERS=""
+ZERO="0000000000000000000000000000000000000000"
+
+while read -r _local_ref local_sha _remote_ref remote_sha; do
+    [ -z "$local_sha" ] && continue
+    if [ "$remote_sha" = "$ZERO" ]; then
+        # Branche neuve : on compare à la branche principale plutôt qu'à rien,
+        # sinon on listerait l'histoire entière du dépôt.
+        BASE=$(git merge-base "$local_sha" origin/main 2>/dev/null || echo "")
+    else
+        BASE="$remote_sha"
+    fi
+    if [ -n "$BASE" ]; then
+        NOUVEAUX=$(git diff --name-only "$BASE" "$local_sha" 2>/dev/null)
+        FICHIERS="$FICHIERS $NOUVEAUX"
+    fi
+done
+
+echo ""
+echo "── Audit Matorn avant push ─────────────────────────────"
+
+# --rapide : on saute pip-audit et vulture (lents, et non bloquants de toute
+# façon). Un push ne doit pas se transformer en pause café.
+if [ -n "$FICHIERS" ]; then
+    # shellcheck disable=SC2086
+    "$PY" matorn/tools/audit.py --rapide --fichiers $FICHIERS
+else
+    "$PY" matorn/tools/audit.py --rapide
+fi
+CODE=$?
+
+if [ $CODE -eq 0 ]; then
+    echo "── Audit OK, push autorise ─────────────────────────────"
+    echo ""
+    exit 0
+fi
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 2. ÇA COINCE — on demande, on n'impose pas
+# ─────────────────────────────────────────────────────────────────────────────
+echo ""
+echo "╔════════════════════════════════════════════════════════╗"
+echo "║  Des controles BLOQUANTS sont en alerte                ║"
+echo "╚════════════════════════════════════════════════════════╝"
+echo ""
+echo "  Detail complet : matorn/tools/rapport_audit.md"
+echo ""
+
+# git a déjà consommé l'entrée standard (la liste des refs) : pour poser une
+# question, il faut lire directement le terminal via /dev/tty.
+#
+# On ESSAIE de l'ouvrir plutôt que de tester son existence : dans un script
+# automatisé, le fichier /dev/tty existe mais ne s'ouvre pas.
+#
+# Le test se fait dans un SOUS-SHELL `( : < /dev/tty )` : une redirection qui
+# échoue affiche son erreur au moment où elle est appliquée, donc un
+# `2>/dev/null` posé après arriverait trop tard. En enfermant le tout dans un
+# sous-shell, le 2>/dev/null couvre bien l'ensemble.
+if ! ( : < /dev/tty ) 2>/dev/null; then
+    echo "  Pas de terminal interactif -> push ANNULE par securite."
+    echo "  Pour forcer : git push --no-verify"
+    echo ""
+    exit 1
+fi
+
+printf "  Pousser quand meme ? [o/N] "
+read -r REPONSE < /dev/tty
+
+case "$REPONSE" in
+    o|O|y|Y|oui|OUI)
+        echo "  -> Push force par l'utilisateur."
+        echo ""
+        exit 0
+        ;;
+    *)
+        echo "  -> Push ANNULE."
+        echo ""
+        exit 1
+        ;;
+esac
