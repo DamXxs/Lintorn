@@ -25,6 +25,7 @@ import traductions
 MARQUEUR = {
     "OK": "[ OK ]",
     "ALERTE": "[ !! ]",
+    "VERIF": "[ ?? ]",         # rien de cassé, mais un point à confirmer à l'œil
     "ERREUR": "[ERR!]",        # l'outil lui-même est en panne
     "INDISPONIBLE": "[ -- ]",  # outil absent : on prévient, on ne bloque pas
 }
@@ -33,17 +34,38 @@ MARQUEUR = {
 class Resultat:
     """Issue d'un contrôle : un statut, un résumé court, un détail complet."""
 
-    def __init__(self, titre: str, statut: str, resume: str, detail: str = "", bloquant: bool = True):
+    def __init__(self, titre: str, statut: str, resume: str, detail: str = "",
+                 bloquant: bool = True, detail_markdown: bool = False):
         self.titre = titre
         self.statut = statut
         self.resume = resume
         self.detail = detail.strip()
         self.bloquant = bloquant
+        # True = le détail contient du Markdown (liens cliquables) → le rapport
+        # ne doit PAS l'enfermer dans un bloc ``` , sinon les liens ne
+        # fonctionnent plus.
+        self.detail_markdown = detail_markdown
 
     @property
     def en_echec(self) -> bool:
-        """Ce résultat doit-il empêcher un push ?"""
+        """Ce résultat doit-il empêcher un push ?
+
+        VERIF n'y figure PAS : c'est un point à confirmer à l'œil, pas un défaut.
+        """
         return self.statut in ("ALERTE", "ERREUR") and self.bloquant
+
+
+def lien(chemin_racine: str, ligne: int | None = None) -> str:
+    """Transforme un chemin en lien Markdown cliquable depuis le rapport.
+
+    Le rapport vit dans `matorn/tools/`, donc la racine du dépôt est deux
+    crans au-dessus. VS Code ouvre le fichier au clic, et se place sur la
+    bonne ligne grâce à l'ancre `#L42`.
+    """
+    chemin = chemin_racine.replace("\\", "/")
+    ancre = f"#L{ligne}" if ligne else ""
+    texte = f"{chemin}:{ligne}" if ligne else chemin
+    return f"[`{texte}`](../../{chemin}{ancre})"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -124,21 +146,26 @@ def traduire_ruff(resultat: Resultat) -> Resultat:
         compteur[code] = compteur.get(code, 0) + 1
         # Code non traduit → on garde l'anglais plutôt que de perdre l'info
         explication = dico.get(code, trouve["message"])
-        fichier = trouve["fichier"].replace("\\", "/")
-        traduites.append(f"{fichier}:{trouve['ligne']}\n    {code} — {explication}")
+        # Ruff tourne depuis backend/ → on repréfixe pour obtenir un chemin
+        # depuis la racine du dépôt, sinon le lien ne pointe sur rien.
+        fichier = "matorn/backend/" + trouve["fichier"].replace("\\", "/")
+        traduites.append(
+            f"- {lien(fichier, int(trouve['ligne']))}<br>`{code}` — {explication}"
+        )
 
     if not traduites:
         # Format inattendu (ruff a changé son affichage ?) → on rend le brut.
         # test_audit.py garde ce cas sous surveillance.
         return resultat
 
-    entete = ["RESUME PAR TYPE :"]
+    entete = ["**Résumé par type :**", ""]
     for code, nb in sorted(compteur.items(), key=lambda x: -x[1]):
-        entete.append(f"  {nb:>3} x {code} — {dico.get(code, '(non traduit)')}")
-    entete += ["", "DETAIL :"]
+        entete.append(f"- **{nb}** × `{code}` — {dico.get(code, '(non traduit)')}")
+    entete += ["", "**Détail :**", ""]
 
     resultat.detail = "\n".join(entete + traduites)
     resultat.resume = f"{len(traduites)} alerte(s) reelle(s)"
+    resultat.detail_markdown = True
     return resultat
 
 
@@ -263,7 +290,7 @@ def _verifier_documents(titre: str, documents: list, bloquant_possible: bool) ->
             verifies += 1
             if existe(token, index_noms):
                 continue
-            ligne = f"{doc.name} -> `{token}`"
+            ligne = f"{lien(doc.relative_to(config.RACINE).as_posix()) if doc.is_relative_to(config.RACINE) else f'`{doc.name}`'} → `{token}`"
             # Une extension explicite = une affirmation vérifiable. Sans extension,
             # ça peut être du texte → consultatif, on ne bloque pas dessus.
             (certains if re.search(r"\.\w{2,4}(:\d|$)", token) else incertains).append(ligne)
@@ -276,16 +303,25 @@ def _verifier_documents(titre: str, documents: list, bloquant_possible: bool) ->
 
     detail = ""
     if certains:
-        detail += "INTROUVABLES :\n" + "\n".join(f"- {x}" for x in sorted(set(certains)))
+        detail += "**INTROUVABLES — le document ment :**\n\n"
+        detail += "\n".join(f"- {x}" for x in sorted(set(certains)))
     if incertains:
-        detail += "\n\nA VERIFIER (peut etre une tournure de phrase, ou un fichier a venir) :\n"
+        if certains:
+            detail += "\n\n"
+        detail += ("**À VÉRIFIER** — cité sans extension : c'est peut-être une "
+                   "tournure de phrase, ou un fichier encore à créer.\n\n")
         detail += "\n".join(f"- {x}" for x in sorted(set(incertains)))
 
+    # ALERTE si un chemin est faux · VERIF s'il n'y a que des « à vérifier ».
+    # Avant, ce cas retombait sur OK — et `ecrire_rapport` n'écrit pas le
+    # détail d'un OK : le résumé annonçait « 1 a verifier » sans jamais dire
+    # LEQUEL. L'information était produite puis jetée (trouvé par le dev).
+    statut = "ALERTE" if certains else "VERIF"
+
     return Resultat(
-        titre,
-        "ALERTE" if certains else "OK",
-        resume, detail,
+        titre, statut, resume, detail,
         bloquant=bool(certains) and bloquant_possible,
+        detail_markdown=True,
     )
 
 
@@ -349,14 +385,17 @@ def controle_regles_maison() -> Resultat:
         marque = "BLOQUANT" if regle["bloquant"] else "consultatif"
         lignes_detail += [
             "",
-            f"## {regle['nom']} — {total} occurrence(s) [{marque}]",
-            f"   {regle['regle']}",
+            f"### {regle['nom']} — {total} occurrence(s) *[{marque}]*",
+            "",
+            f"> {regle['regle']}",
+            "",
         ]
-        # Les 8 fichiers les plus concernés suffisent à savoir par où commencer
+        # Les 8 fichiers les plus concernés suffisent à savoir par où commencer.
+        # Chemins en LIENS : un clic ouvre le fichier dans l'éditeur.
         pires = sorted(par_fichier.items(), key=lambda x: -x[1])[:8]
-        lignes_detail += [f"   {nb:>4} x  {fichier}" for fichier, nb in pires]
+        lignes_detail += [f"- **{nb}** × {lien(fichier)}" for fichier, nb in pires]
         if len(par_fichier) > 8:
-            lignes_detail.append(f"   … et {len(par_fichier) - 8} autre(s) fichier(s)")
+            lignes_detail.append(f"- *… et {len(par_fichier) - 8} autre(s) fichier(s)*")
 
     if not infractions:
         return Resultat("Regles maison (CLAUDE.md)", "OK", "toutes les regles sont tenues")
@@ -365,6 +404,7 @@ def controle_regles_maison() -> Resultat:
         "Regles maison (CLAUDE.md)", "ALERTE",
         " | ".join(infractions), "\n".join(lignes_detail),
         bloquant=bloquant_touche,
+        detail_markdown=True,
     )
 
 

@@ -109,7 +109,14 @@ def ecrire_rapport(resultats: list[Resultat]) -> None:
         detail = r.detail
         if len(detail) > 12000:
             detail = detail[:12000] + "\n… (sortie tronquée)"
-        lignes += ["", f"## {r.titre}", "", "```", detail, "```"]
+
+        lignes += ["", f"## {MARQUEUR[r.statut]} {r.titre}", ""]
+        if r.detail_markdown:
+            # Détail déjà en Markdown (liens cliquables) : surtout PAS de bloc
+            # ``` , qui afficherait le code source des liens au lieu des liens.
+            lignes.append(detail)
+        else:
+            lignes += ["```", detail, "```"]
 
     config.RAPPORT.write_text("\n".join(lignes) + "\n", encoding="utf-8")
 
