@@ -96,8 +96,22 @@ echo ""
 # `2>/dev/null` posé après arriverait trop tard. En enfermant le tout dans un
 # sous-shell, le 2>/dev/null couvre bien l'ensemble.
 if ! ( : < /dev/tty ) 2>/dev/null; then
-    echo "  Pas de terminal interactif -> push ANNULE par securite."
-    echo "  Pour forcer : git push --no-verify"
+    echo "  ────────────────────────────────────────────────────"
+    echo "  PUSH ANNULE : pas de terminal pour repondre."
+    echo ""
+    echo "  Tu pousses probablement depuis le bouton de VS Code."
+    echo "  VS Code lance git SANS terminal : impossible de poser"
+    echo "  la question, donc on annule par securite."
+    echo ""
+    echo "  POUR VOIR CE MESSAGE DANS VS CODE :"
+    echo "     Affichage > Sortie (Ctrl+Shift+U) > liste 'Git'"
+    echo ""
+    echo "  POUR DECIDER TOI-MEME, pousse depuis un terminal :"
+    echo "     git push"
+    echo ""
+    echo "  POUR PASSER OUTRE SANS DISCUTER :"
+    echo "     git push --no-verify"
+    echo "  ────────────────────────────────────────────────────"
     echo ""
     exit 1
 fi
