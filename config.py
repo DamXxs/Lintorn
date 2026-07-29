@@ -136,19 +136,43 @@ COMMANDES = [
 # ─────────────────────────────────────────────────────────────────────────────
 # Mets False pour en désactiver un.
 CONTROLES_INTERNES = {
-    "doc_vs_code": True,      # les chemins cités dans la doc existent-ils encore ?
+    "doc_vs_code": True,      # les chemins cités dans la doc du dépôt existent-ils ?
+    "memoire_ia": True,       # idem pour la mémoire de l'IA (consultatif)
     "regles_maison": True,    # les règles de CLAUDE.md sont-elles tenues ?
 }
 
-# Les documents dont on vérifie qu'ils ne mentent pas.
-# Un chemin absent est simplement ignoré (la mémoire de l'IA vit hors du dépôt).
+# Les documents du DÉPÔT dont on vérifie qu'ils ne mentent pas.
+# Un chemin absent est simplement ignoré.
 DOCS_A_VERIFIER = [
     RACINE / "CLAUDE.md",
     RACINE / "ARCHITECTURE.md",
     RACINE / "audit_structurel.md",
-    Path.home() / ".claude" / "projects"
-    / "C--Users-MagiFamilly-Documents-Matorn" / "memory" / "MEMORY.md",
 ]
+
+
+def _dossier_memoire():
+    """Retrouve le dossier mémoire de l'IA, sans écrire de chemin en dur.
+
+    POURQUOI CETTE FONCTION plutôt qu'un chemin figé : le nom du dossier est
+    dérivé du chemin absolu du projet, il contient donc le nom de session de
+    l'utilisateur. L'écrire en dur reviendrait à (1) publier une information
+    personnelle si l'outil est partagé, et (2) casser le contrôle sur toute
+    autre machine. On cherche donc le dossier au lieu de le supposer.
+
+    Renvoie None si rien n'est trouvé → le contrôle est simplement ignoré,
+    sans jamais afficher de chemin.
+    """
+    base = Path.home() / ".claude" / "projects"
+    if not base.is_dir():
+        return None
+    for dossier in sorted(base.glob("*Matorn*")):
+        memoire = dossier / "memory"
+        if memoire.is_dir():
+            return memoire
+    return None
+
+
+MEMOIRE_IA = _dossier_memoire()
 
 # Racines depuis lesquelles un chemin cité dans la doc peut être relatif.
 RACINES_RESOLUTION = [RACINE, TOOLS.parent, BACKEND, FRONTEND, FRONTEND / "src"]

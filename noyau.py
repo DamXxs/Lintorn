@@ -223,13 +223,21 @@ def existe(token: str, index_noms: set[str]) -> bool:
     return False
 
 
-def controle_doc() -> Resultat:
+def _verifier_documents(titre: str, documents: list, bloquant_possible: bool) -> Resultat:
+    """Cœur du contrôle : les chemins cités dans ces documents existent-ils ?
+
+    `bloquant_possible=False` → on rapporte sans jamais bloquer. C'est le cas
+    de la mémoire de l'IA : elle contient des INTENTIONS (« on créera la
+    commande purger_corbeille ») autant que des faits. Un fichier pas encore
+    écrit n'est pas un mensonge, et la mémoire de l'assistant ne doit jamais
+    empêcher un push du dev.
+    """
     index_noms = indexer_fichiers()
-    certains: list[str] = []      # cité AVEC extension et absent → la doc ment
+    certains: list[str] = []      # cité AVEC extension et absent → le doc ment
     incertains: list[str] = []    # sans extension → peut être une tournure de phrase
     verifies = 0
 
-    for doc in config.DOCS_A_VERIFIER:
+    for doc in documents:
         if not doc.exists():
             continue
         texte = doc.read_text(encoding="utf-8", errors="replace")
@@ -254,20 +262,46 @@ def controle_doc() -> Resultat:
     if incertains:
         resume += f", {len(incertains)} a verifier"
     if not certains and not incertains:
-        return Resultat("Doc vs code", "OK", resume)
+        return Resultat(titre, "OK", resume)
 
     detail = ""
     if certains:
-        detail += "INTROUVABLES (la doc ment) :\n" + "\n".join(f"- {x}" for x in sorted(set(certains)))
+        detail += "INTROUVABLES :\n" + "\n".join(f"- {x}" for x in sorted(set(certains)))
     if incertains:
-        detail += "\n\nA VERIFIER (peut etre une tournure de phrase) :\n"
+        detail += "\n\nA VERIFIER (peut etre une tournure de phrase, ou un fichier a venir) :\n"
         detail += "\n".join(f"- {x}" for x in sorted(set(incertains)))
 
     return Resultat(
-        "Doc vs code",
+        titre,
         "ALERTE" if certains else "OK",
-        resume, detail, bloquant=bool(certains),
+        resume, detail,
+        bloquant=bool(certains) and bloquant_possible,
     )
+
+
+def controle_doc() -> Resultat:
+    """La doc du dépôt (CLAUDE.md, ARCHITECTURE.md…) — peut bloquer un push."""
+    return _verifier_documents("Doc vs code", config.DOCS_A_VERIFIER, bloquant_possible=True)
+
+
+def controle_memoire_ia() -> Resultat:
+    """La mémoire de l'assistant — CONSULTATIF, ne bloque jamais.
+
+    Pourquoi la surveiller quand même : elle vit HORS du dépôt, donc elle n'est
+    pas versionnée, personne ne la relit, et rien ne la confronte au code. Un
+    chemin périmé y survit indéfiniment — c'est exactement ce qui est arrivé à
+    `utils/generatePdf.ts`, présenté comme le pivot du chantier Factur-X alors
+    que le fichier avait été supprimé.
+    """
+    if config.MEMOIRE_IA is None:
+        return Resultat("Memoire IA vs code", "INDISPONIBLE",
+                        "dossier memoire introuvable sur cette machine", bloquant=False)
+
+    fichiers = sorted(config.MEMOIRE_IA.glob("*.md"))
+    if not fichiers:
+        return Resultat("Memoire IA vs code", "INDISPONIBLE", "aucun fichier memoire", bloquant=False)
+
+    return _verifier_documents("Memoire IA vs code", fichiers, bloquant_possible=False)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -326,6 +360,7 @@ def controle_regles_maison() -> Resultat:
 
 CONTROLES_INTERNES = {
     "doc_vs_code": controle_doc,
+    "memoire_ia": controle_memoire_ia,
     "regles_maison": controle_regles_maison,
 }
 
