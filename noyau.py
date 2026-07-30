@@ -426,7 +426,10 @@ def executer(rapide: bool = False) -> list[Resultat]:
         if rapide and entree["lent"]:
             continue
         resultat = lancer(
-            entree["titre"], entree["cmd"], entree["cwd"], bloquant=entree["bloquant"],
+            entree["titre"], entree["cmd"], entree["cwd"],
+            bloquant=entree["bloquant"],
+            # Chaque outil a sa propre convention de codes de sortie.
+            codes_alerte=entree.get("codes_alerte", (1,)),
         )
         traducteur = TRADUCTEURS.get(entree["traduction"])
         if traducteur and resultat.statut == "ALERTE":

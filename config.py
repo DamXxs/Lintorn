@@ -47,6 +47,12 @@ IGNORES = {"node_modules", "venv", ".git", "__pycache__", "dist", "build", ".vit
 #               False = on informe, on ne bloque pas
 #   traduction  None, ou une clé de traductions.PAR_OUTIL
 #   lent        True = ignoré avec l'option --rapide (et par le hook git)
+#   codes_alerte  (optionnel) les codes de sortie qui veulent dire « j'ai TROUVÉ
+#               des problèmes », par opposition à « je suis en panne ».
+#               ⚠️ La convention « 1 = trouvé » n'est PAS universelle :
+#               vulture répond 3. Sans cette précision, l'audit croyait
+#               l'outil planté alors qu'il faisait son travail (30/07/2026).
+#               Défaut : (1,)
 #
 # POUR AJOUTER UN OUTIL : copie une entrée, change les 3 premières lignes.
 COMMANDES = [
@@ -119,6 +125,7 @@ COMMANDES = [
         "bloquant": False,
         "traduction": None,
         "lent": True,
+        "codes_alerte": (3,),   # vulture : 3 = du code mort a été trouvé
     },
     {
         "titre": "Failles connues (pip-audit)",
