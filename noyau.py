@@ -424,6 +424,14 @@ def executer(rapide: bool = False) -> list[Resultat]:
 
     for entree in config.COMMANDES:
         if rapide and entree["lent"]:
+            # ⚠️ On NE saute PAS en silence : un contrôle absent du rapport
+            # laisserait croire qu'il a tourné. C'est grave pour pip-audit
+            # (failles de sécurité) — on préfère une ligne explicite.
+            resultats.append(Resultat(
+                entree["titre"], "INDISPONIBLE",
+                "NON EXECUTE (mode --rapide) — relancer sans --rapide",
+                bloquant=False,
+            ))
             continue
         resultat = lancer(
             entree["titre"], entree["cmd"], entree["cwd"],
