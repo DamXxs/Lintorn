@@ -23,7 +23,7 @@ TOOLS = Path(__file__).resolve().parent
 RACINE = TOOLS.parents[1]              # le dépôt git
 BACKEND = TOOLS.parent / "backend"
 FRONTEND = TOOLS.parent / "frontend"
-RAPPORT = TOOLS / "rapport_audit.md"
+RAPPORT = TOOLS / "rapport_LEON.md"
 
 # Le venv n'est pas au même endroit sous Windows et sous Linux (Codespaces).
 _win = BACKEND / "venv" / "Scripts" / "python.exe"
@@ -81,8 +81,15 @@ COMMANDES = [
         "lent": False,
     },
     {
-        "titre": "Fixtures vs modeles",
-        "cmd": [PYTHON, "manage.py", "verifier_fixtures"],
+        # Remplace l'ancien "Fixtures vs modeles" : les fixtures JSON ont
+        # disparu du projet le 31/07/2026 (la demo se construit par
+        # `seeddemo`). Ce controle regarde les DONNEES elles-memes : sequence
+        # de numerotation continue, lignes d'OR nommees et chiffrees, totaux
+        # synchronises avec leurs lignes, signatures coherentes.
+        # Il attrape ce que ni ruff ni les tests ne peuvent voir : du code
+        # juste qui a produit des donnees fausses.
+        "titre": "Donnees vs regles metier",
+        "cmd": [PYTHON, "manage.py", "verifier_donnees"],
         "cwd": BACKEND,
         "bloquant": True,
         "traduction": None,

@@ -1,18 +1,26 @@
 #!/usr/bin/env python3
 """
-audit.py — Contrôle de santé du projet Matorn.
+LEON — le contrôle de santé du projet Matorn.
 
-    python matorn/tools/audit.py                    # tout
-    python matorn/tools/audit.py --rapide           # sans les outils lents
-    python matorn/tools/audit.py --doc              # uniquement : la doc ment-elle ?
-    python matorn/tools/audit.py --fichiers a.py b.css
-                                                    # + un focus sur ces fichiers
+Il regarde tout le monde, tout le temps, et il ne laisse rien passer.
+
+    python matorn/tools/LEON.py                    # tout
+    python matorn/tools/LEON.py --rapide           # sans les outils lents
+    python matorn/tools/LEON.py --doc              # uniquement : la doc ment-elle ?
+    python matorn/tools/LEON.py --fichiers a.py b.css
+                                                   # + un focus sur ces fichiers
 
 OÙ TOUCHER QUOI
     config.py        les outils à lancer, ce qu'on vérifie, les règles maison
     traductions.py   les messages en français
     noyau.py         la mécanique
-    audit.py         (ce fichier) le point d'entrée, le rapport, l'affichage
+    LEON.py          (ce fichier) le point d'entrée, le rapport, l'affichage
+
+CE QU'IL SURVEILLE, EN PLUS DU CODE
+    Le lint et les tests ne voient que le CODE. LEON regarde aussi les
+    DONNÉES (`manage.py verifier_donnees`) : une base peut être fausse alors
+    que le code est juste — séquence de factures trouée, ligne d'OR facturée
+    sans désignation. Aucun test unitaire ne voyait ces cas-là.
 
 PRINCIPE — le rapport est un FAIT SUR LE CODE, pas une mémoire : il est ÉCRASÉ
 à chaque exécution, jamais fusionné, jamais trié. Un fait sur le code périme dès
@@ -91,9 +99,9 @@ def focus_sur(resultats: list[Resultat], fichiers: list[str]) -> Resultat:
 def ecrire_rapport(resultats: list[Resultat]) -> None:
     horodatage = datetime.now().strftime("%d/%m/%Y %H:%M")
     lignes = [
-        "# Rapport d'audit — Matorn",
+        "# Le rapport de LEON — Matorn",
         "",
-        f"> Généré le {horodatage} par `matorn/tools/audit.py`.",
+        f"> Généré le {horodatage} par `matorn/tools/LEON.py`.",
         "> **Fichier régénéré à chaque exécution — ne rien y écrire à la main.**",
         "",
         "| Contrôle | Statut | Résumé |",
@@ -143,18 +151,18 @@ def main() -> int:
 
     # Console volontairement en ASCII : le hook git tourne sous Git Bash, qui
     # n'affiche pas l'UTF-8 correctement. Le rapport, lui, garde les accents.
-    print("\n=== AUDIT MATORN ===")
+    print("\n=== LEON - RAPPORT AUDIT ===")
     for r in resultats:
         print(f"{MARQUEUR[r.statut]} {r.titre:<34} {r.resume}")
 
     echecs = [r for r in resultats if r.en_echec]
-    print(f"\nRapport complet : {config.RAPPORT.relative_to(config.RACINE).as_posix()}")
+    print(f"\nLe rapport de LEON : {config.RAPPORT.relative_to(config.RACINE).as_posix()}")
     if echecs:
-        print(f"{len(echecs)} controle(s) bloquant(s) en alerte :")
+        print(f"LEON signale {len(echecs)} controle(s) bloquant(s) en alerte :")
         for r in echecs:
             print(f"    - {r.titre}")
         return 1
-    print("Tous les controles bloquants sont au vert.")
+    print("LEON n'a rien a signaler : tous les controles bloquants sont au vert.")
     return 0
 
 

@@ -1,15 +1,15 @@
-# /matorn/tools/test_audit.py
+# /matorn/tools/test_LEON.py
 #
 # Tests de l'outil d'audit lui-même.
 #
-# POURQUOI : `audit.py` lit la sortie de ruff avec une expression régulière.
+# POURQUOI : `LEON.py` lit la sortie de ruff avec une expression régulière.
 # Le jour où ruff change son format d'affichage, la regex ne reconnaît plus
 # rien — et le code est écrit pour retomber sur la sortie brute SANS rien dire.
 # On croirait l'outil en bonne santé alors qu'il aurait cessé de traduire et
 # de compter. Ces tests figent le format attendu : si ruff change, ça casse ICI,
 # bruyamment, au lieu de dégrader en silence.
 
-import audit
+import LEON
 import config
 import noyau
 import traductions
@@ -120,7 +120,7 @@ def test_focus_ne_garde_que_les_fichiers_pousses():
         "stock/models.py:121\n    E741 nom ambigu",
     )
 
-    focus = audit.focus_sur([faux], ["matorn/backend/accounts/views.py"])
+    focus = LEON.focus_sur([faux], ["matorn/backend/accounts/views.py"])
 
     assert focus.statut == "ALERTE"
     assert "accounts/views.py" in focus.detail
@@ -130,6 +130,6 @@ def test_focus_ne_garde_que_les_fichiers_pousses():
 def test_focus_est_vert_quand_le_push_ne_touche_rien_de_casse():
     faux = noyau.Resultat("Ruff", "ALERTE", "1 alerte", "stock/models.py:121\n    E741")
 
-    focus = audit.focus_sur([faux], ["matorn/frontend/src/App.tsx"])
+    focus = LEON.focus_sur([faux], ["matorn/frontend/src/App.tsx"])
 
     assert focus.statut == "OK"

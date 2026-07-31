@@ -155,7 +155,7 @@ def traduire_ruff(resultat: Resultat) -> Resultat:
 
     if not traduites:
         # Format inattendu (ruff a changé son affichage ?) → on rend le brut.
-        # test_audit.py garde ce cas sous surveillance.
+        # test_LEON.py garde ce cas sous surveillance.
         return resultat
 
     entete = ["**Résumé par type :**", ""]
@@ -211,7 +211,7 @@ def est_un_chemin(token: str) -> bool:
 
     ⚠️ C'est un empilement d'heuristiques, pas une science : chaque règle a été
     ajoutée après un vrai faux positif. Les cas connus sont figés dans
-    test_audit.py pour qu'ils ne reviennent pas.
+    test_LEON.py pour qu'ils ne reviennent pas.
     """
     if not token or len(token) > 120:
         return False

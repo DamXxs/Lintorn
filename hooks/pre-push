@@ -1,16 +1,16 @@
 #!/bin/sh
 #
-# Hook PRE-PUSH — audit avant d'envoyer quoi que ce soit sur GitHub.
+# Hook PRE-PUSH — LEON controle avant d'envoyer quoi que ce soit sur GitHub.
 #
 # POURQUOI PRE-PUSH ET PAS PRE-COMMIT ?
 #   Un commit est local et se rattrape (`git commit --amend`, `git reset`).
 #   Un push est PUBLIC : une fois parti, c'est dans l'historique de tout le
 #   monde. Et ça n'alourdit pas chaque commit — on peut commiter dix fois et
-#   ne payer l'audit qu'une seule.
+#   ne payer LEON qu'une seule fois.
 #
 # CE QU'IL FAIT
 #   1. calcule la liste des fichiers réellement poussés
-#   2. lance l'audit, avec un focus sur CES fichiers
+#   2. lance LEON, avec un focus sur CES fichiers
 #   3. si un contrôle bloquant est rouge → demande confirmation
 #
 # INSTALLATION (une seule fois, depuis la racine du dépôt) :
@@ -56,20 +56,20 @@ while read -r _local_ref local_sha _remote_ref remote_sha; do
 done
 
 echo ""
-echo "── Audit Matorn avant push ─────────────────────────────"
+echo "── LEON controle avant push ─────────────────────────────"
 
 # --rapide : on saute pip-audit et vulture (lents, et non bloquants de toute
 # façon). Un push ne doit pas se transformer en pause café.
 if [ -n "$FICHIERS" ]; then
     # shellcheck disable=SC2086
-    "$PY" matorn/tools/audit.py --rapide --fichiers $FICHIERS
+    "$PY" matorn/tools/LEON.py --rapide --fichiers $FICHIERS
 else
-    "$PY" matorn/tools/audit.py --rapide
+    "$PY" matorn/tools/LEON.py --rapide
 fi
 CODE=$?
 
 if [ $CODE -eq 0 ]; then
-    echo "── Audit OK, push autorise ─────────────────────────────"
+    echo "── LEON OK, push autorise ─────────────────────────────"
     echo ""
     exit 0
 fi
@@ -82,7 +82,7 @@ echo "╔═══════════════════════�
 echo "║  Des controles BLOQUANTS sont en alerte                ║"
 echo "╚════════════════════════════════════════════════════════╝"
 echo ""
-echo "  Detail complet : matorn/tools/rapport_audit.md"
+echo "  Detail complet : matorn/tools/rapport_LEON.md"
 echo ""
 
 # git a déjà consommé l'entrée standard (la liste des refs) : pour poser une
