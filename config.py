@@ -65,6 +65,18 @@ COMMANDES = [
         "lent": False,
     },
     {
+        # `requirements.txt` dit-il la verite sur le venv ?
+        # Aucun autre controle ne peut le voir : ruff, pytest et Django
+        # tournent DANS le venv, donc pour eux tout est installe. Le defaut ne
+        # se revele qu'au deploiement, quand il coute le plus cher.
+        "titre": "Dependances vs venv",
+        "cmd": [PYTHON, str(TOOLS / "dependances.py")],
+        "cwd": RACINE,
+        "bloquant": True,
+        "traduction": None,
+        "lent": False,
+    },
+    {
         "titre": "Django check",
         "cmd": [PYTHON, "manage.py", "check"],
         "cwd": BACKEND,
