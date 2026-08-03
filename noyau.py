@@ -170,8 +170,15 @@ def traduire_ruff(resultat: Resultat) -> Resultat:
 
 
 def traduire_deploy(resultat: Resultat) -> Resultat:
-    """Réécrit les avertissements de `check --deploy` en français."""
-    codes = re.findall(r"\((security\.\w+)\)", resultat.detail)
+    """Réécrit les avertissements de `check --deploy` en français.
+
+    ⚠️ La regex accepte N'IMPORTE QUEL préfixe d'app, pas seulement `security.`.
+    Elle ne prenait que `security\\.` jusqu'au 03/08/2026 : les contrôles maison
+    du projet (`signatures.E002`…) étaient donc SILENCIEUSEMENT jetés du
+    rapport. Un contrôle qu'on croit avoir mais qui n'apparaît jamais est pire
+    que pas de contrôle du tout.
+    """
+    codes = re.findall(r"\((\w+\.[A-Z]\d{3})\)", resultat.detail)
     if not codes:
         return resultat
 
