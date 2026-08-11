@@ -58,19 +58,22 @@ DEPLOY = {
     "security.W009": "SECRET_KEY trop faible ou par défaut : elle signe les sessions, elle doit être longue et unique.",
     "security.W012": "Le cookie de session n'est pas marqué `secure` : il peut circuler en clair sur du HTTP.",
     "security.W016": "Le cookie CSRF n'est pas marqué `secure` : le jeton anti-falsification peut être intercepté.",
-    "security.W018": "DEBUG = True : en production, la moindre erreur afficherait ton code et tes réglages au visiteur.",
+    "security.W018": "DEBUG = True : en production, la moindre erreur afficherait "
+                     "ton code et tes réglages au visiteur.",
     "security.W019": "X_FRAME_OPTIONS mal réglé : le site pourrait être affiché dans une iframe pirate (clickjacking).",
     "security.W020": "ALLOWED_HOSTS vide : Django accepterait n'importe quel nom de domaine.",
     "security.W022": "Pas de SECURE_REFERRER_POLICY : les URL internes peuvent fuiter vers les sites externes visités.",
 
     # ── Contrôles MAISON du projet (mixins/checks.py) ────────────────────
-    "matorn.E001": "ALLOWED_HOSTS contient '*' : n'importe quel en-tête Host est accepté, les liens fabriqués par l'app sont détournables.",
+    "matorn.E001": "ALLOWED_HOSTS contient '*' : n'importe quel en-tête Host est "
+                   "accepté, les liens fabriqués par l'app sont détournables.",
     "matorn.W001": "ALLOWED_HOSTS contient encore des hôtes de développement (localhost, backend…).",
     "matorn.W002": "ALLOWED_HOSTS contient un joker de domaine : tous les sous-domaines sont acceptés.",
 
     # ── Contrôles MAISON du projet (signatures/checks.py) ────────────────
     "signatures.E001": "MATORN_URL_PUBLIQUE absente : les QR code de signature seront inutilisables.",
-    "signatures.E002": "MATORN_URL_PUBLIQUE pointe sur localhost : le téléphone du client ne peut pas joindre le serveur.",
+    "signatures.E002": "MATORN_URL_PUBLIQUE pointe sur localhost : le téléphone "
+                       "du client ne peut pas joindre le serveur.",
     "signatures.W001": "MATORN_URL_PUBLIQUE en HTTP : le lien de signature transporte un token qui engage le client.",
 }
 

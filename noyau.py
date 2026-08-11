@@ -297,7 +297,13 @@ def _verifier_documents(titre: str, documents: list, bloquant_possible: bool) ->
             verifies += 1
             if existe(token, index_noms):
                 continue
-            ligne = f"{lien(doc.relative_to(config.RACINE).as_posix()) if doc.is_relative_to(config.RACINE) else f'`{doc.name}`'} → `{token}`"
+            # La mémoire vit HORS du dépôt : pas de lien cliquable possible,
+            # on se contente de son nom de fichier.
+            if doc.is_relative_to(config.RACINE):
+                source = lien(doc.relative_to(config.RACINE).as_posix())
+            else:
+                source = f"`{doc.name}`"
+            ligne = f"{source} → `{token}`"
             # Une extension explicite = une affirmation vérifiable. Sans extension,
             # ça peut être du texte → consultatif, on ne bloque pas dessus.
             (certains if re.search(r"\.\w{2,4}(:\d|$)", token) else incertains).append(ligne)
@@ -347,8 +353,15 @@ def controle_memoire_ia() -> Resultat:
     que le fichier avait été supprimé.
     """
     if config.MEMOIRE_IA is None:
-        return Resultat("Memoire IA vs code", "INDISPONIBLE",
-                        "dossier memoire introuvable sur cette machine", bloquant=False)
+        # On dit POURQUOI on ne trouve rien, et comment reprendre la main :
+        # un « INDISPONIBLE » sans explication se confond avec un « rien à
+        # signaler » au bout de trois lectures.
+        return Resultat(
+            "Memoire IA vs code", "INDISPONIBLE",
+            f"dossier memoire introuvable ({config.MEMOIRE_IA_ORIGINE})"
+            " - voir LEON_MEMOIRE dans tools/.env.example",
+            bloquant=False,
+        )
 
     fichiers = sorted(config.MEMOIRE_IA.glob("*.md"))
     if not fichiers:
@@ -415,10 +428,72 @@ def controle_regles_maison() -> Resultat:
     )
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# CONTRÔLE MAISON 3 — le garde-fou est-il lui-même en place ?
+# ─────────────────────────────────────────────────────────────────────────────
+def controle_hook_git() -> Resultat:
+    """Le hook pre-push est-il RÉELLEMENT branché sur ce clone ?
+
+    LA FAILLE : `core.hooksPath` vit dans `.git/config`, un fichier que git ne
+    versionne PAS. Le hook, lui, est bien dans le dépôt (`tools/hooks/`) et
+    voyage avec — mais le RÉGLAGE qui dit à git d'aller l'y chercher, non. Sur
+    un clone frais (autre PC, Codespaces, collègue), git regarde dans
+    `.git/hooks/`, n'y trouve rien, ne dit rien, et le push part sans le
+    moindre contrôle.
+
+    C'est exactement le scénario que LEON traite partout ailleurs comme le plus
+    grave : un garde-fou qui ne garde plus rien tout en paraissant sain.
+
+    NON BLOQUANT à dessein : quand le réglage manque, le hook ne tourne pas —
+    bloquer un push serait donc de toute façon impossible. Ce contrôle sert aux
+    lancements À LA MAIN, le seul moment où l'on peut encore s'en apercevoir.
+    """
+    titre = "Hook pre-push (LEON)"
+
+    if not (config.HOOKS / "pre-push").is_file():
+        return Resultat(titre, "ALERTE",
+                        "le fichier hooks/pre-push a disparu du depot",
+                        bloquant=False)
+
+    try:
+        sortie = subprocess.run(
+            ["git", "config", "--get", "core.hooksPath"],
+            cwd=config.RACINE, capture_output=True, text=True, timeout=10,
+            # check=False EXPRÈS : `git config --get` sort en 1 quand la clé
+            # est absente. Or c'est précisément le cas qu'on veut détecter —
+            # lever une exception ici masquerait la panne qu'on cherche.
+            check=False,
+        )
+    except (OSError, subprocess.SubprocessError) as erreur:
+        return Resultat(titre, "ERREUR", f"git injoignable : {erreur}", bloquant=False)
+
+    actuel = sortie.stdout.strip().replace("\\", "/")
+    if actuel == config.HOOKS_ATTENDU:
+        return Resultat(titre, "OK", "branche - LEON tournera avant chaque push")
+
+    etat = "non configure" if not actuel else f"pointe ailleurs ({actuel})"
+    return Resultat(
+        titre, "ALERTE",
+        f"NON BRANCHE ({etat}) - `git push` ne controle RIEN",
+        "`core.hooksPath` vit dans `.git/config`, un fichier que git **ne "
+        "versionne pas** : il ne suit donc pas les clones. Tant qu'il n'est "
+        "pas posé, `git push` n'exécute aucun contrôle — sans le moindre "
+        "message d'avertissement.\n\n"
+        "Pour le brancher (une seule fois par clone, depuis la racine) :\n\n"
+        "```bash\n"
+        f"git config core.hooksPath {config.HOOKS_ATTENDU}\n"
+        "```\n\n"
+        "ou, strictement équivalent : `python matorn/tools/LEON.py --installer-hook`",
+        bloquant=False,
+        detail_markdown=True,
+    )
+
+
 CONTROLES_INTERNES = {
     "doc_vs_code": controle_doc,
     "memoire_ia": controle_memoire_ia,
     "regles_maison": controle_regles_maison,
+    "hook_git": controle_hook_git,
 }
 
 

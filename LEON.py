@@ -9,6 +9,8 @@ Il regarde tout le monde, tout le temps, et il ne laisse rien passer.
     python matorn/tools/LEON.py --doc              # uniquement : la doc ment-elle ?
     python matorn/tools/LEON.py --fichiers a.py b.css
                                                    # + un focus sur ces fichiers
+    python matorn/tools/LEON.py --installer-hook   # branche le hook pre-push
+                                                   #   (à faire UNE fois par clone)
 
 OÙ TOUCHER QUOI
     config.py        les outils à lancer, ce qu'on vérifie, les règles maison
@@ -31,12 +33,38 @@ Aucune dépendance : stdlib uniquement.
 
 from __future__ import annotations
 
+import subprocess
 import sys
 from datetime import datetime
 
 import config
 import noyau
 from noyau import MARQUEUR, Resultat
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# INSTALLATION DU HOOK
+# ─────────────────────────────────────────────────────────────────────────────
+def installer_hook() -> int:
+    """Branche le hook pre-push sur CE clone. Idempotent, sans effet de bord.
+
+    Le réglage `core.hooksPath` n'est pas versionné : il doit être reposé sur
+    chaque clone. Plutôt que de laisser l'utilisateur retenir la commande git,
+    LEON la joue lui-même — et son contrôle « Hook pre-push » dit quand c'est
+    nécessaire.
+    """
+    try:
+        subprocess.run(
+            ["git", "config", "core.hooksPath", config.HOOKS_ATTENDU],
+            cwd=config.RACINE, check=True, capture_output=True, text=True,
+        )
+    except (OSError, subprocess.SubprocessError) as erreur:
+        print(f"Echec : impossible de configurer git ({erreur})")
+        return 1
+
+    print(f"Hook branche : core.hooksPath = {config.HOOKS_ATTENDU}")
+    print("LEON tournera desormais avant chaque git push.")
+    return 0
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -75,7 +103,14 @@ def focus_sur(resultats: list[Resultat], fichiers: list[str]) -> Resultat:
             continue
         for ligne in resultat.detail.splitlines():
             propre = ligne.strip()
-            if propre and any(forme in propre for forme in formes):
+            # ⚠️ Les outils écrivent les chemins avec le séparateur de l'OS :
+            # sous Windows, ruff sort `matorn\tools\noyau.py`. Les formes
+            # calculées par `_alias`, elles, sont en slashs — git ne parle que
+            # cette langue. Sans normaliser AVANT de comparer, plus rien ne
+            # correspond sous Windows : le focus annonce « aucun defaut connu
+            # dedans » au moment précis où l'on pousse. Un faux vert.
+            compare = propre.replace("\\", "/")
+            if propre and any(forme in compare for forme in formes):
                 touches.append(f"[{resultat.titre}] {propre}")
 
     if not touches:
@@ -134,6 +169,9 @@ def ecrire_rapport(resultats: list[Resultat]) -> None:
 # ─────────────────────────────────────────────────────────────────────────────
 def main() -> int:
     args = sys.argv[1:]
+
+    if "--installer-hook" in args:
+        return installer_hook()
 
     fichiers: list[str] = []
     if "--fichiers" in args:

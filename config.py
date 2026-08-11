@@ -12,6 +12,7 @@ Aucune logique ici, que des données. Tu ne peux pas casser la mécanique en
 éditant ce fichier — au pire un outil ne tourne pas.
 """
 
+import os
 import re
 import sys
 from pathlib import Path
@@ -33,6 +34,39 @@ NPX = "npx.cmd" if sys.platform == "win32" else "npx"
 
 # Dossiers qu'on ne parcourt jamais (volumineux ou générés)
 IGNORES = {"node_modules", "venv", ".git", "__pycache__", "dist", "build", ".vite"}
+
+# Le hook git doit pointer ici pour que LEON tourne avant chaque push.
+HOOKS = TOOLS / "hooks"
+HOOKS_ATTENDU = "matorn/tools/hooks"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# RÉGLAGES DE MACHINE — `matorn/tools/.env` (gitignoré)
+# ─────────────────────────────────────────────────────────────────────────────
+# Ce qui dépend de LA MACHINE, pas du projet, se règle ici. Modèle fourni :
+# `.env.example`. Aucune valeur n'est obligatoire — sans .env, LEON se
+# débrouille tout seul comme avant.
+#
+# Lecteur volontairement écrit à la main : LEON promet « aucune dépendance,
+# stdlib uniquement » (voir l'en-tête de LEON.py). Ajouter python-dotenv pour
+# 10 lignes trahirait cette promesse — et le hook pre-push doit pouvoir tourner
+# avec n'importe quel python, pas seulement celui du venv backend.
+def _lire_env(fichier: Path) -> dict:
+    valeurs = {}
+    if not fichier.is_file():
+        return valeurs
+    for ligne in fichier.read_text(encoding="utf-8").splitlines():
+        ligne = ligne.strip()
+        if not ligne or ligne.startswith("#") or "=" not in ligne:
+            continue
+        cle, _, valeur = ligne.partition("=")
+        valeurs[cle.strip()] = valeur.strip().strip('"').strip("'")
+    return valeurs
+
+
+# L'environnement réel PRIME sur le fichier : on peut toujours surcharger le
+# temps d'une commande sans éditer le .env.
+ENV = {**_lire_env(TOOLS / ".env"), **os.environ}
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -60,6 +94,27 @@ COMMANDES = [
         "titre": "Ruff (lint backend)",
         "cmd": [PYTHON, "-m", "ruff", "check", ".", "--output-format", "concise"],
         "cwd": BACKEND,
+        "bloquant": True,
+        "traduction": "ruff",
+        "lent": False,
+    },
+    {
+        # LEON surveille tout le projet — mais personne ne surveillait LEON.
+        # Son contrôle Ruff tourne avec `cwd=BACKEND` : `matorn/tools/` n'a
+        # jamais été analysé. Les TESTS de l'outil l'étaient déjà (`testpaths`
+        # inclut `../tools` dans pyproject.toml) — c'est le lint qui manquait
+        # à l'appel. Ajouté le 12/08/2026.
+        #
+        # ⚠️ `--config` est OBLIGATOIRE : la config ruff vit dans
+        # `backend/pyproject.toml`, et ruff la cherche en REMONTANT depuis le
+        # fichier analysé. Depuis `tools/` il ne la trouverait jamais et
+        # appliquerait son jeu de règles par défaut — un tout autre outil,
+        # qui signale des règles que le projet a volontairement écartées.
+        "titre": "Ruff (lint outils LEON)",
+        "cmd": [PYTHON, "-m", "ruff", "check", "matorn/tools",
+                "--config", "matorn/backend/pyproject.toml",
+                "--output-format", "concise"],
+        "cwd": RACINE,
         "bloquant": True,
         "traduction": "ruff",
         "lent": False,
@@ -165,6 +220,7 @@ CONTROLES_INTERNES = {
     "doc_vs_code": True,      # les chemins cités dans la doc du dépôt existent-ils ?
     "memoire_ia": True,       # idem pour la mémoire de l'IA (consultatif)
     "regles_maison": True,    # les règles de CLAUDE.md sont-elles tenues ?
+    "hook_git": True,         # le hook pre-push est-il réellement branché ?
 }
 
 # Les documents du DÉPÔT dont on vérifie qu'ils ne mentent pas.
@@ -180,28 +236,54 @@ DOCS_A_VERIFIER = sorted(
 
 
 def _dossier_memoire():
-    """Retrouve le dossier mémoire de l'IA, sans écrire de chemin en dur.
+    """Retrouve le dossier mémoire de l'IA. Renvoie (chemin | None, origine).
 
-    POURQUOI CETTE FONCTION plutôt qu'un chemin figé : le nom du dossier est
-    dérivé du chemin absolu du projet, il contient donc le nom de session de
-    l'utilisateur. L'écrire en dur reviendrait à (1) publier une information
+    POURQUOI ON CHERCHE plutôt que d'écrire un chemin figé : le nom du dossier
+    est dérivé du chemin absolu du projet, il contient donc le nom de session
+    de l'utilisateur. L'écrire en dur reviendrait à (1) publier une information
     personnelle si l'outil est partagé, et (2) casser le contrôle sur toute
-    autre machine. On cherche donc le dossier au lieu de le supposer.
+    autre machine.
 
-    Renvoie None si rien n'est trouvé → le contrôle est simplement ignoré,
-    sans jamais afficher de chemin.
+    Trois pistes, dans l'ordre :
+      1. `LEON_MEMOIRE` dans `tools/.env` — la porte de sortie quand la
+         découverte auto échoue (autre PC, dossier déplacé, chemin exotique).
+         Le .env étant gitignoré, le chemin personnel ne part jamais au dépôt.
+      2. `CLAUDE_CONFIG_DIR` — la variable par laquelle Claude Code lui-même
+         déplace sa config ; sans elle, `~/.claude`.
+      3. Le dossier du projet, cherché SANS TENIR COMPTE DE LA CASSE.
+         ⚠️ `glob("*Matorn*")` est sensible à la casse sous Linux : un dossier
+         nommé `...-matorn` n'aurait jamais été trouvé, et le contrôle serait
+         passé « INDISPONIBLE » en silence sur la machine Linux à venir.
+
+    Renvoie None si rien n'est trouvé → le contrôle est simplement ignoré.
+    L'`origine` sert à dire à l'utilisateur QUELLE piste a servi (ou échoué),
+    sans jamais afficher le chemin lui-même.
     """
-    base = Path.home() / ".claude" / "projects"
+    explicite = ENV.get("LEON_MEMOIRE", "").strip()
+    if explicite:
+        chemin = Path(explicite).expanduser()
+        if chemin.is_dir():
+            return chemin, "LEON_MEMOIRE (.env)"
+        # Configuré MAIS faux : le pire cas silencieux. On le dit.
+        return None, "LEON_MEMOIRE (.env) pointe sur un dossier inexistant"
+
+    racine_claude = ENV.get("CLAUDE_CONFIG_DIR", "").strip()
+    base = (Path(racine_claude).expanduser() if racine_claude
+            else Path.home() / ".claude") / "projects"
     if not base.is_dir():
-        return None
-    for dossier in sorted(base.glob("*Matorn*")):
+        return None, "aucun dossier Claude sur cette machine"
+
+    for dossier in sorted(base.iterdir()):
+        if not dossier.is_dir() or "matorn" not in dossier.name.lower():
+            continue
         memoire = dossier / "memory"
         if memoire.is_dir():
-            return memoire
-    return None
+            return memoire, "decouverte auto"
+
+    return None, "aucun dossier memoire Matorn trouve"
 
 
-MEMOIRE_IA = _dossier_memoire()
+MEMOIRE_IA, MEMOIRE_IA_ORIGINE = _dossier_memoire()
 
 # Racines depuis lesquelles un chemin cité dans la doc peut être relatif.
 RACINES_RESOLUTION = [RACINE, TOOLS.parent, BACKEND, FRONTEND, FRONTEND / "src"]
