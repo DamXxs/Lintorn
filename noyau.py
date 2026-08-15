@@ -12,12 +12,36 @@ maison (doc-vs-code et règles de CLAUDE.md).
 
 from __future__ import annotations
 
+import datetime
+import json
 import re
 import subprocess
 from pathlib import Path
 
 import config
 import traductions
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ÉTAT LOCAL — ce qui dépend de la MACHINE, pas du projet
+# ─────────────────────────────────────────────────────────────────────────────
+# Gitignoré : la date du dernier audit complet n'a de sens que sur le poste où
+# il a tourné. La partager par git ferait croire à un collègue que SA machine
+# est à jour parce qu'une autre l'était.
+def lire_etat() -> dict:
+    try:
+        return json.loads(config.ETAT.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+
+
+def ecrire_etat(cle: str, valeur) -> None:
+    etat = lire_etat()
+    etat[cle] = valeur
+    try:
+        config.ETAT.write_text(json.dumps(etat, indent=2), encoding="utf-8")
+    except OSError:
+        pass    # ne JAMAIS faire échouer un audit parce qu'on n'a pas pu noter la date
 
 # ─────────────────────────────────────────────────────────────────────────────
 # LA FICHE DE RÉSULTAT
@@ -288,6 +312,22 @@ def _verifier_documents(titre: str, documents: list, bloquant_possible: bool) ->
         # On ignore les blocs ``` (exemples de code) : seuls les `inline` comptent
         texte = re.sub(r"```.*?```", "", texte, flags=re.DOTALL)
 
+        # ── Document PROSPECTIF ──────────────────────────────────────────────
+        # Une note de conception, une roadmap, un ADR ou un post-mortem citent
+        # LÉGITIMEMENT des fichiers qui n'existent pas : pas encore (module à
+        # écrire) ou plus (fichier supprimé, cité justement parce qu'il a
+        # disparu). Sans échappatoire, LEON bloque le push et pousse à écrire
+        # ces documents AILLEURS que dans `Notes/` — il fabrique l'angle mort
+        # qu'il prétend supprimer. Constaté le 12/08/2026 : ce contrôle a
+        # recalé la note de conception qui décrivait sa propre correction.
+        #
+        #     <!-- leon:prospectif -->   en tête du document
+        #
+        # → ses chemins introuvables deviennent consultatifs (VERIF), jamais
+        #   bloquants. Le contrôle continue de les LISTER : on informe, on
+        #   n'interdit pas.
+        prospectif = "leon:prospectif" in texte
+
         deja_vus: set[str] = set()
         for token in re.findall(r"`([^`\n]+)`", texte):
             token = token.strip().rstrip("/").removeprefix("./")
@@ -306,7 +346,11 @@ def _verifier_documents(titre: str, documents: list, bloquant_possible: bool) ->
             ligne = f"{source} → `{token}`"
             # Une extension explicite = une affirmation vérifiable. Sans extension,
             # ça peut être du texte → consultatif, on ne bloque pas dessus.
-            (certains if re.search(r"\.\w{2,4}(:\d|$)", token) else incertains).append(ligne)
+            affirmatif = bool(re.search(r"\.\w{2,4}(:\d|$)", token))
+            if affirmatif and not prospectif:
+                certains.append(ligne)
+            else:
+                incertains.append(ligne + (" *(doc prospectif)*" if prospectif else ""))
 
     resume = f"{verifies} chemin(s) cite(s), {len(certains)} introuvable(s)"
     if incertains:
@@ -368,6 +412,209 @@ def controle_memoire_ia() -> Resultat:
         return Resultat("Memoire IA vs code", "INDISPONIBLE", "aucun fichier memoire", bloquant=False)
 
     return _verifier_documents("Memoire IA vs code", fichiers, bloquant_possible=False)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CONTRÔLE MAISON 3 — la mémoire est-elle encore FRAÎCHE ?
+# ─────────────────────────────────────────────────────────────────────────────
+# « Memoire IA vs code » répond à : les chemins cités existent-ils ?
+# Celui-ci répond à : ce que la mémoire raconte de ces fichiers est-il encore
+# d'actualité ? Les deux sont indépendants — la section RGPD de la roadmap avait
+# ZÉRO chemin cassé et affirmait quand même le contraire du code, pendant deux
+# semaines (12/08/2026).
+#
+# LE PRINCIPE : une date saisie à la main ment dès qu'on oublie de la changer.
+# Git, lui, n'oublie rien. On ne demande donc à l'humain qu'UNE chose — la date
+# de sa dernière vérification — et c'est git qui dit si elle a péri.
+_RX_VERIFIE_LE = re.compile(r"^\s*verifie_le\s*:\s*(\d{4}-\d{2}-\d{2})\s*$", re.M)
+
+
+def _pathspecs_cites(texte: str) -> list[str]:
+    """Les chemins cités par un document, traduits en **pathspecs git**.
+
+    Deux formes, parce qu'une mémoire emploie les deux :
+      - `matorn/backend/factures/models.py` → chemin repo-relatif, tel quel
+      - `OrPdfTemplate.tsx` (nom NU)        → `:(glob)**/OrPdfTemplate.tsx`
+
+    ⚠️ Le nom nu est le cas **majoritaire** en mémoire : on y écrit « le
+    template `OrPdfTemplate.tsx` », jamais son chemin complet. Une première
+    version ne résolvait que les chemins complets — elle trouvait 0 fichier
+    sur `project_generateur_pdf.md`, donc 0 commit, donc un contrôle qui
+    serait resté VERT à jamais. Trouvé par son propre test le 12/08/2026 :
+    le pire des bugs, celui qui ne fait rien de visible.
+    """
+    texte = re.sub(r"```.*?```", "", texte, flags=re.DOTALL)
+    specs: set[str] = set()
+
+    for token in re.findall(r"`([^`\n]+)`", texte):
+        token = token.strip().rstrip("/").removeprefix("./")
+        if not est_un_chemin(token):
+            continue
+        token = re.sub(r":\d+(-\d+)?$", "", token)
+
+        if "/" in token:
+            for racine in config.RACINES_RESOLUTION:
+                cible = racine / token
+                if cible.exists():
+                    try:
+                        specs.add(cible.resolve().relative_to(config.RACINE).as_posix())
+                    except ValueError:
+                        pass      # hors dépôt : git n'a rien à en dire
+                    break
+        elif token.endswith(config.EXTENSIONS):
+            # git retrouvera le fichier où qu'il soit rangé dans le dépôt
+            specs.add(f":(glob)**/{token}")
+
+    return sorted(specs)
+
+
+# Séparateur de commits dans la sortie de `git log`.
+#
+# ⚠️ DEUX pièges payés le 12/08/2026, tous deux silencieux :
+#   1. PAS un caractère nul : Windows refuse un octet 0 dans un argument de
+#      processus (`ValueError: embedded null character`).
+#   2. Le préfixe `format:` est OBLIGATOIRE. `--format=<chaîne libre>` est
+#      refusé par git (« invalid --pretty format ») : il n'accepte qu'un nom
+#      de format connu (oneline, short…) ou `format:` / `tformat:`. Sans le
+#      préfixe, git sortait en 128, la fonction avalait l'échec et renvoyait
+#      « 0 commit » — donc un contrôle VERT sur une mémoire périmée.
+_SENTINELLE = "@@LEON-COMMIT@@"
+
+
+def _commits_depuis(depuis: str, pathspecs: list[str]) -> tuple[int, list[str] | None]:
+    """(nombre de commits, fichiers touchés) depuis cette date.
+
+    `--name-only` combiné à un pathspec ne liste QUE les fichiers concernés :
+    c'est git qui filtre, on n'a aucun recoupement à faire nous-mêmes.
+
+    Renvoie `(0, None)` — et non `(0, [])` — quand git est en panne. L'appelant
+    DOIT distinguer « rien n'a bougé » de « je n'ai pas pu regarder » : c'est
+    précisément la confusion qui a rendu ce contrôle faussement vert.
+    """
+    try:
+        sortie = subprocess.run(
+            ["git", "log", f"--since={depuis}", f"--format=format:{_SENTINELLE}",
+             "--name-only", "--", *pathspecs],
+            cwd=config.RACINE, capture_output=True, text=True, timeout=30,
+            check=False,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return 0, None
+
+    if sortie.returncode != 0:
+        return 0, None
+
+    nb = 0
+    touches: set[str] = set()
+    for ligne in sortie.stdout.splitlines():
+        ligne = ligne.strip()
+        if ligne == _SENTINELLE:
+            nb += 1
+        elif ligne:
+            touches.add(ligne)
+    return nb, sorted(touches)
+
+
+def controle_fraicheur_memoire() -> Resultat:
+    """Une mémoire dont le code cité a bougé depuis sa dernière vérification.
+
+    CONSULTATIF, jamais bloquant : « suspect » ne veut pas dire « faux ». Le
+    code peut avoir changé sans invalider ce que la mémoire en dit. Le contrôle
+    ne juge pas, il DÉSIGNE quoi relire — et c'est déjà énorme sur un projet
+    où l'on n'ouvre jamais spontanément un fichier mémoire vieux de trois
+    semaines.
+    """
+    titre = "Fraicheur memoire (git)"
+
+    if config.MEMOIRE_IA is None:
+        return Resultat(titre, "INDISPONIBLE",
+                        f"dossier memoire introuvable ({config.MEMOIRE_IA_ORIGINE})",
+                        bloquant=False)
+
+    fichiers = sorted(config.MEMOIRE_IA.glob("*.md"))
+    if not fichiers:
+        return Resultat(titre, "INDISPONIBLE", "aucun fichier memoire", bloquant=False)
+
+    suspectes: list[str] = []
+    jamais: list[str] = []
+    injoignables: list[str] = []
+    fraiches = 0
+    hors_perimetre = 0
+
+    for doc in fichiers:
+        texte = doc.read_text(encoding="utf-8", errors="replace")
+
+        # ⚠️ On regarde les chemins AVANT la date. Une mémoire qui ne cite aucun
+        # fichier — un profil, des préférences de travail — ne peut pas périmer
+        # à cause du code : git n'a rien à en dire. Lui réclamer une date de
+        # vérification serait du bruit permanent, et un contrôle bruyant finit
+        # par ne plus être lu. Elle est HORS PÉRIMÈTRE, pas « en retard ».
+        pathspecs = _pathspecs_cites(texte)
+        if not pathspecs:
+            hors_perimetre += 1
+            continue
+
+        trouve = _RX_VERIFIE_LE.search(texte)
+        if not trouve:
+            jamais.append(doc.name)
+            continue
+
+        depuis = trouve.group(1)
+
+        nb, touches = _commits_depuis(depuis, pathspecs)
+        if touches is None:
+            # git n'a pas répondu : on ne SAIT pas. Surtout ne pas compter
+            # cette mémoire comme fraîche — ce serait affirmer sans avoir vu.
+            injoignables.append(doc.name)
+            continue
+        if nb == 0:
+            fraiches += 1
+            continue
+
+        detail_fichiers = "\n".join(f"    - `{f}`" for f in touches[:6])
+        if len(touches) > 6:
+            detail_fichiers += f"\n    - *… et {len(touches) - 6} autre(s)*"
+        suspectes.append(
+            f"- **`{doc.name}`** — vérifiée le {depuis}, **{nb} commit(s) depuis** sur :\n"
+            f"{detail_fichiers}"
+        )
+
+    resume = f"{fraiches} fraiche(s), {len(suspectes)} suspecte(s)"
+    if jamais:
+        resume += f", {len(jamais)} sans date"
+    if hors_perimetre:
+        resume += f", {hors_perimetre} sans code cite"
+    if injoignables:
+        resume += f", {len(injoignables)} NON VERIFIABLE(S) (git muet)"
+
+    if not suspectes and not jamais and not injoignables:
+        return Resultat(titre, "OK", resume, bloquant=False)
+
+    detail = ""
+    if suspectes:
+        detail += ("**À RELIRE** — du code cité a changé depuis la dernière "
+                   "vérification. Ce n'est pas une erreur : c'est un doute.\n\n")
+        detail += "\n".join(suspectes)
+    if jamais:
+        if suspectes:
+            detail += "\n\n"
+        detail += (
+            "**SANS DATE** — ces mémoires n'ont jamais été confrontées au code. "
+            "Ajouter `verifie_le: AAAA-MM-JJ` dans leur frontmatter après les "
+            "avoir relues :\n\n"
+        )
+        detail += "\n".join(f"- `{n}`" for n in jamais)
+    if injoignables:
+        if detail:
+            detail += "\n\n"
+        detail += (
+            "**NON VÉRIFIABLES** — git n'a pas répondu pour ces mémoires. Le "
+            "contrôle ne dit rien sur elles : ce n'est **pas** un feu vert.\n\n"
+        )
+        detail += "\n".join(f"- `{n}`" for n in injoignables)
+
+    # VERIF et pas ALERTE : rien n'est cassé, il y a des choses à regarder.
+    return Resultat(titre, "VERIF", resume, detail, bloquant=False, detail_markdown=True)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -489,11 +736,60 @@ def controle_hook_git() -> Resultat:
     )
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# CONTRÔLE MAISON 5 — les outils LENTS ont-ils tourné récemment ?
+# ─────────────────────────────────────────────────────────────────────────────
+def controle_audit_complet() -> Resultat:
+    """`--rapide` saute vulture et pip-audit. Qui rappelle de les lancer ?
+
+    Personne, jusqu'ici — et c'est comme ça que 3 failles de sécurité connues
+    (cryptography, pypdf) ont dormi dans le projet : `pip-audit` ne tourne ni en
+    `--rapide`, ni dans le hook pre-push.
+
+    POURQUOI UN RAPPEL DANS L'OUTIL plutôt qu'une tâche planifiée : un
+    planificateur qui meurt ne prévient personne. Le rappel, lui, apparaît dans
+    l'audit qu'on lance déjà tous les jours. Et il marche sur n'importe quel OS.
+
+    ⚠️ Ce contrôle est le seul dont la valeur DÉCROÎT avec le temps sans que le
+    code change : une faille publiée demain concerne un projet figé depuis un an.
+    """
+    titre = "Audit complet (outils lents)"
+    dernier = lire_etat().get("dernier_audit_complet")
+
+    relance = ("Les outils **lents** — `vulture` et surtout **`pip-audit`** — ne "
+               "tournent ni en `--rapide`, ni dans le hook pre-push. `pip-audit` "
+               "signale les **failles de sécurité connues** de tes dépendances : "
+               "elles apparaissent sans que ton code bouge.\n\n"
+               "```bash\npython matorn/tools/LEON.py\n```")
+
+    if not dernier:
+        return Resultat(titre, "VERIF", "jamais lance sur cette machine",
+                        relance, bloquant=False, detail_markdown=True)
+
+    try:
+        date = datetime.date.fromisoformat(str(dernier)[:10])
+    except ValueError:
+        return Resultat(titre, "VERIF", "date illisible dans .leon_etat.json",
+                        relance, bloquant=False, detail_markdown=True)
+
+    jours = (datetime.date.today() - date).days
+    if jours <= config.JOURS_AUDIT_COMPLET:
+        return Resultat(titre, "OK", f"lance il y a {jours} jour(s)", bloquant=False)
+
+    return Resultat(
+        titre, "VERIF",
+        f"{jours} jours sans audit complet (seuil : {config.JOURS_AUDIT_COMPLET})",
+        relance, bloquant=False, detail_markdown=True,
+    )
+
+
 CONTROLES_INTERNES = {
     "doc_vs_code": controle_doc,
     "memoire_ia": controle_memoire_ia,
+    "fraicheur_memoire": controle_fraicheur_memoire,
     "regles_maison": controle_regles_maison,
     "hook_git": controle_hook_git,
+    "audit_complet": controle_audit_complet,
 }
 
 

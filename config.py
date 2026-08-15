@@ -88,6 +88,33 @@ ENV = {**_lire_env(TOOLS / ".env"), **os.environ}
 #               l'outil planté alors qu'il faisait son travail (30/07/2026).
 #               Défaut : (1,)
 #
+# ── Liste blanche de vulture ─────────────────────────────────────────────────
+# Noms que vulture déclare « inutilisés » alors qu'ils sont IMPOSÉS par une API :
+# le framework appelle la fonction avec ces arguments, les retirer casse l'appel.
+# 8 fausses alertes sur 8 le 12/08/2026 — un contrôle qui n'a que des faux
+# positifs finit par ne plus être lu, donc par ne plus rien protéger.
+#
+# ⚠️ N'ajoute ici QUE des noms imposés de l'extérieur. Tout ce qu'on y met
+# devient invisible pour toujours — la liste blanche est un angle mort choisi.
+#
+# Sur un projet non-Django, vide cette liste : elle n'a rien d'universel.
+VULTURE_IGNORES = [
+    "sender",        # récepteurs de signaux Django (@receiver)
+    "app_configs",   # fonctions de check système (@register)
+    "model_admin",   # actions, filtres et vues de l'admin Django
+]
+
+# ── Fraîcheur de l'audit complet ─────────────────────────────────────────────
+# Les outils LENTS (vulture, pip-audit) ne tournent PAS en `--rapide`, donc pas
+# non plus dans le hook pre-push. Sans rappel, ils peuvent ne jamais tourner :
+# les 3 failles de sécurité trouvées le 12/08/2026 dormaient depuis un moment.
+#
+# On préfère un rappel DANS l'outil qu'une tâche planifiée : un planificateur
+# qui meurt ne prévient personne (même leçon que `core.hooksPath`).
+ETAT = TOOLS / ".leon_etat.json"
+JOURS_AUDIT_COMPLET = 30
+
+
 # POUR AJOUTER UN OUTIL : copie une entrée, change les 3 premières lignes.
 COMMANDES = [
     {
@@ -193,8 +220,11 @@ COMMANDES = [
         # ⚠️ Beaucoup de faux positifs : une app Django n'est parfois citée que
         # dans INSTALLED_APPS, un composant qu'en import paresseux.
         # On NE SUPPRIME JAMAIS sur la seule foi de vulture.
+        # `--ignore-names` reçoit VULTURE_IGNORES (juste au-dessus) : les noms
+        # imposés par Django ne sont pas du code mort.
         "cmd": [PYTHON, "-m", "vulture", ".", "--min-confidence", "80",
-                "--exclude", "venv,migrations"],
+                "--exclude", "venv,migrations",
+                "--ignore-names", ",".join(VULTURE_IGNORES)],
         "cwd": BACKEND,
         "bloquant": False,
         "traduction": None,
@@ -217,10 +247,12 @@ COMMANDES = [
 # ─────────────────────────────────────────────────────────────────────────────
 # Mets False pour en désactiver un.
 CONTROLES_INTERNES = {
-    "doc_vs_code": True,      # les chemins cités dans la doc du dépôt existent-ils ?
-    "memoire_ia": True,       # idem pour la mémoire de l'IA (consultatif)
-    "regles_maison": True,    # les règles de CLAUDE.md sont-elles tenues ?
-    "hook_git": True,         # le hook pre-push est-il réellement branché ?
+    "doc_vs_code": True,        # les chemins cités dans la doc du dépôt existent-ils ?
+    "memoire_ia": True,         # idem pour la mémoire de l'IA (consultatif)
+    "fraicheur_memoire": True,  # le code cité par la mémoire a-t-il bougé depuis ? (git)
+    "regles_maison": True,      # les règles de CLAUDE.md sont-elles tenues ?
+    "hook_git": True,           # le hook pre-push est-il réellement branché ?
+    "audit_complet": True,      # les outils lents ont-ils tourné depuis 30 jours ?
 }
 
 # Les documents du DÉPÔT dont on vérifie qu'ils ne mentent pas.
