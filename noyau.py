@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import datetime
 import json
+import os
 import re
 import subprocess
 from pathlib import Path
@@ -716,7 +717,7 @@ def controle_hook_git() -> Resultat:
 
     actuel = sortie.stdout.strip().replace("\\", "/")
     if actuel == config.HOOKS_ATTENDU:
-        return Resultat(titre, "OK", "branche - LEON tournera avant chaque push")
+        return _controle_hook_executable(titre)
 
     etat = "non configure" if not actuel else f"pointe ailleurs ({actuel})"
     return Resultat(
@@ -734,6 +735,88 @@ def controle_hook_git() -> Resultat:
         bloquant=False,
         detail_markdown=True,
     )
+
+
+def _controle_hook_executable(titre: str) -> Resultat:
+    """`core.hooksPath` est bon — reste à savoir si git a le DROIT de lancer.
+
+    LA PANNE VÉCUE (16/08/2026) : git refuse d'exécuter un hook qui n'a pas le
+    bit exécutable, et il le fait EN SILENCE — pas de message, pas d'erreur, le
+    push part simplement sans contrôle. Le hook avait été créé sous Windows, où
+    ce bit n'existe pas (`core.filemode=false`, Git Bash lance tout) ; il est
+    donc parti dans le dépôt en 100644. Tant que le projet est resté sous
+    Windows, personne n'a rien vu. Au passage sous Linux, le hook est mort ce
+    jour-là — et LEON affichait toujours `[ OK ] branche`.
+
+    C'était donc le pire cas possible : pas un rouge, pas même un `[ERR!]`, mais
+    un VERT sur un garde-fou mort. Plusieurs jours de push en confiance.
+
+    DEUX vérifications, parce que ce sont deux pannes différentes :
+      * le bit sur le DISQUE   -> décide si git lance le hook ICI, maintenant
+      * le mode dans l'INDEX   -> décide s'il le lancera sur TOUS les clones
+    Réparer l'un sans l'autre laisse la moitié du problème en place : un
+    `chmod` seul se perd au prochain clone, un mode git seul ne débloque pas la
+    machine courante tant que le fichier n'est pas ressorti du dépôt.
+    """
+    chemin = config.HOOKS / "pre-push"
+    fautes: list[str] = []
+
+    # 1. LE DISQUE. Sauté sous Windows : NTFS n'a pas de bit exécutable, et
+    #    `os.access(X_OK)` y répond n'importe quoi. Là-bas, Git Bash lance le
+    #    hook quel que soit le mode — le seul vrai risque est le mode git.
+    if os.name != "nt" and not os.access(chemin, os.X_OK):
+        fautes.append("pas executable sur le disque")
+
+    # 2. L'INDEX GIT. Le mode voyage avec le dépôt : c'est lui qui décide du
+    #    sort de Codespaces et de toute machine future.
+    mode = _mode_git(chemin)
+    if mode is not None and not mode.endswith("755"):
+        fautes.append(f"enregistre en {mode} dans git (attendu 100755)")
+
+    if not fautes:
+        return Resultat(titre, "OK", "branche et executable - LEON tournera avant chaque push")
+
+    return Resultat(
+        titre, "ALERTE",
+        f"BRANCHE MAIS MUET - {' + '.join(fautes)}",
+        "`core.hooksPath` est bien posé, mais **git n'exécutera pas** ce "
+        "fichier : il refuse tout hook dépourvu du bit exécutable, et il le "
+        "fait **sans le moindre message**. `git push` repart donc sans aucun "
+        "contrôle, avec un voyant au vert.\n\n"
+        "Les deux lignes de la réparation (les deux sont nécessaires) :\n\n"
+        "```bash\n"
+        f"chmod +x {config.HOOKS_ATTENDU}/pre-push\n"
+        f"git add {config.HOOKS_ATTENDU}/pre-push\n"
+        "```\n\n"
+        "`chmod` débloque **cette machine**, `git add` enregistre le mode "
+        "`100755` dans le dépôt pour **tous les clones à venir**. Sous Windows, "
+        "où `chmod` n'a pas d'effet, la seconde ligne devient "
+        f"`git update-index --chmod=+x {config.HOOKS_ATTENDU}/pre-push`.",
+        bloquant=False,
+        detail_markdown=True,
+    )
+
+
+def _mode_git(chemin: Path) -> str | None:
+    """Mode enregistré dans l'index git (`100644`, `100755`), ou None.
+
+    None = question sans réponse fiable (git muet, fichier pas encore suivi) →
+    l'appelant ne doit alors RIEN conclure. Un contrôle qui invente un verdict
+    quand il n'a pas la donnée est exactement le défaut qu'on corrige ici.
+    """
+    try:
+        # `relative_to` lève ValueError sur un chemin hors dépôt : c'est une
+        # question sans réponse, pas une panne — donc None comme le reste.
+        relatif = chemin.relative_to(config.RACINE).as_posix()
+        sortie = subprocess.run(
+            ["git", "ls-files", "-s", "--", relatif],
+            cwd=config.RACINE, capture_output=True, text=True, timeout=10, check=False,
+        )
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return None
+
+    premiere = sortie.stdout.strip().split("\n")[0] if sortie.stdout.strip() else ""
+    return premiere.split()[0] if premiere else None
 
 
 # ─────────────────────────────────────────────────────────────────────────────

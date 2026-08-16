@@ -10,6 +10,7 @@
 # bruyamment, au lieu de dégrader en silence.
 
 import json
+import subprocess
 from datetime import date, timedelta
 
 import LEON
@@ -246,6 +247,44 @@ def test_le_chemin_attendu_des_hooks_est_le_bon():
     repartirait sans contrôle en croyant être protégé."""
     assert config.HOOKS == config.RACINE / config.HOOKS_ATTENDU
     assert (config.HOOKS / "pre-push").is_file()
+
+
+def test_le_hook_pre_push_est_executable_dans_git():
+    """Git refuse en SILENCE de lancer un hook sans le bit exécutable.
+
+    Panne réelle du 16/08/2026 : le hook, créé sous Windows (où ce bit n'existe
+    pas), était parti dans le dépôt en `100644`. Sous Windows Git Bash le
+    lançait quand même — au passage sous Linux, `git push` a cessé de contrôler
+    quoi que ce soit, sans un message, pendant que LEON affichait « branche ».
+
+    On teste le mode dans l'INDEX GIT et non le bit du disque : le mode est ce
+    qui voyage avec le dépôt, donc ce qui protège Codespaces et les machines
+    futures. Et c'est le seul des deux qui ait la même réponse sur tous les OS.
+    """
+    chemin = f"{config.HOOKS_ATTENDU}/pre-push"
+
+    sortie = subprocess.run(
+        ["git", "ls-files", "-s", "--", chemin],
+        cwd=config.RACINE, capture_output=True, text=True, timeout=10, check=False,
+    )
+
+    assert sortie.stdout.strip(), f"{chemin} n'est pas suivi par git → le hook ne suivra aucun clone"
+    mode = sortie.stdout.split()[0]
+    assert mode == "100755", (
+        f"{chemin} est enregistre en {mode} : git ne l'executera JAMAIS, "
+        "ni ici ni sur un clone, et sans le moindre message. Reparer avec :\n"
+        f"    chmod +x {chemin} && git add {chemin}"
+    )
+
+
+def test_le_controle_du_hook_ne_conclut_rien_sans_donnee(tmp_path):
+    """`_mode_git` doit rendre None hors dépôt, jamais un mode inventé.
+
+    Un contrôle qui devine un verdict quand il n'a pas la donnée est
+    précisément le défaut qu'on vient de corriger : il repasse au vert sur du
+    vide. Ici, hors dépôt git, la seule réponse honnête est « je ne sais pas ».
+    """
+    assert noyau._mode_git(tmp_path / "inexistant") is None
 
 
 def test_lecture_du_env_ignore_commentaires_guillemets_et_lignes_vides(tmp_path):
