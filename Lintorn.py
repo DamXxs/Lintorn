@@ -1,28 +1,28 @@
 #!/usr/bin/env python3
 """
-LEON — le contrôle de santé du projet Matorn.
+Lintorn — le contrôle de santé du projet Matorn.
 
 Il regarde tout le monde, tout le temps, et il ne laisse rien passer.
 
-    python matorn/tools/LEON.py                    # tout
-    python matorn/tools/LEON.py --rapide           # sans les outils lents
-    python matorn/tools/LEON.py --doc              # uniquement : la doc ment-elle ?
-    python matorn/tools/LEON.py --fichiers a.py b.css
+    python matorn/tools/Lintorn.py                    # tout
+    python matorn/tools/Lintorn.py --rapide           # sans les outils lents
+    python matorn/tools/Lintorn.py --doc              # uniquement : la doc ment-elle ?
+    python matorn/tools/Lintorn.py --fichiers a.py b.css
                                                    # + un focus sur ces fichiers
-    python matorn/tools/LEON.py --installer-hook   # branche le hook pre-push
+    python matorn/tools/Lintorn.py --installer-hook   # branche le hook pre-push
                                                    #   (à faire UNE fois par clone)
-    python matorn/tools/LEON.py --maj-securite     # ce que pip-audit propose (simulation)
-    python matorn/tools/LEON.py --maj-securite --appliquer
+    python matorn/tools/Lintorn.py --maj-securite     # ce que pip-audit propose (simulation)
+    python matorn/tools/Lintorn.py --maj-securite --appliquer
                                                    # installe et repingle vraiment
 
 OÙ TOUCHER QUOI
     config.py        les outils à lancer, ce qu'on vérifie, les règles maison
     traductions.py   les messages en français
     noyau.py         la mécanique
-    LEON.py          (ce fichier) le point d'entrée, le rapport, l'affichage
+    Lintorn.py          (ce fichier) le point d'entrée, le rapport, l'affichage
 
 CE QU'IL SURVEILLE, EN PLUS DU CODE
-    Le lint et les tests ne voient que le CODE. LEON regarde aussi les
+    Le lint et les tests ne voient que le CODE. Lintorn regarde aussi les
     DONNÉES (`manage.py verifier_donnees`) : une base peut être fausse alors
     que le code est juste — séquence de factures trouée, ligne d'OR facturée
     sans désignation. Aucun test unitaire ne voyait ces cas-là.
@@ -113,7 +113,7 @@ def maj_securite(appliquer: bool) -> int:
 
     if not appliquer:
         print("\nSIMULATION - rien n'a ete touche. Pour appliquer :")
-        print("    python matorn/tools/LEON.py --maj-securite --appliquer")
+        print("    python matorn/tools/Lintorn.py --maj-securite --appliquer")
         return 0
 
     print("\nInstallation...")
@@ -143,7 +143,7 @@ def maj_securite(appliquer: bool) -> int:
 
     print("\nA FAIRE MAINTENANT - une montee de version peut casser :")
     print("    cd matorn/backend && venv/Scripts/python.exe -m pytest -q")
-    print("    python matorn/tools/LEON.py")
+    print("    python matorn/tools/Lintorn.py")
     return 0 if len(reussis) == len(plan) else 1
 
 
@@ -155,7 +155,7 @@ def installer_hook() -> int:
 
     Le réglage `core.hooksPath` n'est pas versionné : il doit être reposé sur
     chaque clone. Plutôt que de laisser l'utilisateur retenir la commande git,
-    LEON la joue lui-même — et son contrôle « Hook pre-push » dit quand c'est
+    Lintorn la joue lui-même — et son contrôle « Hook pre-push » dit quand c'est
     nécessaire.
     """
     try:
@@ -168,7 +168,7 @@ def installer_hook() -> int:
         return 1
 
     print(f"Hook branche : core.hooksPath = {config.HOOKS_ATTENDU}")
-    print("LEON tournera desormais avant chaque git push.")
+    print("Lintorn tournera desormais avant chaque git push.")
     return 0
 
 
@@ -239,9 +239,9 @@ def focus_sur(resultats: list[Resultat], fichiers: list[str]) -> Resultat:
 def ecrire_rapport(resultats: list[Resultat]) -> None:
     horodatage = datetime.now().strftime("%d/%m/%Y %H:%M")
     lignes = [
-        "# Le rapport de LEON — Matorn",
+        "# Le rapport de Lintorn — Matorn",
         "",
-        f"> Généré le {horodatage} par `matorn/tools/LEON.py`.",
+        f"> Généré le {horodatage} par `matorn/tools/Lintorn.py`.",
         "> **Fichier régénéré à chaque exécution — ne rien y écrire à la main.**",
         "",
         "| Contrôle | Statut | Résumé |",
@@ -304,18 +304,18 @@ def main() -> int:
 
     # Console volontairement en ASCII : le hook git tourne sous Git Bash, qui
     # n'affiche pas l'UTF-8 correctement. Le rapport, lui, garde les accents.
-    print("\n=== LEON - RAPPORT AUDIT ===")
+    print("\n=== Lintorn - RAPPORT AUDIT ===")
     for r in resultats:
         print(f"{MARQUEUR[r.statut]} {r.titre:<34} {r.resume}")
 
     echecs = [r for r in resultats if r.en_echec]
-    print(f"\nLe rapport de LEON : {config.RAPPORT.relative_to(config.RACINE).as_posix()}")
+    print(f"\nLe rapport de Lintorn : {config.RAPPORT.relative_to(config.RACINE).as_posix()}")
     if echecs:
-        print(f"LEON signale {len(echecs)} controle(s) bloquant(s) en alerte :")
+        print(f"Lintorn signale {len(echecs)} controle(s) bloquant(s) en alerte :")
         for r in echecs:
             print(f"    - {r.titre}")
         return 1
-    print("LEON n'a rien a signaler : tous les controles bloquants sont au vert.")
+    print("Lintorn n'a rien a signaler : tous les controles bloquants sont au vert.")
     return 0
 
 

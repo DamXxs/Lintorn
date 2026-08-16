@@ -24,7 +24,7 @@ TOOLS = Path(__file__).resolve().parent
 RACINE = TOOLS.parents[1]              # le dépôt git
 BACKEND = TOOLS.parent / "backend"
 FRONTEND = TOOLS.parent / "frontend"
-RAPPORT = TOOLS / "rapport_LEON.md"
+RAPPORT = TOOLS / "rapport_Lintorn.md"
 
 # Le venv n'est pas au même endroit sous Windows et sous Linux (Codespaces).
 _win = BACKEND / "venv" / "Scripts" / "python.exe"
@@ -35,7 +35,7 @@ NPX = "npx.cmd" if sys.platform == "win32" else "npx"
 # Dossiers qu'on ne parcourt jamais (volumineux ou générés)
 IGNORES = {"node_modules", "venv", ".git", "__pycache__", "dist", "build", ".vite"}
 
-# Le hook git doit pointer ici pour que LEON tourne avant chaque push.
+# Le hook git doit pointer ici pour que Lintorn tourne avant chaque push.
 HOOKS = TOOLS / "hooks"
 HOOKS_ATTENDU = "matorn/tools/hooks"
 
@@ -44,11 +44,11 @@ HOOKS_ATTENDU = "matorn/tools/hooks"
 # RÉGLAGES DE MACHINE — `matorn/tools/.env` (gitignoré)
 # ─────────────────────────────────────────────────────────────────────────────
 # Ce qui dépend de LA MACHINE, pas du projet, se règle ici. Modèle fourni :
-# `.env.example`. Aucune valeur n'est obligatoire — sans .env, LEON se
+# `.env.example`. Aucune valeur n'est obligatoire — sans .env, Lintorn se
 # débrouille tout seul comme avant.
 #
-# Lecteur volontairement écrit à la main : LEON promet « aucune dépendance,
-# stdlib uniquement » (voir l'en-tête de LEON.py). Ajouter python-dotenv pour
+# Lecteur volontairement écrit à la main : Lintorn promet « aucune dépendance,
+# stdlib uniquement » (voir l'en-tête de Lintorn.py). Ajouter python-dotenv pour
 # 10 lignes trahirait cette promesse — et le hook pre-push doit pouvoir tourner
 # avec n'importe quel python, pas seulement celui du venv backend.
 def _lire_env(fichier: Path) -> dict:
@@ -111,7 +111,7 @@ VULTURE_IGNORES = [
 #
 # On préfère un rappel DANS l'outil qu'une tâche planifiée : un planificateur
 # qui meurt ne prévient personne (même leçon que `core.hooksPath`).
-ETAT = TOOLS / ".leon_etat.json"
+ETAT = TOOLS / ".lintorn_etat.json"
 JOURS_AUDIT_COMPLET = 30
 
 
@@ -126,7 +126,7 @@ COMMANDES = [
         "lent": False,
     },
     {
-        # LEON surveille tout le projet — mais personne ne surveillait LEON.
+        # Lintorn surveille tout le projet — mais personne ne surveillait Lintorn.
         # Son contrôle Ruff tourne avec `cwd=BACKEND` : `matorn/tools/` n'a
         # jamais été analysé. Les TESTS de l'outil l'étaient déjà (`testpaths`
         # inclut `../tools` dans pyproject.toml) — c'est le lint qui manquait
@@ -137,7 +137,7 @@ COMMANDES = [
         # fichier analysé. Depuis `tools/` il ne la trouverait jamais et
         # appliquerait son jeu de règles par défaut — un tout autre outil,
         # qui signale des règles que le projet a volontairement écartées.
-        "titre": "Ruff (lint outils LEON)",
+        "titre": "Ruff (lint outils Lintorn)",
         "cmd": [PYTHON, "-m", "ruff", "check", "matorn/tools",
                 "--config", "matorn/backend/pyproject.toml",
                 "--output-format", "concise"],
@@ -277,7 +277,7 @@ def _dossier_memoire():
     autre machine.
 
     Trois pistes, dans l'ordre :
-      1. `LEON_MEMOIRE` dans `tools/.env` — la porte de sortie quand la
+      1. `LINTORN_MEMOIRE` dans `tools/.env` — la porte de sortie quand la
          découverte auto échoue (autre PC, dossier déplacé, chemin exotique).
          Le .env étant gitignoré, le chemin personnel ne part jamais au dépôt.
       2. `CLAUDE_CONFIG_DIR` — la variable par laquelle Claude Code lui-même
@@ -291,13 +291,13 @@ def _dossier_memoire():
     L'`origine` sert à dire à l'utilisateur QUELLE piste a servi (ou échoué),
     sans jamais afficher le chemin lui-même.
     """
-    explicite = ENV.get("LEON_MEMOIRE", "").strip()
+    explicite = ENV.get("LINTORN_MEMOIRE", "").strip()
     if explicite:
         chemin = Path(explicite).expanduser()
         if chemin.is_dir():
-            return chemin, "LEON_MEMOIRE (.env)"
+            return chemin, "LINTORN_MEMOIRE (.env)"
         # Configuré MAIS faux : le pire cas silencieux. On le dit.
-        return None, "LEON_MEMOIRE (.env) pointe sur un dossier inexistant"
+        return None, "LINTORN_MEMOIRE (.env) pointe sur un dossier inexistant"
 
     racine_claude = ENV.get("CLAUDE_CONFIG_DIR", "").strip()
     base = (Path(racine_claude).expanduser() if racine_claude

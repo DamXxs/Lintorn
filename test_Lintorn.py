@@ -1,8 +1,8 @@
-# /matorn/tools/test_LEON.py
+# /matorn/tools/test_Lintorn.py
 #
 # Tests de l'outil d'audit lui-même.
 #
-# POURQUOI : `LEON.py` lit la sortie de ruff avec une expression régulière.
+# POURQUOI : `Lintorn.py` lit la sortie de ruff avec une expression régulière.
 # Le jour où ruff change son format d'affichage, la regex ne reconnaît plus
 # rien — et le code est écrit pour retomber sur la sortie brute SANS rien dire.
 # On croirait l'outil en bonne santé alors qu'il aurait cessé de traduire et
@@ -13,7 +13,7 @@ import json
 import subprocess
 from datetime import date, timedelta
 
-import LEON
+import Lintorn
 import config
 import noyau
 import traductions
@@ -124,7 +124,7 @@ def test_focus_ne_garde_que_les_fichiers_pousses():
         "stock/models.py:121\n    E741 nom ambigu",
     )
 
-    focus = LEON.focus_sur([faux], ["matorn/backend/accounts/views.py"])
+    focus = Lintorn.focus_sur([faux], ["matorn/backend/accounts/views.py"])
 
     assert focus.statut == "ALERTE"
     assert "accounts/views.py" in focus.detail
@@ -134,7 +134,7 @@ def test_focus_ne_garde_que_les_fichiers_pousses():
 def test_focus_est_vert_quand_le_push_ne_touche_rien_de_casse():
     faux = noyau.Resultat("Ruff", "ALERTE", "1 alerte", "stock/models.py:121\n    E741")
 
-    focus = LEON.focus_sur([faux], ["matorn/frontend/src/App.tsx"])
+    focus = Lintorn.focus_sur([faux], ["matorn/frontend/src/App.tsx"])
 
     assert focus.statut == "OK"
 
@@ -151,14 +151,14 @@ def test_focus_reconnait_les_chemins_windows():
         r"matorn\tools\noyau.py:300:121: E501 Line too long",
     )
 
-    focus = LEON.focus_sur([faux], ["matorn/tools/noyau.py"])
+    focus = Lintorn.focus_sur([faux], ["matorn/tools/noyau.py"])
 
     assert focus.statut == "ALERTE", "chemins Windows non reconnus → faux vert au push"
     assert "noyau.py" in focus.detail
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Le marqueur `leon:prospectif`
+# Le marqueur `lintorn:prospectif`
 # ─────────────────────────────────────────────────────────────────────────────
 _FANTOME = "`matorn/backend/fichier_qui_nexiste_vraiment_pas.py`"
 
@@ -178,7 +178,7 @@ def test_un_document_prospectif_informe_sans_bloquer(tmp_path):
     supprimés, cités justement parce qu'ils ont disparu. Le contrôle doit les
     LISTER sans interdire le push."""
     doc = tmp_path / "conception.md"
-    doc.write_text(f"<!-- leon:prospectif -->\n\nÀ écrire : {_FANTOME}.", encoding="utf-8")
+    doc.write_text(f"<!-- lintorn:prospectif -->\n\nÀ écrire : {_FANTOME}.", encoding="utf-8")
 
     resultat = noyau._verifier_documents("t", [doc], bloquant_possible=True)
 
@@ -242,7 +242,7 @@ def test_la_date_de_verification_doit_etre_une_vraie_date():
 # Le hook pre-push et les réglages de machine
 # ─────────────────────────────────────────────────────────────────────────────
 def test_le_chemin_attendu_des_hooks_est_le_bon():
-    """Si `tools/hooks/` est déplacé sans mettre à jour `HOOKS_ATTENDU`, LEON
+    """Si `tools/hooks/` est déplacé sans mettre à jour `HOOKS_ATTENDU`, Lintorn
     réclamerait un `git config` pointant vers un dossier vide — et le push
     repartirait sans contrôle en croyant être protégé."""
     assert config.HOOKS == config.RACINE / config.HOOKS_ATTENDU
@@ -255,7 +255,7 @@ def test_le_hook_pre_push_est_executable_dans_git():
     Panne réelle du 16/08/2026 : le hook, créé sous Windows (où ce bit n'existe
     pas), était parti dans le dépôt en `100644`. Sous Windows Git Bash le
     lançait quand même — au passage sous Linux, `git push` a cessé de contrôler
-    quoi que ce soit, sans un message, pendant que LEON affichait « branche ».
+    quoi que ce soit, sans un message, pendant que Lintorn affichait « branche ».
 
     On teste le mode dans l'INDEX GIT et non le bit du disque : le mode est ce
     qui voyage avec le dépôt, donc ce qui protège Codespaces et les machines
@@ -303,7 +303,7 @@ def test_lecture_du_env_ignore_commentaires_guillemets_et_lignes_vides(tmp_path)
 
 
 def test_un_env_absent_ne_plante_pas(tmp_path):
-    """Le .env est FACULTATIF : sans lui, LEON doit se comporter comme avant."""
+    """Le .env est FACULTATIF : sans lui, Lintorn doit se comporter comme avant."""
     assert config._lire_env(tmp_path / "aucun.env") == {}
 
 
@@ -365,7 +365,7 @@ def test_audit_complet_perime_reclame_une_relance(tmp_path, monkeypatch):
 
 
 def test_un_etat_illisible_ne_plante_pas(tmp_path, monkeypatch):
-    """Fichier tronqué par un Ctrl-C : LEON repart de zéro, il ne casse pas."""
+    """Fichier tronqué par un Ctrl-C : Lintorn repart de zéro, il ne casse pas."""
     _etat(tmp_path, monkeypatch, "{ceci n'est pas du json")
 
     assert noyau.lire_etat() == {}
@@ -376,7 +376,7 @@ def test_un_etat_illisible_ne_plante_pas(tmp_path, monkeypatch):
 # ─────────────────────────────────────────────────────────────────────────────
 def test_les_versions_se_comparent_en_nombres_pas_en_texte():
     """Comparées comme des CHAÎNES, "6.9.0" passe pour plus récent que
-    "6.15.0" — et LEON proposerait de REVENIR en arrière sur un correctif."""
-    assert LEON._version_tuple("6.15.0") > LEON._version_tuple("6.9.0")
-    assert max(["6.9.0", "6.15.0"], key=LEON._version_tuple) == "6.15.0"
-    assert LEON._version_tuple("50.0.0") > LEON._version_tuple("49.0.0")
+    "6.15.0" — et Lintorn proposerait de REVENIR en arrière sur un correctif."""
+    assert Lintorn._version_tuple("6.15.0") > Lintorn._version_tuple("6.9.0")
+    assert max(["6.9.0", "6.15.0"], key=Lintorn._version_tuple) == "6.15.0"
+    assert Lintorn._version_tuple("50.0.0") > Lintorn._version_tuple("49.0.0")

@@ -4,7 +4,7 @@ dependances.py — `requirements.txt` dit-il la vérité sur le venv ?
 
     python matorn/tools/dependances.py
 
-Lancé par LEON, mais utilisable seul.
+Lancé par Lintorn, mais utilisable seul.
 
 POURQUOI CE CONTRÔLE EXISTE
     Le dev s'est déjà fait piéger : « ça ne fonctionne pas et je ne comprends

@@ -180,7 +180,7 @@ def traduire_ruff(resultat: Resultat) -> Resultat:
 
     if not traduites:
         # Format inattendu (ruff a changé son affichage ?) → on rend le brut.
-        # test_LEON.py garde ce cas sous surveillance.
+        # test_Lintorn.py garde ce cas sous surveillance.
         return resultat
 
     entete = ["**Résumé par type :**", ""]
@@ -243,7 +243,7 @@ def est_un_chemin(token: str) -> bool:
 
     ⚠️ C'est un empilement d'heuristiques, pas une science : chaque règle a été
     ajoutée après un vrai faux positif. Les cas connus sont figés dans
-    test_LEON.py pour qu'ils ne reviennent pas.
+    test_Lintorn.py pour qu'ils ne reviennent pas.
     """
     if not token or len(token) > 120:
         return False
@@ -317,17 +317,17 @@ def _verifier_documents(titre: str, documents: list, bloquant_possible: bool) ->
         # Une note de conception, une roadmap, un ADR ou un post-mortem citent
         # LÉGITIMEMENT des fichiers qui n'existent pas : pas encore (module à
         # écrire) ou plus (fichier supprimé, cité justement parce qu'il a
-        # disparu). Sans échappatoire, LEON bloque le push et pousse à écrire
+        # disparu). Sans échappatoire, Lintorn bloque le push et pousse à écrire
         # ces documents AILLEURS que dans `Notes/` — il fabrique l'angle mort
         # qu'il prétend supprimer. Constaté le 12/08/2026 : ce contrôle a
         # recalé la note de conception qui décrivait sa propre correction.
         #
-        #     <!-- leon:prospectif -->   en tête du document
+        #     <!-- lintorn:prospectif -->   en tête du document
         #
         # → ses chemins introuvables deviennent consultatifs (VERIF), jamais
         #   bloquants. Le contrôle continue de les LISTER : on informe, on
         #   n'interdit pas.
-        prospectif = "leon:prospectif" in texte
+        prospectif = "lintorn:prospectif" in texte
 
         deja_vus: set[str] = set()
         for token in re.findall(r"`([^`\n]+)`", texte):
@@ -404,7 +404,7 @@ def controle_memoire_ia() -> Resultat:
         return Resultat(
             "Memoire IA vs code", "INDISPONIBLE",
             f"dossier memoire introuvable ({config.MEMOIRE_IA_ORIGINE})"
-            " - voir LEON_MEMOIRE dans tools/.env.example",
+            " - voir LINTORN_MEMOIRE dans tools/.env.example",
             bloquant=False,
         )
 
@@ -479,7 +479,7 @@ def _pathspecs_cites(texte: str) -> list[str]:
 #      de format connu (oneline, short…) ou `format:` / `tformat:`. Sans le
 #      préfixe, git sortait en 128, la fonction avalait l'échec et renvoyait
 #      « 0 commit » — donc un contrôle VERT sur une mémoire périmée.
-_SENTINELLE = "@@LEON-COMMIT@@"
+_SENTINELLE = "@@Lintorn-COMMIT@@"
 
 
 def _commits_depuis(depuis: str, pathspecs: list[str]) -> tuple[int, list[str] | None]:
@@ -689,14 +689,14 @@ def controle_hook_git() -> Resultat:
     `.git/hooks/`, n'y trouve rien, ne dit rien, et le push part sans le
     moindre contrôle.
 
-    C'est exactement le scénario que LEON traite partout ailleurs comme le plus
+    C'est exactement le scénario que Lintorn traite partout ailleurs comme le plus
     grave : un garde-fou qui ne garde plus rien tout en paraissant sain.
 
     NON BLOQUANT à dessein : quand le réglage manque, le hook ne tourne pas —
     bloquer un push serait donc de toute façon impossible. Ce contrôle sert aux
     lancements À LA MAIN, le seul moment où l'on peut encore s'en apercevoir.
     """
-    titre = "Hook pre-push (LEON)"
+    titre = "Hook pre-push (Lintorn)"
 
     if not (config.HOOKS / "pre-push").is_file():
         return Resultat(titre, "ALERTE",
@@ -731,7 +731,7 @@ def controle_hook_git() -> Resultat:
         "```bash\n"
         f"git config core.hooksPath {config.HOOKS_ATTENDU}\n"
         "```\n\n"
-        "ou, strictement équivalent : `python matorn/tools/LEON.py --installer-hook`",
+        "ou, strictement équivalent : `python matorn/tools/Lintorn.py --installer-hook`",
         bloquant=False,
         detail_markdown=True,
     )
@@ -746,7 +746,7 @@ def _controle_hook_executable(titre: str) -> Resultat:
     ce bit n'existe pas (`core.filemode=false`, Git Bash lance tout) ; il est
     donc parti dans le dépôt en 100644. Tant que le projet est resté sous
     Windows, personne n'a rien vu. Au passage sous Linux, le hook est mort ce
-    jour-là — et LEON affichait toujours `[ OK ] branche`.
+    jour-là — et Lintorn affichait toujours `[ OK ] branche`.
 
     C'était donc le pire cas possible : pas un rouge, pas même un `[ERR!]`, mais
     un VERT sur un garde-fou mort. Plusieurs jours de push en confiance.
@@ -774,7 +774,7 @@ def _controle_hook_executable(titre: str) -> Resultat:
         fautes.append(f"enregistre en {mode} dans git (attendu 100755)")
 
     if not fautes:
-        return Resultat(titre, "OK", "branche et executable - LEON tournera avant chaque push")
+        return Resultat(titre, "OK", "branche et executable - Lintorn tournera avant chaque push")
 
     return Resultat(
         titre, "ALERTE",
@@ -843,7 +843,7 @@ def controle_audit_complet() -> Resultat:
                "tournent ni en `--rapide`, ni dans le hook pre-push. `pip-audit` "
                "signale les **failles de sécurité connues** de tes dépendances : "
                "elles apparaissent sans que ton code bouge.\n\n"
-               "```bash\npython matorn/tools/LEON.py\n```")
+               "```bash\npython matorn/tools/Lintorn.py\n```")
 
     if not dernier:
         return Resultat(titre, "VERIF", "jamais lance sur cette machine",
@@ -852,7 +852,7 @@ def controle_audit_complet() -> Resultat:
     try:
         date = datetime.date.fromisoformat(str(dernier)[:10])
     except ValueError:
-        return Resultat(titre, "VERIF", "date illisible dans .leon_etat.json",
+        return Resultat(titre, "VERIF", "date illisible dans .lintorn_etat.json",
                         relance, bloquant=False, detail_markdown=True)
 
     jours = (datetime.date.today() - date).days
