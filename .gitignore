@@ -1,0 +1,39 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Environnements virtuels — jamais versionnés : ils dépendent de l'OS et pèsent lourd
+venv/
+.venv/
+env/
+
+# --- Secrets et config machine ---
+# Le .env porte des chemins et des clés propres à UNE machine.
+# Seul le .env.example (sans valeur réelle) est versionné.
+.env
+*.env
+!.env.example
+
+# --- Sorties de Lintorn lui-même ---
+# Un fait sur le code se recalcule, il ne se versionne pas.
+rapport_Lintorn.md
+# État LOCAL (date du dernier audit complet) : propre à CHAQUE machine.
+# Le versionner ferait croire à un collègue que SON poste est à jour.
+.lintorn_etat.json
+
+# --- Outils ---
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# --- Éditeurs / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
