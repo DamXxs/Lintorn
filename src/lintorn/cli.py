@@ -43,8 +43,7 @@ import subprocess
 import sys
 from datetime import datetime
 
-from . import config
-from . import noyau
+from . import config, noyau
 from .noyau import MARQUEUR, Resultat
 
 
@@ -149,6 +148,119 @@ def maj_securite(appliquer: bool) -> int:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# PREMIER DÉMARRAGE SUR UN PROJET
+# ─────────────────────────────────────────────────────────────────────────────
+def init(ecraser: bool = False) -> int:
+    """Écrit un `.lintorn/config.toml` taillé pour CE projet.
+
+    POURQUOI GÉNÉRER PLUTÔT QUE FOURNIR UN EXEMPLE FIGÉ : Lintorn vient de
+    détecter ce que le projet contient. Un modèle générique obligerait
+    l'utilisateur à commenter les trois quarts des lignes avant de démarrer —
+    et c'est exactement à ce moment-là qu'on referme un outil.
+
+    Ce qu'il NE PEUT PAS deviner : les règles maison. « Importer axios depuis
+    services/api.ts » n'est écrit nulle part dans le code, c'est une décision.
+    D'où un exemple commenté, à remplir.
+    """
+    cible = config.DOSSIER_LINTORN / "config.toml"
+    if cible.exists() and not ecraser:
+        print(f"{cible.relative_to(config.RACINE)} existe deja.")
+        print("Relance avec --force pour l'ecraser.")
+        return 1
+
+    detecte = []
+    if config.PY_RACINE:
+        detecte.append(f"Python ({config.PY_RACINE.name})")
+    if config.BACKEND:
+        detecte.append(f"Django ({config.BACKEND.name})")
+    if config.FRONTEND:
+        suffixe = " + TypeScript" if (config.FRONTEND / "tsconfig.json").is_file() else ""
+        detecte.append(f"JS{suffixe} ({config.FRONTEND.name})")
+
+    lignes = [
+        "# Configuration de Lintorn pour ce projet.",
+        "#   https://github.com/DamXxs/Lintorn",
+        "#",
+        f"# Genere par `lintorn --init`. Detecte : {', '.join(detecte) or 'rien de connu'}.",
+        "",
+        "# ── Les controles ────────────────────────────────────────────────────",
+        "# Par defaut Lintorn n'execute pas ton code, n'ouvre pas ta base et ne",
+        "# sort pas sur le reseau. Passe a `true` ce que tu veux activer.",
+        "[controles]",
+    ]
+
+    invasifs = [
+        ("tests", "pytest — EXECUTE le code du projet", bool(config.PY_RACINE)),
+        ("donnees_metier", "manage.py verifier_donnees — ouvre la BASE", bool(config.BACKEND)),
+        ("deploy", "check --deploy — bruyant tant qu'on est en dev", bool(config.BACKEND)),
+        ("code_mort", "vulture — consultatif, beaucoup de faux positifs", bool(config.PY_RACINE)),
+        ("failles", "pip-audit — sort sur le RESEAU", bool(config.PY_RACINE)),
+    ]
+    for cle, role, pertinent in invasifs:
+        prefixe = "" if pertinent else "# "
+        lignes.append(f"{prefixe}{cle:<15}= false   # {role}")
+
+    lignes += [
+        "",
+        "# ── Tes regles maison ────────────────────────────────────────────────",
+        "# Lintorn ne peut PAS les deviner : une regle maison est une decision,",
+        "# elle n'est ecrite nulle part dans le code. Voici la forme, a remplir.",
+        "#",
+        "# bloquant = true  -> regle DEJA respectee, on empeche la regression",
+        "# bloquant = false -> dette existante, on mesure sans bloquer",
+    ]
+    racine_exemple = "src"
+    if config.FRONTEND:
+        try:
+            racine_exemple = (config.FRONTEND / "src").relative_to(config.RACINE).as_posix()
+        except ValueError:
+            pass
+    lignes += [
+        "#",
+        "# [[regles]]",
+        '# nom      = "Couleurs en dur dans un CSS"',
+        '# regle    = "uniquement des variables de theme"',
+        f'# racine   = "{racine_exemple}"',
+        '# suffixes = [".css"]',
+        "# motif    = '#[0-9a-fA-F]{3,8}\\b'",
+        "# exclure  = []",
+        "# bloquant = false",
+        "",
+        "# ── Tes propres outils ───────────────────────────────────────────────",
+        "# Tout outil qui repond par un code de sortie a sa place ici.",
+        "# ⚠️ Ces commandes sont EXECUTEES : ne lance pas Lintorn dans un depot",
+        "#    en qui tu n'as pas confiance.",
+        "#",
+        "# [[commandes]]",
+        '# cle      = "mypy"',
+        '# titre    = "Types (mypy)"',
+        '# cmd      = ["python", "-m", "mypy", "."]',
+        '# cwd      = "."',
+        "# bloquant = false",
+        "",
+    ]
+
+    try:
+        cible.parent.mkdir(parents=True, exist_ok=True)
+        cible.write_text("\n".join(lignes), encoding="utf-8")
+    except OSError as erreur:
+        print(f"Echec : {erreur}")
+        return 1
+
+    relatif = cible.relative_to(config.RACINE)
+    print(f"Projet detecte : {', '.join(detecte) or 'rien de connu'}")
+    print(f"Ecrit          : {relatif}")
+    print()
+    print("A FAIRE MAINTENANT :")
+    print(f"    1. ouvre {relatif} et active ce que tu veux")
+    print("    2. ajoute `.lintorn/` a ton .gitignore, SAUF config.toml :")
+    print("           .lintorn/*")
+    print("           !.lintorn/config.toml")
+    print("    3. `lintorn` pour un premier rapport")
+    return 0
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # INSTALLATION DES OUTILS EXTERNES
 # ─────────────────────────────────────────────────────────────────────────────
 # Chaque outil : le module à importer, le paquet pip, ce qu'il apporte.
@@ -184,7 +296,7 @@ def installer_outils(sans_demander: bool = False) -> int:
     On installe donc là où ça compte, et jamais sans demander : ajouter des
     paquets au venv de quelqu'un est une modification de son environnement.
     """
-    if config.PYTHON == sys.executable and config.BACKEND is None:
+    if sys.executable == config.PYTHON and config.BACKEND is None:
         print("Aucun venv de projet detecte : refus d'installer dans le python courant.")
         print("Cree un venv dans ton projet, puis relance.")
         return 1
@@ -402,6 +514,9 @@ def main() -> int:
 
     if "--installer-outils" in args:
         return installer_outils(sans_demander="--oui" in args)
+
+    if "--init" in args:
+        return init(ecraser="--force" in args)
 
     if "--maj-securite" in args:
         return maj_securite(appliquer="--appliquer" in args)

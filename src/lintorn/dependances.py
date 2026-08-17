@@ -40,6 +40,7 @@ import re
 import subprocess
 import sys
 
+
 # ⚠️ Le dossier backend est REÇU, jamais deviné.
 #
 # Ce fichier déduisait autrefois sa position comme le faisait `config.py` :
@@ -126,7 +127,7 @@ def lire_venv() -> dict[str, str]:
     proc = subprocess.run(
         [str(PYTHON), "-m", "pip", "freeze", "--local"],
         capture_output=True, text=True, encoding="utf-8", errors="replace",
-        timeout=120,
+        timeout=120, check=False,
     )
     if proc.returncode != 0:
         raise RuntimeError(f"pip freeze a echoue :\n{proc.stderr}")
@@ -152,7 +153,7 @@ def main() -> int:
     try:
         declares, avertissement = lire_requirements()
         installes = lire_venv()
-    except Exception as e:                      # noqa: BLE001 — on veut le code 2
+    except Exception as e:
         print(f"L'OUTIL A PLANTE : {type(e).__name__} : {e}")
         return 2
 

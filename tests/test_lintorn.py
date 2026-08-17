@@ -12,14 +12,12 @@
 import json
 import os
 import subprocess
-
-import pytest
 from datetime import date, timedelta
 
+import pytest
+
 from lintorn import cli as Lintorn
-from lintorn import config
-from lintorn import noyau
-from lintorn import traductions
+from lintorn import config, noyau, traductions
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -352,15 +350,18 @@ def test_un_env_absent_ne_plante_pas(tmp_path):
 # ─────────────────────────────────────────────────────────────────────────────
 # La liste blanche de vulture
 # ─────────────────────────────────────────────────────────────────────────────
-@pytest.mark.skipif(
-    config.BACKEND is None,
-    reason="exige un vrai projet Django : ni pertinent ni concluant sans lui",
-)
 def test_la_liste_blanche_vulture_est_bien_branchee():
     """Si `VULTURE_IGNORES` cesse d'être passé à l'outil, les 8 faux positifs
     du 12/08/2026 reviennent — et un contrôle qui n'a QUE des faux positifs
-    finit par ne plus être lu, donc par ne plus rien protéger."""
-    entree = next(c for c in config.COMMANDES if "vulture" in c["titre"].lower())
+    finit par ne plus être lu, donc par ne plus rien protéger.
+
+    Vulture est opt-in : quand le projet ne l'a pas demandé, la commande
+    n'existe pas et il n'y a rien à prouver ici.
+    """
+    entrees = [c for c in config.COMMANDES if c["cle"] == "code_mort"]
+    if not entrees:
+        pytest.skip("vulture n'est pas active sur ce projet")
+    entree = entrees[0]
 
     assert "--ignore-names" in entree["cmd"]
     passe = entree["cmd"][entree["cmd"].index("--ignore-names") + 1]
