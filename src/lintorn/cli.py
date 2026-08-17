@@ -24,8 +24,7 @@ OÙ TOUCHER QUOI
 CE QU'IL SURVEILLE, EN PLUS DU CODE
     Le lint et les tests ne voient que le CODE. Lintorn regarde aussi les
     DONNÉES (`manage.py verifier_donnees`) : une base peut être fausse alors
-    que le code est juste — séquence de factures trouée, ligne d'OR facturée
-    sans désignation. Aucun test unitaire ne voyait ces cas-là.
+    que le code est juste — Aucun test unitaire ne voyait ces cas-là.
 
 PRINCIPE — le rapport est un FAIT SUR LE CODE, pas une mémoire : il est ÉCRASÉ
 à chaque exécution, jamais fusionné, jamais trié. Un fait sur le code périme dès
@@ -344,9 +343,27 @@ def installer_outils(sans_demander: bool = False) -> int:
     # L'effet de bord se dit AVANT, pas après : ces paquets apparaîtront dans
     # `pip freeze`, donc le contrôle « Dependances vs venv » les signalera
     # aussitôt comme « installes mais pas declares ».
-    print("\nA SAVOIR : ces paquets apparaitront comme 'non declares' dans le")
-    print("controle Dependances vs venv. Ajoute-les a ton requirements de dev,")
-    print("ou desactive ce controle.")
+    # ⚠️ Un avertissement qui ne dit pas COMMENT le suivre ne sert a rien : on
+    # donne les deux chemins exacts, pas un conseil en l'air.
+    print("\nA SAVOIR : ces paquets apparaitront ensuite comme 'non declares'")
+    print("dans le controle Dependances vs venv. Deux facons de regler ca :")
+    print()
+    requirements = (config.PY_RACINE / "requirements.txt") if config.PY_RACINE else None
+    if requirements and requirements.is_file():
+        try:
+            ou = requirements.relative_to(config.RACINE).as_posix()
+        except ValueError:
+            ou = str(requirements)
+        print(f"  1. les declarer  -> ajouter ces lignes dans {ou} :")
+        for _, paquet, _ in manquants:
+            print(f"                          {paquet}")
+    else:
+        print("  1. les declarer  -> aucun requirements.txt trouve ; si tu en")
+        print("                      crees un, ajoute-les dedans")
+    print()
+    print("  2. ou couper le controle -> dans .lintorn/config.toml :")
+    print("                          [controles]")
+    print("                          dependances = false")
 
     if not sans_demander:
         try:

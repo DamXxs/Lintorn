@@ -3,7 +3,7 @@
 La mécanique de l'outil. Normalement, tu n'as pas besoin d'y toucher.
 
   ▸ Pour ajouter un outil    → config.py
-  ▸ Pour traduire un code    → traductions.py
+  ▸ Pour traduire un code    → traductions.py (confort uniquement, pas de traduction automatique, a toi d'ajouter les traductions)
   ▸ Pour changer la mécanique → c'est ici
 
 Contenu : la fiche Resultat, le lanceur de commandes, et les deux contrôles

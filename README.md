@@ -135,5 +135,6 @@ requirement, get in touch.
 
 ## Contributing
 
-Not open to outside contributions yet. Contributions will require a CLA, so that dual licensing
-remains possible.
+Not open to outside code contributions yet — bug reports and ideas are welcome. When it opens,
+contributions will require a CLA, so that dual licensing remains possible. Details in
+`CONTRIBUTING.md`.
