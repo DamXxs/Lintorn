@@ -1,0 +1,61 @@
+# Configuration de Lintorn pour ce projet.
+#   https://github.com/DamXxs/Lintorn
+#
+# Genere par `lintorn --init`. Detecte : Python (Lintorn).
+
+# ── Les controles ────────────────────────────────────────────────────
+# Par defaut Lintorn n'execute pas ton code, n'ouvre pas ta base et ne
+# sort pas sur le reseau. Passe a `true` ce que tu veux activer.
+[controles]
+tests          = true    # pytest — EXECUTE le code du projet
+# donnees_metier = false   # manage.py verifier_donnees — ouvre la BASE
+# deploy         = false   # check --deploy — bruyant tant qu'on est en dev
+code_mort      = true    # vulture — consultatif, beaucoup de faux positifs
+failles        = true    # pip-audit — sort sur le RESEAU
+
+# ── Tes regles maison ────────────────────────────────────────────────
+# Lintorn ne peut PAS les deviner : une regle maison est une decision,
+# elle n'est ecrite nulle part dans le code. Voici la forme, a remplir.
+#
+# bloquant = true  -> regle DEJA respectee, on empeche la regression
+# bloquant = false -> dette existante, on mesure sans bloquer
+#
+# [[regles]]
+# nom      = "Couleurs en dur dans un CSS"
+# regle    = "uniquement des variables de theme"
+# racine   = "src"
+# suffixes = [".css"]
+# motif    = '#[0-9a-fA-F]{3,8}\b'
+# exclure  = []
+# bloquant = false
+
+# ── Tes propres outils ───────────────────────────────────────────────
+# Tout outil qui repond par un code de sortie a sa place ici.
+# ⚠️ Ces commandes sont EXECUTEES : ne lance pas Lintorn dans un depot
+#    en qui tu n'as pas confiance.
+#
+# [[commandes]]
+# cle      = "mypy"
+# titre    = "Types (mypy)"
+# cmd      = ["python", "-m", "mypy", "."]
+# cwd      = "."
+# bloquant = false
+
+# ── Les regles maison de Lintorn ─────────────────────────────────────────────
+[[regles]]
+nom      = "Chemin de projet ecrit en dur"
+regle    = "Lintorn doit rester neutre : aucun nom de projet dans le code"
+racine   = "src/lintorn"
+suffixes = [".py"]
+motif    = 'matorn|/home/|C:\\\\Users'
+exclure  = []
+bloquant = true
+
+[[regles]]
+nom      = "print() de debogage oublie"
+regle    = "la sortie utilisateur passe par le rapport ou le CLI, pas par des print egares"
+racine   = "src/lintorn"
+suffixes = [".py"]
+motif    = '^\s+print\(f?"(DEBUG|TODO|XXX)'
+exclure  = []
+bloquant = true

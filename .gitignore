@@ -37,3 +37,7 @@ htmlcov/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Sorties de Lintorn sur lui-meme — la config, elle, est versionnee.
+.lintorn/*
+!.lintorn/config.toml

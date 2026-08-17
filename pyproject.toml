@@ -46,3 +46,48 @@ packages = ["src/lintorn"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Ruff — Lintorn s'audite lui-meme, autant que le jeu de regles soit explicite
+# ─────────────────────────────────────────────────────────────────────────────
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM", "PL", "RUF"]
+
+ignore = [
+  # Les horodatages du rapport sont LOCAUX a dessein : ils s'adressent au dev
+  # qui vient de lancer l'outil, pas a un systeme distribue. Une date en UTC
+  # serait moins lisible pour lui, et n'apporterait rien.
+  "DTZ005", "DTZ011",
+  # Les messages d'erreur sont ecrits pour etre lus dans un terminal :
+  # les assembler hors de l'exception nuirait a la lisibilite du code.
+  "EM101", "EM102", "TRY003",
+  # `global` sur ERREUR_CONFIG : un module de configuration accumule ses
+  # avertissements au fil du chargement. L'alternative (une classe, un
+  # singleton) alourdirait un fichier qui doit rester lisible par tous.
+  "PLW0603",
+  # Reassigner la variable de boucle apres nettoyage (`ligne = ligne.strip()`)
+  # est ici plus lisible qu'un second nom qui ne veut rien dire de plus.
+  "PLW2901",
+  # Le CLI et le montage des commandes ont naturellement beaucoup de branches
+  # et d'arguments : les scinder pour satisfaire un compteur les rendrait
+  # plus durs a suivre, pas moins.
+  "PLR0912", "PLR0913", "PLR0915", "PLR0917", "PLR2004",
+  # Les textes sont en francais : apostrophes typographiques et guillemets
+  # sont voulus, pas des caracteres « ambigus » a corriger.
+  "RUF001", "RUF002", "RUF003",
+  # `try/except: pass` explicite se lit mieux que `contextlib.suppress` pour
+  # qui decouvre le code.
+  "SIM105",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Des phrases francaises completes : les couper nuirait a leur lecture, et
+# c'est leur lecture qui fait tout l'interet de ce fichier.
+"src/lintorn/traductions.py" = ["E501"]
+# Les tests decrivent des cas : des noms longs et des chaines en dur y sont
+# la pour etre lus, pas pour etre factorises.
+"tests/*" = ["PLR2004", "S101"]
