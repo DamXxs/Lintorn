@@ -735,9 +735,19 @@ def controle_hook_git() -> Resultat:
     titre = "Hook pre-push (Lintorn)"
 
     if not (config.HOOKS / "pre-push").is_file():
-        return Resultat(titre, "ALERTE",
-                        "le fichier hooks/pre-push a disparu du depot",
-                        bloquant=False)
+        # ⚠️ « a disparu » etait le PREMIER message vu par un nouvel
+        # utilisateur, et il etait faux : le hook n'avait jamais ete installe.
+        # Un outil qui accuse au premier lancement perd la confiance qu'il
+        # lui faut pour etre cru la fois d'apres.
+        return Resultat(
+            titre, "INDISPONIBLE",
+            "hook pas encore installe - `lintorn --installer-hook`",
+            "Sans le hook, `git push` ne lance aucun controle — et sans le "
+            "moindre message. Une seule commande, une fois par clone :\n\n"
+            "```bash\nlintorn --installer-hook\n```",
+            bloquant=False,
+            detail_markdown=True,
+        )
 
     try:
         sortie = subprocess.run(

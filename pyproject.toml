@@ -38,11 +38,6 @@ lintorn = "lintorn.cli:main"
 [tool.hatch.build.targets.wheel]
 packages = ["src/lintorn"]
 
-# Les hooks sont des DONNÉES du paquet : sans cette ligne, hatchling n'embarque
-# que les .py et `--installer-hook` n'aurait plus rien à installer.
-[tool.hatch.build.targets.wheel.force-include]
-"src/lintorn/hooks" = "lintorn/hooks"
-"src/lintorn/hooks_claude" = "lintorn/hooks_claude"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
