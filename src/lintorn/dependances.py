@@ -7,9 +7,8 @@ dependances.py — `requirements.txt` dit-il la vérité sur le venv ?
 Lancé par Lintorn, mais utilisable seul.
 
 POURQUOI CE CONTRÔLE EXISTE
-    Le dev s'est déjà fait piéger : « ça ne fonctionne pas et je ne comprends
-    pas pourquoi ». C'est le classique « ça marche chez moi » — un paquet
-    installé à la main dans le venv, jamais ajouté à `requirements.txt`. Le
+    C'est le classique « ça marche chez moi » : un paquet installé à la main
+    dans le venv, jamais ajouté à `requirements.txt`. Le
     code tourne sur la machine du dev et casse partout ailleurs (Docker,
     Codespaces, une machine neuve).
 

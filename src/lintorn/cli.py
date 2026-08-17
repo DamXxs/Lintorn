@@ -255,6 +255,13 @@ def init(ecraser: bool = False) -> int:
         "# exclure  = []",
         "# bloquant = false",
         "",
+        "# ── Une doc qui cite des fichiers absents ────────────────────────────",
+        "# Une roadmap ou une note de conception cite legitimement des fichiers",
+        "# pas encore ecrits, ou supprimes. Mets ce marqueur n'importe ou dedans",
+        "# et ses chemins morts seront LISTES au lieu de bloquer :",
+        "#",
+        "#     <!-- lintorn:prospectif -->",
+        "",
         "# ── Tes propres outils ───────────────────────────────────────────────",
         "# Tout outil qui repond par un code de sortie a sa place ici.",
         "# ⚠️ Ces commandes sont EXECUTEES : ne lance pas Lintorn dans un depot",
@@ -421,9 +428,9 @@ def installer_hook() -> int:
         config.HOOKS.mkdir(parents=True, exist_ok=True)
         cible = config.HOOKS / "pre-push"
         shutil.copyfile(config.HOOKS_SOURCE / "pre-push", cible)
-        # Sans le bit exécutable, git ignore le hook EN SILENCE (panne vécue le
-        # 16/08/2026). `copyfile` ne transporte pas les permissions : on les
-        # pose explicitement au lieu d'espérer.
+        # Sans le bit exécutable, git ignore le hook EN SILENCE. `copyfile` ne
+        # transporte pas les permissions : on les pose explicitement plutôt que
+        # d'espérer qu'elles aient suivi.
         cible.chmod(cible.stat().st_mode | 0o111)
     except OSError as erreur:
         print(f"Echec : impossible d'installer le hook ({erreur})")

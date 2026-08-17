@@ -52,6 +52,22 @@ nothing is being watched. Lintorn treats that as the primary failure mode, every
 Everything is auto-detected. No Django? The Django checks do not appear at all — rather than
 sitting there permanently "unavailable", which is how a warning light becomes furniture.
 
+## Documents that legitimately cite what does not exist
+
+A roadmap, a design note or a post-mortem cites files that do not exist — not yet
+(a module still to write), or no longer (a file deleted, mentioned precisely because
+it was). Blocking on those would push you to write such documents *outside* the
+scanned folders, which recreates the blind spot the check exists to remove.
+
+Mark the document, anywhere in it:
+
+```markdown
+<!-- lintorn:prospectif -->
+```
+
+Its dead paths are then **listed, not failed** — you still see them, they just stop
+blocking your push.
+
 ## Safe by default
 
 The first run cannot damage anything. Lintorn does not modify your files, does not reach the
