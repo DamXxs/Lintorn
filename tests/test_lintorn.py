@@ -1,4 +1,4 @@
-# /matorn/tools/test_Lintorn.py
+# Lintorn
 #
 # Tests de l'outil d'audit lui-même.
 #
@@ -10,13 +10,16 @@
 # bruyamment, au lieu de dégrader en silence.
 
 import json
+import os
 import subprocess
+
+import pytest
 from datetime import date, timedelta
 
-import Lintorn
-import config
-import noyau
-import traductions
+from lintorn import cli as Lintorn
+from lintorn import config
+from lintorn import noyau
+from lintorn import traductions
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -115,43 +118,52 @@ def test_code_de_sortie_inattendu_signale_une_panne_d_outil():
 # ─────────────────────────────────────────────────────────────────────────────
 # Le focus sur les fichiers d'un push
 # ─────────────────────────────────────────────────────────────────────────────
-def test_focus_ne_garde_que_les_fichiers_pousses():
-    """git parle en chemins depuis la racine, ruff depuis backend/ :
-    le focus doit reconnaître le même fichier sous ses deux formes."""
+def test_focus_ne_garde_que_les_fichiers_pousses(monkeypatch):
+    """git parle en chemins depuis la racine, ruff depuis le backend :
+    le focus doit reconnaître le même fichier sous ses deux formes.
+
+    ⚠️ On FIXE les préfixes au lieu de laisser la détection les fournir : ce
+    test vérifie la mécanique de rapprochement, pas l'arborescence de la
+    machine qui l'exécute. Sans ça il passait ou échouait selon le projet
+    audité — un test qui dépend de son environnement ne prouve rien.
+    """
+    monkeypatch.setattr(config, "PREFIXES_PROJET", ["api/", "front/src/"])
     faux = noyau.Resultat(
         "Ruff", "ALERTE", "2 alertes",
         "accounts/views.py:7\n    F401 import inutile\n"
         "stock/models.py:121\n    E741 nom ambigu",
     )
 
-    focus = Lintorn.focus_sur([faux], ["matorn/backend/accounts/views.py"])
+    focus = Lintorn.focus_sur([faux], ["api/accounts/views.py"])
 
     assert focus.statut == "ALERTE"
     assert "accounts/views.py" in focus.detail
     assert "stock/models.py" not in focus.detail
 
 
-def test_focus_est_vert_quand_le_push_ne_touche_rien_de_casse():
+def test_focus_est_vert_quand_le_push_ne_touche_rien_de_casse(monkeypatch):
+    monkeypatch.setattr(config, "PREFIXES_PROJET", ["api/", "front/src/"])
     faux = noyau.Resultat("Ruff", "ALERTE", "1 alerte", "stock/models.py:121\n    E741")
 
-    focus = Lintorn.focus_sur([faux], ["matorn/frontend/src/App.tsx"])
+    focus = Lintorn.focus_sur([faux], ["front/src/App.tsx"])
 
     assert focus.statut == "OK"
 
 
-def test_focus_reconnait_les_chemins_windows():
-    """Sous Windows, ruff écrit `matorn\\tools\\noyau.py` ; git parle en slashs.
+def test_focus_reconnait_les_chemins_windows(monkeypatch):
+    """Sous Windows, ruff écrit `api\\outils\\noyau.py` ; git parle en slashs.
 
     Sans normaliser AVANT de comparer, le focus ne reconnaissait plus RIEN sur
     cette machine — et comme le hook pre-push l'utilise, il annonçait « aucun
     defaut connu dedans » au moment précis du push. Faux vert, 12/08/2026.
     """
+    monkeypatch.setattr(config, "PREFIXES_PROJET", ["api/"])
     faux = noyau.Resultat(
         "Ruff", "ALERTE", "1 alerte",
-        r"matorn\tools\noyau.py:300:121: E501 Line too long",
+        r"api\outils\noyau.py:300:121: E501 Line too long",
     )
 
-    focus = Lintorn.focus_sur([faux], ["matorn/tools/noyau.py"])
+    focus = Lintorn.focus_sur([faux], ["api/outils/noyau.py"])
 
     assert focus.statut == "ALERTE", "chemins Windows non reconnus → faux vert au push"
     assert "noyau.py" in focus.detail
@@ -160,7 +172,7 @@ def test_focus_reconnait_les_chemins_windows():
 # ─────────────────────────────────────────────────────────────────────────────
 # Le marqueur `lintorn:prospectif`
 # ─────────────────────────────────────────────────────────────────────────────
-_FANTOME = "`matorn/backend/fichier_qui_nexiste_vraiment_pas.py`"
+_FANTOME = "`api/fichier_qui_nexiste_vraiment_pas.py`"
 
 
 def test_un_document_normal_bloque_sur_un_chemin_faux(tmp_path):
@@ -201,10 +213,21 @@ def test_un_nom_de_fichier_nu_devient_un_pathspec_glob():
     ) == [":(glob)**/OrPdfTemplate.tsx"]
 
 
-def test_un_chemin_complet_devient_repo_relatif():
-    specs = noyau._pathspecs_cites("voir `matorn/backend/factures/models.py`")
+def test_un_chemin_complet_devient_repo_relatif(tmp_path, monkeypatch):
+    """`_pathspecs_cites` VÉRIFIE que le fichier existe avant de le retenir.
 
-    assert "matorn/backend/factures/models.py" in specs
+    Le test se fabrique donc son propre dépôt : écrire un chemin en dur le
+    rendrait dépendant de l'arborescence du projet audité, et il basculerait
+    au vert ou au rouge selon la machine — sans rien prouver.
+    """
+    (tmp_path / "api" / "factures").mkdir(parents=True)
+    (tmp_path / "api" / "factures" / "models.py").touch()
+    monkeypatch.setattr(config, "RACINE", tmp_path)
+    monkeypatch.setattr(config, "RACINES_RESOLUTION", [tmp_path])
+
+    specs = noyau._pathspecs_cites("voir `api/factures/models.py`")
+
+    assert "api/factures/models.py" in specs
 
 
 def test_les_blocs_de_code_ne_sont_pas_des_citations():
@@ -223,6 +246,10 @@ def test_git_muet_ne_se_confond_pas_avec_rien_n_a_bouge():
     assert nb == 0
 
 
+@pytest.mark.skipif(
+    config.BACKEND is None,
+    reason="exige un vrai projet Django : ni pertinent ni concluant sans lui",
+)
 def test_git_retrouve_un_vrai_commit():
     """Contre-épreuve : sur un fichier réel du dépôt, git DOIT répondre.
     Si ce test casse, c'est le format de la commande qui est reparti en vrille."""
@@ -246,7 +273,8 @@ def test_le_chemin_attendu_des_hooks_est_le_bon():
     réclamerait un `git config` pointant vers un dossier vide — et le push
     repartirait sans contrôle en croyant être protégé."""
     assert config.HOOKS == config.RACINE / config.HOOKS_ATTENDU
-    assert (config.HOOKS / "pre-push").is_file()
+    # Le hook livré DANS le paquet : c'est lui la source de toute installation.
+    assert (config.HOOKS_SOURCE / "pre-push").is_file()
 
 
 def test_le_hook_pre_push_est_executable_dans_git():
@@ -257,23 +285,37 @@ def test_le_hook_pre_push_est_executable_dans_git():
     lançait quand même — au passage sous Linux, `git push` a cessé de contrôler
     quoi que ce soit, sans un message, pendant que Lintorn affichait « branche ».
 
-    On teste le mode dans l'INDEX GIT et non le bit du disque : le mode est ce
-    qui voyage avec le dépôt, donc ce qui protège Codespaces et les machines
-    futures. Et c'est le seul des deux qui ait la même réponse sur tous les OS.
+    ⚠️ On surveille le hook SOURCE — celui livré dans le paquet — et non la
+    copie posée dans le projet audité. Depuis le packaging il y a deux objets
+    distincts : `installer_hook()` copie le premier vers le second en reposant
+    le bit lui-même. Si la SOURCE le perd, toutes les copies naissent
+    infirmes : c'est donc là qu'il faut monter la garde, et la copie générée
+    n'a elle aucune raison d'être versionnée.
+
+    On lit le mode dans l'INDEX GIT : c'est lui qui voyage avec le dépôt, donc
+    lui qui protège les autres machines, et c'est le seul des deux (index ou
+    disque) à donner la même réponse sur tous les OS.
     """
-    chemin = f"{config.HOOKS_ATTENDU}/pre-push"
+    source = config.HOOKS_SOURCE / "pre-push"
 
     sortie = subprocess.run(
-        ["git", "ls-files", "-s", "--", chemin],
-        cwd=config.RACINE, capture_output=True, text=True, timeout=10, check=False,
+        ["git", "ls-files", "-s", "--", str(source)],
+        cwd=source.parent, capture_output=True, text=True, timeout=10, check=False,
     )
 
-    assert sortie.stdout.strip(), f"{chemin} n'est pas suivi par git → le hook ne suivra aucun clone"
+    if not sortie.stdout.strip():
+        # Paquet installé depuis un wheel : aucun dépôt git autour, l'index
+        # n'existe pas. Le bit du disque est alors la seule vérité disponible.
+        assert os.access(source, os.X_OK), (
+            f"{source} n'est pas executable : git ignorerait ce hook en silence."
+        )
+        return
+
     mode = sortie.stdout.split()[0]
     assert mode == "100755", (
-        f"{chemin} est enregistre en {mode} : git ne l'executera JAMAIS, "
+        f"{source} est enregistre en {mode} : git ne l'executera JAMAIS, "
         "ni ici ni sur un clone, et sans le moindre message. Reparer avec :\n"
-        f"    chmod +x {chemin} && git add {chemin}"
+        f"    chmod +x {source} && git add {source}"
     )
 
 
@@ -310,6 +352,10 @@ def test_un_env_absent_ne_plante_pas(tmp_path):
 # ─────────────────────────────────────────────────────────────────────────────
 # La liste blanche de vulture
 # ─────────────────────────────────────────────────────────────────────────────
+@pytest.mark.skipif(
+    config.BACKEND is None,
+    reason="exige un vrai projet Django : ni pertinent ni concluant sans lui",
+)
 def test_la_liste_blanche_vulture_est_bien_branchee():
     """Si `VULTURE_IGNORES` cesse d'être passé à l'outil, les 8 faux positifs
     du 12/08/2026 reviennent — et un contrôle qui n'a QUE des faux positifs
@@ -380,3 +426,36 @@ def test_les_versions_se_comparent_en_nombres_pas_en_texte():
     assert Lintorn._version_tuple("6.15.0") > Lintorn._version_tuple("6.9.0")
     assert max(["6.9.0", "6.15.0"], key=Lintorn._version_tuple) == "6.15.0"
     assert Lintorn._version_tuple("50.0.0") > Lintorn._version_tuple("49.0.0")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Les défauts non invasifs
+# ─────────────────────────────────────────────────────────────────────────────
+def test_aucune_regle_maison_n_est_livree_avec_l_outil():
+    """Une règle maison décrit UN projet : le paquet ne doit en imposer aucune.
+
+    Livrées dans l'outil, les règles d'un projet produisaient chez les autres
+    des alertes incompréhensibles — ou un vert rassurant sur un contrôle qui
+    ne scannait aucun fichier. Elles viennent désormais TOUTES de la config du
+    projet audité : sans config, la liste est vide.
+    """
+    if config.PROJET.get("regles"):
+        return      # ce dépôt-ci en déclare : rien à prouver ici
+    assert config.REGLES_MAISON == []
+
+
+def test_les_controles_invasifs_sont_desactives_par_defaut():
+    """Le premier lancement doit être INCAPABLE de faire du dégât.
+
+    pytest exécute le code du projet, pip-audit sort sur le réseau,
+    `verifier_donnees` ouvre la base. Quelqu'un qui découvre Lintorn le lance
+    dans un dépôt qu'il connaît mal : rien de tout ça ne doit partir sans un
+    accord explicite. C'est la condition pour qu'on ose l'essayer.
+    """
+    actifs = config.PROJET.get("controles", {})
+    for cle in ("tests", "failles", "donnees_metier", "code_mort", "deploy"):
+        if actifs.get(cle):
+            continue    # activé explicitement par ce projet : c'est son droit
+        assert not any(c["cle"] == cle for c in config.COMMANDES), (
+            f"'{cle}' tourne alors que personne ne l'a demande"
+        )
