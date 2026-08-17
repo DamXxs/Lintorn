@@ -19,8 +19,7 @@ import re
 import subprocess
 from pathlib import Path
 
-from . import config
-from . import traductions
+from . import config, traductions
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -125,6 +124,9 @@ def lancer(
         proc = subprocess.run(
             commande, cwd=cwd, capture_output=True, text=True,
             encoding="utf-8", errors="replace", timeout=600,
+            # check=False EXPRES : le code de sortie est la DONNEE qu'on
+            # analyse, pas un incident. Lever ici masquerait le resultat.
+            check=False,
         )
     except FileNotFoundError:
         return Resultat(titre, "INDISPONIBLE", f"outil introuvable : {commande[0]}", bloquant=False)
@@ -132,6 +134,21 @@ def lancer(
         return Resultat(titre, "INDISPONIBLE", "delai depasse (10 min)", bloquant=False)
 
     sortie = (proc.stdout + proc.stderr).strip()
+
+    # ⚠️ `python -m outil` quand l'outil n'est PAS installé : python existe, il
+    # démarre, et sort en 1 avec « No module named x ». Pour le code de sortie
+    # c'est indiscernable de « l'outil a tourné et trouvé 1 problème ».
+    #
+    # Sans ce cas, Lintorn annonçait « 1 alerte de lint » à quiconque n'avait
+    # pas ruff — un rouge sur du code qu'il n'avait jamais lu. Trouvé par
+    # Lintorn sur son propre depot, le jour ou il a su s'auditer.
+    if "No module named" in sortie:
+        manquant = sortie.rsplit("No module named", 1)[-1].strip().strip("'\"")
+        return Resultat(
+            titre, "INDISPONIBLE",
+            f"{manquant} n'est pas installe - `lintorn --installer-outils`",
+            sortie, bloquant=False,
+        )
 
     if proc.returncode == 0:
         # ⚠️ Les `resume` finissent dans la console — et le hook git tourne sous
@@ -413,7 +430,7 @@ def controle_memoire_ia() -> Resultat:
         return Resultat(
             "Memoire IA vs code", "INDISPONIBLE",
             f"dossier memoire introuvable ({config.MEMOIRE_IA_ORIGINE})"
-            " - voir LINTORN_MEMOIRE dans tools/.env.example",
+            " - voir LINTORN_MEMOIRE dans .lintorn/.env",
             bloquant=False,
         )
 
@@ -631,6 +648,16 @@ def controle_fraicheur_memoire() -> Resultat:
 # CONTRÔLE MAISON 2 — les règles de CLAUDE.md sont-elles tenues ?
 # ─────────────────────────────────────────────────────────────────────────────
 def controle_regles_maison() -> Resultat:
+    # Aucune règle déclarée → on le DIT au lieu d'afficher « toutes les regles
+    # sont tenues ». Un vert sur zéro règle est un mensonge par omission :
+    # l'utilisateur croit couvert quelque chose qu'il n'a jamais défini.
+    if not config.REGLES_MAISON:
+        return Resultat(
+            "Regles maison", "INDISPONIBLE",
+            "aucune regle declaree - voir [[regles]] dans .lintorn/config.toml",
+            bloquant=False,
+        )
+
     infractions: list[str] = []
     bloquant_touche = False
     lignes_detail: list[str] = []
@@ -675,10 +702,10 @@ def controle_regles_maison() -> Resultat:
             lignes_detail.append(f"- *… et {len(par_fichier) - 8} autre(s) fichier(s)*")
 
     if not infractions:
-        return Resultat("Regles maison (CLAUDE.md)", "OK", "toutes les regles sont tenues")
+        return Resultat("Regles maison", "OK", "toutes les regles sont tenues")
 
     return Resultat(
-        "Regles maison (CLAUDE.md)", "ALERTE",
+        "Regles maison", "ALERTE",
         " | ".join(infractions), "\n".join(lignes_detail),
         bloquant=bloquant_touche,
         detail_markdown=True,

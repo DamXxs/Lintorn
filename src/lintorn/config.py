@@ -87,6 +87,29 @@ def _trouver(marqueur: str, profondeur: int = 2) -> Path | None:
 BACKEND = _trouver("manage.py")        # None si le projet n'est pas Django
 FRONTEND = _trouver("package.json")    # None s'il n'y a pas de front JS/TS
 
+
+def _racine_python() -> Path | None:
+    """Où lancer ruff et pytest. None si le projet n'a pas de Python du tout.
+
+    ⚠️ « projet Python » et « projet Django » sont DEUX choses. Ces contrôles
+    ont d'abord été accrochés à la détection de `manage.py` — conséquence :
+    sur un projet Python sans Django (Lintorn lui-même !), ruff et pytest
+    disparaissaient purement et simplement. L'outil ne savait pas s'auditer.
+
+    Django d'abord quand il existe (c'est là que vit le code métier), sinon
+    le dossier qui porte les marqueurs d'un projet Python.
+    """
+    if BACKEND:
+        return BACKEND
+    for marqueur in ("pyproject.toml", "setup.py", "setup.cfg", "requirements.txt"):
+        trouve = _trouver(marqueur)
+        if trouve:
+            return trouve
+    return None
+
+
+PY_RACINE = _racine_python()
+
 # Tout ce que Lintorn ÉCRIT va dans ce seul dossier du projet audité — jamais
 # dans le paquet installé, qui est en lecture seule et partagé entre projets.
 #
@@ -323,35 +346,52 @@ JOURS_AUDIT_COMPLET = 30
 # POUR AJOUTER UN OUTIL : copie une entrée, change les 3 premières lignes.
 COMMANDES: list[dict] = []
 
-if BACKEND:
-    COMMANDES += [
-        {
-            "cle": "ruff",
-            "titre": "Ruff (lint Python)",
-            "cmd": [PYTHON, "-m", "ruff", "check", ".", "--output-format", "concise"],
-            "cwd": BACKEND,
-            "bloquant": True,
-            "traduction": "ruff",
-            "lent": False,
-        },
-        {
-            # `requirements.txt` dit-il la verite sur le venv ?
-            # Aucun autre controle ne peut le voir : ruff, pytest et Django
-            # tournent DANS le venv, donc pour eux tout est installe. Le defaut
-            # ne se revele qu'au deploiement, quand il coute le plus cher.
-            #
-            # Lance par CHEMIN et non par `-m lintorn.dependances` : il doit
-            # tourner avec le python du PROJET (celui dont on inspecte le venv),
-            # or ce python-la n'a aucune raison d'avoir Lintorn installe.
+# ── Python : ruff partout, dépendances seulement s'il y a un requirements ────
+if PY_RACINE:
+    COMMANDES.append({
+        "cle": "ruff",
+        "titre": "Ruff (lint Python)",
+        "cmd": [PYTHON, "-m", "ruff", "check", ".", "--output-format", "concise"],
+        "cwd": PY_RACINE,
+        "bloquant": True,
+        "traduction": "ruff",
+        "lent": False,
+    })
+
+    # `requirements.txt` dit-il la vérité sur le venv ?
+    # Aucun autre contrôle ne peut le voir : ruff, pytest et Django tournent
+    # DANS le venv, donc pour eux tout est installé. Le défaut ne se révèle
+    # qu'au déploiement, quand il coûte le plus cher.
+    #
+    # Proposé UNIQUEMENT s'il y a un requirements.txt à comparer : sans lui,
+    # le contrôle resterait « INDISPONIBLE » à vie — un voyant mort qu'on
+    # apprend à ignorer, donc un voyant nuisible.
+    #
+    # Lancé par CHEMIN et non par `-m lintorn.dependances` : il doit tourner
+    # avec le python du PROJET (celui dont on inspecte le venv), or ce
+    # python-là n'a aucune raison d'avoir Lintorn installé.
+    if (PY_RACINE / "requirements.txt").is_file():
+        COMMANDES.append({
             "cle": "dependances",
             "titre": "Dependances vs venv",
-            "cmd": [PYTHON, str(PAQUET / "dependances.py"), str(BACKEND)],
+            "cmd": [PYTHON, str(PAQUET / "dependances.py"), str(PY_RACINE)],
             "cwd": RACINE,
             "bloquant": True,
             "traduction": None,
             "lent": False,
-        },
-    ]
+        })
+
+    COMMANDES.append({
+        "cle": "tests",
+        "opt_in": True,      # EXECUTE le code du projet
+        "titre": "Tests (pytest)",
+        "cmd": [PYTHON, "-m", "pytest", "-q"],
+        "cwd": PY_RACINE,
+        "bloquant": True,
+        "traduction": None,
+        "lent": False,
+    })
+
 
 COMMANDES_DJANGO = [
     {
@@ -384,16 +424,6 @@ COMMANDES_DJANGO = [
         "opt_in": True,      # ouvre la BASE DE DONNEES
         "titre": "Donnees vs regles metier",
         "cmd": [PYTHON, "manage.py", "verifier_donnees"],
-        "cwd": BACKEND,
-        "bloquant": True,
-        "traduction": None,
-        "lent": False,
-    },
-    {
-        "cle": "tests",
-        "opt_in": True,      # EXECUTE le code du projet
-        "titre": "Tests (pytest)",
-        "cmd": [PYTHON, "-m", "pytest", "-q"],
         "cwd": BACKEND,
         "bloquant": True,
         "traduction": None,
@@ -484,6 +514,64 @@ COMMANDES = [
     commande for commande in COMMANDES
     if _actifs.get(commande["cle"], not commande.get("opt_in", False))
 ]
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# LES COMMANDES AJOUTÉES PAR LE PROJET
+# ─────────────────────────────────────────────────────────────────────────────
+# mypy, eslint, black --check, un script maison : tout outil qui répond par un
+# code de sortie a sa place ici.
+#
+#     [[tool.lintorn.commandes]]
+#     cle      = "mypy"
+#     titre    = "Types (mypy)"
+#     cmd      = ["python", "-m", "mypy", "."]
+#     cwd      = "api"          # relatif à la racine ; absent = la racine
+#     bloquant = false
+#     lent     = false
+#
+# ⚠️ CE QUE ÇA IMPLIQUE, ET IL FAUT LE SAVOIR : ces commandes sont EXÉCUTÉES.
+# Un `pyproject.toml` cloné depuis un dépôt inconnu peut donc faire tourner ce
+# qu'il veut sur ta machine au premier `lintorn`. C'est le même contrat que les
+# scripts npm, les hooks git ou un Makefile — mais autant que ce soit dit :
+# ne lance pas Lintorn dans un dépôt en qui tu n'as pas confiance.
+def _commandes_du_projet() -> list[dict]:
+    global ERREUR_CONFIG
+    ajoutees, soucis = [], []
+
+    for brute in PROJET.get("commandes", []):
+        cle = str(brute.get("cle", "")).strip()
+        cmd = brute.get("cmd")
+        if not cle or not isinstance(cmd, list) or not cmd:
+            soucis.append(f"commande '{cle or '(sans cle)'}' : 'cle' et 'cmd' sont obligatoires")
+            continue
+        if any(commande["cle"] == cle for commande in COMMANDES):
+            soucis.append(f"commande '{cle}' : cette cle est deja prise")
+            continue
+
+        cwd = RACINE / str(brute.get("cwd", "")).strip("/")
+        if not cwd.is_dir():
+            soucis.append(f"commande '{cle}' : dossier '{brute.get('cwd')}' introuvable")
+            continue
+
+        ajoutees.append({
+            "cle": cle,
+            "titre": str(brute.get("titre", cle)),
+            "cmd": [str(morceau) for morceau in cmd],
+            "cwd": cwd,
+            "bloquant": bool(brute.get("bloquant", False)),
+            "traduction": brute.get("traduction"),
+            "lent": bool(brute.get("lent", False)),
+            "codes_alerte": tuple(brute.get("codes_alerte", (1,))),
+        })
+
+    if soucis:
+        detail = " | ".join(soucis)
+        ERREUR_CONFIG = f"{ERREUR_CONFIG} | {detail}" if ERREUR_CONFIG else detail
+    return ajoutees
+
+
+COMMANDES += _commandes_du_projet()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
