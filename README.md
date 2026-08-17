@@ -2,7 +2,7 @@
 
 **Audits your code and the memory your AI assistant reads — and tells you when the two drift apart.**
 
-Coding assistants read project documentation: `CLAUDE.md`, architecture notes, persistent
+Coding assistants read project documentation: CLAUDE.md, architecture notes, persistent
 memory files. That documentation is written once and then quietly rots. The assistant keeps
 reading it, keeps trusting it, and keeps acting on rules that no longer match the code.
 
@@ -22,7 +22,7 @@ corresponds to something real. When they disagree, it says so.
 | **Docs vs code** | every path cited in documentation still exists; prospective docs flagged, not failed |
 | **AI memory vs code** | same treatment for the assistant's persistent memory files |
 | **Memory freshness** | memory that cites code changed since it was last verified |
-| **House rules** | project-specific conventions declared in `CLAUDE.md`, enforced mechanically |
+| **House rules** | project-specific conventions you declare, enforced mechanically |
 | **Python** | ruff, `manage.py check`, missing migrations, business-rule validation |
 | **JavaScript** | `tsc --noEmit` |
 | **Tests** | pytest |
@@ -47,5 +47,5 @@ source-disclosure requirement, get in touch.
 
 ## Contributing
 
-Not open to outside contributions yet. See `CONTRIBUTING.md` once it lands — contributions
-will require a CLA so that dual licensing remains possible.
+Not open to outside contributions yet. Contributions will require a CLA, so that dual
+licensing remains possible.
