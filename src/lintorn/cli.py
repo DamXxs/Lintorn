@@ -24,8 +24,7 @@ OÙ TOUCHER QUOI
 CE QU'IL SURVEILLE, EN PLUS DU CODE
     Le lint et les tests ne voient que le CODE. Lintorn regarde aussi les
     DONNÉES (`manage.py verifier_donnees`) : une base peut être fausse alors
-    que le code est juste — séquence de factures trouée, ligne d'OR facturée
-    sans désignation. Aucun test unitaire ne voyait ces cas-là.
+    que le code est juste — Aucun test unitaire ne voyait ces cas-là.
 
 PRINCIPE — le rapport est un FAIT SUR LE CODE, pas une mémoire : il est ÉCRASÉ
 à chaque exécution, jamais fusionné, jamais trié. Un fait sur le code périme dès
@@ -256,6 +255,13 @@ def init(ecraser: bool = False) -> int:
         "# exclure  = []",
         "# bloquant = false",
         "",
+        "# ── Une doc qui cite des fichiers absents ────────────────────────────",
+        "# Une roadmap ou une note de conception cite legitimement des fichiers",
+        "# pas encore ecrits, ou supprimes. Mets ce marqueur n'importe ou dedans",
+        "# et ses chemins morts seront LISTES au lieu de bloquer :",
+        "#",
+        "#     <!-- lintorn:prospectif -->",
+        "",
         "# ── Tes propres outils ───────────────────────────────────────────────",
         "# Tout outil qui repond par un code de sortie a sa place ici.",
         "# ⚠️ Ces commandes sont EXECUTEES : ne lance pas Lintorn dans un depot",
@@ -344,9 +350,27 @@ def installer_outils(sans_demander: bool = False) -> int:
     # L'effet de bord se dit AVANT, pas après : ces paquets apparaîtront dans
     # `pip freeze`, donc le contrôle « Dependances vs venv » les signalera
     # aussitôt comme « installes mais pas declares ».
-    print("\nA SAVOIR : ces paquets apparaitront comme 'non declares' dans le")
-    print("controle Dependances vs venv. Ajoute-les a ton requirements de dev,")
-    print("ou desactive ce controle.")
+    # ⚠️ Un avertissement qui ne dit pas COMMENT le suivre ne sert a rien : on
+    # donne les deux chemins exacts, pas un conseil en l'air.
+    print("\nA SAVOIR : ces paquets apparaitront ensuite comme 'non declares'")
+    print("dans le controle Dependances vs venv. Deux facons de regler ca :")
+    print()
+    requirements = (config.PY_RACINE / "requirements.txt") if config.PY_RACINE else None
+    if requirements and requirements.is_file():
+        try:
+            ou = requirements.relative_to(config.RACINE).as_posix()
+        except ValueError:
+            ou = str(requirements)
+        print(f"  1. les declarer  -> ajouter ces lignes dans {ou} :")
+        for _, paquet, _ in manquants:
+            print(f"                          {paquet}")
+    else:
+        print("  1. les declarer  -> aucun requirements.txt trouve ; si tu en")
+        print("                      crees un, ajoute-les dedans")
+    print()
+    print("  2. ou couper le controle -> dans .lintorn/config.toml :")
+    print("                          [controles]")
+    print("                          dependances = false")
 
     if not sans_demander:
         try:
@@ -404,9 +428,9 @@ def installer_hook() -> int:
         config.HOOKS.mkdir(parents=True, exist_ok=True)
         cible = config.HOOKS / "pre-push"
         shutil.copyfile(config.HOOKS_SOURCE / "pre-push", cible)
-        # Sans le bit exécutable, git ignore le hook EN SILENCE (panne vécue le
-        # 16/08/2026). `copyfile` ne transporte pas les permissions : on les
-        # pose explicitement au lieu d'espérer.
+        # Sans le bit exécutable, git ignore le hook EN SILENCE. `copyfile` ne
+        # transporte pas les permissions : on les pose explicitement plutôt que
+        # d'espérer qu'elles aient suivi.
         cible.chmod(cible.stat().st_mode | 0o111)
     except OSError as erreur:
         print(f"Echec : impossible d'installer le hook ({erreur})")

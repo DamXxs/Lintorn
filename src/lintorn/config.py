@@ -1,9 +1,9 @@
 """
 Les réglages de Lintorn.
 
-    ▸ Ajouter un outil        → une entrée dans COMMANDES
-    ▸ Désactiver un contrôle  → False dans CONTROLES_INTERNES
-    ▸ Ajouter une règle maison → une entrée dans REGLES_MAISON
+    ▸ Ajouter un outil        → une entrée dans COMMANDES (ligne 339)
+    ▸ Désactiver un contrôle  → False dans CONTROLES_INTERNES (ligne 579)
+    ▸ Ajouter une règle maison → une entrée dans REGLES_MAISON (ligne 741)
     ▸ Traduire un code        → traductions.py
 
 Aucune logique ici, que des données. Tu ne peux pas casser la mécanique en
@@ -65,10 +65,6 @@ RACINE = _racine_projet()
 
 def _trouver(marqueur: str, profondeur: int = 2) -> Path | None:
     """Le dossier contenant `marqueur`, cherché depuis la racine du projet.
-
-    On ne SUPPOSE plus `backend/` et `frontend/`, on les DÉCOUVRE : un projet
-    qui range son Django à la racine, dans `api/` ou dans `apps/serveur/`
-    fonctionne alors sans la moindre configuration.
 
     Profondeur limitée à 2 : au-delà on parcourt des arborescences entières
     pour un gain nul, et on risque de tomber sur le `package.json` d'une
@@ -230,11 +226,7 @@ ENV = {**_lire_env(DOSSIER_LINTORN / ".env"), **os.environ}
 # tout cela décrit UN projet. Livré dans le paquet, ça imposait les conventions
 # d'un seul projet à tous les autres, et produisait ailleurs des alertes qui ne
 # voulaient rien dire.
-#
-# Pourquoi `pyproject.toml` plutôt qu'un `.env` : la config des contrôles doit
-# être VERSIONNÉE et identique pour toute l'équipe (et pour la CI). Un `.env`
-# est fait exactement pour l'inverse — ce qui ne se partage pas. Et c'est déjà
-# là que ruff, pytest et mypy se configurent : un seul fichier à connaître.
+
 ERREUR_CONFIG: str | None = None
 
 
@@ -298,15 +290,16 @@ PROJET = _config_projet()
 #   codes_alerte  (optionnel) les codes de sortie qui veulent dire « j'ai TROUVÉ
 #               des problèmes », par opposition à « je suis en panne ».
 #               ⚠️ La convention « 1 = trouvé » n'est PAS universelle :
-#               vulture répond 3. Sans cette précision, l'audit croyait
-#               l'outil planté alors qu'il faisait son travail (30/07/2026).
+#               vulture répond 3. Sans cette précision, on croit l'outil
+#               planté alors qu'il fait son travail.
 #               Défaut : (1,)
 #
 # ── Liste blanche de vulture ─────────────────────────────────────────────────
 # Noms que vulture déclare « inutilisés » alors qu'ils sont IMPOSÉS par une API :
 # le framework appelle la fonction avec ces arguments, les retirer casse l'appel.
-# 8 fausses alertes sur 8 le 12/08/2026 — un contrôle qui n'a que des faux
-# positifs finit par ne plus être lu, donc par ne plus rien protéger.
+# Sur un projet Django, ces noms produisent 100 % de fausses alertes — et un
+# contrôle qui n'a que des faux positifs finit par ne plus être lu, donc par ne
+# plus rien protéger.
 #
 # ⚠️ N'ajoute ici QUE des noms imposés de l'extérieur. Tout ce qu'on y met
 # devient invisible pour toujours — la liste blanche est un angle mort choisi.
@@ -326,8 +319,9 @@ VULTURE_IGNORES = PROJET.get("vulture_ignores", _VULTURE_DEFAUT)
 
 # ── Fraîcheur de l'audit complet ─────────────────────────────────────────────
 # Les outils LENTS (vulture, pip-audit) ne tournent PAS en `--rapide`, donc pas
-# non plus dans le hook pre-push. Sans rappel, ils peuvent ne jamais tourner :
-# les 3 failles de sécurité trouvées le 12/08/2026 dormaient depuis un moment.
+# non plus dans le hook pre-push. Sans rappel, ils peuvent ne jamais tourner —
+# et une faille de sécurité connue dort alors dans le projet sans que rien ne
+# bouge, puisqu'elle apparaît sans qu'une ligne de code ait changé.
 #
 # On préfère un rappel DANS l'outil qu'une tâche planifiée : un planificateur
 # qui meurt ne prévient personne (même leçon que `core.hooksPath`).
@@ -343,7 +337,17 @@ JOURS_AUDIT_COMPLET = 30
 # ne s'affichent pas du tout — plutôt que d'apparaître en échec ou, pire, en
 # « INDISPONIBLE » permanent que l'utilisateur apprendrait à ignorer.
 #
-# POUR AJOUTER UN OUTIL : copie une entrée, change les 3 premières lignes.
+# POUR AJOUTER UN OUTIL À TON PROJET, ce n'est PAS ici : déclare-le dans ton
+# `.lintorn/config.toml` (ou `[tool.lintorn]` de ton pyproject.toml) —
+#
+#     [[commandes]]
+#     cle   = "mypy"
+#     titre = "Types (mypy)"
+#     cmd   = ["python", "-m", "mypy", "."]
+#
+# La liste ci-dessous n'est que le socle livré avec Lintorn. La modifier
+# reviendrait à éditer un paquet installé, donc à tout perdre à la prochaine
+# mise à jour. Elle ne concerne que qui développe Lintorn lui-même.
 COMMANDES: list[dict] = []
 
 # ── Python : ruff partout, dépendances seulement s'il y a un requirements ────
@@ -393,6 +397,13 @@ if PY_RACINE:
     })
 
 
+# ── Django ───────────────────────────────────────────────────────────────────
+# Ces contrôles n'ont de sens que sur un projet Django, et ne sont ajoutés que
+# si `manage.py` a été trouvé (voir BACKEND plus haut). Ailleurs ils
+# n'apparaissent nulle part — ni en échec, ni en « INDISPONIBLE ».
+#
+# Tous se lancent DEPUIS le dossier qui contient `manage.py`, avec le python du
+# projet : c'est la seule façon pour Django de trouver ses réglages et ses apps.
 COMMANDES_DJANGO = [
     {
         "cle": "django_check",
@@ -413,13 +424,6 @@ COMMANDES_DJANGO = [
         "lent": False,
     },
     {
-        # Remplace l'ancien "Fixtures vs modeles" : les fixtures JSON ont
-        # disparu du projet le 31/07/2026 (la demo se construit par
-        # `seeddemo`). Ce controle regarde les DONNEES elles-memes : sequence
-        # de numerotation continue, lignes d'OR nommees et chiffrees, totaux
-        # synchronises avec leurs lignes, signatures coherentes.
-        # Il attrape ce que ni ruff ni les tests ne peuvent voir : du code
-        # juste qui a produit des donnees fausses.
         "cle": "donnees_metier",
         "opt_in": True,      # ouvre la BASE DE DONNEES
         "titre": "Donnees vs regles metier",
@@ -598,11 +602,7 @@ CONTROLES_INTERNES = {
 
 # Les documents du DÉPÔT dont on vérifie qu'ils ne mentent pas.
 #
-# ⚠️ On les CHERCHE au lieu de les nommer un par un. Le 30/07/2026, le dev a
-# déplacé tous les .md dans `Notes/` : les chemins codés en dur ne pointaient
-# plus sur rien, et le contrôle affichait « OK — 0 chemin vérifié ». Il ne
-# vérifiait plus RIEN tout en étant vert. En scannant les dossiers, un
-# rangement ne casse plus le contrôle.
+# ⚠️ On les CHERCHE au lieu de les nommer un par un.
 #
 # Les emplacements sont des CONVENTIONS répandues, pas ceux d'un projet
 # particulier : racine, puis les dossiers de documentation les plus courants.

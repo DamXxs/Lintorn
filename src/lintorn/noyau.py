@@ -3,7 +3,8 @@
 La mécanique de l'outil. Normalement, tu n'as pas besoin d'y toucher.
 
   ▸ Pour ajouter un outil    → config.py
-  ▸ Pour traduire un code    → traductions.py
+    ▸ Pour traduire un code    → traductions.py  (confort seulement : rien n'est traduit
+                                    automatiquement, c'est a toi d'ajouter les traductions)
   ▸ Pour changer la mécanique → c'est ici
 
 Contenu : la fiche Resultat, le lanceur de commandes, et les deux contrôles
@@ -224,8 +225,8 @@ def traduire_deploy(resultat: Resultat) -> Resultat:
     """Réécrit les avertissements de `check --deploy` en français.
 
     ⚠️ La regex accepte N'IMPORTE QUEL préfixe d'app, pas seulement `security.`.
-    Elle ne prenait que `security\\.` jusqu'au 03/08/2026 : les contrôles maison
-    du projet (`signatures.E002`…) étaient donc SILENCIEUSEMENT jetés du
+    Restreinte à `security\\.`, elle jetterait SILENCIEUSEMENT les contrôles
+    publiés par les applications du projet (`monapp.E002`…) hors du
     rapport. Un contrôle qu'on croit avoir mais qui n'apparaît jamais est pire
     que pas de contrôle du tout.
     """
@@ -248,10 +249,13 @@ TRADUCTEURS = {"ruff": traduire_ruff, "deploy": traduire_deploy}
 # ─────────────────────────────────────────────────────────────────────────────
 # CONTRÔLE MAISON 1 — la doc dit-elle encore la vérité ?
 # ─────────────────────────────────────────────────────────────────────────────
-# Le code a ruff, tsc et manage.py check pour se surveiller. La doc, elle, n'a
-# RIEN : c'est comme ça que CLAUDE.md a pu affirmer pendant des semaines que
-# `api.ts` était en JavaScript, ou citer `utils/generatePdf.ts` — un fichier
-# supprimé depuis, présenté comme le pivot d'un chantier à venir.
+# Le code a ruff, tsc et les tests pour le surveiller. La documentation, elle,
+# n'a RIEN : personne ne vérifie qu'elle décrit encore le projet. Elle affirme
+# donc tranquillement qu'un fichier existe alors qu'il a été supprimé, ou qu'un
+# module est écrit dans un langage qu'il a quitté depuis longtemps.
+#
+# C'est sans gravité tant qu'un humain la lit en diagonale. Ça ne l'est plus
+# quand un assistant IA la lit intégralement et agit dessus.
 
 def indexer_fichiers() -> set[str]:
     """Parcourt le dépôt une fois et retient chaque nom de fichier."""
@@ -344,9 +348,9 @@ def _verifier_documents(titre: str, documents: list, bloquant_possible: bool) ->
         # LÉGITIMEMENT des fichiers qui n'existent pas : pas encore (module à
         # écrire) ou plus (fichier supprimé, cité justement parce qu'il a
         # disparu). Sans échappatoire, Lintorn bloque le push et pousse à écrire
-        # ces documents AILLEURS que dans `Notes/` — il fabrique l'angle mort
-        # qu'il prétend supprimer. Constaté le 12/08/2026 : ce contrôle a
-        # recalé la note de conception qui décrivait sa propre correction.
+        # ces documents AILLEURS que dans les dossiers scannés — il fabrique
+        # alors l'angle mort qu'il prétend supprimer. Sans échappatoire, il
+        # recale jusqu'à la note qui décrit sa propre correction.
         #
         #     <!-- lintorn:prospectif -->   en tête du document
         #
@@ -419,9 +423,8 @@ def controle_memoire_ia() -> Resultat:
 
     Pourquoi la surveiller quand même : elle vit HORS du dépôt, donc elle n'est
     pas versionnée, personne ne la relit, et rien ne la confronte au code. Un
-    chemin périmé y survit indéfiniment — c'est exactement ce qui est arrivé à
-    `utils/generatePdf.ts`, présenté comme le pivot du chantier Factur-X alors
-    que le fichier avait été supprimé.
+    chemin périmé y survit donc indéfiniment — et l'assistant continue de le
+    citer avec assurance, longtemps après la disparition du fichier.
     """
     if config.MEMOIRE_IA is None:
         # On dit POURQUOI on ne trouve rien, et comment reprendre la main :
@@ -446,9 +449,8 @@ def controle_memoire_ia() -> Resultat:
 # ─────────────────────────────────────────────────────────────────────────────
 # « Memoire IA vs code » répond à : les chemins cités existent-ils ?
 # Celui-ci répond à : ce que la mémoire raconte de ces fichiers est-il encore
-# d'actualité ? Les deux sont indépendants — la section RGPD de la roadmap avait
-# ZÉRO chemin cassé et affirmait quand même le contraire du code, pendant deux
-# semaines (12/08/2026).
+# d'actualité ? Les deux sont indépendants — une mémoire peut n'avoir aucun
+# chemin casse et affirmer malgré tout le contraire du code.
 #
 # LE PRINCIPE : une date saisie à la main ment dès qu'on oublie de la changer.
 # Git, lui, n'oublie rien. On ne demande donc à l'humain qu'UNE chose — la date
@@ -459,15 +461,13 @@ _RX_VERIFIE_LE = re.compile(r"^\s*verifie_le\s*:\s*(\d{4}-\d{2}-\d{2})\s*$", re.
 def _pathspecs_cites(texte: str) -> list[str]:
     """Les chemins cités par un document, traduits en **pathspecs git**.
 
-    Deux formes, parce qu'une mémoire emploie les deux :
-      - `api/factures/models.py` → chemin repo-relatif, tel quel
-      - `OrPdfTemplate.tsx` (nom NU)        → `:(glob)**/OrPdfTemplate.tsx`
+
 
     ⚠️ Le nom nu est le cas **majoritaire** en mémoire : on y écrit « le
-    template `OrPdfTemplate.tsx` », jamais son chemin complet. Une première
+     `NOM DU FICHIER` », jamais son chemin complet. Une première
     version ne résolvait que les chemins complets — elle trouvait 0 fichier
-    sur `project_generateur_pdf.md`, donc 0 commit, donc un contrôle qui
-    serait resté VERT à jamais. Trouvé par son propre test le 12/08/2026 :
+    sur `nom_du_fichier.md`, donc 0 commit, donc un contrôle qui
+    serait resté VERT à jamais. Trouvé par son propre test :
     le pire des bugs, celui qui ne fait rien de visible.
     """
     texte = re.sub(r"```.*?```", "", texte, flags=re.DOTALL)
@@ -497,7 +497,7 @@ def _pathspecs_cites(texte: str) -> list[str]:
 
 # Séparateur de commits dans la sortie de `git log`.
 #
-# ⚠️ DEUX pièges payés le 12/08/2026, tous deux silencieux :
+# ⚠️ DEUX pièges, tous deux silencieux :
 #   1. PAS un caractère nul : Windows refuse un octet 0 dans un argument de
 #      processus (`ValueError: embedded null character`).
 #   2. Le préfixe `format:` est OBLIGATOIRE. `--format=<chaîne libre>` est
@@ -786,8 +786,8 @@ def controle_hook_git() -> Resultat:
 def _controle_hook_executable(titre: str) -> Resultat:
     """`core.hooksPath` est bon — reste à savoir si git a le DROIT de lancer.
 
-    LA PANNE VÉCUE (16/08/2026) : git refuse d'exécuter un hook qui n'a pas le
-    bit exécutable, et il le fait EN SILENCE — pas de message, pas d'erreur, le
+    LA PANNE : git refuse d'exécuter un hook qui n'a pas le bit exécutable,
+    et il le fait EN SILENCE — pas de message, pas d'erreur, le
     push part simplement sans contrôle. Le hook avait été créé sous Windows, où
     ce bit n'existe pas (`core.filemode=false`, Git Bash lance tout) ; il est
     donc parti dans le dépôt en 100644. Tant que le projet est resté sous
@@ -871,8 +871,8 @@ def _mode_git(chemin: Path) -> str | None:
 def controle_audit_complet() -> Resultat:
     """`--rapide` saute vulture et pip-audit. Qui rappelle de les lancer ?
 
-    Personne, jusqu'ici — et c'est comme ça que 3 failles de sécurité connues
-    (cryptography, pypdf) ont dormi dans le projet : `pip-audit` ne tourne ni en
+    Personne, jusqu'ici — et c'est comme ça que des failles de sécurité connues
+    ont dormi dans le projet : `pip-audit` ne tourne ni en
     `--rapide`, ni dans le hook pre-push.
 
     POURQUOI UN RAPPEL DANS L'OUTIL plutôt qu'une tâche planifiée : un
