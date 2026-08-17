@@ -1,4 +1,4 @@
-# /matorn/tools/noyau.py
+# Lintorn
 """
 La mécanique de l'outil. Normalement, tu n'as pas besoin d'y toucher.
 
@@ -19,8 +19,8 @@ import re
 import subprocess
 from pathlib import Path
 
-import config
-import traductions
+from . import config
+from . import traductions
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -40,6 +40,7 @@ def ecrire_etat(cle: str, valeur) -> None:
     etat = lire_etat()
     etat[cle] = valeur
     try:
+        config.ETAT.parent.mkdir(parents=True, exist_ok=True)
         config.ETAT.write_text(json.dumps(etat, indent=2), encoding="utf-8")
     except OSError:
         pass    # ne JAMAIS faire échouer un audit parce qu'on n'a pas pu noter la date
@@ -83,14 +84,19 @@ class Resultat:
 def lien(chemin_racine: str, ligne: int | None = None) -> str:
     """Transforme un chemin en lien Markdown cliquable depuis le rapport.
 
-    Le rapport vit dans `matorn/tools/`, donc la racine du dépôt est deux
-    crans au-dessus. VS Code ouvre le fichier au clic, et se place sur la
-    bonne ligne grâce à l'ancre `#L42`.
+    Le rapport vit dans `.lintorn/`, donc la racine du dépôt est UN cran
+    au-dessus — d'où le `../`. VS Code ouvre le fichier au clic et se place
+    sur la bonne ligne grâce à l'ancre `#L42`.
+
+    ⚠️ Ce nombre de crans suit l'emplacement du rapport. Il valait `../../`
+    du temps où le rapport vivait deux niveaux plus bas : déplacer le rapport
+    sans corriger ici casse SILENCIEUSEMENT tous les liens du rapport, qui
+    restent cliquables mais ne mènent nulle part.
     """
     chemin = chemin_racine.replace("\\", "/")
     ancre = f"#L{ligne}" if ligne else ""
     texte = f"{chemin}:{ligne}" if ligne else chemin
-    return f"[`{texte}`](../../{chemin}{ancre})"
+    return f"[`{texte}`](../{chemin}{ancre})"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -171,9 +177,12 @@ def traduire_ruff(resultat: Resultat) -> Resultat:
         compteur[code] = compteur.get(code, 0) + 1
         # Code non traduit → on garde l'anglais plutôt que de perdre l'info
         explication = dico.get(code, trouve["message"])
-        # Ruff tourne depuis backend/ → on repréfixe pour obtenir un chemin
+        # Ruff tourne DANS le backend → on repréfixe pour obtenir un chemin
         # depuis la racine du dépôt, sinon le lien ne pointe sur rien.
-        fichier = "matorn/backend/" + trouve["fichier"].replace("\\", "/")
+        # ⚠️ Préfixe DÉDUIT de la détection, jamais écrit en dur : codé en
+        # dur, tous les liens du rapport pointaient dans le vide dès que le
+        # projet n'avait pas l'arborescence de celui d'origine.
+        fichier = config.PREFIXE_BACKEND + trouve["fichier"].replace("\\", "/")
         traduites.append(
             f"- {lien(fichier, int(trouve['ligne']))}<br>`{code}` — {explication}"
         )
@@ -434,7 +443,7 @@ def _pathspecs_cites(texte: str) -> list[str]:
     """Les chemins cités par un document, traduits en **pathspecs git**.
 
     Deux formes, parce qu'une mémoire emploie les deux :
-      - `matorn/backend/factures/models.py` → chemin repo-relatif, tel quel
+      - `api/factures/models.py` → chemin repo-relatif, tel quel
       - `OrPdfTemplate.tsx` (nom NU)        → `:(glob)**/OrPdfTemplate.tsx`
 
     ⚠️ Le nom nu est le cas **majoritaire** en mémoire : on y écrit « le
@@ -731,7 +740,7 @@ def controle_hook_git() -> Resultat:
         "```bash\n"
         f"git config core.hooksPath {config.HOOKS_ATTENDU}\n"
         "```\n\n"
-        "ou, strictement équivalent : `python matorn/tools/Lintorn.py --installer-hook`",
+        "ou, strictement équivalent : `lintorn --installer-hook`",
         bloquant=False,
         detail_markdown=True,
     )
@@ -843,7 +852,7 @@ def controle_audit_complet() -> Resultat:
                "tournent ni en `--rapide`, ni dans le hook pre-push. `pip-audit` "
                "signale les **failles de sécurité connues** de tes dépendances : "
                "elles apparaissent sans que ton code bouge.\n\n"
-               "```bash\npython matorn/tools/Lintorn.py\n```")
+               "```bash\nlintorn\n```")
 
     if not dernier:
         return Resultat(titre, "VERIF", "jamais lance sur cette machine",

@@ -2,7 +2,7 @@
 """
 dependances.py — `requirements.txt` dit-il la vérité sur le venv ?
 
-    python matorn/tools/dependances.py
+    python -m lintorn.dependances
 
 Lancé par Lintorn, mais utilisable seul.
 
@@ -40,8 +40,23 @@ import re
 import subprocess
 import sys
 
-RACINE = pathlib.Path(__file__).resolve().parents[2]
-BACKEND = RACINE / "matorn" / "backend"
+# ⚠️ Le dossier backend est REÇU, jamais deviné.
+#
+# Ce fichier déduisait autrefois sa position comme le faisait `config.py` :
+# `Path(__file__).parents[2] / "<projet>" / "backend"`. Installé par pip, ça
+# désigne un dossier qui n'existe pas — et le contrôle sortait en « INDISPONIBLE »
+# au lieu de dire la vérité sur les dépendances.
+#
+# Il reste lançable seul (`python dependances.py <backend>`) : c'est utile pour
+# le déboguer sans passer par Lintorn, et le repli sur le dossier courant
+# couvre le cas où on le lance depuis le backend lui-même.
+def _backend_vise() -> pathlib.Path:
+    if len(sys.argv) > 1:
+        return pathlib.Path(sys.argv[1]).expanduser().resolve()
+    return pathlib.Path.cwd().resolve()
+
+
+BACKEND = _backend_vise()
 REQUIREMENTS = BACKEND / "requirements.txt"
 
 if sys.platform == "win32":
