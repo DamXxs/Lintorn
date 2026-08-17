@@ -43,7 +43,7 @@ import subprocess
 import sys
 from datetime import datetime
 
-from . import config, noyau
+from . import __version__, config, noyau
 from .noyau import MARQUEUR, Resultat
 
 
@@ -145,6 +145,36 @@ def maj_securite(appliquer: bool) -> int:
     print("    cd <backend> && venv/Scripts/python.exe -m pytest -q")
     print("    lintorn")
     return 0 if len(reussis) == len(plan) else 1
+
+
+AIDE = """lintorn — audite le code d'un projet ET la memoire que lit l'assistant IA.
+
+USAGE
+    lintorn                      audit complet
+    lintorn --rapide             sans les outils lents (ce que lance le hook)
+    lintorn --doc                uniquement : la documentation ment-elle ?
+    lintorn --fichiers a.py b.ts + un focus sur ces fichiers
+
+MISE EN PLACE
+    lintorn --init               genere .lintorn/config.toml pour ce projet
+    lintorn --installer-hook     installe le hook pre-push
+    lintorn --installer-outils   installe ruff, pytest, vulture, pip-audit
+                                 dans le venv du projet (demande confirmation)
+
+SECURITE
+    lintorn --maj-securite       ce que pip-audit propose (simulation)
+    lintorn --maj-securite --appliquer      installe et repingle vraiment
+
+DIVERS
+    lintorn --version            la version installee
+    lintorn --help               ce message
+
+CONFIGURATION
+    .lintorn/config.toml, ou [tool.lintorn] dans pyproject.toml.
+    Par defaut Lintorn n'execute pas ton code, n'ouvre pas ta base et ne sort
+    pas sur le reseau : ces controles s'activent explicitement.
+
+    https://github.com/DamXxs/Lintorn"""
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -508,6 +538,18 @@ def ecrire_rapport(resultats: list[Resultat]) -> None:
 # ─────────────────────────────────────────────────────────────────────────────
 def main() -> int:
     args = sys.argv[1:]
+
+    # ⚠️ AVANT TOUT LE RESTE. `--help` est le premier reflexe de quiconque
+    # decouvre une commande ; il declenchait un audit complet du depot
+    # courant. `--version` faisait pareil. Deux drapeaux qu'on n'a pas le
+    # droit de rater sur un outil publie.
+    if {"-h", "--help", "--aide"} & set(args):
+        print(AIDE)
+        return 0
+
+    if {"-V", "--version"} & set(args):
+        print(f"lintorn {__version__}")
+        return 0
 
     if "--installer-hook" in args:
         return installer_hook()

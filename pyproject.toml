@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "lintorn"
-version = "0.1.0"
+version = "0.1.1"
 description = "Audits your code and the memory your AI assistant reads — and tells you when the two drift apart."
 readme = "README.md"
 requires-python = ">=3.11"          # tomllib (stdlib) pour lire [tool.lintorn]
@@ -70,7 +70,9 @@ ignore = [
   # Le CLI et le montage des commandes ont naturellement beaucoup de branches
   # et d'arguments : les scinder pour satisfaire un compteur les rendrait
   # plus durs a suivre, pas moins.
-  "PLR0912", "PLR0913", "PLR0915", "PLR0917", "PLR2004",
+  # (PLR0911 : `main()` aiguille vers 8 sous-commandes — un return par
+  #  sous-commande est exactement ce qui se lit le mieux.)
+  "PLR0911", "PLR0912", "PLR0913", "PLR0915", "PLR0917", "PLR2004",
   # Les textes sont en francais : apostrophes typographiques et guillemets
   # sont voulus, pas des caracteres « ambigus » a corriger.
   "RUF001", "RUF002", "RUF003",
