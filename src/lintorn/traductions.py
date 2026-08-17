@@ -1,4 +1,4 @@
-# /matorn/tools/traductions.py
+# Lintorn
 """
 TOUTES les traductions françaises de l'outil, au même endroit.
 
@@ -64,17 +64,15 @@ DEPLOY = {
     "security.W020": "ALLOWED_HOSTS vide : Django accepterait n'importe quel nom de domaine.",
     "security.W022": "Pas de SECURE_REFERRER_POLICY : les URL internes peuvent fuiter vers les sites externes visités.",
 
-    # ── Contrôles MAISON du projet (mixins/checks.py) ────────────────────
-    "matorn.E001": "ALLOWED_HOSTS contient '*' : n'importe quel en-tête Host est "
-                   "accepté, les liens fabriqués par l'app sont détournables.",
-    "matorn.W001": "ALLOWED_HOSTS contient encore des hôtes de développement (localhost, backend…).",
-    "matorn.W002": "ALLOWED_HOSTS contient un joker de domaine : tous les sous-domaines sont acceptés.",
-
-    # ── Contrôles MAISON du projet (signatures/checks.py) ────────────────
-    "signatures.E001": "MATORN_URL_PUBLIQUE absente : les QR code de signature seront inutilisables.",
-    "signatures.E002": "MATORN_URL_PUBLIQUE pointe sur localhost : le téléphone "
-                       "du client ne peut pas joindre le serveur.",
-    "signatures.W001": "MATORN_URL_PUBLIQUE en HTTP : le lien de signature transporte un token qui engage le client.",
+    # ── Et les contrôles maison DE TON projet ? ──────────────────────────
+    # Django laisse chaque application publier ses propres `check`, avec ses
+    # propres identifiants (`monapp.E001`…). Un code absent d'ici n'est jamais
+    # perdu : Lintorn affiche alors le message d'origine, en anglais.
+    #
+    # Pour les traduire, ajoute-les ci-dessus — il n'y a rien d'autre à faire.
+    #
+    # Ce dictionnaire ne contient volontairement AUCUN code propre à un projet
+    # particulier : ils ne voudraient rien dire chez les autres.
 }
 
 # Table de correspondance : le nom utilisé dans config.py → le dictionnaire.

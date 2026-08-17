@@ -14,7 +14,7 @@
 #   3. si un contrôle bloquant est rouge → demande confirmation
 #
 # INSTALLATION (une seule fois, depuis la racine du dépôt) :
-#   git config core.hooksPath matorn/tools/hooks
+#   lintorn --installer-hook
 #
 #   ⚠️ Sans cette commande, git regarde dans .git/hooks/ — un dossier qui n'est
 #   PAS versionné. En rangeant le hook ici, il suit le dépôt : il sera là sur
@@ -22,13 +22,27 @@
 #
 # POUR TOUT COURT-CIRCUITER : git push --no-verify
 
-# Le venv n'est pas au même endroit sous Windows et sous Linux.
-if [ -x "matorn/backend/venv/Scripts/python.exe" ]; then
-    PY="matorn/backend/venv/Scripts/python.exe"
-elif [ -x "matorn/backend/venv/bin/python" ]; then
-    PY="matorn/backend/venv/bin/python"
+# COMMENT ON APPELLE LINTORN
+#
+# Il est installé par pip, donc normalement dans le PATH. Mais un hook git
+# tourne dans l'environnement du shell qui a lancé `git push` : si le venv
+# n'est pas activé (bouton de VS Code, IDE, tâche planifiée), la commande est
+# introuvable. On essaie les trois formes, puis on abandonne PROPREMENT —
+# un hook qui plante sur « command not found » bloquerait tous les push sans
+# jamais expliquer pourquoi.
+if command -v lintorn >/dev/null 2>&1; then
+    LINTORN="lintorn"
+elif python -c "import lintorn" >/dev/null 2>&1; then
+    LINTORN="python -m lintorn"
+elif python3 -c "import lintorn" >/dev/null 2>&1; then
+    LINTORN="python3 -m lintorn"
 else
-    PY="python"
+    echo ""
+    echo "── Lintorn introuvable — le push passe ──────────────────"
+    echo "   Le hook est branche, mais Lintorn n'est pas installe"
+    echo "   dans cet environnement :   pip install lintorn"
+    echo ""
+    exit 0
 fi
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -62,9 +76,9 @@ echo "── Lintorn controle avant push ─────────────
 # façon). Un push ne doit pas se transformer en pause café.
 if [ -n "$FICHIERS" ]; then
     # shellcheck disable=SC2086
-    "$PY" matorn/tools/Lintorn.py --rapide --fichiers $FICHIERS
+    $LINTORN --rapide --fichiers $FICHIERS
 else
-    "$PY" matorn/tools/Lintorn.py --rapide
+    $LINTORN --rapide
 fi
 CODE=$?
 
@@ -82,7 +96,7 @@ echo "╔═══════════════════════�
 echo "║  Des controles BLOQUANTS sont en alerte                ║"
 echo "╚════════════════════════════════════════════════════════╝"
 echo ""
-echo "  Detail complet : matorn/tools/rapport_Lintorn.md"
+echo "  Detail complet : .lintorn/rapport.md"
 echo ""
 
 # git a déjà consommé l'entrée standard (la liste des refs) : pour poser une

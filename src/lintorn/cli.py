@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """
-Lintorn — le contrôle de santé du projet Matorn.
+Lintorn — le contrôle de santé d'un projet, et de la mémoire que lit l'IA.
 
 Il regarde tout le monde, tout le temps, et il ne laisse rien passer.
 
-    python matorn/tools/Lintorn.py                    # tout
-    python matorn/tools/Lintorn.py --rapide           # sans les outils lents
-    python matorn/tools/Lintorn.py --doc              # uniquement : la doc ment-elle ?
-    python matorn/tools/Lintorn.py --fichiers a.py b.css
+    lintorn                    # tout
+    lintorn --rapide           # sans les outils lents
+    lintorn --doc              # uniquement : la doc ment-elle ?
+    lintorn --fichiers a.py b.css
                                                    # + un focus sur ces fichiers
-    python matorn/tools/Lintorn.py --installer-hook   # branche le hook pre-push
+    lintorn --installer-hook   # branche le hook pre-push
                                                    #   (à faire UNE fois par clone)
-    python matorn/tools/Lintorn.py --maj-securite     # ce que pip-audit propose (simulation)
-    python matorn/tools/Lintorn.py --maj-securite --appliquer
+    lintorn --maj-securite     # ce que pip-audit propose (simulation)
+    lintorn --maj-securite --appliquer
                                                    # installe et repingle vraiment
 
 OÙ TOUCHER QUOI
@@ -38,13 +38,14 @@ from __future__ import annotations
 
 import json
 import re
+import shutil
 import subprocess
 import sys
 from datetime import datetime
 
-import config
-import noyau
-from noyau import MARQUEUR, Resultat
+from . import config
+from . import noyau
+from .noyau import MARQUEUR, Resultat
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -64,7 +65,7 @@ def maj_securite(appliquer: bool) -> int:
     ça ne se subit pas au détour d'un audit.
 
     `requirements.txt` est versionné : en cas de pépin, `git checkout
-    matorn/backend/requirements.txt` annule la partie fichier, et
+    <backend>/requirements.txt` annule la partie fichier, et
     `pip install -r requirements.txt` remet le venv d'aplomb.
     """
     print("Interrogation de pip-audit (quelques secondes)...")
@@ -113,7 +114,7 @@ def maj_securite(appliquer: bool) -> int:
 
     if not appliquer:
         print("\nSIMULATION - rien n'a ete touche. Pour appliquer :")
-        print("    python matorn/tools/Lintorn.py --maj-securite --appliquer")
+        print("    lintorn --maj-securite --appliquer")
         return 0
 
     print("\nInstallation...")
@@ -142,9 +143,101 @@ def maj_securite(appliquer: bool) -> int:
         print(f"\nrequirements.txt repingle sur {len(reussis)} paquet(s).")
 
     print("\nA FAIRE MAINTENANT - une montee de version peut casser :")
-    print("    cd matorn/backend && venv/Scripts/python.exe -m pytest -q")
-    print("    python matorn/tools/Lintorn.py")
+    print("    cd <backend> && venv/Scripts/python.exe -m pytest -q")
+    print("    lintorn")
     return 0 if len(reussis) == len(plan) else 1
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# INSTALLATION DES OUTILS EXTERNES
+# ─────────────────────────────────────────────────────────────────────────────
+# Chaque outil : le module à importer, le paquet pip, ce qu'il apporte.
+OUTILS = [
+    ("ruff",      "ruff",      "lint Python"),
+    ("pytest",    "pytest",    "tests"),
+    ("vulture",   "vulture",   "code mort (consultatif)"),
+    ("pip_audit", "pip-audit", "failles de securite connues"),
+]
+
+
+def _outils_manquants() -> list[tuple[str, str, str]]:
+    """Ceux que le python DU PROJET ne sait pas importer."""
+    manquants = []
+    for module, paquet, role in OUTILS:
+        trouve = subprocess.run(
+            [config.PYTHON, "-c", f"import {module}"],
+            capture_output=True, text=True, check=False,
+        )
+        if trouve.returncode != 0:
+            manquants.append((module, paquet, role))
+    return manquants
+
+
+def installer_outils(sans_demander: bool = False) -> int:
+    """Installe les outils que Lintorn appelle, DANS le venv du projet.
+
+    ⚠️ POURQUOI PAS DE SIMPLES `dependencies` DANS pyproject.toml : ces outils
+    doivent tourner dans le venv du PROJET AUDITÉ. Déclarés comme dépendances
+    de Lintorn, ils s'installeraient dans le venv de Lintorn — invisibles pour
+    `config.PYTHON`, et pytest n'y verrait ni Django ni les modèles du projet.
+
+    On installe donc là où ça compte, et jamais sans demander : ajouter des
+    paquets au venv de quelqu'un est une modification de son environnement.
+    """
+    if config.PYTHON == sys.executable and config.BACKEND is None:
+        print("Aucun venv de projet detecte : refus d'installer dans le python courant.")
+        print("Cree un venv dans ton projet, puis relance.")
+        return 1
+
+    manquants = _outils_manquants()
+    if not manquants:
+        print("Tous les outils sont deja installes. Rien a faire.")
+        return 0
+
+    print(f"Venv cible : {config.PYTHON}\n")
+    print(f"{len(manquants)} outil(s) manquant(s) :\n")
+    for _, paquet, role in manquants:
+        print(f"    {paquet:<12} {role}")
+
+    # L'effet de bord se dit AVANT, pas après : ces paquets apparaîtront dans
+    # `pip freeze`, donc le contrôle « Dependances vs venv » les signalera
+    # aussitôt comme « installes mais pas declares ».
+    print("\nA SAVOIR : ces paquets apparaitront comme 'non declares' dans le")
+    print("controle Dependances vs venv. Ajoute-les a ton requirements de dev,")
+    print("ou desactive ce controle.")
+
+    if not sans_demander:
+        try:
+            reponse = input("\nInstaller maintenant ? [o/N] ").strip().lower()
+        except (EOFError, KeyboardInterrupt):
+            print("\nAnnule.")
+            return 1
+        if reponse not in ("o", "oui", "y", "yes"):
+            print("Annule - rien n'a ete installe.")
+            return 1
+
+    print()
+    echecs = []
+    for _, paquet, _ in manquants:
+        resultat = subprocess.run(
+            [config.PYTHON, "-m", "pip", "install", paquet],
+            capture_output=True, text=True, check=False,
+        )
+        if resultat.returncode == 0:
+            print(f"  OK    {paquet}")
+        else:
+            echecs.append(paquet)
+            print(f"  ECHEC {paquet}")
+            derniere = (resultat.stderr or "").strip().splitlines()
+            if derniere:
+                print(f"        {derniere[-1][:120]}")
+
+    # `tsc` vient de npm, pas de pip : on ne peut que l'annoncer.
+    if config.FRONTEND and (config.FRONTEND / "tsconfig.json").is_file():
+        print("\nTypeScript : `tsc` vient de npm, pas de pip.")
+        print(f"    cd {config.FRONTEND.name} && npm install")
+
+    return 1 if echecs else 0
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -158,6 +251,26 @@ def installer_hook() -> int:
     Lintorn la joue lui-même — et son contrôle « Hook pre-push » dit quand c'est
     nécessaire.
     """
+    # 1. COPIER le hook du paquet vers le projet.
+    #
+    # ⚠️ Cette étape n'existait pas tant que Lintorn vivait DANS le projet :
+    # le hook y était déjà, seul `core.hooksPath` manquait. Installé par pip,
+    # le hook vit dans le paquet — poser le réglage sans copier le fichier
+    # laissait `core.hooksPath` pointer sur un dossier VIDE, soit exactement
+    # la panne muette que ce contrôle est censé détecter.
+    try:
+        config.HOOKS.mkdir(parents=True, exist_ok=True)
+        cible = config.HOOKS / "pre-push"
+        shutil.copyfile(config.HOOKS_SOURCE / "pre-push", cible)
+        # Sans le bit exécutable, git ignore le hook EN SILENCE (panne vécue le
+        # 16/08/2026). `copyfile` ne transporte pas les permissions : on les
+        # pose explicitement au lieu d'espérer.
+        cible.chmod(cible.stat().st_mode | 0o111)
+    except OSError as erreur:
+        print(f"Echec : impossible d'installer le hook ({erreur})")
+        return 1
+
+    # 2. Dire à git d'aller le chercher là.
     try:
         subprocess.run(
             ["git", "config", "core.hooksPath", config.HOOKS_ATTENDU],
@@ -167,8 +280,10 @@ def installer_hook() -> int:
         print(f"Echec : impossible de configurer git ({erreur})")
         return 1
 
-    print(f"Hook branche : core.hooksPath = {config.HOOKS_ATTENDU}")
+    print(f"Hook installe : {config.HOOKS_ATTENDU}/pre-push")
+    print(f"Hook branche  : core.hooksPath = {config.HOOKS_ATTENDU}")
     print("Lintorn tournera desormais avant chaque git push.")
+    print(f"Pense a versionner {config.HOOKS_ATTENDU}/ pour qu'il suive les clones.")
     return 0
 
 
@@ -179,14 +294,19 @@ def _alias(chemin_git: str) -> list[str]:
     """Toutes les façons dont un même fichier peut apparaître dans un rapport.
 
     git parle en chemins depuis la racine du dépôt :
-        matorn/backend/accounts/views.py
-    mais ruff tourne depuis backend/ et écrit :
-        accounts/views.py
+        api/comptes/vues.py
+    mais ruff tourne DANS le backend et écrit :
+        comptes/vues.py
     On compare donc sur plusieurs formes du même chemin.
+
+    ⚠️ Les préfixes viennent de la DÉTECTION (`config.PREFIXES_PROJET`), ils
+    ne sont plus écrits en dur. Avec des préfixes figés, le focus ne
+    reconnaissait aucun fichier sur un autre projet — et annonçait « aucun
+    defaut connu dedans » sans avoir rien pu comparer, juste avant le push.
     """
     chemin = chemin_git.replace("\\", "/")
     formes = [chemin]
-    for prefixe in ("matorn/backend/", "matorn/frontend/src/", "matorn/frontend/", "matorn/"):
+    for prefixe in config.PREFIXES_PROJET:
         if chemin.startswith(prefixe):
             formes.append(chemin[len(prefixe):])
     return formes
@@ -209,7 +329,7 @@ def focus_sur(resultats: list[Resultat], fichiers: list[str]) -> Resultat:
         for ligne in resultat.detail.splitlines():
             propre = ligne.strip()
             # ⚠️ Les outils écrivent les chemins avec le séparateur de l'OS :
-            # sous Windows, ruff sort `matorn\tools\noyau.py`. Les formes
+            # sous Windows, ruff sort `api\outils\noyau.py`. Les formes
             # calculées par `_alias`, elles, sont en slashs — git ne parle que
             # cette langue. Sans normaliser AVANT de comparer, plus rien ne
             # correspond sous Windows : le focus annonce « aucun defaut connu
@@ -239,9 +359,9 @@ def focus_sur(resultats: list[Resultat], fichiers: list[str]) -> Resultat:
 def ecrire_rapport(resultats: list[Resultat]) -> None:
     horodatage = datetime.now().strftime("%d/%m/%Y %H:%M")
     lignes = [
-        "# Le rapport de Lintorn — Matorn",
+        f"# Le rapport de Lintorn — {config.RACINE.name}",
         "",
-        f"> Généré le {horodatage} par `matorn/tools/Lintorn.py`.",
+        f"> Généré le {horodatage} par `lintorn`.",
         "> **Fichier régénéré à chaque exécution — ne rien y écrire à la main.**",
         "",
         "| Contrôle | Statut | Résumé |",
@@ -266,6 +386,8 @@ def ecrire_rapport(resultats: list[Resultat]) -> None:
         else:
             lignes += ["```", detail, "```"]
 
+    # Le dossier .lintorn/ n'existe pas au premier lancement sur un projet.
+    config.RAPPORT.parent.mkdir(parents=True, exist_ok=True)
     config.RAPPORT.write_text("\n".join(lignes) + "\n", encoding="utf-8")
 
 
@@ -277,6 +399,9 @@ def main() -> int:
 
     if "--installer-hook" in args:
         return installer_hook()
+
+    if "--installer-outils" in args:
+        return installer_outils(sans_demander="--oui" in args)
 
     if "--maj-securite" in args:
         return maj_securite(appliquer="--appliquer" in args)

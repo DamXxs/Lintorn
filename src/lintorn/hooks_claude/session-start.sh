@@ -23,7 +23,7 @@
 # Ce qui sort sur la sortie standard est ajoute au contexte de Claude : c'est
 # lui qui te relaiera l'alerte.
 
-ATTENDU="matorn/tools/hooks"
+ATTENDU=".lintorn/hooks"
 
 # check=false volontaire : `git config --get` sort en 1 quand la cle est
 # absente, or c'est exactement le cas qu'on cherche a detecter.
@@ -41,7 +41,7 @@ else
 fi
 echo "  Consequence : 'git push' ne lance aucun controle, silencieusement."
 echo "  Reparation (a proposer au dev, une seule commande) :"
-echo "      python matorn/tools/Lintorn.py --installer-hook"
+echo "      lintorn --installer-hook"
 
 # Toujours 0 : un demarrage de session ne doit jamais echouer sur un
 # avertissement d'outillage.

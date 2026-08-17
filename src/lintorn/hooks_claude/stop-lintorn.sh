@@ -2,7 +2,7 @@
 #
 # Hook STOP (Claude Code) — Lintorn controle quand Claude a fini de repondre.
 #
-# A NE PAS CONFONDRE avec matorn/tools/hooks/ : celui-la, c'est git qui le
+# A NE PAS CONFONDRE avec .lintorn/hooks/ : celui-la, c'est git qui le
 # lance (pre-push). Ici c'est Claude Code, sur l'evenement « Stop » = l'agent
 # a termine son tour de parole.
 #
@@ -96,10 +96,10 @@ fi
 # ─────────────────────────────────────────────────────────────────────────────
 # 4. QUEL PYTHON ?  (meme logique que hooks/pre-push : Lintorn a besoin du venv)
 # ─────────────────────────────────────────────────────────────────────────────
-if [ -x "matorn/backend/venv/Scripts/python.exe" ]; then
-    PY="matorn/backend/venv/Scripts/python.exe"
-elif [ -x "matorn/backend/venv/bin/python" ]; then
-    PY="matorn/backend/venv/bin/python"
+if [ -x "api/venv/Scripts/python.exe" ]; then
+    PY="api/venv/Scripts/python.exe"
+elif [ -x "api/venv/bin/python" ]; then
+    PY="api/venv/bin/python"
 else
     PY="python"
 fi
@@ -107,7 +107,7 @@ fi
 # ─────────────────────────────────────────────────────────────────────────────
 # 5. CONTROLE
 # ─────────────────────────────────────────────────────────────────────────────
-SORTIE=$("$PY" matorn/tools/Lintorn.py --rapide 2>&1)
+SORTIE=$("$PY" lintorn --rapide 2>&1)
 CODE=$?
 
 if [ $CODE -eq 0 ]; then
@@ -123,6 +123,6 @@ fi
     echo ""
     echo "$SORTIE"
     echo ""
-    echo "Rapport complet : matorn/tools/rapport_Lintorn.md"
+    echo "Rapport complet : .lintorn/rapport.md"
 } >&2
 exit 2
