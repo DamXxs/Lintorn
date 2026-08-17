@@ -41,3 +41,8 @@ Thumbs.db
 # Sorties de Lintorn sur lui-meme — la config, elle, est versionnee.
 .lintorn/*
 !.lintorn/config.toml
+
+# Notes personnelles de relecture : elles restent sur MA machine.
+# ⚠️ Une branche ne rend rien prive — sur un depot public, une branche poussee
+# est publique comme le reste. C'est CE fichier qui decide de ce qui sort.
+.notes/
