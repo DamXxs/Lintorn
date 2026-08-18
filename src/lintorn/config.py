@@ -14,6 +14,7 @@ import os
 import re
 import sys
 import tomllib
+from fnmatch import fnmatch
 from pathlib import Path
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -606,14 +607,54 @@ CONTROLES_INTERNES = {
 #
 # Les emplacements sont des CONVENTIONS répandues, pas ceux d'un projet
 # particulier : racine, puis les dossiers de documentation les plus courants.
-DOSSIERS_DOC = ("Notes", "notes", "docs", "doc", "documentation", ".github")
+# ⚠️ NE PAS se contenter d'une liste de dossiers nommes.
+#
+# Une premiere version ne cherchait qu'a la racine et dans quelques dossiers
+# connus. Sur un projet dont la doc vivait dans `android/vessel/README.md`,
+# ce fichier etait donc invisible — un angle mort parfaitement silencieux,
+# alors que ce controle existe precisement pour les supprimer.
+#
+# On balaie donc TOUT le depot, en s'arretant net devant les dossiers de
+# IGNORES (node_modules, venv, vendor…) qui contiennent la doc des AUTRES.
+# `.lintorn/` en fait partie : sinon Lintorn analyserait son propre rapport.
+# ⚠️ TOUTE DOCUMENTATION N'EST PAS VÉRIFIABLE — et c'est une limite assumée.
+#
+# Ce contrôle vise la doc DESCRIPTIVE : « le module `services/api.ts` fait
+# ceci ». Elle décrit le projet, donc ses chemins doivent exister.
+#
+# Deux familles y échappent par nature :
+#   - la doc PÉDAGOGIQUE : « créez un fichier `myapp.py` » cite un fichier que
+#     le LECTEUR va créer, pas un fichier du projet ;
+#   - la doc HISTORIQUE (changelog, release notes) : elle cite les fichiers de
+#     toutes les versions passées, dont ceux qui ont disparu depuis.
+#
+# Mesuré sur un gros projet de référence : 460 « chemins morts » signalés,
+# tous issus de ses tutoriels et de son changelog. À ce niveau de bruit, plus
+# personne ne lit le contrôle — donc il ne protège plus rien.
+#
+#     [tool.lintorn]
+#     docs_exclus = ["docs/**", "CHANGELOG.md"]
+DOCS_EXCLUS = [str(motif) for motif in PROJET.get("docs_exclus", [])]
 
-DOCS_A_VERIFIER = sorted(
-    {*RACINE.glob("*.md"),
-     *(fichier
-       for dossier in DOSSIERS_DOC
-       for fichier in (RACINE / dossier).glob("**/*.md"))}
-)
+
+def _documents_du_depot() -> list[Path]:
+    trouves = []
+    for fichier in RACINE.rglob("*.md"):
+        relatif = fichier.relative_to(RACINE)
+        if set(relatif.parts) & IGNORES or ".lintorn" in relatif.parts:
+            continue
+        # fnmatch et non `Path.match` : ce dernier ne traite `**` comme un
+        # glob récursif qu'à partir de Python 3.13, et Lintorn tourne dès 3.11
+        # — les motifs étaient donc silencieusement ignorés. Avec fnmatch, `*`
+        # traverse les dossiers : `docs/*` suffit à écarter tout `docs/`.
+        chemin_posix = relatif.as_posix()
+        if any(fnmatch(chemin_posix, motif) for motif in DOCS_EXCLUS):
+            continue
+        trouves.append(fichier)
+    return sorted(trouves)
+
+
+DOCS_A_VERIFIER = _documents_du_depot()
 
 
 def _dossier_memoire():
