@@ -45,4 +45,6 @@ Thumbs.db
 # Notes personnelles de relecture : elles restent sur MA machine.
 # ⚠️ Une branche ne rend rien prive — sur un depot public, une branche poussee
 # est publique comme le reste. C'est CE fichier qui decide de ce qui sort.
+# ⚠️ Et .gitignore n'ignore QUE les fichiers pas encore suivis : si une note a
+# deja ete commitee, il faut la desindexer avec `git rm -r --cached .notes/`.
 .notes/

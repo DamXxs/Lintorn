@@ -48,6 +48,12 @@ def ecrire_etat(cle: str, valeur) -> None:
 # ─────────────────────────────────────────────────────────────────────────────
 # LA FICHE DE RÉSULTAT
 # ─────────────────────────────────────────────────────────────────────────────
+# Ces deux contrôles ne regardent NI le code NI la documentation : ils
+# surveillent Lintorn lui-même (son hook, la date de son dernier passage
+# complet). Ils peuvent donc être verts sur un projet où rien d'autre n'a
+# tourné — et ne doivent jamais, à eux seuls, faire croire à un audit réussi.
+TITRES_OUTILLAGE = ("Hook pre-push (Lintorn)", "Audit complet (outils lents)")
+
 MARQUEUR = {
     "OK": "[ OK ]",
     "ALERTE": "[ !! ]",
@@ -289,12 +295,21 @@ def est_un_chemin(token: str) -> bool:
     return "/" in token or token.endswith(config.EXTENSIONS)
 
 
-def existe(token: str, index_noms: set[str]) -> bool:
+def existe(token: str, index_noms: set[str], depuis: Path | None = None) -> bool:
     """Le chemin cité correspond-il à quelque chose de réel ?
 
     `index_noms` est passé en PARAMÈTRE : la fonction ne dépend que de ses
     arguments, donc elle est testable seule et ne peut pas tomber sur un index
     vide (c'était un défaut de la première version).
+
+    ⚠️ `depuis` = le dossier du DOCUMENT qui cite ce chemin, et il est
+    indispensable. Un document écrit presque toujours ses liens relativement à
+    lui-même : `advanced/nosql.md` cité depuis `docs/fr/` désigne
+    `docs/fr/advanced/nosql.md`, pas un fichier à la racine du dépôt.
+    Sans cette racine supplémentaire, une documentation organisée en
+    sous-dossiers se retrouve massivement — et faussement — signalée comme
+    cassée. Constaté sur un projet réel : 474 faux positifs d'un coup, soit
+    un quart des chemins cités. À ce niveau de bruit, plus personne ne lit.
     """
     token = re.sub(r":\d+(-\d+)?$", "", token)   # `models.py:17-34` → `models.py`
 
@@ -303,9 +318,13 @@ def existe(token: str, index_noms: set[str]) -> bool:
     if not token.endswith(config.EXTENSIONS):
         candidats += [token + ext for ext in (".ts", ".tsx", ".js", ".jsx", ".py")]
 
+    # Le dossier du document passe EN PREMIER : c'est la lecture la plus
+    # naturelle d'un lien écrit dans un document.
+    racines = ([depuis] if depuis else []) + list(config.RACINES_RESOLUTION)
+
     for candidat in candidats:
         if "/" in candidat:
-            if any((racine / candidat).exists() for racine in config.RACINES_RESOLUTION):
+            if any((racine / candidat).exists() for racine in racines):
                 return True
         elif candidat in index_noms:
             return True
@@ -366,7 +385,7 @@ def _verifier_documents(titre: str, documents: list, bloquant_possible: bool) ->
                 continue
             deja_vus.add(token)
             verifies += 1
-            if existe(token, index_noms):
+            if existe(token, index_noms, depuis=doc.parent):
                 continue
             # La mémoire vit HORS du dépôt : pas de lien cliquable possible,
             # on se contente de son nom de fichier.
@@ -382,6 +401,27 @@ def _verifier_documents(titre: str, documents: list, bloquant_possible: bool) ->
                 certains.append(ligne)
             else:
                 incertains.append(ligne + (" *(doc prospectif)*" if prospectif else ""))
+
+    # ⚠️ SECOND GARDE-FOU, jumeau de celui du haut. Les documents existent,
+    # mais aucun ne cite le moindre chemin : il n'y a rien eu a verifier, et
+    # afficher « OK » laisserait croire que la documentation a ete controlee.
+    #
+    # C'est le meme mensonge que « 0 document trouve » traite plus haut, sauf
+    # qu'il survient un cran plus loin — une doc qui parle sans jamais citer
+    # de fichier entre backticks. Vu sur un projet Go dont le README n'en
+    # contenait aucun : le controle affichait OK sans avoir rien lu.
+    if verifies == 0:
+        return Resultat(
+            titre, "INDISPONIBLE",
+            f"{len(existants)} document(s) lu(s), AUCUN chemin cite - rien a verifier",
+            "Lintorn ne verifie que ce qui est ecrit entre backticks : "
+            "`services/api.ts` est une affirmation verifiable, alors que le "
+            "meme nom en pleine phrase n'est qu'un mot.\n\n"
+            "Si ta documentation cite des fichiers, mets-les entre backticks "
+            "et ce controle prendra vie.",
+            bloquant=False,
+            detail_markdown=True,
+        )
 
     resume = f"{verifies} chemin(s) cite(s), {len(certains)} introuvable(s)"
     if incertains:

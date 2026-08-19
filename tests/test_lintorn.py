@@ -13,6 +13,7 @@ import json
 import os
 import subprocess
 from datetime import date, timedelta
+from fnmatch import fnmatch
 
 import pytest
 
@@ -460,3 +461,49 @@ def test_les_controles_invasifs_sont_desactives_par_defaut():
         assert not any(c["cle"] == cle for c in config.COMMANDES), (
             f"'{cle}' tourne alors que personne ne l'a demande"
         )
+
+
+def test_zero_chemin_cite_n_est_pas_un_succes(tmp_path):
+    """Des documents lus mais aucun chemin cité = rien n'a été vérifié.
+
+    Trouvé en pointant Lintorn sur un projet Go dont le README ne contenait
+    aucun backtick : le contrôle affichait « OK — 0 chemin cité », donc un
+    feu vert sur une documentation qu'il n'avait pas pu contrôler. C'est le
+    jumeau exact du garde-fou « aucun document trouvé ».
+    """
+    doc = tmp_path / "README.md"
+    doc.write_text("Un projet tres bien, sans le moindre backtick.", encoding="utf-8")
+
+    resultat = noyau._verifier_documents("t", [doc], bloquant_possible=True)
+
+    assert resultat.statut == "INDISPONIBLE"
+    assert resultat.bloquant is False
+    assert "AUCUN chemin" in resultat.resume
+
+
+def test_les_controles_d_outillage_ne_valent_pas_un_audit():
+    """Le hook et la fraîcheur parlent de Lintorn, pas du projet.
+
+    Ils peuvent être verts sur un dépôt où aucun autre contrôle n'a tourné.
+    Les compter comme « un audit a eu lieu » redonnerait un feu vert à un
+    projet dont rien n'a été vérifié.
+    """
+    for titre in noyau.TITRES_OUTILLAGE:
+        assert titre not in ("Doc vs code", "Regles maison"), (
+            "un controle du PROJET a ete classe comme outillage"
+        )
+    assert len(noyau.TITRES_OUTILLAGE) == 2
+
+
+def test_docs_exclus_accepte_les_globs_traversants(tmp_path, monkeypatch):
+    """`docs_exclus` doit écarter toute une arborescence, pas juste un niveau.
+
+    Première version écrite avec `Path.match` : `**` n'y est un glob récursif
+    qu'à partir de Python 3.13, alors que Lintorn tourne dès 3.11. Les motifs
+    étaient donc silencieusement ignorés — l'utilisateur configurait une
+    exclusion qui ne s'appliquait jamais, sans le moindre avertissement.
+    """
+    chemins = ["docs/en/tutorial/index.md", "docs/fr/advanced/x.md", "README.md"]
+    gardes = [c for c in chemins if not fnmatch(c, "docs/*")]
+
+    assert gardes == ["README.md"], "le glob ne traverse pas les sous-dossiers"

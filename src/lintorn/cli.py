@@ -255,6 +255,13 @@ def init(ecraser: bool = False) -> int:
         "# exclure  = []",
         "# bloquant = false",
         "",
+        "# ── De la doc a NE PAS verifier ──────────────────────────────────────",
+        "# Un tutoriel (« creez un fichier `myapp.py` ») et un changelog citent",
+        "# des fichiers qui n'existent pas dans le projet : c'est normal, et les",
+        "# verifier ne produit que du bruit. `*` traverse les dossiers.",
+        "#",
+        "# docs_exclus = [\"docs/*\", \"CHANGELOG.md\"]",
+        "",
         "# ── Une doc qui cite des fichiers absents ────────────────────────────",
         "# Une roadmap ou une note de conception cite legitimement des fichiers",
         "# pas encore ecrits, ou supprimes. Mets ce marqueur n'importe ou dedans",
@@ -608,6 +615,12 @@ def main() -> int:
 
     ecrire_rapport(resultats)
 
+    # ⚠️ Sur un projet sans config, les messages renvoyaient vers
+    # `.lintorn/config.toml` — un fichier qui n'existe PAS tant que `--init`
+    # n'a pas tourne. On envoyait donc l'utilisateur vers un fichier fantome
+    # sans jamais lui dire comment le creer.
+    manque_config = not config.PROJET and not (config.DOSSIER_LINTORN / "config.toml").exists()
+
     # Console volontairement en ASCII : le hook git tourne sous Git Bash, qui
     # n'affiche pas l'UTF-8 correctement. Le rapport, lui, garde les accents.
     print("\n=== Lintorn - RAPPORT AUDIT ===")
@@ -616,11 +629,36 @@ def main() -> int:
 
     echecs = [r for r in resultats if r.en_echec]
     print(f"\nLe rapport de Lintorn : {config.RAPPORT.relative_to(config.RACINE).as_posix()}")
+
+    if manque_config:
+        print("\nCe projet n'a pas encore de configuration Lintorn.")
+        print("    lintorn --init      # regles maison, controles, outils a lancer")
     if echecs:
         print(f"Lintorn signale {len(echecs)} controle(s) bloquant(s) en alerte :")
         for r in echecs:
             print(f"    - {r.titre}")
         return 1
+    # ⚠️ LE FAUX VERT DU DERNIER ETAGE.
+    #
+    # « Tous les controles sont au vert » est techniquement exact quand aucun
+    # n'est en alerte — y compris quand AUCUN n'a pu tourner. Sur un projet
+    # dont Lintorn ne connait ni le langage ni la doc, il affichait donc un
+    # feu vert triomphal apres n'avoir strictement rien verifie.
+    #
+    # Un verdict global doit refleter ce qui a ete CONTROLE, pas seulement
+    # l'absence d'alerte.
+    a_tourne = [
+        r for r in resultats
+        if r.statut in ("OK", "ALERTE", "ERREUR")
+        and r.titre not in noyau.TITRES_OUTILLAGE
+    ]
+    if not a_tourne:
+        print("AUCUN controle n'a pu tourner sur ce projet.")
+        print("Ce n'est PAS un feu vert : Lintorn n'a rien verifie du tout.")
+        print("    lintorn --init             # lui dire quoi surveiller ici")
+        print("    lintorn --installer-outils # si le projet est en Python")
+        return 0
+
     print("Lintorn n'a rien a signaler : tous les controles bloquants sont au vert.")
     return 0
 

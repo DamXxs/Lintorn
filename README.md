@@ -68,6 +68,22 @@ Mark the document, anywhere in it:
 Its dead paths are then **listed, not failed** — you still see them, they just stop
 blocking your push.
 
+## What this check is *not* for
+
+The documentation check targets **descriptive** documentation — "the services/api.ts
+module does this". Two families fall outside it by nature:
+
+- **tutorials**: "create a file called myapp.py" cites a file *the reader* will create;
+- **changelogs**: they cite files from every past version, including deleted ones.
+
+Pointed at a large reference project, Lintorn flagged 460 dead paths — every one of them
+from its tutorials and release notes. At that noise level nobody reads the check, so it
+protects nothing. Exclude them:
+
+```toml
+docs_exclus = ["docs/*", "CHANGELOG.md"]
+```
+
 ## Safe by default
 
 The first run cannot damage anything. Lintorn does not modify your files, does not reach the
