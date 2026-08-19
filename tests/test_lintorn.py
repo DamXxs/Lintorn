@@ -11,6 +11,7 @@
 
 import json
 import os
+import re
 import subprocess
 from datetime import date, timedelta
 from fnmatch import fnmatch
@@ -507,3 +508,76 @@ def test_docs_exclus_accepte_les_globs_traversants(tmp_path, monkeypatch):
     gardes = [c for c in chemins if not fnmatch(c, "docs/*")]
 
     assert gardes == ["README.md"], "le glob ne traverse pas les sous-dossiers"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Les règles ÉNONCÉES dans le fichier d'instructions IA
+# ─────────────────────────────────────────────────────────────────────────────
+def _regles_enoncees(tmp_path, monkeypatch, texte, regles=()):
+    """Joue le contrôle sur un CLAUDE.md fabriqué pour l'occasion."""
+    doc = tmp_path / "CLAUDE.md"
+    doc.write_text(texte, encoding="utf-8")
+    monkeypatch.setattr(config, "RACINE", tmp_path)
+    monkeypatch.setattr(config, "DOCS_IA", [doc])
+    monkeypatch.setattr(config, "REGLES_MAISON", list(regles))
+    return noyau.controle_regles_declarees()
+
+
+def test_la_prose_narrative_n_est_pas_prise_pour_une_regle(tmp_path, monkeypatch):
+    """Une note qui RACONTE n'énonce pas une règle, même en disant « jamais ».
+
+    Sans ce filtre de forme, un vrai projet remontait 92 lignes — notes
+    d'architecture et comptes rendus d'audit compris. Un contrôle qui crie
+    92 fois est un contrôle qu'on apprend à ne plus lire.
+    """
+    texte = (
+        "- Un devis `VALIDE` n'expire jamais : c'est un engagement signe.\n"
+        "\n"
+        "| Axios partage | jamais d'`axios.create()` ailleurs |\n"
+    )
+    resultat = _regles_enoncees(tmp_path, monkeypatch, texte)
+
+    assert "1 enoncee(s)" in resultat.resume, (
+        "seule la ligne de TABLEAU est une regle ; la puce narrative n'en est pas une"
+    )
+
+
+def test_une_regle_pourvue_d_un_motif_sort_du_rapport(tmp_path, monkeypatch):
+    texte = "| Axios partage | jamais d'`axios.create()` ailleurs |\n"
+    regle = {"nom": "axios hors de api.ts", "motif": re.compile(r"axios\.create\(")}
+
+    resultat = _regles_enoncees(tmp_path, monkeypatch, texte, [regle])
+
+    assert resultat.statut == "OK"
+
+
+def test_la_phrase_de_la_regle_ne_vaut_pas_couverture(tmp_path, monkeypatch):
+    """Le champ `regle` est de la prose : il ne prouve RIEN sur la détection.
+
+    Il cite souvent la doc (« CLAUDE.md : … »). Une règle parlant de `.claude/`
+    s'y appariait alors par coïncidence de sous-chaîne — « claude » ⊂
+    « claudemd » — et disparaissait du rapport. Un faux « couvert » est pire
+    qu'un faux trou : il éteint l'alerte sur une règle que rien ne surveille.
+    """
+    texte = "| Fichier versionne | jamais de chemin absolu ; `.claude/` est ignore |\n"
+    regle = {
+        "nom": "axios.create() hors de services/api.ts",
+        "regle": "CLAUDE.md : une SEULE instance axios dans tout le projet",
+        "motif": re.compile(r"axios\.create\("),
+    }
+
+    resultat = _regles_enoncees(tmp_path, monkeypatch, texte, [regle])
+
+    assert "1 SANS controle" in resultat.resume
+
+
+def test_ce_controle_ne_bloque_jamais_un_push(tmp_path, monkeypatch):
+    """Documenter une intention ne doit pas interdire de pousser : ce serait
+    punir exactement le geste qu'on veut encourager."""
+    texte = "| Statuts | **Source unique** : `StatutBadge.tsx`. Jamais ailleurs |\n"
+
+    resultat = _regles_enoncees(tmp_path, monkeypatch, texte)
+
+    assert resultat.statut == "VERIF"
+    assert resultat.bloquant is False
+    assert resultat.en_echec is False

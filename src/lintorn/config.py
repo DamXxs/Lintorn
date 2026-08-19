@@ -591,6 +591,7 @@ _CONTROLES_DEFAUT = {
     "memoire_ia": True,         # idem pour la mémoire de l'IA (consultatif)
     "fraicheur_memoire": True,  # le code cité par la mémoire a-t-il bougé depuis ? (git)
     "regles_maison": True,      # les règles maison sont-elles tenues ?
+    "regles_declarees": True,   # les règles ÉCRITES dans la doc ont-elles un contrôle ?
     "hook_git": True,           # le hook pre-push est-il réellement branché ?
     "audit_complet": True,      # les outils lents ont-ils tourné depuis 30 jours ?
 }
@@ -655,6 +656,45 @@ def _documents_du_depot() -> list[Path]:
 
 
 DOCS_A_VERIFIER = _documents_du_depot()
+
+
+# Les fichiers d'INSTRUCTIONS pour un assistant IA — là où un projet ÉNONCE ses
+# règles. À ne pas confondre avec DOCS_A_VERIFIER (toute la doc) : une note
+# d'architecture *décrit* le système, un fichier d'instructions *prescrit*.
+#
+# ⚠️ Liste ouverte, et surchargeable : tout le monde n'utilise pas Claude.
+#
+#     [tool.lintorn]
+#     fichiers_ia = ["CLAUDE.md", "AGENTS.md", "REGLES.md"]
+_FICHIERS_IA_DEFAUT = [
+    "CLAUDE.md",      # Claude Code
+    "AGENTS.md",      # convention multi-outils
+    "GEMINI.md",      # Gemini CLI
+    "CONVENTIONS.md",  # Aider
+    ".cursorrules",   # Cursor
+]
+FICHIERS_IA = [str(nom) for nom in PROJET.get("fichiers_ia", _FICHIERS_IA_DEFAUT)]
+_NOMS_IA = {nom.lower() for nom in FICHIERS_IA}
+
+
+def _instructions_ia() -> list[Path]:
+    """Les fichiers d'instructions IA, où qu'ils soient dans le dépôt.
+
+    On les cherche au lieu de les nommer : un monorepo en pose souvent un par
+    sous-projet (`backend/CLAUDE.md`), et les nommer un par un condamnerait
+    Lintorn à ne voir que celui de la racine.
+    """
+    trouves = []
+    for fichier in RACINE.rglob("*"):
+        if not fichier.is_file() or fichier.name.lower() not in _NOMS_IA:
+            continue
+        if set(fichier.relative_to(RACINE).parts) & IGNORES:
+            continue
+        trouves.append(fichier)
+    return sorted(trouves)
+
+
+DOCS_IA = _instructions_ia()
 
 
 def _dossier_memoire():
