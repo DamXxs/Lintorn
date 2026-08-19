@@ -41,3 +41,8 @@ Thumbs.db
 # Sorties de Lintorn sur lui-meme — la config, elle, est versionnee.
 .lintorn/*
 !.lintorn/config.toml
+
+# Notes personnelles de relecture : elles restent sur MA machine.
+# ⚠️ .gitignore n'ignore QUE les fichiers pas encore suivis : si une note a
+# deja ete commitee, il faut la desindexer avec `git rm -r --cached .notes/`.
+.notes/
