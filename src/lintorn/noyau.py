@@ -804,34 +804,19 @@ def _signe(texte: str) -> str:
     return re.sub(r"[^0-9a-zà-ÿ]+", "", texte.lower())
 
 
-def controle_regles_declarees() -> Resultat:
-    # On ne lit QUE les fichiers d'instructions IA. La doc générale décrit le
-    # système ; seul le fichier d'instructions engage le projet sur des règles.
-    documents = config.DOCS_IA
-    if not documents:
-        return Resultat(
-            "Regles enoncees vs controlees", "INDISPONIBLE",
-            f"aucun fichier d'instructions IA ({', '.join(config.FICHIERS_IA)})"
-            " - voir fichiers_ia dans .lintorn/config.toml",
-            bloquant=False,
-        )
+def regles_enoncees() -> list[tuple[str, int, str, list[str]]]:
+    """Les règles ÉNONCÉES dans les fichiers d'instructions IA.
 
-    # La « signature » de ce qui est DÉJÀ contrôlé : le nom de la règle et son
-    # motif — ce qui DÉTECTE, rien d'autre.
-    #
-    # ⚠️ Le champ `regle` en est volontairement ABSENT. C'est de la prose, et
-    # elle cite souvent la doc (« CLAUDE.md : … ») : un fichier `.claude/`
-    # mentionné ailleurs s'y appariait par simple coïncidence de sous-chaîne
-    # (« claude » ⊂ « claudemd ») et passait pour couvert. Un faux « couvert »
-    # est pire qu'un faux trou : il fait disparaître une règle du rapport.
-    couvert = _signe(" ".join(
-        f"{r['nom']} {r['motif'].pattern}" for r in config.REGLES_MAISON
-    ))
+    Rendu : (document, ligne, phrase, identifiants entre backticks).
 
-    enoncees: list[tuple[str, int, str]] = []   # (chemin, ligne, phrase)
-    sans_controle: list[tuple[str, int, str]] = []
+    ⚠️ UNE SEULE implémentation, partagée par le contrôle et par l'esquisse
+    de `--init`. Deux lecteurs séparés finiraient par diverger, et `--init`
+    proposerait des brouillons pour des règles que le contrôle ne compte
+    pas : l'outil se contredirait tout seul.
+    """
+    trouvees: list[tuple[str, int, str, list[str]]] = []
 
-    for document in documents:
+    for document in config.DOCS_IA:
         try:
             lignes = document.read_text(encoding="utf-8", errors="replace").splitlines()
         except OSError:
@@ -844,19 +829,69 @@ def controle_regles_declarees() -> Resultat:
                 continue
             if not (_RX_TABLEAU.match(ligne) or _RX_MARQUEUR_REGLE.search(ligne)):
                 continue
-
             phrase = " ".join(ligne.strip().strip("|").split())
-            enoncees.append((relatif, numero, phrase))
+            trouvees.append((relatif, numero, phrase, jetons))
 
-            # Couverte dès qu'UN de ses identifiants apparaît dans une règle
-            # configurée. Ce choix est volontairement indulgent : mieux vaut
-            # taire une règle déjà surveillée que crier au trou sur une règle
-            # qui l'est. On ne veut pas d'un contrôle qu'on apprend à ignorer.
-            signes = [_signe(j) for j in jetons]
-            if any(len(s) >= 4 and s in couvert for s in signes):
-                continue
-            sans_controle.append((relatif, numero, phrase))
+    return trouvees
 
+
+def regles_sans_controle() -> list[tuple[str, int, str, list[str]]]:
+    """Celles qu'aucun `[[regles]]` ne fait respecter.
+
+    Deux façons d'être couverte, de la plus sûre à la plus souple :
+
+    1. `source = "CLAUDE.md:23"` dans le config.toml — un lien EXPLICITE,
+       posé par `--init` ou à la main. Aucune ambiguïté possible.
+    2. sinon, un identifiant de la ligne se retrouve dans le nom ou le motif
+       d'une règle configurée. Heuristique, volontairement indulgente : mieux
+       vaut taire une règle déjà surveillée que crier au trou sur une règle
+       qui l'est — un contrôle qui crie trop est un contrôle qu'on n'ouvre
+       plus.
+
+    ⚠️ Un `source` qui ne correspond plus — la doc a bougé d'une ligne — fait
+    RÉAPPARAÎTRE la règle comme non couverte. C'est le bon sens d'échec : on
+    ré-alerte au lieu de masquer en silence.
+    """
+    sources = {
+        str(regle["source"]) for regle in config.REGLES_MAISON if regle.get("source")
+    }
+
+    # La « signature » de ce qui DÉTECTE : le nom et le motif, rien d'autre.
+    #
+    # ⚠️ Le champ `regle` en est volontairement ABSENT. C'est de la prose, et
+    # elle cite souvent la doc (« CLAUDE.md : … ») : une règle parlant de
+    # `.claude/` s'y appariait par simple coïncidence de sous-chaîne
+    # (« claude » ⊂ « claudemd ») et passait pour couverte. Un faux
+    # « couvert » est pire qu'un faux trou : il fait disparaître du rapport
+    # une règle que rien ne surveille.
+    signature = _signe(" ".join(
+        f"{regle['nom']} {regle['motif'].pattern}" for regle in config.REGLES_MAISON
+    ))
+
+    restantes = []
+    for relatif, numero, phrase, jetons in regles_enoncees():
+        if f"{relatif}:{numero}" in sources:
+            continue
+        signes = [_signe(jeton) for jeton in jetons]
+        if any(len(signe) >= 4 and signe in signature for signe in signes):
+            continue
+        restantes.append((relatif, numero, phrase, jetons))
+
+    return restantes
+
+
+def controle_regles_declarees() -> Resultat:
+    # On ne lit QUE les fichiers d'instructions IA. La doc générale décrit le
+    # système ; seul le fichier d'instructions engage le projet sur des règles.
+    if not config.DOCS_IA:
+        return Resultat(
+            "Regles enoncees vs controlees", "INDISPONIBLE",
+            f"aucun fichier d'instructions IA ({', '.join(config.FICHIERS_IA)})"
+            " - voir fichiers_ia dans .lintorn/config.toml",
+            bloquant=False,
+        )
+
+    enoncees = regles_enoncees()
     if not enoncees:
         return Resultat(
             "Regles enoncees vs controlees", "INDISPONIBLE",
@@ -865,6 +900,7 @@ def controle_regles_declarees() -> Resultat:
             bloquant=False,
         )
 
+    sans_controle = regles_sans_controle()
     total, trou = len(enoncees), len(sans_controle)
     if not trou:
         return Resultat(
@@ -880,8 +916,10 @@ def controle_regles_declarees() -> Resultat:
         "**declare** et ce qu'il **verifie**. A chaque ligne, deux issues — ecrire",
         "la regle dans `config.toml`, ou retirer la phrase de la doc si elle a vieilli.",
         "",
+        "`lintorn --esquisser-regles` prepare les blocs `[[regles]]` a completer.",
+        "",
     ]
-    for chemin, numero, phrase in sans_controle[:12]:
+    for chemin, numero, phrase, _ in sans_controle[:12]:
         court = phrase if len(phrase) <= 110 else phrase[:107] + "…"
         detail += [f"- {lien(chemin, numero)}", f"  > {court}", ""]
     if trou > 12:

@@ -868,6 +868,11 @@ def _regles_du_projet() -> list[dict]:
 
         regles.append({
             "nom": nom,
+            # Le LIEN vers la ligne de doc qui enonce la regle, ex.
+            # « CLAUDE.md:23 ». Facultatif, mais c'est lui qui rend la
+            # couverture EXACTE au lieu d'heuristique — et qui evite de
+            # recopier la phrase ici, donc de la laisser deriver.
+            "source": str(brute.get("source", "")),
             "regle": str(brute.get("regle", "")),
             "racine": racine,
             "suffixes": tuple(brute.get("suffixes", ())),

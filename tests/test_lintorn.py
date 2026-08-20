@@ -513,13 +513,18 @@ def test_docs_exclus_accepte_les_globs_traversants(tmp_path, monkeypatch):
 # ─────────────────────────────────────────────────────────────────────────────
 # Les règles ÉNONCÉES dans le fichier d'instructions IA
 # ─────────────────────────────────────────────────────────────────────────────
-def _regles_enoncees(tmp_path, monkeypatch, texte, regles=()):
-    """Joue le contrôle sur un CLAUDE.md fabriqué pour l'occasion."""
+def _config_doc_ia(tmp_path, monkeypatch, texte, regles=()):
+    """Un CLAUDE.md fabriqué pour l'occasion, et la config qui va avec."""
     doc = tmp_path / "CLAUDE.md"
     doc.write_text(texte, encoding="utf-8")
     monkeypatch.setattr(config, "RACINE", tmp_path)
     monkeypatch.setattr(config, "DOCS_IA", [doc])
     monkeypatch.setattr(config, "REGLES_MAISON", list(regles))
+    return doc
+
+
+def _regles_enoncees(tmp_path, monkeypatch, texte, regles=()):
+    _config_doc_ia(tmp_path, monkeypatch, texte, regles)
     return noyau.controle_regles_declarees()
 
 
@@ -696,3 +701,60 @@ def test_le_gitignore_interne_n_ecrase_jamais_celui_du_dev(tmp_path):
     Lintorn._poser_gitignore_interne(dossier)
 
     assert (dossier / ".gitignore").read_text(encoding="utf-8") == "a moi\n"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Les esquisses de `[[regles]]` tirées de la doc
+# ─────────────────────────────────────────────────────────────────────────────
+_TABLE = "| Axios partage | jamais d'`axios.create()` hors de `services/api.ts` |\n"
+
+
+def test_une_esquisse_est_toujours_inerte(tmp_path, monkeypatch):
+    """`re.compile("")` réussit, et un motif vide matche PARTOUT.
+
+    Une esquisse laissée active compterait des milliers de fausses
+    infractions dès le premier audit — et tuerait la confiance dans l'outil
+    avant même que l'utilisateur ait compris ce qu'il regardait. Tant que
+    l'humain n'y a pas écrit son motif, ça reste du commentaire.
+    """
+    _config_doc_ia(tmp_path, monkeypatch, _TABLE)
+
+    esquisses = Lintorn._esquisses_regles()
+
+    assert esquisses, "la ligne de tableau doit produire une esquisse"
+    vivantes = [ligne for ligne in esquisses
+                if ligne.strip() and not ligne.startswith("#")]
+    assert vivantes == [], f"une esquisse ne doit JAMAIS etre active : {vivantes}"
+
+
+def test_le_champ_source_couvre_exactement_sa_ligne(tmp_path, monkeypatch):
+    """Le lien explicite l'emporte sur l'heuristique de jetons.
+
+    Ici, ni le nom ni le motif de la règle ne rappellent la ligne de doc :
+    seul `source` fait le lien. C'est ce qui permet d'arrêter de recopier la
+    phrase dans le config.toml — donc de la laisser dériver.
+    """
+    regle = {"nom": "sans aucun rapport", "source": "CLAUDE.md:1",
+             "motif": re.compile(r"zzz")}
+    _config_doc_ia(tmp_path, monkeypatch, _TABLE, [regle])
+
+    assert noyau.regles_sans_controle() == []
+
+
+def test_une_esquisse_deja_presente_n_est_pas_reproposee(tmp_path, monkeypatch):
+    """`--esquisser-regles` se relance : sans garde, deux passages
+    empileraient deux fois les mêmes brouillons."""
+    _config_doc_ia(tmp_path, monkeypatch, _TABLE)
+
+    premiere = Lintorn._esquisses_regles()
+    seconde = Lintorn._esquisses_regles("\n".join(premiere))
+
+    assert premiere
+    assert seconde == []
+
+
+def test_les_suffixes_se_deduisent_des_chemins_cites():
+    assert Lintorn._suffixes_probables(["services/api.ts", "axios.create()"]) == [".ts"]
+    assert Lintorn._suffixes_probables(["var(--bg)", "#fff"]) == [], (
+        "aucune extension citee : on laisse la liste vide plutot que d'inventer"
+    )

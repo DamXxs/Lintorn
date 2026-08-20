@@ -21,6 +21,7 @@ $ lintorn
 [ OK ] TypeScript (tsc --noEmit)   rien a signaler
 [ !! ] Doc vs code                 124 chemin(s) cite(s), 12 introuvable(s)
 [ ?? ] Memoire IA vs code          46 chemin(s) cite(s), 3 a verifier
+[ ?? ] Regles enoncees vs controlees  25 enoncee(s), 1 controlee(s), 24 SANS controle
 [ OK ] Hook pre-push               branche et executable
 ```
 
@@ -45,12 +46,42 @@ nothing is being watched. Lintorn treats that as the primary failure mode, every
 | **AI memory vs code** | same treatment for your assistant's persistent memory |
 | **Memory freshness** | memory citing code that changed since it was last verified |
 | **House rules** | your own conventions, enforced mechanically |
+| **Stated vs enforced** | rules written in `CLAUDE.md` that no check actually enforces |
 | **Python** | ruff, missing migrations, `manage.py check`, pytest, pip-audit, vulture |
 | **JavaScript** | `tsc --noEmit` |
 | **Tooling itself** | whether its own pre-push hook is installed *and* executable |
 
 Everything is auto-detected. No Django? The Django checks do not appear at all — rather than
 sitting there permanently "unavailable", which is how a warning light becomes furniture.
+
+## Rules you state, rules you enforce
+
+Your `CLAUDE.md` tells an assistant what this project's rules are. Nothing links those
+sentences to anything that enforces them, so the gap between what a project *declares* and what
+it *verifies* widens quietly: nobody re-reads documentation looking for what is missing
+somewhere else.
+
+Lintorn reads the rules out of your AI instruction file and reports the ones no check covers.
+It never invents the detection. *"Never hardcode a colour"* does not say whether to match
+`#fff`, `rgba(` or `hsl()`, nor whether comments are exempt. That is a technical decision, and
+a guessed pattern is a false-positive factory — which is how a report stops being read.
+
+So it drafts, and you decide. One commented block per uncovered rule, everything filled in
+except the pattern:
+
+```toml
+# [[regles]]
+# source   = "CLAUDE.md:23"   # the rule is STATED there, not here
+# nom      = "Shared axios"
+# racine   = "."
+# suffixes = [".ts", ".tsx"]
+# motif    = ''               # <- yours to write: what a VIOLATION looks like
+# bloquant = false
+```
+
+`source` replaces copying the sentence into the config, so the rule stays stated in exactly one
+place and cannot drift. This check never blocks a push: documenting an intention should not be
+punished.
 
 ## Documents that legitimately cite what does not exist
 
@@ -144,6 +175,7 @@ TypeScript needs nothing extra: `npm install` already provides `tsc`.
 lintorn                      full audit
 lintorn --rapide             skip the slow tools (what the pre-push hook runs)
 lintorn --init               generate the config for this project
+lintorn --esquisser-regles   draft a [[regles]] block per uncovered rule
 lintorn --installer-hook     install the pre-push hook
 lintorn --installer-outils   install the external tools, after confirmation
 lintorn --doc                documentation check only

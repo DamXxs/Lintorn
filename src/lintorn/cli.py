@@ -156,6 +156,8 @@ USAGE
 
 MISE EN PLACE
     lintorn --init               genere .lintorn/config.toml pour ce projet
+    lintorn --esquisser-regles   prepare un [[regles]] par regle de ta doc
+                                 qui n'a pas encore de controle
     lintorn --installer-hook     installe le hook pre-push
     lintorn --installer-outils   installe ruff, pytest, vulture, pip-audit
                                  dans le venv du projet (demande confirmation)
@@ -179,6 +181,132 @@ CONFIGURATION
 # ─────────────────────────────────────────────────────────────────────────────
 # PREMIER DÉMARRAGE SUR UN PROJET
 # ─────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
+# ESQUISSER LES RÈGLES DÉJÀ ÉCRITES DANS LA DOC
+# ─────────────────────────────────────────────────────────────────────────────
+# Le projet ENONCE ses regles dans son fichier d'instructions IA. Les
+# RECOPIER a la main dans le config.toml est du travail bete, et c'est la
+# que la plupart des gens abandonnent.
+#
+# ⚠️ LES ESQUISSES SONT COMMENTEES, JAMAIS ACTIVES. `re.compile("")` reussit,
+#    et un motif vide matche partout : une esquisse active compterait des
+#    milliers de fausses infractions des le premier audit. Un brouillon doit
+#    etre inerte tant que l'humain n'y a pas mis la main.
+_RX_MARKDOWN = re.compile(r"[`*_]+")
+_RX_SUFFIXE = re.compile(r"\.[A-Za-z][A-Za-z0-9]{0,4}$")
+
+
+def _nom_de_regle(phrase: str) -> str:
+    """Un nom court. Dans un tableau, la premiere cellule EST le sujet."""
+    cellules = [c.strip() for c in phrase.split("|") if c.strip()]
+    brut = cellules[0] if cellules else phrase
+    propre = " ".join(_RX_MARKDOWN.sub("", brut).replace('"', "'").split())
+    if not propre:
+        return "regle sans nom"
+    return propre[:57] + "..." if len(propre) > 60 else propre
+
+
+def _suffixes_probables(jetons: list[str]) -> list[str]:
+    """Les extensions citees par la regle. Vide plutot que devine de travers."""
+    trouves = []
+    for jeton in jetons:
+        fin = _RX_SUFFIXE.search(jeton.split("/")[-1].strip())
+        if fin and fin.group(0).lower() not in trouves:
+            trouves.append(fin.group(0).lower())
+    return sorted(trouves)
+
+
+def _esquisses_regles(deja_ecrit: str = "") -> list[str]:
+    """Un bloc `[[regles]]` commente par regle enoncee mais non controlee.
+
+    `deja_ecrit` : le contenu actuel du config.toml. Une regle dont le
+    `source` y figure deja est sautee — sans quoi deux passages
+    empileraient deux fois les memes brouillons.
+    """
+    manquantes = [
+        (chemin, numero, phrase, jetons)
+        for chemin, numero, phrase, jetons in noyau.regles_sans_controle()
+        if f'"{chemin}:{numero}"' not in deja_ecrit
+    ]
+    if not manquantes:
+        return []
+
+    lignes = [
+        "",
+        "# ── Esquisses : tes regles de doc qui n'ont pas encore de controle ───",
+        "# Lintorn les a reperees, mais il NE PEUT PAS deviner comment les",
+        "# detecter : « jamais de couleur en dur » ne dit pas s'il faut traquer",
+        "# #fff, rgba( ou hsl(, ni s'il faut epargner les commentaires. C'est une",
+        "# decision technique, et une regex devinee ne produirait que des faux",
+        "# positifs — de quoi cesser de faire confiance au rapport.",
+        "#",
+        "# Decommente celles qui comptent, ecris leur `motif`, jette les autres.",
+        "#",
+        "# `source` evite de RECOPIER la phrase ici : la regle reste enoncee a un",
+        "# seul endroit, et Lintorn sait qu'elle a desormais un controle.",
+    ]
+    for chemin, numero, phrase, jetons in manquantes:
+        suffixes = _suffixes_probables(jetons)
+        rendu = ", ".join(f'"{suffixe}"' for suffixe in suffixes)
+        indice = "" if suffixes else "   # <- a preciser : .py, .ts, .css..."
+        lignes += [
+            "",
+            f"# {phrase[:100]}",
+            "# [[regles]]",
+            f'# source   = "{chemin}:{numero}"',
+            f'# nom      = "{_nom_de_regle(phrase)}"',
+            '# racine   = "."          # <- restreins au dossier concerne',
+            f"# suffixes = [{rendu}]{indice}",
+            "# motif    = ''            # <- A ECRIRE : ce qui repere une VIOLATION",
+            "# bloquant = false         # true quand la regle est deja tenue partout",
+        ]
+    return lignes
+
+
+def esquisser_regles() -> int:
+    """Ajoute au config.toml un brouillon par regle non controlee.
+
+    POURQUOI UNE COMMANDE A PART, et pas seulement dans `--init` : `--init`
+    ne tourne QU'UNE FOIS, au debut, quand la doc du projet est souvent
+    encore vide. Les regles s'ecrivent apres, au fil des mois. Reservee a
+    `--init`, la fonctionnalite ne servirait qu'aux projets neufs — jamais a
+    ceux qui en ont le plus besoin.
+    """
+    cible = config.DOSSIER_LINTORN / "config.toml"
+    if not cible.exists():
+        print(f"{cible.relative_to(config.RACINE)} n'existe pas encore.")
+        print("Lance d'abord : lintorn --init")
+        return 1
+
+    try:
+        deja = cible.read_text(encoding="utf-8")
+    except OSError as erreur:
+        print(f"Echec de lecture : {erreur}")
+        return 1
+
+    esquisses = _esquisses_regles(deja)
+    if not esquisses:
+        print("Rien a esquisser. Soit chaque regle de ta doc a deja un controle,")
+        print("soit ses brouillons sont deja dans le fichier. Detail : lintorn")
+        return 0
+
+    try:
+        with cible.open("a", encoding="utf-8") as fichier:
+            fichier.write("\n".join(esquisses) + "\n")
+    except OSError as erreur:
+        print(f"Echec : {erreur}")
+        return 1
+
+    nombre = sum(1 for ligne in esquisses if ligne == "# [[regles]]")
+    print(f"Ajoute a {cible.relative_to(config.RACINE)} : {nombre} esquisse(s), commentee(s).")
+    print()
+    print("A FAIRE MAINTENANT :")
+    print("    1. ouvre le fichier : garde ce qui compte, jette le reste")
+    print("    2. pour chaque regle gardee : decommente, puis ecris le `motif`")
+    print("    3. `lintorn` pour verifier")
+    return 0
+
+
 # Le `.gitignore` que `--init` pose DANS `.lintorn/`.
 #
 # POURQUOI LA, ET PAS DANS CELUI DU PROJET. Editer le `.gitignore` de
@@ -281,31 +409,42 @@ def init(ecraser: bool = False) -> int:
         prefixe = "" if pertinent else "# "
         lignes.append(f"{prefixe}{cle:<15}= false   # {role}")
 
+    # Les esquisses tirees de la doc REMPLACENT l'exemple generique quand il
+    # y en a : ce sont les vraies regles du projet, avec leur `source`, pas un
+    # modele a transposer. Garder les deux ferait doublon — et l'exemple
+    # inventerait un chemin (`src`) que le projet n'a peut-etre pas.
+    esquisses = _esquisses_regles()
+    if esquisses:
+        lignes += esquisses
+    else:
+        lignes += [
+            "",
+            "# ── Tes regles maison ────────────────────────────────────────────────",
+            "# Lintorn ne peut PAS les deviner : une regle maison est une decision,",
+            "# elle n'est ecrite nulle part dans le code. Voici la forme, a remplir.",
+            "#",
+            "# bloquant = true  -> regle DEJA respectee, on empeche la regression",
+            "# bloquant = false -> dette existante, on mesure sans bloquer",
+        ]
+        racine_exemple = "src"
+        if config.FRONTEND:
+            try:
+                racine_exemple = (config.FRONTEND / "src").relative_to(config.RACINE).as_posix()
+            except ValueError:
+                pass
+        lignes += [
+            "#",
+            "# [[regles]]",
+            '# nom      = "Couleurs en dur dans un CSS"',
+            '# regle    = "uniquement des variables de theme"',
+            f'# racine   = "{racine_exemple}"',
+            '# suffixes = [".css"]',
+            "# motif    = '#[0-9a-fA-F]{3,8}\\b'",
+            "# exclure  = []",
+            "# bloquant = false",
+        ]
+
     lignes += [
-        "",
-        "# ── Tes regles maison ────────────────────────────────────────────────",
-        "# Lintorn ne peut PAS les deviner : une regle maison est une decision,",
-        "# elle n'est ecrite nulle part dans le code. Voici la forme, a remplir.",
-        "#",
-        "# bloquant = true  -> regle DEJA respectee, on empeche la regression",
-        "# bloquant = false -> dette existante, on mesure sans bloquer",
-    ]
-    racine_exemple = "src"
-    if config.FRONTEND:
-        try:
-            racine_exemple = (config.FRONTEND / "src").relative_to(config.RACINE).as_posix()
-        except ValueError:
-            pass
-    lignes += [
-        "#",
-        "# [[regles]]",
-        '# nom      = "Couleurs en dur dans un CSS"',
-        '# regle    = "uniquement des variables de theme"',
-        f'# racine   = "{racine_exemple}"',
-        '# suffixes = [".css"]',
-        "# motif    = '#[0-9a-fA-F]{3,8}\\b'",
-        "# exclure  = []",
-        "# bloquant = false",
         "",
         "# ── De la doc a NE PAS verifier ──────────────────────────────────────",
         "# Un tutoriel (« creez un fichier `myapp.py` ») et un changelog citent",
@@ -348,6 +487,9 @@ def init(ecraser: bool = False) -> int:
     print(f"Projet detecte : {', '.join(detecte) or 'rien de connu'}")
     print(f"Ecrit          : {relatif}")
     print(f"Ecrit          : {relatif.parent / '.gitignore'} - {garde}")
+    if esquisses:
+        nombre = sum(1 for ligne in esquisses if ligne == "# [[regles]]")
+        print(f"Regles de ta doc : {nombre} esquisse(s) commentee(s), a completer")
     print()
     print("A FAIRE MAINTENANT :")
     print(f"    1. ouvre {relatif} et active ce que tu veux")
@@ -657,6 +799,9 @@ def main() -> int:
 
     if "--init" in args:
         return init(ecraser="--force" in args)
+
+    if "--esquisser-regles" in args:
+        return esquisser_regles()
 
     if "--maj-securite" in args:
         return maj_securite(appliquer="--appliquer" in args)
