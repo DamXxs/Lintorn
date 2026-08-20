@@ -125,9 +125,17 @@ your database), `code_mort` and `deploy` (noisy during development).
 
 ## Configuration
 
-`lintorn --init` writes a `.lintorn/config.toml` shaped for what it found. Configuration lives
-either there, or under `[tool.lintorn]` in your `pyproject.toml` — the standalone file matters
-for projects with no `pyproject.toml` at their root, which is most non-Python ones.
+`lintorn --init` writes two files, because they do not have the same life:
+
+| File | What it holds | How it behaves |
+|---|---|---|
+| `.lintorn/config.toml` | settings — which checks run, which files count as AI instructions | written once, rarely touched |
+| `.lintorn/regles.toml` | your house rules | grows, edited often, reviewed by the team |
+
+Settings may also live under `[tool.lintorn]` in your `pyproject.toml`. The standalone file
+matters for projects with no `pyproject.toml` at their root, which is most non-Python ones.
+Rules declared in either place still work — the two sources are merged, so nothing breaks for
+projects configured before `regles.toml` existed.
 
 ```toml
 [controles]

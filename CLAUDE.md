@@ -34,7 +34,7 @@ En pratique, cela interdit quatre choses :
 
 | Sujet | Règle critique |
 |---|---|
-| **Aucun nom de projet en dur** | Ni `matorn`, ni un chemin de machine, ni un nom d'utilisateur. Une règle maison de Lintorn le vérifie à chaque exécution — voir `[[regles]]` dans `.lintorn/config.toml` |
+| **Aucun nom de projet en dur** | Ni `matorn`, ni un chemin de machine, ni un nom d'utilisateur. Une règle maison de Lintorn le vérifie à chaque exécution — voir `[[regles]]` dans `.lintorn/regles.toml` |
 | **Zéro dépendance** | `dependencies = []` dans `pyproject.toml`, et ça n'est pas négociable : Lintorn doit tourner dans un hook git avec n'importe quel python du système. Stdlib uniquement |
 | Les chemins | Tout part du **projet audité** (`RACINE`, déduite du dossier courant), jamais de `__file__`. Installé par pip, `__file__` pointe dans `site-packages` : la déduction viserait le venv et tous les contrôles s'effondreraient en paraissant sains |
 | Les outils externes | Lancés avec le python **du projet** (`config.PYTHON`), jamais celui de Lintorn — sinon ruff applique ses propres règles et pytest ne voit aucune dépendance du projet |

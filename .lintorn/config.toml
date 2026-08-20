@@ -14,20 +14,9 @@ code_mort      = true    # vulture — consultatif, beaucoup de faux positifs
 failles        = true    # pip-audit — sort sur le RESEAU
 
 # ── Tes regles maison ────────────────────────────────────────────────
-# Lintorn ne peut PAS les deviner : une regle maison est une decision,
-# elle n'est ecrite nulle part dans le code. Voici la forme, a remplir.
-#
-# bloquant = true  -> regle DEJA respectee, on empeche la regression
-# bloquant = false -> dette existante, on mesure sans bloquer
-#
-# [[regles]]
-# nom      = "Couleurs en dur dans un CSS"
-# regle    = "uniquement des variables de theme"
-# racine   = "src"
-# suffixes = [".css"]
-# motif    = '#[0-9a-fA-F]{3,8}\b'
-# exclure  = []
-# bloquant = false
+# Elles vivent a cote, dans `regles.toml` : ce fichier-ci est un
+# reglage qu'on ecrit une fois, elles sont une liste qui grossit.
+# Les deux se versionnent.
 
 # ── Tes propres outils ───────────────────────────────────────────────
 # Tout outil qui repond par un code de sortie a sa place ici.
@@ -40,22 +29,3 @@ failles        = true    # pip-audit — sort sur le RESEAU
 # cmd      = ["python", "-m", "mypy", "."]
 # cwd      = "."
 # bloquant = false
-
-# ── Les regles maison de Lintorn ─────────────────────────────────────────────
-[[regles]]
-nom      = "Chemin de projet ecrit en dur"
-regle    = "Lintorn doit rester neutre : aucun nom de projet dans le code"
-racine   = "src/lintorn"
-suffixes = [".py"]
-motif    = 'matorn|/home/|C:\\\\Users'
-exclure  = []
-bloquant = true
-
-[[regles]]
-nom      = "print() de debogage oublie"
-regle    = "la sortie utilisateur passe par le rapport ou le CLI, pas par des print egares"
-racine   = "src/lintorn"
-suffixes = [".py"]
-motif    = '^\s+print\(f?"(DEBUG|TODO|XXX)'
-exclure  = []
-bloquant = true

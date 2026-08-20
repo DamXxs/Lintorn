@@ -1,0 +1,9 @@
+# Ecrit par `lintorn --init`.
+#
+# Les sorties de Lintorn se regenerent a chaque audit : elles n'ont rien a
+# faire dans un depot. La CONFIG, elle, se versionne — c'est une decision
+# d'equipe, pas un artefact de ta machine.
+*
+!.gitignore
+!config.toml
+!regles.toml

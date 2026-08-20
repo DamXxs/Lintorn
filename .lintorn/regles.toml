@@ -1,0 +1,30 @@
+# Les regles maison de ce projet.
+#   https://github.com/DamXxs/Lintorn
+#
+# Un fichier a part parce qu'il VIT : il grossit, on l'edite souvent,
+# on le relit a plusieurs. `config.toml`, a cote, est un reglage qu'on
+# ecrit une fois. Les deux se versionnent.
+#
+# Lintorn ne peut PAS deviner une regle maison : c'est une decision,
+# elle n'est ecrite nulle part dans le code.
+#
+# bloquant = true  -> regle DEJA respectee, on empeche la regression
+# bloquant = false -> dette existante, on mesure sans bloquer
+
+[[regles]]
+nom      = "Chemin de projet ecrit en dur"
+regle    = "Lintorn doit rester neutre : aucun nom de projet dans le code"
+racine   = "src/lintorn"
+suffixes = [".py"]
+motif    = 'matorn|/home/|C:\\\\Users'
+exclure  = []
+bloquant = true
+
+[[regles]]
+nom      = "print() de debogage oublie"
+regle    = "la sortie utilisateur passe par le rapport ou le CLI, pas par des print egares"
+racine   = "src/lintorn"
+suffixes = [".py"]
+motif    = '^\s+print\(f?"(DEBUG|TODO|XXX)'
+exclure  = []
+bloquant = true

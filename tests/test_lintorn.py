@@ -441,8 +441,12 @@ def test_aucune_regle_maison_n_est_livree_avec_l_outil():
     des alertes incompréhensibles — ou un vert rassurant sur un contrôle qui
     ne scannait aucun fichier. Elles viennent désormais TOUTES de la config du
     projet audité : sans config, la liste est vide.
+
+    ⚠️ La question « ce dépôt déclare-t-il des règles ? » se pose aux DEUX
+    sources. Posée au seul `config.toml`, elle est devenue fausse le jour où
+    `regles.toml` est apparu — et ce test a echoue en le disant.
     """
-    if config.PROJET.get("regles"):
+    if config._regles_brutes():
         return      # ce dépôt-ci en déclare : rien à prouver ici
     assert config.REGLES_MAISON == []
 

@@ -841,6 +841,37 @@ EXTENSIONS = (".py", ".ts", ".tsx", ".js", ".jsx", ".css", ".json",
 #     motif    = "#[0-9a-fA-F]{3,8}\\b|\\brgba?\\("
 #     exclure  = ["components/shared/plates/"]
 #     bloquant = false                # true = interdire la régression
+# Le fichier dedie aux regles maison.
+#
+# POURQUOI UN FICHIER A PART. `config.toml` et les regles n'ont pas la meme
+# vie : le premier est un REGLAGE, ecrit une fois et presque jamais retouche ;
+# les secondes sont une LISTE DE TRAVAIL qui grossit, qu'on edite chaque
+# semaine et qu'on relit a plusieurs. Melangees, un vrai projet donnait un
+# config.toml de 280 lignes ou les six reglages se noyaient dans vingt-quatre
+# brouillons de regles.
+FICHIER_REGLES = DOSSIER_LINTORN / "regles.toml"
+
+
+def _regles_brutes() -> list[dict]:
+    """Les `[[regles]]` declarees, quel que soit le fichier qui les porte.
+
+    Deux sources, FUSIONNEES et non concurrentes :
+
+      1. `.lintorn/regles.toml` — le fichier dedie, la ou `--init` ecrit
+      2. la cle `regles` de la config generale (config.toml, ou
+         `[tool.lintorn]` du pyproject.toml)
+
+    ⚠️ Fusionner, et surtout pas choisir : les projets qui avaient deja leurs
+    regles dans `config.toml` continuent de fonctionner a l'identique, sans
+    rien deplacer. Une reorganisation qui casse l'existant n'est pas une
+    amelioration, c'est une punition pour ceux qui ont adopte l'outil tot.
+    """
+    charge = _charger_toml(FICHIER_REGLES)
+    dediees = charge.get("regles", []) if isinstance(charge, dict) else []
+    heritees = PROJET.get("regles", [])
+    return [*dediees, *heritees]
+
+
 def _regles_du_projet() -> list[dict]:
     """Traduit les `[[tool.lintorn.regles]]` en règles exploitables.
 
@@ -853,7 +884,7 @@ def _regles_du_projet() -> list[dict]:
     global ERREUR_CONFIG
     regles, soucis = [], []
 
-    for brute in PROJET.get("regles", []):
+    for brute in _regles_brutes():
         nom = str(brute.get("nom", "(sans nom)"))
         try:
             motif = re.compile(brute["motif"])

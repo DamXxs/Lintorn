@@ -694,7 +694,7 @@ def controle_regles_maison() -> Resultat:
     if not config.REGLES_MAISON:
         return Resultat(
             "Regles maison", "INDISPONIBLE",
-            "aucune regle declaree - voir [[regles]] dans .lintorn/config.toml",
+            "aucune regle declaree - voir .lintorn/regles.toml",
             bloquant=False,
         )
 
@@ -765,7 +765,7 @@ def controle_regles_maison() -> Resultat:
 # doc ont-elles seulement un contrôle en face ?
 #
 # LE PROBLÈME QU'IL RÈGLE. Une règle vit dans CLAUDE.md parce qu'on l'y a
-# écrite pour l'assistant. Rien ne la relie au `config.toml`. L'écart entre
+# écrite pour l'assistant. Rien ne la relie au `regles.toml`. L'écart entre
 # « ce que je déclare à l'IA » et « ce que je fais respecter » grandit donc en
 # silence : personne ne relit une doc pour y chercher ce qui MANQUE ailleurs.
 #
@@ -798,7 +798,7 @@ def _signe(texte: str) -> str:
     r"""Réduit un texte à ses lettres et chiffres, en minuscules.
 
     Permet de rapprocher `axios.create()` (dans la doc) de `axios\.create\(`
-    (une regex du config.toml) sans se battre avec les échappements : les deux
+    (une regex du regles.toml) sans se battre avec les échappements : les deux
     donnent « axioscreate ».
     """
     return re.sub(r"[^0-9a-zà-ÿ]+", "", texte.lower())
@@ -840,7 +840,7 @@ def regles_sans_controle() -> list[tuple[str, int, str, list[str]]]:
 
     Deux façons d'être couverte, de la plus sûre à la plus souple :
 
-    1. `source = "CLAUDE.md:23"` dans le config.toml — un lien EXPLICITE,
+    1. `source = "CLAUDE.md:23"` dans le regles.toml — un lien EXPLICITE,
        posé par `--init` ou à la main. Aucune ambiguïté possible.
     2. sinon, un identifiant de la ligne se retrouve dans le nom ou le motif
        d'une règle configurée. Heuristique, volontairement indulgente : mieux
@@ -910,11 +910,11 @@ def controle_regles_declarees() -> Resultat:
 
     detail = [
         f"**{trou} regle(s) sur {total}** sont ecrites dans la doc sans qu'aucun",
-        "`[[regles]]` du `.lintorn/config.toml` ne les fasse respecter.",
+        "`[[regles]]` du `.lintorn/regles.toml` ne les fasse respecter.",
         "",
         "Ce n'est pas une infraction : c'est un ecart entre ce que le projet",
         "**declare** et ce qu'il **verifie**. A chaque ligne, deux issues — ecrire",
-        "la regle dans `config.toml`, ou retirer la phrase de la doc si elle a vieilli.",
+        "la regle dans `regles.toml`, ou retirer la phrase de la doc si elle a vieilli.",
         "",
         "`lintorn --esquisser-regles` prepare les blocs `[[regles]]` a completer.",
         "",

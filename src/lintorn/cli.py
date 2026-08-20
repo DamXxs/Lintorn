@@ -263,6 +263,41 @@ def _esquisses_regles(deja_ecrit: str = "") -> list[str]:
     return lignes
 
 
+def _contenu_regles_toml(esquisses: list[str]) -> str:
+    """L'en-tete de `regles.toml`, suivi des esquisses ou d'un exemple."""
+    lignes = [
+        "# Les regles maison de ce projet.",
+        "#   https://github.com/DamXxs/Lintorn",
+        "#",
+        "# Un fichier a part parce qu'il VIT : il grossit, on l'edite souvent,",
+        "# on le relit a plusieurs. `config.toml`, a cote, est un reglage qu'on",
+        "# ecrit une fois. Les deux se versionnent.",
+        "#",
+        "# Lintorn ne peut PAS deviner une regle maison : c'est une decision,",
+        "# elle n'est ecrite nulle part dans le code.",
+        "#",
+        "# bloquant = true  -> regle DEJA respectee, on empeche la regression",
+        "# bloquant = false -> dette existante, on mesure sans bloquer",
+    ]
+    if esquisses:
+        lignes += esquisses
+    else:
+        lignes += [
+            "",
+            "# Voici la forme, a remplir :",
+            "#",
+            "# [[regles]]",
+            '# nom      = "Couleurs en dur dans un CSS"',
+            '# regle    = "uniquement des variables de theme"',
+            '# racine   = "src"',
+            '# suffixes = [".css"]',
+            "# motif    = '#[0-9a-fA-F]{3,8}\\b'",
+            "# exclure  = []",
+            "# bloquant = false",
+        ]
+    return "\n".join(lignes) + "\n"
+
+
 def esquisser_regles() -> int:
     """Ajoute au config.toml un brouillon par regle non controlee.
 
@@ -272,17 +307,10 @@ def esquisser_regles() -> int:
     `--init`, la fonctionnalite ne servirait qu'aux projets neufs — jamais a
     ceux qui en ont le plus besoin.
     """
-    cible = config.DOSSIER_LINTORN / "config.toml"
-    if not cible.exists():
-        print(f"{cible.relative_to(config.RACINE)} n'existe pas encore.")
-        print("Lance d'abord : lintorn --init")
-        return 1
-
-    try:
-        deja = cible.read_text(encoding="utf-8")
-    except OSError as erreur:
-        print(f"Echec de lecture : {erreur}")
-        return 1
+    cible = config.FICHIER_REGLES
+    deja = cible.read_text(encoding="utf-8") if cible.is_file() else ""
+    cible.parent.mkdir(parents=True, exist_ok=True)
+    _poser_gitignore_interne(cible.parent)
 
     esquisses = _esquisses_regles(deja)
     if not esquisses:
@@ -291,8 +319,12 @@ def esquisser_regles() -> int:
         return 0
 
     try:
-        with cible.open("a", encoding="utf-8") as fichier:
-            fichier.write("\n".join(esquisses) + "\n")
+        cible.parent.mkdir(parents=True, exist_ok=True)
+        if deja:
+            with cible.open("a", encoding="utf-8") as fichier:
+                fichier.write("\n".join(esquisses) + "\n")
+        else:
+            cible.write_text(_contenu_regles_toml(esquisses), encoding="utf-8")
     except OSError as erreur:
         print(f"Echec : {erreur}")
         return 1
@@ -331,19 +363,54 @@ _GITIGNORE_INTERNE = """\
 *
 !.gitignore
 !config.toml
+!regles.toml
 """
 
 
+# La ligne qui prouve que ce `.gitignore` est le NOTRE. Sans elle, on
+# risquerait de modifier celui qu'un dev a ecrit a la main.
+_SIGNATURE_GITIGNORE = "# Ecrit par `lintorn --init`."
+
+# Les fichiers que Lintorn veut voir VERSIONNES dans `.lintorn/`.
+_A_VERSIONNER = ("!.gitignore", "!config.toml", "!regles.toml")
+
+
 def _poser_gitignore_interne(dossier) -> str:
-    """Pose `.lintorn/.gitignore`. N'ecrase JAMAIS celui de l'utilisateur."""
+    """Pose `.lintorn/.gitignore`, ou complete celui qu'on a deja pose.
+
+    N'ecrase JAMAIS celui d'un humain : on ne touche qu'a un fichier portant
+    notre propre signature.
+
+    ⚠️ Le COMPLETER n'est pas un luxe. `regles.toml` est arrive apres. Sans
+    cette mise a jour, tout projet configure avant lui verrait son fichier de
+    regles ignore par git, donc absent du depot — silencieusement, ce qui est
+    la panne que Lintorn combat partout ailleurs.
+    """
     fichier = dossier / ".gitignore"
-    if fichier.exists():
-        return "deja present, laisse tel quel"
+    if not fichier.exists():
+        try:
+            fichier.write_text(_GITIGNORE_INTERNE, encoding="utf-8")
+        except OSError as erreur:
+            return f"NON ecrit ({erreur})"
+        return "ecrit - les sorties restent hors du depot, la config s'y versionne"
+
     try:
-        fichier.write_text(_GITIGNORE_INTERNE, encoding="utf-8")
+        contenu = fichier.read_text(encoding="utf-8")
     except OSError as erreur:
-        return f"NON ecrit ({erreur})"
-    return "ecrit - les sorties restent hors du depot, la config s'y versionne"
+        return f"illisible ({erreur})"
+
+    if _SIGNATURE_GITIGNORE not in contenu:
+        return "ecrit a la main, laisse tel quel"
+
+    manquants = [ligne for ligne in _A_VERSIONNER if ligne not in contenu]
+    if not manquants:
+        return "deja a jour"
+    try:
+        with fichier.open("a", encoding="utf-8") as flux:
+            flux.write("\n".join(manquants) + "\n")
+    except OSError as erreur:
+        return f"NON complete ({erreur})"
+    return f"complete : {', '.join(manquants)}"
 
 
 def init(ecraser: bool = False) -> int:
@@ -409,40 +476,13 @@ def init(ecraser: bool = False) -> int:
         prefixe = "" if pertinent else "# "
         lignes.append(f"{prefixe}{cle:<15}= false   # {role}")
 
-    # Les esquisses tirees de la doc REMPLACENT l'exemple generique quand il
-    # y en a : ce sont les vraies regles du projet, avec leur `source`, pas un
-    # modele a transposer. Garder les deux ferait doublon — et l'exemple
-    # inventerait un chemin (`src`) que le projet n'a peut-etre pas.
-    esquisses = _esquisses_regles()
-    if esquisses:
-        lignes += esquisses
-    else:
-        lignes += [
-            "",
-            "# ── Tes regles maison ────────────────────────────────────────────────",
-            "# Lintorn ne peut PAS les deviner : une regle maison est une decision,",
-            "# elle n'est ecrite nulle part dans le code. Voici la forme, a remplir.",
-            "#",
-            "# bloquant = true  -> regle DEJA respectee, on empeche la regression",
-            "# bloquant = false -> dette existante, on mesure sans bloquer",
-        ]
-        racine_exemple = "src"
-        if config.FRONTEND:
-            try:
-                racine_exemple = (config.FRONTEND / "src").relative_to(config.RACINE).as_posix()
-            except ValueError:
-                pass
-        lignes += [
-            "#",
-            "# [[regles]]",
-            '# nom      = "Couleurs en dur dans un CSS"',
-            '# regle    = "uniquement des variables de theme"',
-            f'# racine   = "{racine_exemple}"',
-            '# suffixes = [".css"]',
-            "# motif    = '#[0-9a-fA-F]{3,8}\\b'",
-            "# exclure  = []",
-            "# bloquant = false",
-        ]
+    lignes += [
+        "",
+        "# ── Tes regles maison ────────────────────────────────────────────────",
+        "# Elles vivent a cote, dans `regles.toml` : ce fichier-ci est un",
+        "# reglage qu'on ecrit une fois, elles sont une liste qui grossit.",
+        "# Les deux se versionnent.",
+    ]
 
     lignes += [
         "",
@@ -483,25 +523,45 @@ def init(ecraser: bool = False) -> int:
 
     garde = _poser_gitignore_interne(cible.parent)
 
+    # `regles.toml` est ecrit MEME vide de regles : un fichier absent laisse
+    # croire que la fonctionnalite n'existe pas. Present et commente, il
+    # montre la forme a remplir.
+    esquisses = _esquisses_regles()
+    regles = config.FICHIER_REGLES
+    if not regles.exists():
+        try:
+            regles.write_text(_contenu_regles_toml(esquisses), encoding="utf-8")
+        except OSError as erreur:
+            print(f"Echec sur regles.toml : {erreur}")
+            return 1
+
     relatif = cible.relative_to(config.RACINE)
+    nombre = sum(1 for ligne in esquisses if ligne == "# [[regles]]")
+    resume_regles = (f"{nombre} regle(s) de ta doc, en esquisse a completer"
+                     if nombre else "la forme a remplir, en commentaire")
     print(f"Projet detecte : {', '.join(detecte) or 'rien de connu'}")
     print(f"Ecrit          : {relatif}")
+    print(f"Ecrit          : {regles.relative_to(config.RACINE)} - {resume_regles}")
     print(f"Ecrit          : {relatif.parent / '.gitignore'} - {garde}")
-    if esquisses:
-        nombre = sum(1 for ligne in esquisses if ligne == "# [[regles]]")
-        print(f"Regles de ta doc : {nombre} esquisse(s) commentee(s), a completer")
     print()
     print("A FAIRE MAINTENANT :")
-    print(f"    1. ouvre {relatif} et active ce que tu veux")
-    print("    2. `lintorn` pour un premier rapport")
+    print(f"    1. ouvre {relatif} et active les controles que tu veux")
+    if nombre:
+        print(f"    2. ouvre {regles.relative_to(config.RACINE)} : garde ce qui compte,")
+        print("       decommente, et ecris le `motif` de chaque regle gardee")
+        print("    3. `lintorn` pour un premier rapport")
+    else:
+        print("    2. `lintorn` pour un premier rapport")
 
     # Contre-epreuve : on ne se contente pas d'avoir ECRIT le garde-fou, on
     # demande a git s'il produit l'effet voulu. Sans ca, un utilisateur dont
     # le .gitignore exclut le dossier entier croirait sa config versionnee.
-    if not config.hors_gitignore([cible]):
+    caches = [f.name for f in (cible, regles) if not config.hors_gitignore([f])]
+    if caches:
         print()
-        print("ATTENTION : git ignore ta configuration, elle ne partira pas")
-        print("sur le depot. Une regle de ton .gitignore exclut le DOSSIER :")
+        print(f"ATTENTION : git ignore {' et '.join(caches)}, ces fichiers ne")
+        print("partiront pas sur le depot. Une regle de ton .gitignore exclut")
+        print("le DOSSIER entier :")
         print()
         print("    .lintorn/     exclut le dossier : git n'y descend pas, et")
         print("                  aucune exception interne ne peut le rattraper")
