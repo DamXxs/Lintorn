@@ -9,12 +9,15 @@
 # de compter. Ces tests figent le format attendu : si ruff change, ça casse ICI,
 # bruyamment, au lieu de dégrader en silence.
 
+import ast
+import io
 import json
 import os
 import re
 import subprocess
 from datetime import date, timedelta
 from fnmatch import fnmatch
+from pathlib import Path
 
 import pytest
 
@@ -762,3 +765,85 @@ def test_les_suffixes_se_deduisent_des_chemins_cites():
     assert Lintorn._suffixes_probables(["var(--bg)", "#fff"]) == [], (
         "aucune extension citee : on laisse la liste vide plutot que d'inventer"
     )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Ce qui s'imprime dans une console reste en ASCII
+# ─────────────────────────────────────────────────────────────────────────────
+def _litteraux(noeud):
+    """Les morceaux littéraux d'une chaîne, f-string et concaténation comprises."""
+    if isinstance(noeud, ast.Constant) and isinstance(noeud.value, str):
+        return [noeud.value]
+    if isinstance(noeud, ast.JoinedStr):
+        return [v.value for v in noeud.values
+                if isinstance(v, ast.Constant) and isinstance(v.value, str)]
+    if isinstance(noeud, ast.BinOp):
+        return _litteraux(noeud.left) + _litteraux(noeud.right)
+    return []
+
+
+def _hors_cp1252(texte: str) -> list[str]:
+    mauvais = []
+    for caractere in texte:
+        try:
+            caractere.encode("cp1252")
+        except UnicodeEncodeError:
+            mauvais.append(caractere)
+    return sorted(set(mauvais))
+
+
+def test_la_console_ne_peut_plus_planter_sur_un_caractere():
+    """`_console_sure()` degrade au lieu d'exploser.
+
+    Sous Git Bash, `sys.stdout` herite du codepage cp1252 : un caractere
+    absent de cette table y levait une UnicodeEncodeError, donc un hook
+    pre-push qui echoue sans message exploitable.
+    """
+    flux = io.TextIOWrapper(io.BytesIO(), encoding="cp1252")
+    flux.reconfigure(errors="replace")          # ce que fait _console_sure()
+
+    flux.write("Lintorn \u273b pret\n")        # une etoile absente de cp1252
+    flux.flush()
+
+    assert flux.buffer.getvalue().decode("cp1252") == "Lintorn ? pret\n"
+
+
+def test_ce_qui_s_imprime_reste_lisible_sur_une_console_etroite():
+    """Ce qui part vers la console doit s'AFFICHER, pas seulement ne pas planter.
+
+    ⚠️ La contrainte n'est PAS « de l'ASCII ». cp1252 contient les accents,
+    les guillemets francais et le tiret cadratin — ils s'affichent tres bien.
+    Ce qui manque a cette table, ce sont les symboles, les fleches, le dessin
+    de boites et les emoji. Depuis `_console_sure()`, ils ne font plus
+    planter ; ils s'affichent « ? », ce qui reste illisible.
+
+    Le RAPPORT, lui, est un fichier UTF-8 : il garde tout. Seule la console
+    est etroite.
+    """
+    fautifs = []
+    for nom in ("noyau.py", "cli.py"):
+        chemin = Path(Lintorn.__file__).parent / nom
+        arbre = ast.parse(chemin.read_text(encoding="utf-8"))
+        for noeud in ast.walk(arbre):
+            if not isinstance(noeud, ast.Call):
+                continue
+            appele = getattr(noeud.func, "id", "")
+            if appele == "print":
+                cibles = noeud.args
+            elif appele == "Resultat":
+                # 0 = titre, 2 = resume : affiches. 3 = detail : va au rapport.
+                cibles = [a for i, a in enumerate(noeud.args) if i in (0, 2)]
+            else:
+                continue
+            for arg in cibles:
+                for texte in _litteraux(arg):
+                    hors = _hors_cp1252(texte)
+                    if hors:
+                        fautifs.append(f"{nom}:{noeud.lineno} {hors} {texte[:45]}")
+
+    for texte in (Lintorn._GUIDE, Lintorn.AIDE):
+        hors = _hors_cp1252(texte)
+        if hors:
+            fautifs.append(f"texte fixe {hors}")
+
+    assert fautifs == [], "illisible sur une console cp1252 :\n  " + "\n  ".join(fautifs)

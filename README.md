@@ -187,6 +187,7 @@ lintorn --esquisser-regles   draft a [[regles]] block per uncovered rule
 lintorn --installer-hook     install the pre-push hook
 lintorn --installer-outils   install the external tools, after confirmation
 lintorn --doc                documentation check only
+lintorn --guide              the one-page manual: what it is for, how to read a report
 lintorn --maj-securite       what pip-audit suggests (dry run)
 ```
 

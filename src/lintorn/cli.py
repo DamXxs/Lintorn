@@ -167,6 +167,8 @@ SECURITE
     lintorn --maj-securite --appliquer      installe et repingle vraiment
 
 DIVERS
+    lintorn --guide              la notice : a quoi ca sert, comment lire
+                                 un rapport, quels fichiers
     lintorn --version            la version installee
     lintorn --help               ce message
 
@@ -181,6 +183,98 @@ CONFIGURATION
 # ─────────────────────────────────────────────────────────────────────────────
 # PREMIER DÉMARRAGE SUR UN PROJET
 # ─────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
+# CE QUE VOIT QUELQU'UN QUI ARRIVE
+# ─────────────────────────────────────────────────────────────────────────────
+# ⚠️ ASCII PUR, comme tout ce qui s'imprime ici. Une console Windows en cp1252
+#    leve une exception sur le moindre emoji ou tiret cadratin — et ce texte
+#    est justement celui que verra le plus souvent un debutant, donc celui qui
+#    a le moins le droit de planter.
+#
+# POURQUOI UN ACCUEIL. Un outil qui verifie la doc d'un projet doit lui-meme
+# etre comprehensible sans lire sa doc. Sinon il ne parle qu'a ceux qui n'en
+# avaient pas besoin.
+def _accueil() -> None:
+    """Sur un projet sans configuration : dire ce qu'on est, et quoi taper."""
+    print()
+    print("  Lintorn n'est pas encore configure pour ce projet.")
+    print()
+    print("  Ce qu'il fait : il verifie que ta documentation et la memoire de")
+    print("  ton assistant IA disent encore la verite sur ton code -- et que")
+    print("  les regles que tu ecris sont reellement controlees quelque part.")
+    print()
+    print("  POUR DEMARRER")
+    print("      lintorn --init      lit le projet, ecrit sa configuration")
+    print("      lintorn             ton premier rapport")
+    print()
+    print("  POUR COMPRENDRE")
+    print("      lintorn --guide     la notice, en une page")
+    print()
+    print("  Rien d'invasif sans ton accord : par defaut Lintorn n'execute")
+    print("  pas ton code, n'ouvre pas ta base et ne sort pas sur le reseau.")
+
+
+_GUIDE = """
+=== Lintorn - NOTICE ===
+
+1. CE QU'IL REGARDE
+
+   Les outils habituels -- ruff, pytest, tsc -- regardent ton CODE.
+   Personne ne regarde ce qui est ECRIT AUTOUR : la doc du depot, le
+   fichier d'instructions de ton assistant IA, les regles que tu t'es
+   fixees. Ces textes vieillissent en silence, et un assistant qui les
+   lit repete leurs erreurs avec assurance.
+
+   Lintorn compare les deux et signale les desaccords.
+
+2. LES QUATRE ETATS D'UN CONTROLE
+
+   [ OK ]   rien a signaler
+   [ !! ]   defaut trouve -- ca bloque le push
+   [ ?? ]   a confirmer a l'oeil -- ca ne bloque pas
+   [ -- ]   outil absent, ou controle non lance
+
+   Le dernier est le plus important. Un controle qui se tait est plus
+   dangereux qu'un controle qui passe au rouge : le rouge, on le repare ;
+   le silence laisse croire qu'on est couvert alors que plus rien n'est
+   surveille.
+
+3. LES TROIS COMMANDES QUI SERVENT
+
+   lintorn --init             met en place la configuration
+   lintorn                    l'audit complet
+   lintorn --installer-hook   Lintorn tourne avant chaque `git push`
+
+4. LES DEUX FICHIERS
+
+   .lintorn/config.toml   les reglages. Ecrits une fois, peu retouches.
+   .lintorn/regles.toml   tes regles maison. Ca vit, ca grossit.
+
+   Les deux se versionnent : ce sont des decisions d'equipe. Les sorties
+   -- rapport, etat -- restent hors du depot.
+
+5. TES REGLES MAISON
+
+   « Jamais de couleur en dur dans un CSS » n'est ecrit nulle part dans
+   le code : c'est une DECISION. Lintorn ne peut pas la deviner, mais il
+   sait la lire dans ton CLAUDE.md et te dire lesquelles ne sont
+   controlees par rien :
+
+       lintorn --esquisser-regles
+
+   Il prepare un bloc par regle, tout rempli sauf le motif -- la seule
+   chose qu'une machine ne peut pas decider a ta place.
+
+6. RIEN D'INVASIF PAR DEFAUT
+
+   Executer tes tests, ouvrir ta base, sortir sur le reseau : chacun
+   s'active explicitement dans config.toml. Tu peux lancer Lintorn dans
+   un depot que tu ne connais pas sans rien risquer.
+
+Toutes les commandes : lintorn --help
+"""
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # ESQUISSER LES RÈGLES DÉJÀ ÉCRITES DANS LA DOC
 # ─────────────────────────────────────────────────────────────────────────────
@@ -836,7 +930,34 @@ def ecrire_rapport(resultats: list[Resultat]) -> None:
 # ─────────────────────────────────────────────────────────────────────────────
 # POINT D'ENTRÉE
 # ─────────────────────────────────────────────────────────────────────────────
+def _console_sure() -> None:
+    """Empeche une console etroite de faire PLANTER Lintorn.
+
+    Sous Git Bash ou cmd.exe, `sys.stdout` herite du codepage de la console —
+    cp1252 en France. Y ecrire un caractere absent de cette table (une fleche,
+    un trait de tableau, un emoji) leve une UnicodeEncodeError : le hook
+    pre-push echoue alors sans message exploitable, et l'utilisateur croit son
+    depot casse.
+
+    ⚠️ Ce que cp1252 contient est plus large qu'on ne croit : accents,
+    guillemets francais et tiret cadratin y sont. Ce qui manque, ce sont les
+    symboles et le dessin de boites — exactement ce qu'on utilise pour rendre
+    une sortie agreable.
+
+    `errors="replace"` transforme donc le pire cas — un plantage — en un
+    simple « ? » a l'ecran. On perd un glyphe, jamais le rapport.
+    """
+    for flux in (sys.stdout, sys.stderr):
+        try:
+            flux.reconfigure(errors="replace")
+        except (AttributeError, ValueError, OSError):
+            # Flux redirige, remplace (pytest) ou deja ferme : rien a garantir,
+            # et surtout rien qui justifie d'interrompre un audit.
+            pass
+
+
 def main() -> int:
+    _console_sure()
     args = sys.argv[1:]
 
     # ⚠️ AVANT TOUT LE RESTE. `--help` est le premier reflexe de quiconque
@@ -857,6 +978,10 @@ def main() -> int:
     if "--installer-outils" in args:
         return installer_outils(sans_demander="--oui" in args)
 
+    if "--guide" in args:
+        print(_GUIDE.strip())
+        return 0
+
     if "--init" in args:
         return init(ecraser="--force" in args)
 
@@ -865,6 +990,12 @@ def main() -> int:
 
     if "--maj-securite" in args:
         return maj_securite(appliquer="--appliquer" in args)
+
+    # ⚠️ Calcule et affiche AVANT l'audit. Un debutant doit savoir ce qu'il
+    # regarde avant de voir defiler des resultats, pas apres.
+    manque_config = not config.PROJET and not (config.DOSSIER_LINTORN / "config.toml").exists()
+    if manque_config:
+        _accueil()
 
     fichiers: list[str] = []
     if "--fichiers" in args:
@@ -891,8 +1022,6 @@ def main() -> int:
     # `.lintorn/config.toml` — un fichier qui n'existe PAS tant que `--init`
     # n'a pas tourne. On envoyait donc l'utilisateur vers un fichier fantome
     # sans jamais lui dire comment le creer.
-    manque_config = not config.PROJET and not (config.DOSSIER_LINTORN / "config.toml").exists()
-
     # Console volontairement en ASCII : le hook git tourne sous Git Bash, qui
     # n'affiche pas l'UTF-8 correctement. Le rapport, lui, garde les accents.
     print("\n=== Lintorn - RAPPORT AUDIT ===")
@@ -904,7 +1033,8 @@ def main() -> int:
 
     if manque_config:
         print("\nCe projet n'a pas encore de configuration Lintorn.")
-        print("    lintorn --init      # regles maison, controles, outils a lancer")
+        print("    lintorn --init      # la mettre en place")
+        print("    lintorn --guide     # comprendre ce que tu viens de lire")
     if echecs:
         print(f"Lintorn signale {len(echecs)} controle(s) bloquant(s) en alerte :")
         for r in echecs:
