@@ -705,11 +705,16 @@ def controle_regles_maison() -> Resultat:
     for regle in config.REGLES_MAISON:
         par_fichier: dict[str, int] = {}
 
-        for chemin in regle["racine"].rglob("*"):
-            if not chemin.is_file() or chemin.suffix not in regle["suffixes"]:
-                continue
-            if any(partie in config.IGNORES for partie in chemin.parts):
-                continue
+        # On rassemble d'abord, on filtre ensuite : `hors_gitignore` interroge
+        # git UNE fois pour toute la liste, au lieu d'un processus par fichier.
+        candidats = [
+            chemin for chemin in regle["racine"].rglob("*")
+            if chemin.is_file()
+            and chemin.suffix in regle["suffixes"]
+            and not any(partie in config.IGNORES for partie in chemin.parts)
+        ]
+
+        for chemin in config.hors_gitignore(candidats):
             relatif = chemin.relative_to(config.RACINE).as_posix()
             if any(exclu in relatif for exclu in regle["exclure"]):
                 continue

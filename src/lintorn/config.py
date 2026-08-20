@@ -12,6 +12,7 @@ Aucune logique ici, que des données. Tu ne peux pas casser la mécanique en
 
 import os
 import re
+import subprocess
 import sys
 import tomllib
 from fnmatch import fnmatch
@@ -638,6 +639,49 @@ CONTROLES_INTERNES = {
 DOCS_EXCLUS = [str(motif) for motif in PROJET.get("docs_exclus", [])]
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# LE PÉRIMÈTRE : ce que git ignore n'appartient pas au projet
+# ─────────────────────────────────────────────────────────────────────────────
+# Un fichier écarté par `.gitignore` ne part pas sur le dépôt : brouillon,
+# note personnelle, sortie d'outil. L'auditer revient à reprocher à quelqu'un
+# le contenu de ses papiers de bureau — et ça ARRIVE : une note de reprise
+# citant un fichier « à créer un jour » a suffi à rendre l'audit rouge, donc
+# à bloquer un push.
+#
+# ⚠️ `git check-ignore` consulte l'index PAR DÉFAUT, et c'est exactement ce
+# qu'on veut : un fichier déjà SUIVI reste dans le périmètre, même si une
+# règle `.gitignore` le vise. C'est la subtilité de git elle-même — une règle
+# n'a aucun effet sur un fichier déjà commité. On hérite de la bonne
+# sémantique au lieu de la réimplémenter de travers.
+def _ignores_par_git(chemins: list[Path]) -> set[str]:
+    """Ceux de `chemins` que git ignore. Ensemble vide si git ne répond pas."""
+    if not chemins:
+        return set()
+    try:
+        sortie = subprocess.run(
+            ["git", "check-ignore", "-z", "--stdin"],
+            cwd=RACINE, capture_output=True, timeout=15, check=False,
+            input="\0".join(str(chemin) for chemin in chemins).encode("utf-8"),
+        )
+    except (OSError, subprocess.SubprocessError):
+        return set()
+
+    # 0 = au moins un ignoré · 1 = aucun · 128 = pas un dépôt git.
+    # Sur tout le reste on n'exclut RIEN : un contrôle de trop se voit et se
+    # corrige, un fichier qui sort de l'audit en silence ne se voit jamais.
+    if sortie.returncode not in (0, 1):
+        return set()
+
+    trouves = sortie.stdout.decode("utf-8", errors="replace").split("\0")
+    return {chemin for chemin in trouves if chemin}
+
+
+def hors_gitignore(chemins: list[Path]) -> list[Path]:
+    """`chemins`, privé de ce que git ignore. L'ordre d'entrée est conservé."""
+    ignores = _ignores_par_git(chemins)
+    return [chemin for chemin in chemins if str(chemin) not in ignores]
+
+
 def _documents_du_depot() -> list[Path]:
     trouves = []
     for fichier in RACINE.rglob("*.md"):
@@ -652,7 +696,7 @@ def _documents_du_depot() -> list[Path]:
         if any(fnmatch(chemin_posix, motif) for motif in DOCS_EXCLUS):
             continue
         trouves.append(fichier)
-    return sorted(trouves)
+    return sorted(hors_gitignore(trouves))
 
 
 DOCS_A_VERIFIER = _documents_du_depot()
@@ -691,7 +735,7 @@ def _instructions_ia() -> list[Path]:
         if set(fichier.relative_to(RACINE).parts) & IGNORES:
             continue
         trouves.append(fichier)
-    return sorted(trouves)
+    return sorted(hors_gitignore(trouves))
 
 
 DOCS_IA = _instructions_ia()

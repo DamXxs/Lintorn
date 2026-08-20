@@ -581,3 +581,59 @@ def test_ce_controle_ne_bloque_jamais_un_push(tmp_path, monkeypatch):
     assert resultat.statut == "VERIF"
     assert resultat.bloquant is False
     assert resultat.en_echec is False
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Le périmètre : ce que git ignore n'appartient pas au projet
+# ─────────────────────────────────────────────────────────────────────────────
+def _petit_depot(tmp_path, gitignore, fichiers):
+    """Un vrai dépôt git jetable — `git check-ignore` ne se simule pas."""
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, capture_output=True, check=True)
+    (tmp_path / ".gitignore").write_text(gitignore, encoding="utf-8")
+    crees = []
+    for nom in fichiers:
+        chemin = tmp_path / nom
+        chemin.parent.mkdir(parents=True, exist_ok=True)
+        chemin.write_text("peu importe", encoding="utf-8")
+        crees.append(chemin)
+    return crees
+
+
+def test_un_fichier_ignore_par_git_sort_du_perimetre(tmp_path, monkeypatch):
+    """Une note perso citant un fichier « a creer un jour » rendait l'audit
+    rouge, donc bloquait un push — pour un brouillon qui ne part meme pas sur
+    le depot."""
+    prive, public = _petit_depot(tmp_path, ".notes/\n", [".notes/reprise.md", "README.md"])
+    monkeypatch.setattr(config, "RACINE", tmp_path)
+
+    gardes = config.hors_gitignore([prive, public])
+
+    assert gardes == [public], "un fichier ignore par git n'a rien a faire dans l'audit"
+
+
+def test_un_fichier_deja_suivi_reste_audite(tmp_path, monkeypatch):
+    """LA subtilité de `.gitignore` : une règle n'agit que sur ce qui n'est
+    PAS encore suivi. Un fichier déjà indexé part malgré tout sur le dépôt —
+    il reste donc dans le périmètre, et le taire serait le pire des services.
+
+    C'est aussi pour ça qu'on délègue à `git check-ignore` au lieu de relire
+    le `.gitignore` nous-mêmes : il consulte l'index, une réimplémentation
+    maison l'oublierait.
+    """
+    suivi, = _petit_depot(tmp_path, "secret/\n", ["secret/deja_commite.md"])
+    subprocess.run(["git", "add", "-f", str(suivi)], cwd=tmp_path,
+                   capture_output=True, check=True)
+    monkeypatch.setattr(config, "RACINE", tmp_path)
+
+    assert config.hors_gitignore([suivi]) == [suivi]
+
+
+def test_hors_depot_git_on_n_exclut_rien(tmp_path, monkeypatch):
+    """Tous les projets ne sont pas sous git. Dans le doute on garde tout :
+    un contrôle de trop se voit et se corrige, un fichier disparu de l'audit
+    ne se voit jamais."""
+    fichier = tmp_path / "note.md"
+    fichier.write_text("peu importe", encoding="utf-8")
+    monkeypatch.setattr(config, "RACINE", tmp_path)
+
+    assert config.hors_gitignore([fichier]) == [fichier]
