@@ -179,6 +179,45 @@ CONFIGURATION
 # ─────────────────────────────────────────────────────────────────────────────
 # PREMIER DÉMARRAGE SUR UN PROJET
 # ─────────────────────────────────────────────────────────────────────────────
+# Le `.gitignore` que `--init` pose DANS `.lintorn/`.
+#
+# POURQUOI LA, ET PAS DANS CELUI DU PROJET. Editer le `.gitignore` de
+# quelqu'un est intrusif, et pose une question insoluble a la relance : que
+# faire si l'utilisateur a modifie les lignes ? Un fichier a nous, dans un
+# dossier a nous, se supprime avec le dossier et ne touche a rien d'autre.
+#
+# Et surtout : l'etape « ajoute ces deux lignes a ton .gitignore » se recopiait
+# mal. Un utilisateur a copie la ligne de PROSE, backticks compris, et oublie
+# la negation — sa configuration s'est retrouvee ignoree, sans aucun message.
+# Une etape qu'on supprime est une etape qu'on ne peut plus rater.
+#
+# ⚠️ Ce fichier ne peut RIEN si une regle parente exclut le dossier entier
+#    (`.lintorn/` avec la barre finale) : git n'y descend meme pas. C'est le
+#    seul cas d'echec, et `--init` le detecte pour le dire.
+_GITIGNORE_INTERNE = """\
+# Ecrit par `lintorn --init`.
+#
+# Les sorties de Lintorn se regenerent a chaque audit : elles n'ont rien a
+# faire dans un depot. La CONFIG, elle, se versionne — c'est une decision
+# d'equipe, pas un artefact de ta machine.
+*
+!.gitignore
+!config.toml
+"""
+
+
+def _poser_gitignore_interne(dossier) -> str:
+    """Pose `.lintorn/.gitignore`. N'ecrase JAMAIS celui de l'utilisateur."""
+    fichier = dossier / ".gitignore"
+    if fichier.exists():
+        return "deja present, laisse tel quel"
+    try:
+        fichier.write_text(_GITIGNORE_INTERNE, encoding="utf-8")
+    except OSError as erreur:
+        return f"NON ecrit ({erreur})"
+    return "ecrit - les sorties restent hors du depot, la config s'y versionne"
+
+
 def init(ecraser: bool = False) -> int:
     """Écrit un `.lintorn/config.toml` taillé pour CE projet.
 
@@ -303,16 +342,31 @@ def init(ecraser: bool = False) -> int:
         print(f"Echec : {erreur}")
         return 1
 
+    garde = _poser_gitignore_interne(cible.parent)
+
     relatif = cible.relative_to(config.RACINE)
     print(f"Projet detecte : {', '.join(detecte) or 'rien de connu'}")
     print(f"Ecrit          : {relatif}")
+    print(f"Ecrit          : {relatif.parent / '.gitignore'} - {garde}")
     print()
     print("A FAIRE MAINTENANT :")
     print(f"    1. ouvre {relatif} et active ce que tu veux")
-    print("    2. ajoute `.lintorn/` a ton .gitignore, SAUF config.toml :")
-    print("           .lintorn/*")
-    print("           !.lintorn/config.toml")
-    print("    3. `lintorn` pour un premier rapport")
+    print("    2. `lintorn` pour un premier rapport")
+
+    # Contre-epreuve : on ne se contente pas d'avoir ECRIT le garde-fou, on
+    # demande a git s'il produit l'effet voulu. Sans ca, un utilisateur dont
+    # le .gitignore exclut le dossier entier croirait sa config versionnee.
+    if not config.hors_gitignore([cible]):
+        print()
+        print("ATTENTION : git ignore ta configuration, elle ne partira pas")
+        print("sur le depot. Une regle de ton .gitignore exclut le DOSSIER :")
+        print()
+        print("    .lintorn/     exclut le dossier : git n'y descend pas, et")
+        print("                  aucune exception interne ne peut le rattraper")
+        print("    .lintorn/*    exclut son CONTENU : les exceptions marchent")
+        print()
+        print("Remplace la premiere forme par la seconde, ou retire la regle :")
+        print("le .gitignore pose dans .lintorn/ suffit desormais a lui seul.")
     return 0
 
 

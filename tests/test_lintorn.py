@@ -637,3 +637,62 @@ def test_hors_depot_git_on_n_exclut_rien(tmp_path, monkeypatch):
     monkeypatch.setattr(config, "RACINE", tmp_path)
 
     assert config.hors_gitignore([fichier]) == [fichier]
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Le garde-fou que `--init` pose dans `.lintorn/`
+# ─────────────────────────────────────────────────────────────────────────────
+def _ignore(depot, chemin):
+    # check=False EXPRES : `check-ignore` sort en 1 quand rien n'est ignore,
+    # et c'est une reponse, pas une panne.
+    return subprocess.run(["git", "check-ignore", "-q", "--", chemin],
+                          cwd=depot, capture_output=True, check=False).returncode == 0
+
+
+def test_le_gitignore_interne_se_suffit_a_lui_meme(tmp_path):
+    """Sans TOUCHER au .gitignore du projet : les sorties sortent du depot,
+    la config y reste.
+
+    C'est ce qui supprime l'etape « ajoute ces deux lignes a ton .gitignore ».
+    Un utilisateur avait copie la ligne de PROSE — backticks compris — et
+    oublie la negation : sa config etait ignoree, sans le moindre message.
+    Une etape supprimee est une etape qu'on ne peut plus rater.
+    """
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, capture_output=True, check=True)
+    dossier = tmp_path / ".lintorn"
+    dossier.mkdir()
+    (dossier / "config.toml").write_text("", encoding="utf-8")
+    (dossier / "rapport.md").write_text("", encoding="utf-8")
+
+    Lintorn._poser_gitignore_interne(dossier)
+
+    assert not _ignore(tmp_path, ".lintorn/config.toml"), "la config doit se versionner"
+    assert _ignore(tmp_path, ".lintorn/rapport.md"), "le rapport est une sortie, il sort"
+
+
+def test_une_regle_sur_le_DOSSIER_defait_le_garde_fou(tmp_path):
+    """La limite, connue et assumée : `.lintorn/` (barre finale) exclut le
+    dossier, git n'y descend pas, aucune exception interne ne le rattrape.
+    `--init` teste donc l'effet obtenu au lieu de le supposer.
+    """
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, capture_output=True, check=True)
+    (tmp_path / ".gitignore").write_text(".lintorn/\n", encoding="utf-8")
+    dossier = tmp_path / ".lintorn"
+    dossier.mkdir()
+    (dossier / "config.toml").write_text("", encoding="utf-8")
+
+    Lintorn._poser_gitignore_interne(dossier)
+
+    assert _ignore(tmp_path, ".lintorn/config.toml"), (
+        "si ce cas cesse d'ignorer la config, l'avertissement de --init n'a plus de raison d'etre"
+    )
+
+
+def test_le_gitignore_interne_n_ecrase_jamais_celui_du_dev(tmp_path):
+    dossier = tmp_path / ".lintorn"
+    dossier.mkdir()
+    (dossier / ".gitignore").write_text("a moi\n", encoding="utf-8")
+
+    Lintorn._poser_gitignore_interne(dossier)
+
+    assert (dossier / ".gitignore").read_text(encoding="utf-8") == "a moi\n"
