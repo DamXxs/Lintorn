@@ -15,6 +15,7 @@ import json
 import os
 import re
 import subprocess
+import tomllib
 from datetime import date, timedelta
 from fnmatch import fnmatch
 from pathlib import Path
@@ -22,6 +23,7 @@ from pathlib import Path
 import pytest
 
 from lintorn import (
+    __version__,
     base,
     config,
     controles_outillage,
@@ -953,3 +955,50 @@ def test_les_documents_requalifies_sont_ANNONCES(tmp_path):
     resultat = controles_projet._verifier_documents("t", [doc], bloquant_possible=True)
 
     assert "1 doc(s) d'un autre genre" in resultat.resume, resultat.resume
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Le numéro de version, à deux endroits
+# ─────────────────────────────────────────────────────────────────────────────
+def test_les_deux_numeros_de_version_sont_d_accord():
+    """`CLAUDE.md` l'exige, et aucune règle maison ne peut le vérifier.
+
+    Une regex lit UN fichier à la fois : comparer `pyproject.toml` et
+    `__init__.py` lui est structurellement hors de portée. C'est donc un test,
+    pas un `[[regles]]` — et c'est la raison écrite noir sur blanc dans
+    `.lintorn/regles.toml`.
+
+    Ce qu'on évite : PyPI sert `0.2.0` pendant que `lintorn --version` annonce
+    `0.1.1`. Un numéro publié étant définitif, le rattrapage coûte une version
+    entière.
+    """
+    racine = Path(Lintorn.__file__).parents[2]
+    pyproject = racine / "pyproject.toml"
+    if not pyproject.is_file():
+        pytest.skip("paquet installé depuis un wheel : pas de pyproject.toml autour")
+
+    declare = tomllib.loads(pyproject.read_text(encoding="utf-8"))["project"]["version"]
+
+    assert declare == __version__, (
+        f"pyproject.toml annonce {declare}, le paquet annonce {__version__}"
+    )
+
+
+def test_les_motifs_de_regles_sont_compiles_en_multiline():
+    """Sans MULTILINE, `^` designe le debut du FICHIER, pas celui d'une ligne.
+
+    Une règle maison est ligne-orientée : on écrit `^\\s+print\\(` pour dire
+    « une ligne qui commence par ». Compilée sans le drapeau, une telle règle
+    ne matche JAMAIS — et affiche vert sans rien contrôler.
+
+    Ce n'est pas theorique : la règle « print() de debogage oublie » de ce
+    dépôt était morte depuis le jour de son écriture. Un contrôle vert qui ne
+    contrôle rien, c'est la panne que Lintorn existe pour combattre.
+    """
+    if not config.REGLES_MAISON:
+        pytest.skip("ce depot ne declare aucune regle maison")
+
+    for regle in config.REGLES_MAISON:
+        assert regle["motif"].flags & re.MULTILINE, (
+            f"{regle['nom']} : motif compile sans MULTILINE, un ^ n'y matchera jamais"
+        )

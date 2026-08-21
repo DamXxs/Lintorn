@@ -41,16 +41,12 @@ bloquant = true
 # `source` evite de RECOPIER la phrase ici : la regle reste enoncee a un
 # seul endroit, et Lintorn sait qu'elle a desormais un controle.
 
-# **Zéro dépendance** | `dependencies = []` dans `pyproject.toml`, et ça n'est pas négociable : Lintor
-# [[regles]]
-# source   = "CLAUDE.md:38"
-# nom      = "Zéro dépendance"
-# racine   = "."          # <- restreins au dossier concerne
-# suffixes = [".toml"]
-# motif    = ''            # <- A ECRIRE : ce qui repere une VIOLATION
-# bloquant = false         # true quand la regle est deja tenue partout
 
 # Les chemins | Tout part du **projet audité** (`RACINE`, déduite du dossier courant), jamais de `__fi
+# ⚠️ LAISSEE VIDE EXPRES. `__file__` apparait 3 fois, toutes legitimes
+#    (dont 2 dans des commentaires qui expliquent justement le piege).
+#    Toute regex crierait sur du code correct : mieux vaut pas de regle
+#    qu'une regle qu'on apprend a ignorer.
 # [[regles]]
 # source   = "CLAUDE.md:39"
 # nom      = "Les chemins"
@@ -59,16 +55,12 @@ bloquant = true
 # motif    = ''            # <- A ECRIRE : ce qui repere une VIOLATION
 # bloquant = false         # true quand la regle est deja tenue partout
 
-# Les outils externes | Lancés avec le python **du projet** (`config.PYTHON`), jamais celui de Lintorn
-# [[regles]]
-# source   = "CLAUDE.md:40"
-# nom      = "Les outils externes"
-# racine   = "."          # <- restreins au dossier concerne
-# suffixes = []   # <- a preciser : .py, .ts, .css...
-# motif    = ''            # <- A ECRIRE : ce qui repere une VIOLATION
-# bloquant = false         # true quand la regle est deja tenue partout
 
 # Défauts non invasifs | Rien qui exécute le code du projet, sorte sur le réseau ou ouvre une base **s
+# ⚠️ LAISSEE VIDE EXPRES. « rien d'invasif sans opt_in » est une propriete
+#    STRUCTURELLE : il faut lire toutes les commandes et verifier que
+#    chacune porte `opt_in`. Une regex ne voit pas ca. C'est deja
+#    couvert par un test : test_les_controles_invasifs_sont_desactives.
 # [[regles]]
 # source   = "CLAUDE.md:42"
 # nom      = "Défauts non invasifs"
@@ -78,6 +70,9 @@ bloquant = true
 # bloquant = false         # true quand la regle est deja tenue partout
 
 # Préfixes de chemins | Déduits de la détection (`PREFIXE_BACKEND`, `PREFIXES_PROJET`), jamais écrits.
+# ⚠️ LAISSEE VIDE EXPRES. Un prefixe « ecrit en dur » n'a pas de forme
+#    reconnaissable. La regle « Chemin de projet ecrit en dur » couvre
+#    deja les cas concrets rencontres.
 # [[regles]]
 # source   = "CLAUDE.md:43"
 # nom      = "Préfixes de chemins"
@@ -87,6 +82,9 @@ bloquant = true
 # bloquant = false         # true quand la regle est deja tenue partout
 
 # Versions | Un numéro publié sur PyPI est **définitif**. Corriger, c'est publier la version suivante.
+# ⚠️ LAISSEE VIDE EXPRES. Comparer DEUX fichiers depasse une regex, qui
+#    lit un fichier a la fois. Couverte par un test :
+#    test_les_deux_numeros_de_version_sont_d_accord.
 # [[regles]]
 # source   = "CLAUDE.md:50"
 # nom      = "Versions"
@@ -94,3 +92,30 @@ bloquant = true
 # suffixes = [".py", ".toml"]
 # motif    = ''            # <- A ECRIRE : ce qui repere une VIOLATION
 # bloquant = false         # true quand la regle est deja tenue partout
+
+# ── Tirees de CLAUDE.md, motifs ecrits et eprouves ───────────────────
+# Les deux ont ZERO occurrence aujourd'hui : la regle est deja tenue,
+# donc `bloquant = true` verrouille du terrain gagne.
+
+[[regles]]
+source   = "CLAUDE.md:38"
+nom      = "Une dependance ajoutee au paquet"
+racine   = "."
+suffixes = [".toml"]
+# `[^\s\]]` et pas `\S` : sinon le `]` de `dependencies = []` compterait
+# comme une dependance, et la regle crierait sur un projet conforme.
+motif    = '^dependencies\s*=\s*\[\s*[^\s\]]'
+exclure  = []
+bloquant = true
+
+[[regles]]
+source   = "CLAUDE.md:40"
+nom      = "Outil externe lance avec le python de Lintorn"
+racine   = "src/lintorn"
+suffixes = [".py"]
+# Motif volontairement ETROIT : `sys.executable` seul apparait
+# legitimement deux fois (le repli de `_python_du_projet`, et une
+# comparaison dans cli.py). Seul son usage comme LANCEUR est fautif.
+motif    = 'subprocess\.run\(\s*\[\s*sys\.executable'
+exclure  = []
+bloquant = true

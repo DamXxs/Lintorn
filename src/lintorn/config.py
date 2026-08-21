@@ -901,7 +901,14 @@ def _regles_du_projet() -> list[dict]:
     for brute in _regles_brutes():
         nom = str(brute.get("nom", "(sans nom)"))
         try:
-            motif = re.compile(brute["motif"])
+            # ⚠️ MULTILINE, sans quoi `^` designe le debut du FICHIER ENTIER et
+            # non celui d'une ligne. Une regle maison est ligne-orientee : on
+            # ecrit `^\s+print\(` pour dire « une ligne qui commence par ».
+            # Sans ce drapeau, une telle regle ne matche JAMAIS — elle affiche
+            # vert sans rien controler. C'est arrive a la regle
+            # « print() de debogage oublie », verte depuis le jour de son
+            # ecriture. Exactement la panne que Lintorn existe pour combattre.
+            motif = re.compile(brute["motif"], re.MULTILINE)
         except (KeyError, re.error) as erreur:
             soucis.append(f"{nom} : motif invalide ({erreur})")
             continue
