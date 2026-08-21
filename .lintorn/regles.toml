@@ -28,3 +28,69 @@ suffixes = [".py"]
 motif    = '^\s+print\(f?"(DEBUG|TODO|XXX)'
 exclure  = []
 bloquant = true
+
+# ── Esquisses : tes regles de doc qui n'ont pas encore de controle ───
+# Lintorn les a reperees, mais il NE PEUT PAS deviner comment les
+# detecter : « jamais de couleur en dur » ne dit pas s'il faut traquer
+# #fff, rgba( ou hsl(, ni s'il faut epargner les commentaires. C'est une
+# decision technique, et une regex devinee ne produirait que des faux
+# positifs — de quoi cesser de faire confiance au rapport.
+#
+# Decommente celles qui comptent, ecris leur `motif`, jette les autres.
+#
+# `source` evite de RECOPIER la phrase ici : la regle reste enoncee a un
+# seul endroit, et Lintorn sait qu'elle a desormais un controle.
+
+# **Zéro dépendance** | `dependencies = []` dans `pyproject.toml`, et ça n'est pas négociable : Lintor
+# [[regles]]
+# source   = "CLAUDE.md:38"
+# nom      = "Zéro dépendance"
+# racine   = "."          # <- restreins au dossier concerne
+# suffixes = [".toml"]
+# motif    = ''            # <- A ECRIRE : ce qui repere une VIOLATION
+# bloquant = false         # true quand la regle est deja tenue partout
+
+# Les chemins | Tout part du **projet audité** (`RACINE`, déduite du dossier courant), jamais de `__fi
+# [[regles]]
+# source   = "CLAUDE.md:39"
+# nom      = "Les chemins"
+# racine   = "."          # <- restreins au dossier concerne
+# suffixes = []   # <- a preciser : .py, .ts, .css...
+# motif    = ''            # <- A ECRIRE : ce qui repere une VIOLATION
+# bloquant = false         # true quand la regle est deja tenue partout
+
+# Les outils externes | Lancés avec le python **du projet** (`config.PYTHON`), jamais celui de Lintorn
+# [[regles]]
+# source   = "CLAUDE.md:40"
+# nom      = "Les outils externes"
+# racine   = "."          # <- restreins au dossier concerne
+# suffixes = []   # <- a preciser : .py, .ts, .css...
+# motif    = ''            # <- A ECRIRE : ce qui repere une VIOLATION
+# bloquant = false         # true quand la regle est deja tenue partout
+
+# Défauts non invasifs | Rien qui exécute le code du projet, sorte sur le réseau ou ouvre une base **s
+# [[regles]]
+# source   = "CLAUDE.md:42"
+# nom      = "Défauts non invasifs"
+# racine   = "."          # <- restreins au dossier concerne
+# suffixes = []   # <- a preciser : .py, .ts, .css...
+# motif    = ''            # <- A ECRIRE : ce qui repere une VIOLATION
+# bloquant = false         # true quand la regle est deja tenue partout
+
+# Préfixes de chemins | Déduits de la détection (`PREFIXE_BACKEND`, `PREFIXES_PROJET`), jamais écrits.
+# [[regles]]
+# source   = "CLAUDE.md:43"
+# nom      = "Préfixes de chemins"
+# racine   = "."          # <- restreins au dossier concerne
+# suffixes = []   # <- a preciser : .py, .ts, .css...
+# motif    = ''            # <- A ECRIRE : ce qui repere une VIOLATION
+# bloquant = false         # true quand la regle est deja tenue partout
+
+# Versions | Un numéro publié sur PyPI est **définitif**. Corriger, c'est publier la version suivante.
+# [[regles]]
+# source   = "CLAUDE.md:50"
+# nom      = "Versions"
+# racine   = "."          # <- restreins au dossier concerne
+# suffixes = [".py", ".toml"]
+# motif    = ''            # <- A ECRIRE : ce qui repere une VIOLATION
+# bloquant = false         # true quand la regle est deja tenue partout

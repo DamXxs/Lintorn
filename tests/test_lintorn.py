@@ -21,8 +21,14 @@ from pathlib import Path
 
 import pytest
 
+from lintorn import (
+    base,
+    config,
+    controles_outillage,
+    controles_projet,
+    traductions,
+)
 from lintorn import cli as Lintorn
-from lintorn import config, noyau, traductions
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -32,7 +38,7 @@ def test_regex_ruff_reconnait_une_vraie_ligne():
     """Échantillon réel, copié tel quel de la sortie de ruff."""
     ligne = r"accounts\views.py:7:1: F811 redefinition of unused 'login_required_cookie' from line 4"
 
-    trouve = noyau.LIGNE_RUFF.match(ligne)
+    trouve = base.LIGNE_RUFF.match(ligne)
 
     assert trouve is not None, "ruff a change son format de sortie → la traduction est morte"
     assert trouve["fichier"] == r"accounts\views.py"
@@ -44,7 +50,7 @@ def test_regex_ruff_gere_les_chemins_unix():
     """Sur Codespaces les chemins ont des / au lieu des \\."""
     ligne = "clients/models.py:72:9: F401 `planning.models.Intervention` imported but unused"
 
-    trouve = noyau.LIGNE_RUFF.match(ligne)
+    trouve = base.LIGNE_RUFF.match(ligne)
 
     assert trouve is not None
     assert trouve["code"] == "F401"
@@ -64,7 +70,7 @@ def test_tous_les_codes_traduits_ont_un_texte_francais():
 def test_est_un_chemin_accepte_de_vrais_chemins():
     for token in ("services/api.ts", "mixins/models.py", "ARCHITECTURE.md",
                   "pages/Planning/PlanningPrefsContext.tsx", "fixtures/demo"):
-        assert noyau.est_un_chemin(token), f"{token} devrait etre vu comme un chemin"
+        assert controles_projet.est_un_chemin(token), f"{token} devrait etre vu comme un chemin"
 
 
 def test_est_un_chemin_rejette_ce_qui_est_du_code():
@@ -79,29 +85,29 @@ def test_est_un_chemin_rejette_ce_qui_est_du_code():
         "https://exemple.fr/x.md",  # une URL
         "STATUT_CHOICES",          # un nom de constante
     ):
-        assert not noyau.est_un_chemin(token), f"{token} ne devrait PAS etre vu comme un chemin"
+        assert not controles_projet.est_un_chemin(token), f"{token} ne devrait PAS etre vu comme un chemin"
 
 
 def test_existe_retrouve_un_fichier_par_son_nom_seul():
     index = {"ARCHITECTURE.md", "api.ts"}
 
-    assert noyau.existe("ARCHITECTURE.md", index)
-    assert not noyau.existe("FICHIER_QUI_NEXISTE_PAS.md", index)
+    assert controles_projet.existe("ARCHITECTURE.md", index)
+    assert not controles_projet.existe("FICHIER_QUI_NEXISTE_PAS.md", index)
 
 
 def test_existe_ignore_le_numero_de_ligne():
     """La doc cite parfois `factures/models.py:17-34`."""
     index = {"models.py"}
 
-    assert noyau.existe("models.py:17-34", index)
-    assert noyau.existe("models.py:151", index)
+    assert controles_projet.existe("models.py:17-34", index)
+    assert controles_projet.existe("models.py:151", index)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # La distinction « problèmes trouvés » / « outil en panne »
 # ─────────────────────────────────────────────────────────────────────────────
 def test_un_outil_absent_ne_bloque_pas():
-    resultat = noyau.lancer("Outil imaginaire", ["ceci_nexiste_pas_du_tout"], config.RACINE)
+    resultat = base.lancer("Outil imaginaire", ["ceci_nexiste_pas_du_tout"], config.RACINE)
 
     assert resultat.statut == "INDISPONIBLE"
     assert resultat.bloquant is False
@@ -110,7 +116,7 @@ def test_un_outil_absent_ne_bloque_pas():
 def test_code_de_sortie_inattendu_signale_une_panne_d_outil():
     """Python sort en code 2 sur une option inconnue → ce n'est PAS une alerte
     de code, c'est l'outil qui n'a pas pu tourner."""
-    resultat = noyau.lancer(
+    resultat = base.lancer(
         "Panne simulee", [config.PYTHON, "--option-qui-nexiste-pas"], config.RACINE,
     )
 
@@ -131,7 +137,7 @@ def test_focus_ne_garde_que_les_fichiers_pousses(monkeypatch):
     audité — un test qui dépend de son environnement ne prouve rien.
     """
     monkeypatch.setattr(config, "PREFIXES_PROJET", ["api/", "front/src/"])
-    faux = noyau.Resultat(
+    faux = base.Resultat(
         "Ruff", "ALERTE", "2 alertes",
         "accounts/views.py:7\n    F401 import inutile\n"
         "stock/models.py:121\n    E741 nom ambigu",
@@ -146,7 +152,7 @@ def test_focus_ne_garde_que_les_fichiers_pousses(monkeypatch):
 
 def test_focus_est_vert_quand_le_push_ne_touche_rien_de_casse(monkeypatch):
     monkeypatch.setattr(config, "PREFIXES_PROJET", ["api/", "front/src/"])
-    faux = noyau.Resultat("Ruff", "ALERTE", "1 alerte", "stock/models.py:121\n    E741")
+    faux = base.Resultat("Ruff", "ALERTE", "1 alerte", "stock/models.py:121\n    E741")
 
     focus = Lintorn.focus_sur([faux], ["front/src/App.tsx"])
 
@@ -161,7 +167,7 @@ def test_focus_reconnait_les_chemins_windows(monkeypatch):
     defaut connu dedans » au moment précis du push. Faux vert, 12/08/2026.
     """
     monkeypatch.setattr(config, "PREFIXES_PROJET", ["api/"])
-    faux = noyau.Resultat(
+    faux = base.Resultat(
         "Ruff", "ALERTE", "1 alerte",
         r"api\outils\noyau.py:300:121: E501 Line too long",
     )
@@ -182,7 +188,7 @@ def test_un_document_normal_bloque_sur_un_chemin_faux(tmp_path):
     doc = tmp_path / "note.md"
     doc.write_text(f"Le pivot est {_FANTOME}.", encoding="utf-8")
 
-    resultat = noyau._verifier_documents("t", [doc], bloquant_possible=True)
+    resultat = controles_projet._verifier_documents("t", [doc], bloquant_possible=True)
 
     assert resultat.statut == "ALERTE"
     assert resultat.bloquant is True
@@ -195,7 +201,7 @@ def test_un_document_prospectif_informe_sans_bloquer(tmp_path):
     doc = tmp_path / "conception.md"
     doc.write_text(f"<!-- lintorn:prospectif -->\n\nÀ écrire : {_FANTOME}.", encoding="utf-8")
 
-    resultat = noyau._verifier_documents("t", [doc], bloquant_possible=True)
+    resultat = controles_projet._verifier_documents("t", [doc], bloquant_possible=True)
 
     assert resultat.statut == "VERIF"
     assert resultat.bloquant is False
@@ -211,7 +217,7 @@ def test_un_nom_de_fichier_nu_devient_un_pathspec_glob():
     """Une mémoire écrit « le template `OrPdfTemplate.tsx` », jamais son chemin
     complet. La première version ne résolvait que les chemins complets : elle
     trouvait 0 fichier, donc 0 commit, donc un contrôle vert à jamais."""
-    assert noyau._pathspecs_cites(
+    assert controles_projet._pathspecs_cites(
         "le template `OrPdfTemplate.tsx` fait foi"
     ) == [":(glob)**/OrPdfTemplate.tsx"]
 
@@ -228,13 +234,13 @@ def test_un_chemin_complet_devient_repo_relatif(tmp_path, monkeypatch):
     monkeypatch.setattr(config, "RACINE", tmp_path)
     monkeypatch.setattr(config, "RACINES_RESOLUTION", [tmp_path])
 
-    specs = noyau._pathspecs_cites("voir `api/factures/models.py`")
+    specs = controles_projet._pathspecs_cites("voir `api/factures/models.py`")
 
     assert "api/factures/models.py" in specs
 
 
 def test_les_blocs_de_code_ne_sont_pas_des_citations():
-    assert noyau._pathspecs_cites("```\n`models.py`\n```\nrien d'autre") == []
+    assert controles_projet._pathspecs_cites("```\n`models.py`\n```\nrien d'autre") == []
 
 
 def test_git_muet_ne_se_confond_pas_avec_rien_n_a_bouge():
@@ -243,7 +249,7 @@ def test_git_muet_ne_se_confond_pas_avec_rien_n_a_bouge():
     la fonction renvoyait « 0 commit » — donc un contrôle VERT sur une mémoire
     périmée. `None` veut dire « je n'ai pas pu regarder », `[]` veut dire
     « rien n'a bougé ». Les confondre est exactement la maladie soignée ici."""
-    nb, touches = noyau._commits_depuis("2020-01-01", [":(magie_qui_nexiste_pas)x"])
+    nb, touches = controles_projet._commits_depuis("2020-01-01", [":(magie_qui_nexiste_pas)x"])
 
     assert touches is None, "git en panne doit renvoyer None, jamais une liste vide"
     assert nb == 0
@@ -256,7 +262,7 @@ def test_git_muet_ne_se_confond_pas_avec_rien_n_a_bouge():
 def test_git_retrouve_un_vrai_commit():
     """Contre-épreuve : sur un fichier réel du dépôt, git DOIT répondre.
     Si ce test casse, c'est le format de la commande qui est reparti en vrille."""
-    nb, touches = noyau._commits_depuis("2020-01-01", [":(glob)**/CLAUDE.md"])
+    nb, touches = controles_projet._commits_depuis("2020-01-01", [":(glob)**/CLAUDE.md"])
 
     assert touches is not None, "git n'a pas repondu → le controle serait faussement vert"
     assert nb > 0
@@ -264,8 +270,8 @@ def test_git_retrouve_un_vrai_commit():
 
 
 def test_la_date_de_verification_doit_etre_une_vraie_date():
-    assert noyau._RX_VERIFIE_LE.search("---\nname: x\nverifie_le: 2026-08-12\n---")
-    assert not noyau._RX_VERIFIE_LE.search("verifie_le: bientot")
+    assert controles_projet._RX_VERIFIE_LE.search("---\nname: x\nverifie_le: 2026-08-12\n---")
+    assert not controles_projet._RX_VERIFIE_LE.search("verifie_le: bientot")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -329,7 +335,7 @@ def test_le_controle_du_hook_ne_conclut_rien_sans_donnee(tmp_path):
     précisément le défaut qu'on vient de corriger : il repasse au vert sur du
     vide. Ici, hors dépôt git, la seule réponse honnête est « je ne sais pas ».
     """
-    assert noyau._mode_git(tmp_path / "inexistant") is None
+    assert controles_outillage._mode_git(tmp_path / "inexistant") is None
 
 
 def test_lecture_du_env_ignore_commentaires_guillemets_et_lignes_vides(tmp_path):
@@ -388,7 +394,7 @@ def _etat(tmp_path, monkeypatch, contenu):
 def test_audit_complet_jamais_lance_le_signale(tmp_path, monkeypatch):
     _etat(tmp_path, monkeypatch, None)
 
-    resultat = noyau.controle_audit_complet()
+    resultat = controles_outillage.controle_audit_complet()
 
     assert resultat.statut == "VERIF"
     assert "jamais" in resultat.resume
@@ -399,7 +405,7 @@ def test_audit_complet_recent_est_vert(tmp_path, monkeypatch):
     _etat(tmp_path, monkeypatch,
           json.dumps({"dernier_audit_complet": date.today().isoformat()}))
 
-    assert noyau.controle_audit_complet().statut == "OK"
+    assert controles_outillage.controle_audit_complet().statut == "OK"
 
 
 def test_audit_complet_perime_reclame_une_relance(tmp_path, monkeypatch):
@@ -409,7 +415,7 @@ def test_audit_complet_perime_reclame_une_relance(tmp_path, monkeypatch):
     _etat(tmp_path, monkeypatch,
           json.dumps({"dernier_audit_complet": vieux.isoformat()}))
 
-    resultat = noyau.controle_audit_complet()
+    resultat = controles_outillage.controle_audit_complet()
 
     assert resultat.statut == "VERIF"
     assert "pip-audit" in resultat.detail
@@ -420,7 +426,7 @@ def test_un_etat_illisible_ne_plante_pas(tmp_path, monkeypatch):
     """Fichier tronqué par un Ctrl-C : Lintorn repart de zéro, il ne casse pas."""
     _etat(tmp_path, monkeypatch, "{ceci n'est pas du json")
 
-    assert noyau.lire_etat() == {}
+    assert base.lire_etat() == {}
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -482,7 +488,7 @@ def test_zero_chemin_cite_n_est_pas_un_succes(tmp_path):
     doc = tmp_path / "README.md"
     doc.write_text("Un projet tres bien, sans le moindre backtick.", encoding="utf-8")
 
-    resultat = noyau._verifier_documents("t", [doc], bloquant_possible=True)
+    resultat = controles_projet._verifier_documents("t", [doc], bloquant_possible=True)
 
     assert resultat.statut == "INDISPONIBLE"
     assert resultat.bloquant is False
@@ -496,11 +502,11 @@ def test_les_controles_d_outillage_ne_valent_pas_un_audit():
     Les compter comme « un audit a eu lieu » redonnerait un feu vert à un
     projet dont rien n'a été vérifié.
     """
-    for titre in noyau.TITRES_OUTILLAGE:
+    for titre in controles_outillage.TITRES_OUTILLAGE:
         assert titre not in ("Doc vs code", "Regles maison"), (
             "un controle du PROJET a ete classe comme outillage"
         )
-    assert len(noyau.TITRES_OUTILLAGE) == 2
+    assert len(controles_outillage.TITRES_OUTILLAGE) == 2
 
 
 def test_docs_exclus_accepte_les_globs_traversants(tmp_path, monkeypatch):
@@ -532,7 +538,7 @@ def _config_doc_ia(tmp_path, monkeypatch, texte, regles=()):
 
 def _regles_enoncees(tmp_path, monkeypatch, texte, regles=()):
     _config_doc_ia(tmp_path, monkeypatch, texte, regles)
-    return noyau.controle_regles_declarees()
+    return controles_projet.controle_regles_declarees()
 
 
 def test_la_prose_narrative_n_est_pas_prise_pour_une_regle(tmp_path, monkeypatch):
@@ -745,7 +751,7 @@ def test_le_champ_source_couvre_exactement_sa_ligne(tmp_path, monkeypatch):
              "motif": re.compile(r"zzz")}
     _config_doc_ia(tmp_path, monkeypatch, _TABLE, [regle])
 
-    assert noyau.regles_sans_controle() == []
+    assert controles_projet.regles_sans_controle() == []
 
 
 def test_une_esquisse_deja_presente_n_est_pas_reproposee(tmp_path, monkeypatch):
@@ -821,8 +827,13 @@ def test_ce_qui_s_imprime_reste_lisible_sur_une_console_etroite():
     est etroite.
     """
     fautifs = []
-    for nom in ("noyau.py", "cli.py"):
-        chemin = Path(Lintorn.__file__).parent / nom
+    # ⚠️ On CHERCHE les modules au lieu de les nommer. Nommes un par un
+    # ("noyau.py", "cli.py"), ce test a cesse de voir 32 des 35 appels a
+    # `Resultat(...)` le jour ou le code a ete scinde en quatre fichiers — sans
+    # echouer, donc sans que personne ne s'en apercoive. Un test muet est la
+    # panne exacte que Lintorn combat ; il n'avait pas le droit d'en etre un.
+    for chemin in sorted(Path(Lintorn.__file__).parent.glob("*.py")):
+        nom = chemin.name
         arbre = ast.parse(chemin.read_text(encoding="utf-8"))
         for noeud in ast.walk(arbre):
             if not isinstance(noeud, ast.Call):
@@ -899,7 +910,7 @@ def test_un_tutoriel_informe_au_lieu_de_bloquer(tmp_path):
         "Cree `app/main.py`, puis `app/routers/items.py`, puis `app/models.py`.",
         encoding="utf-8")
 
-    resultat = noyau._verifier_documents("t", [doc], bloquant_possible=True)
+    resultat = controles_projet._verifier_documents("t", [doc], bloquant_possible=True)
 
     assert resultat.statut == "VERIF"
     assert resultat.bloquant is False
@@ -913,7 +924,7 @@ def test_un_seul_chemin_faux_bloque_toujours(tmp_path):
     doc = tmp_path / "architecture.md"
     doc.write_text("Le pivot est `api/fichier_qui_nexiste_vraiment_pas.py`.", encoding="utf-8")
 
-    resultat = noyau._verifier_documents("t", [doc], bloquant_possible=True)
+    resultat = controles_projet._verifier_documents("t", [doc], bloquant_possible=True)
 
     assert resultat.statut == "ALERTE"
     assert resultat.bloquant is True
@@ -928,7 +939,7 @@ def test_un_journal_de_versions_cite_le_passe_sans_mentir(tmp_path):
         "0.2.0 : `ancien/module_supprime.py` retire, `autre/parti.py` aussi.",
         encoding="utf-8")
 
-    resultat = noyau._verifier_documents("t", [doc], bloquant_possible=True)
+    resultat = controles_projet._verifier_documents("t", [doc], bloquant_possible=True)
 
     assert resultat.bloquant is False
 
@@ -939,6 +950,6 @@ def test_les_documents_requalifies_sont_ANNONCES(tmp_path):
     doc = tmp_path / "tutoriel.md"
     doc.write_text("Cree `a/b.py` et `c/d.py`.", encoding="utf-8")
 
-    resultat = noyau._verifier_documents("t", [doc], bloquant_possible=True)
+    resultat = controles_projet._verifier_documents("t", [doc], bloquant_possible=True)
 
     assert "1 doc(s) d'un autre genre" in resultat.resume, resultat.resume

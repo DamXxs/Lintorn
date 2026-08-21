@@ -16,10 +16,13 @@ Il regarde tout le monde, tout le temps, et il ne laisse rien passer.
                                                    # installe et repingle vraiment
 
 OÙ TOUCHER QUOI
-    config.py        les outils à lancer, ce qu'on vérifie, les règles maison
-    traductions.py   les messages en français
-    noyau.py         la mécanique
-    Lintorn.py          (ce fichier) le point d'entrée, le rapport, l'affichage
+    config.py                les outils à lancer, les chemins, la config lue
+    traductions.py           les messages en français
+    base.py                  la fiche Resultat, le lanceur, les traductions
+    controles_projet.py      ce qui juge LE PROJET : doc, mémoire, règles
+    controles_outillage.py   ce qui juge LINTORN : son hook, sa fraîcheur
+    noyau.py                 l'orchestration : qui tourne, dans quel ordre
+    cli.py                   (ce fichier) le point d'entrée, le rapport
 
 CE QU'IL SURVEILLE, EN PLUS DU CODE
     Le lint et les tests ne voient que le CODE. Lintorn regarde aussi les
@@ -42,8 +45,8 @@ import subprocess
 import sys
 from datetime import datetime
 
-from . import __version__, config, noyau
-from .noyau import MARQUEUR, Resultat
+from . import __version__, base, config, controles_outillage, controles_projet, noyau
+from .base import MARQUEUR, Resultat
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -247,7 +250,7 @@ _GUIDE = """
 
 4. LES DEUX FICHIERS
 
-   .lintorn/config.toml   les reglages. Ecrits une fois, peu retouches.
+   .lintorn/config.toml   les reglages. Ecrits une fois, peu de retouches.
    .lintorn/regles.toml   tes regles maison. Ca vit, ca grossit.
 
    Les deux se versionnent : ce sont des decisions d'equipe. Les sorties
@@ -319,7 +322,7 @@ def _esquisses_regles(deja_ecrit: str = "") -> list[str]:
     """
     manquantes = [
         (chemin, numero, phrase, jetons)
-        for chemin, numero, phrase, jetons in noyau.regles_sans_controle()
+        for chemin, numero, phrase, jetons in controles_projet.regles_sans_controle()
         if f'"{chemin}:{numero}"' not in deja_ecrit
     ]
     if not manquantes:
@@ -1002,7 +1005,7 @@ def main() -> int:
         fichiers = [a for a in args[args.index("--fichiers") + 1:] if not a.startswith("--")]
 
     if "--doc" in args:
-        resultats = [noyau.controle_doc()]
+        resultats = [controles_projet.controle_doc()]
     else:
         complet = "--rapide" not in args
         resultats = noyau.executer(rapide=not complet)
@@ -1010,7 +1013,7 @@ def main() -> int:
             # Les outils lents ont tourné : on note la date pour que le contrôle
             # « Audit complet » cesse de réclamer. Écrit APRÈS coup — un audit
             # interrompu ne doit pas compter comme fait.
-            noyau.ecrire_etat("dernier_audit_complet",
+            base.ecrire_etat("dernier_audit_complet",
                               datetime.now().isoformat(timespec="seconds"))
 
     if fichiers:
@@ -1052,7 +1055,7 @@ def main() -> int:
     a_tourne = [
         r for r in resultats
         if r.statut in ("OK", "ALERTE", "ERREUR")
-        and r.titre not in noyau.TITRES_OUTILLAGE
+        and r.titre not in controles_outillage.TITRES_OUTILLAGE
     ]
     if not a_tourne:
         print("AUCUN controle n'a pu tourner sur ce projet.")

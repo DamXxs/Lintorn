@@ -57,7 +57,10 @@ En pratique, cela interdit quatre choses :
 src/lintorn/
 ├── config.py        les chemins détectés, les commandes, la config du projet audité
 ├── cli.py           le point d'entrée, l'aiguillage des options, le rapport
-├── noyau.py         la mécanique : lancer un outil, les contrôles maison
+├── base.py          la fiche Resultat, le lanceur d'outils, les traductions
+├── controles_projet.py     ce qui juge LE PROJET : doc, mémoire IA, règles
+├── controles_outillage.py  ce qui juge LINTORN : son hook, sa fraîcheur
+├── noyau.py         l'orchestration : qui tourne, dans quel ordre
 ├── traductions.py   les codes d'outils traduits en français
 ├── dependances.py   requirements.txt vs venv — lancé comme un script séparé
 └── hooks/pre-push   le hook installé dans le projet audité

@@ -1,9 +1,13 @@
 """
 Les réglages de Lintorn.
 
-    ▸ Ajouter un outil        → une entrée dans COMMANDES (ligne 339)
-    ▸ Désactiver un contrôle  → False dans CONTROLES_INTERNES (ligne 579)
-    ▸ Ajouter une règle maison → une entrée dans REGLES_MAISON (ligne 741)
+    ▸ Ajouter un outil        → une entrée dans COMMANDES
+    ▸ Désactiver un contrôle  → False dans CONTROLES_INTERNES
+    ▸ Ajouter une règle maison → `.lintorn/regles.toml` du projet audité
+
+⚠️ Aucun numéro de ligne ici, volontairement : les trois qui y figuraient
+   étaient faux de 14, 32 et 190 lignes. Un numéro dans de la prose ne survit
+   pas au premier ajout — cherche le nom, il ne bouge pas.
     ▸ Traduire un code        → traductions.py
 
 Aucune logique ici, que des données. Tu ne peux pas casser la mécanique en
