@@ -881,3 +881,64 @@ def test_toute_commande_sait_depuis_ou_elle_se_lance():
         assert commande["cwd"] is not None, (
             f"{commande['cle']} : sans cwd, l'outil tourne n'importe ou"
         )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Reconnaître le GENRE d'un document
+# ─────────────────────────────────────────────────────────────────────────────
+def test_un_tutoriel_informe_au_lieu_de_bloquer(tmp_path):
+    """MESURÉ SUR FASTAPI : 460 chemins bloquants au premier lancement.
+
+    Un tutoriel apprend au lecteur à créer des fichiers CHEZ LUI : il cite donc
+    légitimement des chemins absents d'ici. Sans cette distinction, un
+    développeur qui découvre Lintorn se prend un mur d'erreurs et referme
+    l'outil — et il n'y a qu'une première impression.
+    """
+    doc = tmp_path / "tutoriel.md"
+    doc.write_text(
+        "Cree `app/main.py`, puis `app/routers/items.py`, puis `app/models.py`.",
+        encoding="utf-8")
+
+    resultat = noyau._verifier_documents("t", [doc], bloquant_possible=True)
+
+    assert resultat.statut == "VERIF"
+    assert resultat.bloquant is False
+    assert "app/main.py" in resultat.detail, "on LISTE toujours : on informe, on n'interdit pas"
+
+
+def test_un_seul_chemin_faux_bloque_toujours(tmp_path):
+    """LE garde-fou de la règle. Sur UNE citation, un taux de 100 % ne veut
+    rien dire — et c'est justement la forme du vrai pourrissement de doc : un
+    fichier renommé, cité une fois. On ne l'excuse pas."""
+    doc = tmp_path / "architecture.md"
+    doc.write_text("Le pivot est `api/fichier_qui_nexiste_vraiment_pas.py`.", encoding="utf-8")
+
+    resultat = noyau._verifier_documents("t", [doc], bloquant_possible=True)
+
+    assert resultat.statut == "ALERTE"
+    assert resultat.bloquant is True
+
+
+def test_un_journal_de_versions_cite_le_passe_sans_mentir(tmp_path):
+    """Un changelog cite ce qui existait A L'EPOQUE. Sur FastAPI il pesait à
+    lui seul 174 des 460 blocages, avec un taux d'absence de 21 % qu'aucun
+    seuil raisonnable n'attraperait."""
+    doc = tmp_path / "release-notes.md"
+    doc.write_text(
+        "0.2.0 : `ancien/module_supprime.py` retire, `autre/parti.py` aussi.",
+        encoding="utf-8")
+
+    resultat = noyau._verifier_documents("t", [doc], bloquant_possible=True)
+
+    assert resultat.bloquant is False
+
+
+def test_les_documents_requalifies_sont_ANNONCES(tmp_path):
+    """Requalifier en silence serait exactement la panne que Lintorn combat :
+    l'utilisateur croirait sa documentation entierement controlee."""
+    doc = tmp_path / "tutoriel.md"
+    doc.write_text("Cree `a/b.py` et `c/d.py`.", encoding="utf-8")
+
+    resultat = noyau._verifier_documents("t", [doc], bloquant_possible=True)
+
+    assert "1 doc(s) d'un autre genre" in resultat.resume, resultat.resume

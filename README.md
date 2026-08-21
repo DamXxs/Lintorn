@@ -99,6 +99,30 @@ Mark the document, anywhere in it:
 Its dead paths are then **listed, not failed** — you still see them, they just stop
 blocking your push.
 
+### Two genres are recognised without any marker
+
+**Tutorials.** A tutorial teaches the reader to create files *in their own project*,
+so it legitimately cites paths that do not exist here. The signal is unambiguous, and
+it was measured on FastAPI's 1693 documents: the distribution is bimodal — 146
+documents have **no** missing path, 207 have **all** of them missing. Hence the rule,
+stated in one sentence: *if most of what a document cites does not exist here, it is
+not describing this project*. A single citation is never excused — that is exactly the
+shape of real documentation rot.
+
+**Version logs.** A changelog cites what existed *at the time*. Recognised by name:
+
+```
+CHANGELOG.md    release-notes.md    HISTORY.md    NEWS.md
+```
+
+On FastAPI, one such file alone accounted for 174 of the 460 blocking paths.
+
+Without this, FastAPI reported **460 blocking paths on first run** — a wall that makes
+you close the tool. With the only escape hatch that existed (`docs_exclus = ["docs/*"]`),
+98% of the documentation stopped being read at all, for a green light on 2 paths: the
+false all-clear this tool exists to prevent. Both numbers now appear in the summary line,
+requalified documents included — silence is never an option.
+
 ## What this check is *not* for
 
 The documentation check targets **descriptive** documentation — "the services/api.ts

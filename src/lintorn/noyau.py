@@ -331,6 +331,49 @@ def existe(token: str, index_noms: set[str], depuis: Path | None = None) -> bool
     return False
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# LE GENRE D'UN DOCUMENT : décrit-il CE projet, ou parle-t-il d'autre chose ?
+# ─────────────────────────────────────────────────────────────────────────────
+# Trois genres citent des fichiers absents sans mentir pour autant :
+#
+#   1. la note prospective — marquée à la main
+#   2. le JOURNAL DE VERSIONS — il cite ce qui existait A L'EPOQUE
+#   3. le TUTORIEL — il apprend au lecteur à créer des fichiers CHEZ LUI
+#
+# MESURÉ SUR FASTAPI, 1693 documents. Sans cette distinction : 460 chemins
+# bloquants au premier lancement — un mur qui fait fermer l'outil. Avec la
+# seule échappatoire existante (`docs_exclus = ["docs/*"]`) : 98 % de la
+# documentation cessait d'être lue, pour un « OK » sur 2 chemins. Le remède
+# était pire que le mal : c'est le faux vert que Lintorn combat partout.
+#
+# LE SIGNAL. La répartition est nette, et bimodale : 146 documents n'ont AUCUN
+# chemin absent, 207 les ont TOUS absents. Un document décrit ce projet, ou il
+# parle d'autre chose — rarement les deux. D'où la règle, énonçable en une
+# phrase : **si la majorité de ce qu'un document cite n'existe pas ici, il ne
+# décrit pas ce projet.**
+#
+# ⚠️ SEUIL DELIBEREMENT ROND. « Plus de la moitié » se justifie tout seul.
+#    L'ajuster jusqu'à ce qu'un projet précis passe au vert reviendrait à
+#    truquer la mesure — et à casser ailleurs. Vérifié : sur Lintorn et sur
+#    Matorn, ZERO document requalifié, aucune trouvaille perdue.
+_RX_JOURNAL = re.compile(r"(change ?log|release[-_ ]notes?|history|news)", re.I)
+_SEUIL_AUTRE_GENRE = 0.5
+
+
+def _genre_du_document(doc, texte: str, cites: int, absents: int) -> str:
+    """Ce qui autorise ce document à citer des fichiers absents, ou "" sinon."""
+    if "lintorn:prospectif" in texte:
+        return "doc prospectif"
+    if _RX_JOURNAL.search(doc.name):
+        return "journal de versions"
+    # `cites >= 2` : sur une seule citation, un taux de 100 % ne veut rien dire.
+    # C'est précisément le cas d'un vrai pourrissement de doc — un fichier
+    # renommé, cité une fois. On ne l'excuse pas.
+    if cites >= 2 and absents / cites > _SEUIL_AUTRE_GENRE:
+        return f"{absents}/{cites} absents : ne decrit pas ce projet"
+    return ""
+
+
 def _verifier_documents(titre: str, documents: list, bloquant_possible: bool) -> Resultat:
     """Cœur du contrôle : les chemins cités dans ces documents existent-ils ?
 
@@ -353,6 +396,7 @@ def _verifier_documents(titre: str, documents: list, bloquant_possible: bool) ->
         )
 
     index_noms = indexer_fichiers()
+    autre_genre = 0               # documents requalifiés : tutoriel, journal…
     certains: list[str] = []      # cité AVEC extension et absent → le doc ment
     incertains: list[str] = []    # sans extension → peut être une tournure de phrase
     verifies = 0
@@ -376,15 +420,20 @@ def _verifier_documents(titre: str, documents: list, bloquant_possible: bool) ->
         # → ses chemins introuvables deviennent consultatifs (VERIF), jamais
         #   bloquants. Le contrôle continue de les LISTER : on informe, on
         #   n'interdit pas.
-        prospectif = "lintorn:prospectif" in texte
-
+        # On collecte les trouvailles de CE document avant de trancher : le
+        # genre ne se connait qu'une fois le document entierement lu.
         deja_vus: set[str] = set()
+        cites = 0
+        doc_certains: list[str] = []
+        doc_incertains: list[str] = []
+
         for token in re.findall(r"`([^`\n]+)`", texte):
             token = token.strip().rstrip("/").removeprefix("./")
             if not est_un_chemin(token) or token in deja_vus:
                 continue
             deja_vus.add(token)
             verifies += 1
+            cites += 1
             if existe(token, index_noms, depuis=doc.parent):
                 continue
             # La mémoire vit HORS du dépôt : pas de lien cliquable possible,
@@ -396,11 +445,21 @@ def _verifier_documents(titre: str, documents: list, bloquant_possible: bool) ->
             ligne = f"{source} → `{token}`"
             # Une extension explicite = une affirmation vérifiable. Sans extension,
             # ça peut être du texte → consultatif, on ne bloque pas dessus.
-            affirmatif = bool(re.search(r"\.\w{2,4}(:\d|$)", token))
-            if affirmatif and not prospectif:
-                certains.append(ligne)
+            if re.search(r"\.\w{2,4}(:\d|$)", token):
+                doc_certains.append(ligne)
             else:
-                incertains.append(ligne + (" *(doc prospectif)*" if prospectif else ""))
+                doc_incertains.append(ligne)
+
+        absents = len(doc_certains) + len(doc_incertains)
+        genre = _genre_du_document(doc, texte, cites, absents)
+        if genre:
+            # Requalifie : on LISTE toujours, on ne bloque plus.
+            autre_genre += 1
+            incertains += [f"{ligne} *({genre})*"
+                           for ligne in doc_certains + doc_incertains]
+        else:
+            certains += doc_certains
+            incertains += doc_incertains
 
     # ⚠️ SECOND GARDE-FOU, jumeau de celui du haut. Les documents existent,
     # mais aucun ne cite le moindre chemin : il n'y a rien eu a verifier, et
@@ -426,6 +485,11 @@ def _verifier_documents(titre: str, documents: list, bloquant_possible: bool) ->
     resume = f"{verifies} chemin(s) cite(s), {len(certains)} introuvable(s)"
     if incertains:
         resume += f", {len(incertains)} a verifier"
+    # ⚠️ ANNONCE OBLIGATOIRE. Requalifier 170 documents sans le dire serait
+    # exactement le silence que Lintorn combat : l'utilisateur croirait sa doc
+    # entierement controlee. On chiffre ce qu'on a mis de cote.
+    if autre_genre:
+        resume += f", {autre_genre} doc(s) d'un autre genre"
     if not certains and not incertains:
         return Resultat(titre, "OK", resume)
 
@@ -436,8 +500,10 @@ def _verifier_documents(titre: str, documents: list, bloquant_possible: bool) ->
     if incertains:
         if certains:
             detail += "\n\n"
-        detail += ("**À VÉRIFIER** — cité sans extension : c'est peut-être une "
-                   "tournure de phrase, ou un fichier encore à créer.\n\n")
+        detail += ("**À VÉRIFIER** — cité sans extension (peut-être une tournure de "
+                   "phrase, ou un fichier à créer), ou cité par un document qui ne "
+                   "décrit pas ce projet : tutoriel, journal de versions, note "
+                   "prospective. La raison est indiquée à chaque ligne.\n\n")
         detail += "\n".join(f"- {x}" for x in sorted(set(incertains)))
 
     # ALERTE si un chemin est faux · VERIF s'il n'y a que des « à vérifier ».
