@@ -398,6 +398,44 @@ if PY_RACINE:
         "lent": False,
     })
 
+    # ⚠️ CES DEUX-LA VIVAIENT DANS LA LISTE DJANGO. C'etait un defaut, et le
+    # plus grave possible pour cet outil : `vulture` et `pip-audit` sont des
+    # outils PYTHON, pas Django. Enfermes derriere `if BACKEND`, ils etaient
+    # SILENCIEUSEMENT ignores sur tout projet Python non-Django — Lintorn
+    # lui-meme compris. Quelqu'un ecrivait `failles = true`, voyait du vert,
+    # et n'avait jamais ete audite. Exactement le mode de panne que Lintorn
+    # existe pour combattre.
+    #
+    # `BACKEND or PY_RACINE` : sur un projet Django on garde le dossier du
+    # `manage.py` (le comportement d'avant), ailleurs la racine Python.
+    COMMANDES.append({
+        "cle": "code_mort",
+        "opt_in": True,      # beaucoup de faux positifs au premier contact
+        "titre": "Code mort (vulture, consultatif)",
+        # ⚠️ Beaucoup de faux positifs : une app Django n'est parfois citée que
+        # dans INSTALLED_APPS, un composant qu'en import paresseux.
+        # On NE SUPPRIME JAMAIS sur la seule foi de vulture.
+        "cmd": [PYTHON, "-m", "vulture", ".", "--min-confidence", "80",
+                "--exclude", "venv,migrations",
+                "--ignore-names", ",".join(VULTURE_IGNORES)],
+        "cwd": BACKEND or PY_RACINE,
+        "bloquant": False,
+        "traduction": None,
+        "lent": True,
+        "codes_alerte": (3,),   # vulture : 3 = du code mort a été trouvé
+    })
+
+    COMMANDES.append({
+        "cle": "failles",
+        "opt_in": True,      # sort sur le RESEAU
+        "titre": "Failles connues (pip-audit)",
+        "cmd": [PYTHON, "-m", "pip_audit", "--progress-spinner", "off"],
+        "cwd": BACKEND or PY_RACINE,
+        "bloquant": False,
+        "traduction": None,
+        "lent": True,
+    })
+
 
 # ── Django ───────────────────────────────────────────────────────────────────
 # Ces contrôles n'ont de sens que sur un projet Django, et ne sont ajoutés que
@@ -446,34 +484,6 @@ COMMANDES_DJANGO = [
         "bloquant": False,      # normal en dev, doit être vert le jour de la prod
         "traduction": "deploy",
         "lent": False,
-    },
-    {
-        "cle": "code_mort",
-        "opt_in": True,      # beaucoup de faux positifs au premier contact
-        "titre": "Code mort (vulture, consultatif)",
-        # ⚠️ Beaucoup de faux positifs : une app Django n'est parfois citée que
-        # dans INSTALLED_APPS, un composant qu'en import paresseux.
-        # On NE SUPPRIME JAMAIS sur la seule foi de vulture.
-        # `--ignore-names` reçoit VULTURE_IGNORES (juste au-dessus) : les noms
-        # imposés par Django ne sont pas du code mort.
-        "cmd": [PYTHON, "-m", "vulture", ".", "--min-confidence", "80",
-                "--exclude", "venv,migrations",
-                "--ignore-names", ",".join(VULTURE_IGNORES)],
-        "cwd": BACKEND,
-        "bloquant": False,
-        "traduction": None,
-        "lent": True,
-        "codes_alerte": (3,),   # vulture : 3 = du code mort a été trouvé
-    },
-    {
-        "cle": "failles",
-        "opt_in": True,      # sort sur le RESEAU
-        "titre": "Failles connues (pip-audit)",
-        "cmd": [PYTHON, "-m", "pip_audit", "--progress-spinner", "off"],
-        "cwd": BACKEND,
-        "bloquant": False,
-        "traduction": None,
-        "lent": True,
     },
 ]
 

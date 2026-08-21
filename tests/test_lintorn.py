@@ -847,3 +847,37 @@ def test_ce_qui_s_imprime_reste_lisible_sur_une_console_etroite():
             fautifs.append(f"texte fixe {hors}")
 
     assert fautifs == [], "illisible sur une console cp1252 :\n  " + "\n  ".join(fautifs)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Les outils Python ne sont pas réservés aux projets Django
+# ─────────────────────────────────────────────────────────────────────────────
+def test_vulture_et_pip_audit_ne_sont_pas_enfermes_dans_django():
+    """LE défaut du 21/08/2026, et le plus grave possible pour cet outil.
+
+    `vulture` et `pip-audit` vivaient dans `COMMANDES_DJANGO`, donc n'étaient
+    ajoutés que `if BACKEND`. Sur tout projet Python NON-Django — Lintorn
+    lui-même compris — un `failles = true` dans la config était ignoré EN
+    SILENCE : pas d'audit de sécurité, pas de message, du vert.
+
+    C'est exactement le mode de panne que Lintorn existe pour combattre.
+    Ce sont des outils Python, la seule condition qui les concerne est
+    l'existence d'une racine Python.
+    """
+    dans_django = {commande["cle"] for commande in config.COMMANDES_DJANGO}
+
+    assert "code_mort" not in dans_django
+    assert "failles" not in dans_django
+
+
+def test_toute_commande_sait_depuis_ou_elle_se_lance():
+    """Un `cwd` à None fait tourner l'outil dans le dossier COURANT.
+
+    `vulture .` y scannerait ce que l'utilisateur a sous les pieds au lieu du
+    projet, et rendrait un verdict sur autre chose sans jamais le dire. C'est
+    la seconde moitié du même défaut : `cwd = BACKEND` valait None hors Django.
+    """
+    for commande in config.COMMANDES:
+        assert commande["cwd"] is not None, (
+            f"{commande['cle']} : sans cwd, l'outil tourne n'importe ou"
+        )
