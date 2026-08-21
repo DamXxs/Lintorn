@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "lintorn"
-version = "0.1.1"
+version = "0.2.0"
 description = "Audits your code and the memory your AI assistant reads — and tells you when the two drift apart."
 readme = "README.md"
 requires-python = ">=3.11"          # tomllib (stdlib) pour lire [tool.lintorn]
