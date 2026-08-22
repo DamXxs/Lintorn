@@ -2,6 +2,7 @@
 """Les controles qui surveillent LINTORN lui-meme.
 
 Son hook pre-push est-il branche ? Ses outils lents ont-ils tourne ?
+Avec quel python a-t-il lance les outils ?
 
 ⚠️ Ils ne regardent NI le code NI la documentation du projet. Ils
 peuvent donc etre verts la ou rien d'autre n'a tourne — et ne doivent
@@ -14,17 +15,127 @@ from __future__ import annotations
 import datetime
 import os
 import subprocess
+import sys
 from pathlib import Path
 
 from . import config
 from .base import Resultat, lire_etat
 
-# Ces deux contrôles ne regardent NI le code NI la documentation : ils
+# Ces contrôles ne regardent NI le code NI la documentation : ils
 # surveillent Lintorn lui-même (son hook, la date de son dernier passage
-# complet). Ils peuvent donc être verts sur un projet où rien d'autre n'a
-# tourné — et ne doivent jamais, à eux seuls, faire croire à un audit réussi.
-TITRES_OUTILLAGE = ("Hook pre-push (Lintorn)", "Audit complet (outils lents)")
+# complet, le python avec lequel il a lancé les outils). Ils peuvent donc
+# être verts sur un projet où rien d'autre n'a tourné — et ne doivent
+# jamais, à eux seuls, faire croire à un audit réussi.
+TITRES_OUTILLAGE = ("Hook pre-push (Lintorn)", "Audit complet (outils lents)",
+                    "Python du projet (venv)")
 
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CONTRÔLE PYTHON — avec quel interpréteur les outils ont-ils tourné ?
+# ─────────────────────────────────────────────────────────────────────────────
+def controle_python_projet() -> Resultat:
+    """Les outils tournent-ils sur le venv DU PROJET, ou sur celui de la machine ?
+
+    LA PANNE : faute de venv aux emplacements connus, `_python_du_projet()`
+    retombait sur `sys.executable` — et ne le disait à personne. Tant que
+    Lintorn vivait dans le venv du projet, le repli était sans conséquence.
+    Depuis qu'il s'installe par `pip` sur la machine, il désigne le python
+    DU SYSTÈME.
+
+    Ce que ça change, et pourquoi ce n'est pas un détail cosmétique :
+
+      * `Dependances vs venv` compare `requirements.txt` aux paquets du
+        SYSTÈME. Il répond, avec aplomb, sur un environnement que personne
+        n'a demandé à auditer.
+      * `pip-audit` audite les failles de la MACHINE, pas celles du projet.
+      * `pytest` exécute le code du projet sans aucune de ses dépendances.
+
+    Aucun de ces trois-là ne passe au rouge pour autant : ils rendent un
+    verdict plausible sur le mauvais environnement. C'est exactement la panne
+    que Lintorn existe pour supprimer, et il l'avait chez lui.
+
+    NON BLOQUANT : un projet peut légitimement n'avoir aucun venv (on
+    l'installe à l'instant, la CI monte l'environnement autrement). Bloquer
+    ferait de ce contrôle une gêne qu'on apprend à contourner. Il informe —
+    mais il ne se tait plus.
+    """
+    titre = "Python du projet (venv)"
+
+    # Le projet a DÉCLARÉ un venv et il n'est pas là. C'est le cas le plus
+    # grave : quelqu'un a pris la peine de répondre à la question, et la
+    # réponse est fausse. Passer outre en silence trahirait sa confiance.
+    if config.VENV_SOUCI:
+        return Resultat(
+            titre, "ALERTE", config.VENV_SOUCI,
+            "La configuration du projet declare un venv a un emplacement ou "
+            "il n'existe pas. Lintorn est donc retombe sur son propre python, "
+            "et les outils analysent un autre environnement que le tien.\n\n"
+            "Corrige `venv` dans `[tool.lintorn]` (ou dans "
+            "`.lintorn/config.toml`), ou retire la ligne pour laisser Lintorn "
+            "chercher aux emplacements habituels.",
+            bloquant=False, detail_markdown=True,
+        )
+
+    # Rien a auditer n'est PAS un feu vert : un projet Go ou JavaScript n'a
+    # aucun python, et lui reclamer un venv fabriquerait le faux positif
+    # qu'on apprend a ignorer.
+    if config.PY_RACINE is None:
+        return Resultat(
+            titre, "INDISPONIBLE",
+            "aucun code Python dans ce projet - rien a verifier",
+            bloquant=False,
+        )
+
+    if config.VENV_PROJET is not None:
+        return Resultat(
+            titre, "OK", f"venv du projet : {_relatif(config.VENV_PROJET)}",
+            bloquant=False,
+        )
+
+    # Repli. Reste a savoir sur QUOI, car les consequences different.
+    sur_la_machine = sys.prefix == sys.base_prefix
+    origine = "de la MACHINE" if sur_la_machine else "de Lintorn"
+
+    return Resultat(
+        titre, "ALERTE",
+        f"aucun venv trouve - les outils tournent sur le python {origine}",
+        "Lintorn cherche un venv dans `venv/`, `.venv/` et `env/`, a la racine "
+        "du projet comme dans son dossier Python. Il n'en a trouve aucun, et "
+        f"lance donc ruff, pytest et pip-audit avec `{config.PYTHON}`.\n\n"
+        "**Ce que ca fausse, sans passer au rouge pour autant :**\n\n"
+        "- `Dependances vs venv` compare `requirements.txt` aux paquets "
+        + ("du **systeme**" if sur_la_machine else "du venv de **Lintorn**")
+        + " ;\n"
+        "- `pip-audit` signale les failles de cet environnement-la, pas celles "
+        "du projet ;\n"
+        "- `pytest` execute le code du projet sans ses dependances.\n\n"
+        "Les trois repondent quand meme : le verdict est plausible, il porte "
+        "juste sur le mauvais environnement.\n\n"
+        "**Deux facons de regler :**\n\n"
+        "```bash\n"
+        f"cd {_relatif(config.PY_RACINE) or '.'} && python3 -m venv .venv\n"
+        "```\n\n"
+        "ou, si ton venv vit ailleurs (poetry, pdm, conda), dis-lui ou :\n\n"
+        "```toml\n"
+        "[tool.lintorn]\n"
+        'venv = "../.venvs/mon-projet"\n'
+        "```",
+        bloquant=False, detail_markdown=True,
+    )
+
+
+def _relatif(chemin: Path) -> str:
+    """Le chemin vu depuis la racine du projet. Absolu s'il est en dehors.
+
+    ⚠️ Jamais le chemin absolu quand on peut l'eviter : il porte le nom de
+    l'utilisateur et celui de sa machine, or ce texte part dans un rapport
+    que le projet versionne.
+    """
+    try:
+        return chemin.resolve().relative_to(config.RACINE).as_posix()
+    except (ValueError, OSError):
+        return str(chemin)
 
 
 # ─────────────────────────────────────────────────────────────────────────────

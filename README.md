@@ -201,6 +201,30 @@ $ lintorn --installer-outils     # ruff, pytest, vulture, pip-audit — asks fir
 
 TypeScript needs nothing extra: `npm install` already provides `tsc`.
 
+### Which Python runs them
+
+Lintorn looks for your project's virtualenv in `venv/`, `.venv/` and `env/` — at the repository
+root and in its Python directory — and uses the interpreter it finds there.
+
+When it finds none, it falls back to its own interpreter and **says so**, because the fallback
+is not harmless: `pip-audit` would then report vulnerabilities of that environment rather than
+your project's, and `requirements.txt` would be compared against the wrong site-packages. Both
+still answer — plausibly, about the wrong environment. That is the one failure mode Lintorn
+exists to remove, so it reports it as `Python du projet (venv)` instead of staying quiet.
+
+If your virtualenv lives outside the project — poetry, pdm, conda — no naming convention can
+find it. Point at it:
+
+```toml
+[tool.lintorn]
+venv = "../.venvs/my-project"
+```
+
+This matters most when Lintorn is installed system-wide rather than per project. `pip` cannot
+warn you at install time: a wheel is unpacked, never executed, so there is no install hook to
+run and no way to ask a question. Prefer `pipx install lintorn`, and let the check above tell
+you which interpreter actually did the auditing.
+
 ## Commands
 
 ```console

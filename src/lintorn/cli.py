@@ -556,6 +556,19 @@ def init(ecraser: bool = False) -> int:
         "# Pour ecarter en plus des documents VERSIONNES :",
         '#     docs_exclus = ["docs/*", "CHANGELOG.md"]',
         "",
+        "# ── Le python qui audite ─────────────────────────────────────────────",
+        "# ruff, pytest et pip-audit doivent tourner avec le venv DU PROJET :",
+        "# lances avec un autre, ils repondent quand meme, mais sur le mauvais",
+        "# environnement. Lintorn cherche `venv/`, `.venv/` et `env/` tout seul.",
+        "#",
+        "# Si ton venv vit ailleurs (poetry, pdm, conda), dis-lui ou :",
+        ("# AUCUN VENV TROUVE pour l'instant - Lintorn lancera donc les outils"
+         if config.VENV_PROJET is None else
+         f"# Trouve sans aide ici : {config.VENV_PROJET.name}/ - rien a regler."),
+        ("# avec SON python, pas le tien. Cree-en un, ou pointe le tien ci-dessous."
+         if config.VENV_PROJET is None else "#"),
+        '# venv = "../.venvs/mon-projet"',
+        "",
         "# ── Les controles ────────────────────────────────────────────────────",
         "# Par defaut Lintorn n'execute pas ton code, n'ouvre pas ta base et ne",
         "# sort pas sur le reseau. Passe a `true` ce que tu veux activer.",

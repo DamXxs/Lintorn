@@ -28,6 +28,7 @@ from lintorn import (
     config,
     controles_outillage,
     controles_projet,
+    noyau,
     traductions,
 )
 from lintorn import cli as Lintorn
@@ -508,7 +509,162 @@ def test_les_controles_d_outillage_ne_valent_pas_un_audit():
         assert titre not in ("Doc vs code", "Regles maison"), (
             "un controle du PROJET a ete classe comme outillage"
         )
-    assert len(controles_outillage.TITRES_OUTILLAGE) == 2
+    assert len(controles_outillage.TITRES_OUTILLAGE) == 3
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Le python qui audite — le repli doit rester VISIBLE
+# ─────────────────────────────────────────────────────────────────────────────
+def _sans_venv(tmp_path, monkeypatch, py_racine=None, venv=None, souci=None):
+    """Place le contrôle dans une situation donnée, sans toucher au disque."""
+    monkeypatch.setattr(config, "RACINE", tmp_path)
+    monkeypatch.setattr(config, "PY_RACINE", py_racine)
+    monkeypatch.setattr(config, "VENV_PROJET", venv)
+    monkeypatch.setattr(config, "VENV_SOUCI", souci)
+    monkeypatch.setattr(config, "PYTHON", "/usr/bin/python3")
+    return controles_outillage.controle_python_projet()
+
+
+def test_le_repli_sur_un_autre_python_ne_passe_plus_inapercu(tmp_path, monkeypatch):
+    """LA panne que ce contrôle existe pour supprimer.
+
+    Faute de venv, `_python_du_projet()` retombe sur `sys.executable` — le
+    python de la MACHINE depuis que Lintorn s'installe par pip. `pip-audit`
+    audite alors les failles du système, `Dependances vs venv` compare
+    `requirements.txt` aux paquets du système, et les deux RÉPONDENT : un
+    verdict plausible sur le mauvais environnement.
+
+    Rien ne le signalait, parce que rien ne pouvait le savoir : la détection
+    ne rendait qu'une chaîne, où le repli était indiscernable d'une trouvaille.
+    """
+    resultat = _sans_venv(tmp_path, monkeypatch, py_racine=tmp_path)
+
+    assert resultat.statut == "ALERTE", "le repli redevient muet"
+    assert "aucun venv" in resultat.resume
+    # Non bloquant : un projet peut légitimement n'avoir pas encore de venv.
+    # Bloquer ferait de ce contrôle une gêne qu'on apprend à contourner.
+    assert resultat.bloquant is False
+
+
+def test_un_projet_sans_python_ne_reclame_pas_de_venv(tmp_path, monkeypatch):
+    """Un projet Go ou JavaScript n'a aucun python — et c'est normal.
+
+    Alerter là fabriquerait le faux positif qu'on apprend à ignorer, ce qui
+    tuerait la valeur du contrôle sur les projets qui, eux, en ont besoin.
+    Mais `OK` mentirait aussi : rien n'a été vérifié.
+    """
+    resultat = _sans_venv(tmp_path, monkeypatch, py_racine=None)
+
+    assert resultat.statut == "INDISPONIBLE", "ni alerte injustifiee, ni faux vert"
+    assert "rien a verifier" in resultat.resume
+
+
+def test_un_venv_declare_mais_absent_ne_se_replie_pas_en_silence(tmp_path, monkeypatch):
+    """Le projet a répondu à la question, et sa réponse est fausse.
+
+    C'est le pire cas : quelqu'un a pris la peine de déclarer où chercher.
+    Se rabattre sans rien dire sur un autre python trahirait cette confiance
+    — il croirait auditer son venv.
+    """
+    resultat = _sans_venv(tmp_path, monkeypatch, py_racine=tmp_path,
+                          souci="venv declare introuvable : ../ailleurs")
+
+    assert resultat.statut == "ALERTE"
+    assert "introuvable" in resultat.resume
+    # Le chemin DÉCLARÉ, pas sa forme absolue : celle-ci porte le nom de
+    # l'utilisateur et de sa machine, or ce resume part dans un rapport versionné.
+    assert str(tmp_path) not in resultat.resume
+
+
+def test_un_venv_hors_du_projet_n_est_pas_pris_pour_le_sien(tmp_path, monkeypatch):
+    """`VIRTUAL_ENV` renseigné ne désigne pas forcément le venv DU PROJET.
+
+    Développer Lintorn, c'est activer le venv de Lintorn. Le prendre pour
+    celui du projet audité reviendrait à auditer un projet avec
+    l'environnement de l'outil — précisément ce que tout ce fichier interdit.
+    """
+    etranger = tmp_path / "ailleurs" / ".venv"
+    (etranger / "bin").mkdir(parents=True)
+    (etranger / "bin" / "python").write_text("", encoding="utf-8")
+
+    projet = tmp_path / "projet"
+    projet.mkdir()
+    monkeypatch.setenv("VIRTUAL_ENV", str(etranger))
+    monkeypatch.setattr(config, "RACINE", projet)
+    monkeypatch.setattr(config, "BACKEND", None)
+    monkeypatch.setattr(config, "PY_RACINE", projet)
+    monkeypatch.setattr(config, "PROJET", {})
+
+    _, venv, _ = config._python_du_projet()
+
+    assert venv is None, "un venv EXTERIEUR au projet a ete pris pour le sien"
+
+
+def test_le_venv_declare_par_le_projet_prime_sur_les_conventions(tmp_path, monkeypatch):
+    """Poetry, pdm et conda rangent leur venv hors du projet.
+
+    Aucune convention de nom ne permet de le deviner. Sans cette porte de
+    sortie, ces projets seraient condamnés à une alerte qu'ils ne peuvent pas
+    lever — donc à apprendre à l'ignorer.
+    """
+    ailleurs = tmp_path / "caches" / "mon-venv"
+    (ailleurs / "bin").mkdir(parents=True)
+    (ailleurs / "bin" / "python").write_text("", encoding="utf-8")
+
+    projet = tmp_path / "projet"
+    (projet / ".venv" / "bin").mkdir(parents=True)
+    (projet / ".venv" / "bin" / "python").write_text("", encoding="utf-8")
+
+    monkeypatch.delenv("VIRTUAL_ENV", raising=False)
+    monkeypatch.setattr(config, "RACINE", projet)
+    monkeypatch.setattr(config, "BACKEND", None)
+    monkeypatch.setattr(config, "PY_RACINE", projet)
+    monkeypatch.setattr(config, "PROJET", {"venv": "../caches/mon-venv"})
+
+    _, venv, souci = config._python_du_projet()
+
+    assert souci is None
+    assert venv == ailleurs, "la declaration du projet doit avoir le dernier mot"
+
+
+def test_un_venv_nomme_env_est_trouve(tmp_path, monkeypatch):
+    """`env/` est une convention aussi repandue que `venv/` et `.venv/`.
+
+    Elle manquait a la liste : ces projets tombaient dans le repli silencieux
+    sans avoir rien fait de particulier.
+    """
+    (tmp_path / "env" / "bin").mkdir(parents=True)
+    (tmp_path / "env" / "bin" / "python").write_text("", encoding="utf-8")
+
+    monkeypatch.delenv("VIRTUAL_ENV", raising=False)
+    monkeypatch.setattr(config, "RACINE", tmp_path)
+    monkeypatch.setattr(config, "BACKEND", None)
+    monkeypatch.setattr(config, "PY_RACINE", tmp_path)
+    monkeypatch.setattr(config, "PROJET", {})
+
+    _, venv, _ = config._python_du_projet()
+
+    assert venv == tmp_path / "env"
+
+
+def test_tout_controle_declare_actif_est_reellement_branche():
+    """Un contrôle actif dans `config` mais absent de `noyau` est SAUTÉ.
+
+    `executer()` filtre par `nom in CONTROLES_INTERNES` : un nom oublié dans
+    le noyau ne provoque ni erreur, ni ligne au rapport, ni même un
+    `INDISPONIBLE`. Le contrôle disparaît purement et simplement, et
+    l'utilisateur le croit tenu parce qu'il l'a activé dans sa config.
+
+    C'est la panne exacte que tout ce dépôt combat, à l'endroit qui la rendrait
+    la plus invisible : l'aiguillage lui-même.
+    """
+    declares = set(config.CONTROLES_INTERNES)
+    branches = set(noyau.CONTROLES_INTERNES)
+
+    assert declares == branches, (
+        f"declares sans etre branches (donc muets) : {sorted(declares - branches)} | "
+        f"branches sans etre declares (donc morts) : {sorted(branches - declares)}"
+    )
 
 
 def test_docs_exclus_accepte_les_globs_traversants(tmp_path, monkeypatch):

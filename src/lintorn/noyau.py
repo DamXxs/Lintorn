@@ -13,7 +13,11 @@ from __future__ import annotations
 
 from . import config
 from .base import TRADUCTEURS, Resultat, lancer
-from .controles_outillage import controle_audit_complet, controle_hook_git
+from .controles_outillage import (
+    controle_audit_complet,
+    controle_hook_git,
+    controle_python_projet,
+)
 from .controles_projet import (
     controle_doc,
     controle_fraicheur_memoire,
@@ -30,6 +34,7 @@ CONTROLES_INTERNES = {
     "regles_declarees": controle_regles_declarees,
     "hook_git": controle_hook_git,
     "audit_complet": controle_audit_complet,
+    "python_projet": controle_python_projet,
 }
 
 

@@ -124,24 +124,6 @@ DOSSIER_LINTORN = RACINE / ".lintorn"
 RAPPORT = DOSSIER_LINTORN / "rapport.md"
 
 
-def _python_du_projet() -> str:
-    """Le python du projet audité, avec ses dépendances — pas celui de Lintorn.
-
-    Un `ruff` ou un `pytest` lancé avec le python de Lintorn ne verrait aucune
-    des dépendances du projet. On cherche donc son venv, à l'emplacement
-    Windows comme à l'emplacement Unix, et on retombe sur le python courant
-    quand il n'y en a pas.
-    """
-    for base in filter(None, (BACKEND, RACINE)):
-        for relatif in ("venv/Scripts/python.exe", "venv/bin/python",
-                        ".venv/Scripts/python.exe", ".venv/bin/python"):
-            candidat = base / relatif
-            if candidat.exists():
-                return str(candidat)
-    return sys.executable
-
-
-PYTHON = _python_du_projet()
 NPX = "npx.cmd" if sys.platform == "win32" else "npx"
 
 
@@ -279,6 +261,99 @@ def _config_projet() -> dict:
 
 
 PROJET = _config_projet()
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# LE PYTHON QUI AUDITE — et non celui qui héberge Lintorn
+# ─────────────────────────────────────────────────────────────────────────────
+# ⚠️ Placé APRÈS `PROJET` à dessein : le projet a le dernier mot sur son venv,
+#    il faut donc avoir lu sa config avant de chercher.
+def _dans_le_projet(chemin: Path) -> bool:
+    """Le chemin est-il sous la racine auditée ? (hors projet → False)"""
+    try:
+        chemin.resolve().relative_to(RACINE)
+    except (ValueError, OSError):
+        return False
+    return True
+
+
+def _interpreteur(dossier: Path) -> Path | None:
+    """Le python d'un dossier de venv, façon Unix ou façon Windows. None sinon."""
+    for relatif in ("bin/python", "bin/python3", "Scripts/python.exe"):
+        candidat = dossier / relatif
+        if candidat.exists():
+            return candidat
+    return None
+
+
+def _venv_declare() -> Path | None:
+    """Le venv que le PROJET déclare. Son avis prime sur toute convention.
+
+    Indispensable : poetry, pdm et conda rangent leur venv HORS du projet,
+    dans un cache dont aucune convention de nom ne permet de deviner le
+    chemin. Sans cette porte de sortie, ces projets seraient condamnés à
+    l'alerte sans aucun moyen de la lever — donc à apprendre à l'ignorer.
+
+        [tool.lintorn]
+        venv = "../.venvs/api"
+    """
+    declare = str(PROJET.get("venv", "")).strip()
+    if not declare:
+        return None
+    chemin = Path(declare).expanduser()
+    # `resolve()` aplatit les `../` : le message d'erreur doit pouvoir se
+    # relire, et un chemin non normalisé se compare mal.
+    return (chemin if chemin.is_absolute() else RACINE / chemin).resolve()
+
+
+def _python_du_projet() -> tuple[str, Path | None, str | None]:
+    """Le python du projet audité, avec ses dépendances — pas celui de Lintorn.
+
+    Un `ruff` ou un `pytest` lancé avec le python de Lintorn ne verrait aucune
+    des dépendances du projet. Et depuis que Lintorn s'installe par `pip`, ce
+    python-là peut être celui de la MACHINE : `pip-audit` inspecterait alors
+    les paquets du système au lieu de ceux du projet, et répondrait avec
+    aplomb sur un environnement que personne n'a demandé à auditer.
+
+    ⚠️ REND TROIS CHOSES, et c'est le cœur du correctif. L'ancienne version ne
+    rendait que l'interpréteur : le repli sur `sys.executable` était donc
+    indiscernable d'une vraie trouvaille, et aucun contrôle ne pouvait le
+    signaler. Un contrôle qui devient muet est plus dangereux qu'un rouge.
+
+        (python, venv retenu ou None si repli, souci de déclaration ou None)
+    """
+    declare = _venv_declare()
+    if declare is not None:
+        interpreteur = _interpreteur(declare)
+        if interpreteur is not None:
+            return str(interpreteur), declare, None
+        # Déclaré mais absent : surtout pas un repli muet. Le projet a dit où
+        # regarder ; « je n'ai pas trouvé » lui revient de droit.
+        brut = str(PROJET.get("venv", "")).strip()
+        return sys.executable, None, f"venv declare introuvable : {brut}"
+
+    # `VIRTUAL_ENV` seulement s'il pointe DANS le projet. Un `source
+    # .venv/bin/activate` fait sur le venv de LINTORN le renseigne tout autant,
+    # et on auditerait alors le projet avec l'environnement de l'outil.
+    actif = os.environ.get("VIRTUAL_ENV", "").strip()
+    if actif:
+        dossier = Path(actif)
+        interpreteur = _interpreteur(dossier)
+        if interpreteur is not None and _dans_le_projet(dossier):
+            return str(interpreteur), dossier, None
+
+    # Les emplacements conventionnels. `PY_RACINE` couvre le projet Python
+    # rangé dans un sous-dossier sans être Django — il manquait.
+    for base in filter(None, (BACKEND, PY_RACINE, RACINE)):
+        for nom in ("venv", ".venv", "env"):
+            interpreteur = _interpreteur(base / nom)
+            if interpreteur is not None:
+                return str(interpreteur), base / nom, None
+
+    return sys.executable, None, None
+
+
+PYTHON, VENV_PROJET, VENV_SOUCI = _python_du_projet()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -608,6 +683,7 @@ _CONTROLES_DEFAUT = {
     "regles_maison": True,      # les règles maison sont-elles tenues ?
     "regles_declarees": True,   # les règles ÉCRITES dans la doc ont-elles un contrôle ?
     "hook_git": True,           # le hook pre-push est-il réellement branché ?
+    "python_projet": True,      # les outils tournent-ils sur le venv DU projet ?
     "audit_complet": True,      # les outils lents ont-ils tourné depuis 30 jours ?
 }
 
