@@ -48,3 +48,7 @@ Thumbs.db
 # ⚠️ Et .gitignore n'ignore QUE les fichiers pas encore suivis : si une note a
 # deja ete commitee, il faut la desindexer avec `git rm -r --cached .notes/`.
 .notes/
+
+# Aide-memoire des commandes de publication PyPI : personnel, pas de la doc.
+# A la racine plutot que dans .lintorn/, qui est reserve aux SORTIES de l'outil.
+CMD_PYPI.md
