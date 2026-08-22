@@ -32,6 +32,7 @@ from lintorn import (
     traductions,
 )
 from lintorn import cli as Lintorn
+from lintorn.base import Resultat
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -645,6 +646,50 @@ def test_un_venv_nomme_env_est_trouve(tmp_path, monkeypatch):
     _, venv, _ = config._python_du_projet()
 
     assert venv == tmp_path / "env"
+
+
+def test_le_verdict_ne_dement_plus_le_rapport(capsys):
+    """Une alerte NON BLOQUANTE doit survivre jusqu'au verdict.
+
+    Le hook pre-push et le python qui audite sont non bloquants par
+    construction : quand le hook n'est pas branche, bloquer un push serait de
+    toute facon impossible. `en_echec` ne les retenait donc pas, et la derniere
+    ligne annoncait « rien a signaler » trois lignes sous un `[ !! ]` disant
+    que `git push` ne controlait plus rien.
+
+    Qui ne lit que le verdict — tout le monde, une fois l'outil devenu routine
+    — repartait en croyant son push protege par un hook mort.
+    """
+    resultats = [
+        Resultat("Doc vs code", "OK", "12 chemins"),
+        Resultat("Hook pre-push (Lintorn)", "ALERTE",
+                 "NON BRANCHE - `git push` ne controle RIEN", bloquant=False),
+        Resultat("Ruff (lint Python)", "INDISPONIBLE", "pas installe", bloquant=False),
+    ]
+
+    combien = Lintorn._signaler_non_bloquants(resultats)
+    sortie = capsys.readouterr().out
+
+    assert combien == 1
+    assert "Hook pre-push" in sortie, "l'alerte non bloquante reste invisible"
+    # INDISPONIBLE n'est PAS une alerte : le compter noierait les vraies sous
+    # le bruit des outils absents, et on reapprendrait a ignorer la ligne.
+    assert "Ruff" not in sortie
+
+
+def test_une_alerte_bloquante_n_est_pas_comptee_deux_fois(capsys):
+    """Les bloquantes ont deja leur liste juste au-dessus.
+
+    Les repeter ferait passer le meme probleme pour deux, et brouillerait la
+    seule distinction qui compte au moment de pusher : ce qui arrete le push,
+    et ce qui se contente de le signaler.
+    """
+    resultats = [Resultat("Ruff (lint Python)", "ALERTE", "3 lignes", bloquant=True)]
+
+    combien = Lintorn._signaler_non_bloquants(resultats)
+
+    assert combien == 0
+    assert capsys.readouterr().out == ""
 
 
 def test_tout_controle_declare_actif_est_reellement_branche():

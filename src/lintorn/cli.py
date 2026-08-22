@@ -972,6 +972,35 @@ def _console_sure() -> None:
             pass
 
 
+def _signaler_non_bloquants(resultats: list[Resultat]) -> int:
+    """Nomme les alertes NON BLOQUANTES avant de rendre la main. Rend leur nombre.
+
+    ⚠️ LE VERDICT QUI DEMENTAIT SON PROPRE RAPPORT.
+
+    `en_echec` ne retient que les alertes BLOQUANTES. Or les deux controles qui
+    surveillent les garde-fous — le hook pre-push, et le python avec lequel les
+    outils ont tourne — sont non bloquants par construction : quand le hook
+    n'est pas branche, bloquer un push serait de toute facon impossible.
+
+    Ils s'affichaient donc `[ !! ]` dans le rapport, et la derniere ligne
+    annoncait trois lignes plus bas « rien a signaler ». Qui ne lit que le
+    verdict — c'est-a-dire tout le monde, une fois l'outil devenu routine —
+    repartait en croyant son push protege par un hook mort.
+
+    Le rapport disait vrai, le resume le dementait. C'est la meme panne que
+    partout ailleurs ici, au dernier etage.
+    """
+    signales = [r for r in resultats
+                if r.statut in ("ALERTE", "ERREUR") and not r.bloquant]
+    if not signales:
+        return 0
+
+    print(f"{len(signales)} controle(s) non bloquant(s) signalent quelque chose :")
+    for r in signales:
+        print(f"    - {r.titre} : {r.resume}")
+    return len(signales)
+
+
 def main() -> int:
     _console_sure()
     args = sys.argv[1:]
@@ -1055,6 +1084,7 @@ def main() -> int:
         print(f"Lintorn signale {len(echecs)} controle(s) bloquant(s) en alerte :")
         for r in echecs:
             print(f"    - {r.titre}")
+        _signaler_non_bloquants(resultats)
         return 1
     # ⚠️ LE FAUX VERT DU DERNIER ETAGE.
     #
@@ -1075,6 +1105,11 @@ def main() -> int:
         print("Ce n'est PAS un feu vert : Lintorn n'a rien verifie du tout.")
         print("    lintorn --init             # lui dire quoi surveiller ici")
         print("    lintorn --installer-outils # si le projet est en Python")
+        _signaler_non_bloquants(resultats)
+        return 0
+
+    if _signaler_non_bloquants(resultats):
+        print("Aucun ne bloque le push. Le rapport dit ce que chacun a trouve.")
         return 0
 
     print("Lintorn n'a rien a signaler : tous les controles bloquants sont au vert.")
